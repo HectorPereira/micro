@@ -1,2 +1,2 @@
-# Laboratorios-Micro
+# Tecnologías del Microprocesamiento
 Laboratorios
