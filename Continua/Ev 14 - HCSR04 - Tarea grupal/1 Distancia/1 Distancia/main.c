@@ -4,6 +4,8 @@
 #include <util/delay.h>
 #include <stdint.h>
 
+// HOLA ESTO ES UN CAMBIO EN EL DOCUMENTO
+// PRONTO = CTRL + S
 /* ---------------- Pins ---------------- */
 #define TRIG_DDR   DDRB
 #define TRIG_PORT  PORTB
@@ -155,6 +157,6 @@ int main(void)
 
 		OCR0A = duty;
 
-		_delay_ms(10);  // re-trigger interval per sensor guidelines
+		_delay_ms(60);  // re-trigger interval per sensor guidelines
 	}
 }
