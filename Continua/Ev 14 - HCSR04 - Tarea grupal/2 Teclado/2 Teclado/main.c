@@ -5,10 +5,10 @@
  *  Author: isacm
  */ 
 
-#include <xc.h>
-
-#define LO_NIBBLE(x)   ((uint8_t)((x) & 0x0F))
-#define HI_NIBBLE(x)   ((uint8_t)(((x) >> 4) & 0x0F)) //Para cargar los nibbles
+#define F_CPU 16000000UL
+#include <avr/io.h>
+#include <stdint.h>
+#include <util/delay.h>
 
 #define a 0b00110010
 #define b 0b00101000
@@ -17,7 +17,16 @@
 #define LCD_RS PB5
 #define LCD_E  PB4
 
-void setearLCD(void){
+int LO_NIBBLE(int x) {
+	return (int)((unsigned)x & 0x0F);
+}
+
+int HI_NIBBLE(int x) {
+	return (int)(((unsigned)x >> 4) & 0x0F);
+}
+
+void setearLCD(int x){
+	
 	PORTB &= ~(1 << LCD_RS); // para cargar instrucciones
 	
 	
@@ -51,10 +60,10 @@ int main(void)
 	PORTB &= ~(1 << LCD_RS);
 	
 	
-	setearLCD(a)
-	setearLCD(b)
-	setearLCD(c)
-	setearLCD(d)
+	setearLCD(a);
+	setearLCD(b);
+	setearLCD(c);
+	setearLCD(d);
 	
     while(1)
     {
