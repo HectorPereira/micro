@@ -50,7 +50,7 @@ char keypad[4][4] = {
 };
 
 static const int thresholds[15] = {
-	90,150,210,270,331,391,451,511,572,632,692,752,813,873,933
+	90,150,210,270,331,391,451,511,572,632,692,752,813,873,980
 };
 
 
@@ -142,7 +142,7 @@ uint16_t adc_read(void){
 
 char read_key(void) {
 	uint16_t v = adc_read();
-	if (v > 980) return 0;     
+	if (v > 980) return 0;
 	int idx = 0;
 	while (idx < 15 && v > thresholds[idx]) idx++;
 	return keypad[idx / 4][idx % 4];
@@ -159,19 +159,12 @@ int main(void){
 	lcd_set_outputs();
 	lcd_start_sequence();
 	adc_init();
-	
-	uint16_t v = adc_read();
-	lcd_clear();
-	lcd_write_str("ADC: ");
-	char buf[5];
-	itoa(v, buf, 10);
-	lcd_write_str(buf);
-	_delay_ms(300);
+
 
 	lcd_write_str("Tecla: ");
 	char last = 0;  // 0 = “none yet”
 
-	for(;;){
+	/* for(;;){
 		int idx = read_key_index();        // 0..15
 		char k  = key_from_index(idx);     // '1'..'D'
 
@@ -183,5 +176,16 @@ int main(void){
 		}
 
 		_delay_ms(20); // debounce/limit refresh
+	} */
+	
+	for(;;){
+		uint16_t v = adc_read();
+		lcd_clear();
+
+		char buf[6];
+		utoa_simple(v, buf);
+		lcd_write_str(buf);   // show ADC value
+
+		_delay_ms(200);
 	}
 }
