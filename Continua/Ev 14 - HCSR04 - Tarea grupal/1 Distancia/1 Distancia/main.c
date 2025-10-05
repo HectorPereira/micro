@@ -4,58 +4,48 @@
 #include <util/delay.h>
 #include <stdint.h>
 
-/* ---------------- Pins ---------------- */
 #define TRIG_DDR   DDRB
 #define TRIG_PORT  PORTB	
-#define TRIG_PIN   PB1        // Arduino D9 (TRIG)
+#define TRIG_PIN   PB1        
 
 #define ECHO_DDR   DDRB
-#define ECHO_PIN   PB0        // Arduino D8 (ICP1 ECHO)
+#define ECHO_PIN   PB0        
 
-// LED on OC0A (PD6 / D6)
 #define LED_DDR    DDRD
 #define LED_PIN    PD6
 
-/* ------------ Globals (shared with ISRs) ------------ */
 static volatile uint16_t icr_start = 0;
 static volatile uint16_t icr_end   = 0;
-static volatile uint8_t  capturing = 0;      // 0=idle, 1=between edges
+static volatile uint8_t  capturing = 0;      
 static volatile uint8_t  done_flag = 0;
 static volatile uint32_t ovf_count = 0;
 
-/* ------------- Timer1 / ICP1 ISRs ------------- */
-ISR(TIMER1_CAPT_vect)
-{
+ISR(TIMER1_CAPT_vect){
 	uint16_t icr = ICR1;
-
 	if (!capturing) {
 		icr_start = icr;
 		ovf_count = 0;
 		capturing = 1;
-		TCCR1B &= ~(1 << ICES1);     // next: falling edge
+		TCCR1B &= ~(1 << ICES1);     
 		} else {
 		icr_end = icr;
 		capturing = 0;
 		done_flag = 1;
-		TCCR1B |= (1 << ICES1);      // re-arm for rising
+		TCCR1B |= (1 << ICES1);      
 	}
 }
 
-ISR(TIMER1_OVF_vect)
-{
+ISR(TIMER1_OVF_vect){
 	if (capturing) ovf_count++;
 }
 
-/* ------------- HC-SR04 helpers ------------- */
-static inline void hcsr04_trigger_10us(void)
-{
+static inline void hcsr04_trigger_10us(void){
 	TRIG_PORT |= (1 << TRIG_PIN);
 	_delay_us(12);
 	TRIG_PORT &= ~(1 << TRIG_PIN);
 }
 
-static inline void hcsr04_init(void)
-{
+static inline void hcsr04_init(void){
 	TRIG_DDR  |=  (1 << TRIG_PIN);
 	TRIG_PORT &= ~(1 << TRIG_PIN);
 
@@ -72,8 +62,7 @@ static inline void hcsr04_init(void)
 	sei();
 }
 
-static uint16_t hcsr04_read_cm_blocking(void)
-{
+static uint16_t hcsr04_read_cm_blocking(void){
 	done_flag = 0;
 	capturing = 0;
 	TCCR1B |= (1 << ICES1);        
@@ -92,8 +81,7 @@ static uint16_t hcsr04_read_cm_blocking(void)
 	return (uint16_t)((t_us + 29U) / 58U);
 }
 
-static inline void pwm_init_timer0_oc0a(void)
-{
+static inline void pwm_init_timer0_oc0a(void){
 	LED_DDR |= (1 << LED_PIN);   
 
 	TCCR0A = (1 << COM0A1) | (1 << WGM01) | (1 << WGM00);
@@ -103,8 +91,7 @@ static inline void pwm_init_timer0_oc0a(void)
 	OCR0A = 0; 
 }
 
-static inline uint8_t map_cm_to_duty(uint16_t cm)
-{
+static inline uint8_t map_cm_to_duty(uint16_t cm){
 	if (cm == 0xFFFF) return 0;  
 
 	const uint16_t MIN_CM = 5;    
@@ -119,8 +106,7 @@ static inline uint8_t map_cm_to_duty(uint16_t cm)
 	return (uint8_t)duty;
 }
 
-int main(void)
-{
+int main(void){
 	hcsr04_init();
 	pwm_init_timer0_oc0a();
 	uint8_t duty = 0;
