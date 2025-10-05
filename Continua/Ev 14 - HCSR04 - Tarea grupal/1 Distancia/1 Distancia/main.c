@@ -56,7 +56,6 @@ static inline void hcsr04_init(void){
 	TCCR1C = 0;
 
 	TIFR1 = (1 << ICF1) | (1 << TOV1);
-
 	TIMSK1 = (1 << ICIE1) | (1 << TOIE1);
 
 	sei();
@@ -75,7 +74,6 @@ static uint16_t hcsr04_read_cm_blocking(void){
 	if (!done_flag) return 0xFFFF;
 
 	uint32_t ticks = (uint32_t)ovf_count * 65536UL + (uint16_t)(icr_end - icr_start);
-
 	uint32_t t_us = ticks >> 1;
 
 	return (uint16_t)((t_us + 29U) / 58U);
@@ -83,11 +81,8 @@ static uint16_t hcsr04_read_cm_blocking(void){
 
 static inline void pwm_init_timer0_oc0a(void){
 	LED_DDR |= (1 << LED_PIN);   
-
 	TCCR0A = (1 << COM0A1) | (1 << WGM01) | (1 << WGM00);
-
 	TCCR0B = (1 << CS01) | (1 << CS00);
-
 	OCR0A = 0; 
 }
 
