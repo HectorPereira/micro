@@ -17,7 +17,7 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   6 .debug_abbrev 00000781  00000000  00000000  0000112d  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   000003b8  00000000  00000000  000018ae  2**0
+  7 .debug_line   000003b7  00000000  00000000  000018ae  2**0
                   CONTENTS, READONLY, DEBUGGING
   8 .debug_frame  00000098  00000000  00000000  00001c68  2**2
                   CONTENTS, READONLY, DEBUGGING
@@ -157,16 +157,16 @@ Disassembly of section .text:
 Disassembly of section .text.hcsr04_read_cm_blocking:
 
 00000174 <hcsr04_read_cm_blocking>:
+
+	sei();
 }
 
-/* Blocking read: returns distance in cm, or 0xFFFF on timeout */
-static uint16_t hcsr04_read_cm_blocking(void)
-{
+static uint16_t hcsr04_read_cm_blocking(void){
 	done_flag = 0;
  174:	10 92 08 01 	sts	0x0108, r1	; 0x800108 <done_flag>
 	capturing = 0;
  178:	10 92 09 01 	sts	0x0109, r1	; 0x800109 <capturing>
-	TCCR1B |= (1 << ICES1);        // rising first
+	TCCR1B |= (1 << ICES1);        
  17c:	e1 e8       	ldi	r30, 0x81	; 129
  17e:	f0 e0       	ldi	r31, 0x00	; 0
  180:	80 81       	ld	r24, Z
@@ -175,11 +175,11 @@ static uint16_t hcsr04_read_cm_blocking(void)
 	TIFR1 = (1 << ICF1) | (1 << TOV1);
  186:	81 e2       	ldi	r24, 0x21	; 33
  188:	86 bb       	out	0x16, r24	; 22
+ISR(TIMER1_OVF_vect){
+	if (capturing) ovf_count++;
 }
 
-/* ------------- HC-SR04 helpers ------------- */
-static inline void hcsr04_trigger_10us(void)
-{
+static inline void hcsr04_trigger_10us(void){
 	TRIG_PORT |= (1 << TRIG_PIN);
  18a:	85 b1       	in	r24, 0x05	; 5
  18c:	82 60       	ori	r24, 0x02	; 2
@@ -198,11 +198,11 @@ static inline void hcsr04_trigger_10us(void)
  196:	85 b1       	in	r24, 0x05	; 5
  198:	8d 7f       	andi	r24, 0xFD	; 253
  19a:	85 b9       	out	0x05, r24	; 5
+	TCCR1B |= (1 << ICES1);        
 	TIFR1 = (1 << ICF1) | (1 << TOV1);
 
 	hcsr04_trigger_10us();
 
-	// ~40 ms timeout window
 	uint16_t wait_us = 40000;
  19c:	80 e4       	ldi	r24, 0x40	; 64
  19e:	9c e9       	ldi	r25, 0x9C	; 156
@@ -226,7 +226,6 @@ static inline void hcsr04_trigger_10us(void)
  1c2:	88 23       	and	r24, r24
  1c4:	59 f1       	breq	.+86     	; 0x21c <hcsr04_read_cm_blocking+0xa8>
 
-	// ticks = (end - start) + 65536*overflows
 	uint32_t ticks = (uint32_t)ovf_count * 65536UL + (uint16_t)(icr_end - icr_start);
  1c6:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
  1ca:	90 91 01 01 	lds	r25, 0x0101	; 0x800101 <__DATA_REGION_ORIGIN__+0x1>
@@ -245,15 +244,12 @@ static inline void hcsr04_trigger_10us(void)
  1f2:	93 1f       	adc	r25, r19
  1f4:	a1 1d       	adc	r26, r1
  1f6:	b1 1d       	adc	r27, r1
-
-	// 0.5 us per tick -> t_us = ticks/2
 	uint32_t t_us = ticks >> 1;
  1f8:	b6 95       	lsr	r27
  1fa:	a7 95       	ror	r26
  1fc:	97 95       	ror	r25
  1fe:	87 95       	ror	r24
 
-	// distance_cm ? t_us / 58 (rounded)
 	return (uint16_t)((t_us + 29U) / 58U);
  200:	bc 01       	movw	r22, r24
  202:	cd 01       	movw	r24, r26
@@ -268,18 +264,18 @@ static inline void hcsr04_trigger_10us(void)
  214:	0e 94 79 01 	call	0x2f2	; 0x2f2 <__udivmodsi4>
  218:	c9 01       	movw	r24, r18
  21a:	08 95       	ret
+
 	hcsr04_trigger_10us();
 
-	// ~40 ms timeout window
 	uint16_t wait_us = 40000;
 	while (!done_flag && wait_us--) _delay_us(1);
 	if (!done_flag) return 0xFFFF;
  21c:	8f ef       	ldi	r24, 0xFF	; 255
  21e:	9f ef       	ldi	r25, 0xFF	; 255
-	// 0.5 us per tick -> t_us = ticks/2
+
+	uint32_t ticks = (uint32_t)ovf_count * 65536UL + (uint16_t)(icr_end - icr_start);
 	uint32_t t_us = ticks >> 1;
 
-	// distance_cm ? t_us / 58 (rounded)
 	return (uint16_t)((t_us + 29U) / 58U);
 }
  220:	08 95       	ret
@@ -287,12 +283,12 @@ static inline void hcsr04_trigger_10us(void)
 Disassembly of section .text.__vector_10:
 
 00000222 <__vector_10>:
+static volatile uint16_t icr_end   = 0;
+static volatile uint8_t  capturing = 0;      
 static volatile uint8_t  done_flag = 0;
 static volatile uint32_t ovf_count = 0;
 
-/* ------------- Timer1 / ICP1 ISRs ------------- */
-ISR(TIMER1_CAPT_vect)
-{
+ISR(TIMER1_CAPT_vect){
  222:	1f 92       	push	r1
  224:	0f 92       	push	r0
  226:	0f b6       	in	r0, 0x3f	; 63
@@ -306,7 +302,6 @@ ISR(TIMER1_CAPT_vect)
 	uint16_t icr = ICR1;
  236:	80 91 86 00 	lds	r24, 0x0086	; 0x800086 <__TEXT_REGION_LENGTH__+0x7f8086>
  23a:	90 91 87 00 	lds	r25, 0x0087	; 0x800087 <__TEXT_REGION_LENGTH__+0x7f8087>
-
 	if (!capturing) {
  23e:	20 91 09 01 	lds	r18, 0x0109	; 0x800109 <capturing>
  242:	21 11       	cpse	r18, r1
@@ -322,7 +317,7 @@ ISR(TIMER1_CAPT_vect)
 		capturing = 1;
  25e:	81 e0       	ldi	r24, 0x01	; 1
  260:	80 93 09 01 	sts	0x0109, r24	; 0x800109 <capturing>
-		TCCR1B &= ~(1 << ICES1);     // next: falling edge
+		TCCR1B &= ~(1 << ICES1);     
  264:	e1 e8       	ldi	r30, 0x81	; 129
  266:	f0 e0       	ldi	r31, 0x00	; 0
  268:	80 81       	ld	r24, Z
@@ -338,7 +333,7 @@ ISR(TIMER1_CAPT_vect)
 		done_flag = 1;
  27c:	81 e0       	ldi	r24, 0x01	; 1
  27e:	80 93 08 01 	sts	0x0108, r24	; 0x800108 <done_flag>
-		TCCR1B |= (1 << ICES1);      // re-arm for rising
+		TCCR1B |= (1 << ICES1);      
  282:	e1 e8       	ldi	r30, 0x81	; 129
  284:	f0 e0       	ldi	r31, 0x00	; 0
  286:	80 81       	ld	r24, Z
@@ -361,8 +356,7 @@ Disassembly of section .text.__vector_13:
 
 000002a0 <__vector_13>:
 
-ISR(TIMER1_OVF_vect)
-{
+ISR(TIMER1_OVF_vect){
  2a0:	1f 92       	push	r1
  2a2:	0f 92       	push	r0
  2a4:	0f b6       	in	r0, 0x3f	; 63
@@ -401,11 +395,11 @@ ISR(TIMER1_OVF_vect)
 Disassembly of section .text.main:
 
 000000c2 <main>:
+	_delay_us(12);
+	TRIG_PORT &= ~(1 << TRIG_PIN);
 }
 
-static inline void hcsr04_init(void)
-{
-	// TRIG as output low
+static inline void hcsr04_init(void){
 	TRIG_DDR  |=  (1 << TRIG_PIN);
   c2:	84 b1       	in	r24, 0x04	; 4
   c4:	82 60       	ori	r24, 0x02	; 2
@@ -415,81 +409,68 @@ static inline void hcsr04_init(void)
   ca:	8d 7f       	andi	r24, 0xFD	; 253
   cc:	85 b9       	out	0x05, r24	; 5
 
-	// ECHO (ICP1) as input
 	ECHO_DDR  &= ~(1 << ECHO_PIN);
   ce:	84 b1       	in	r24, 0x04	; 4
   d0:	8e 7f       	andi	r24, 0xFE	; 254
   d2:	84 b9       	out	0x04, r24	; 4
 
-	// ---- Timer1: input capture timebase ----
 	TCCR1A = 0;
   d4:	10 92 80 00 	sts	0x0080, r1	; 0x800080 <__TEXT_REGION_LENGTH__+0x7f8080>
-	// ICNC1=1 (noise cancel), ICES1=1 (rising first), CS11=1 (prescaler /8 -> 0.5 us/tick)
 	TCCR1B = (1 << ICNC1) | (1 << ICES1) | (1 << CS11);
   d8:	82 ec       	ldi	r24, 0xC2	; 194
   da:	80 93 81 00 	sts	0x0081, r24	; 0x800081 <__TEXT_REGION_LENGTH__+0x7f8081>
 	TCCR1C = 0;
   de:	10 92 82 00 	sts	0x0082, r1	; 0x800082 <__TEXT_REGION_LENGTH__+0x7f8082>
 
-	// Clear pending flags
 	TIFR1 = (1 << ICF1) | (1 << TOV1);
   e2:	81 e2       	ldi	r24, 0x21	; 33
   e4:	86 bb       	out	0x16, r24	; 22
-
-	// Enable interrupts
 	TIMSK1 = (1 << ICIE1) | (1 << TOIE1);
   e6:	80 93 6f 00 	sts	0x006F, r24	; 0x80006f <__TEXT_REGION_LENGTH__+0x7f806f>
 
 	sei();
   ea:	78 94       	sei
+
+	return (uint16_t)((t_us + 29U) / 58U);
 }
 
-/* ------------- Timer0 PWM on OC0A (PD6) ------------- */
-static inline void pwm_init_timer0_oc0a(void)
-{
-	LED_DDR |= (1 << LED_PIN);   // PD6 as output
+static inline void pwm_init_timer0_oc0a(void){
+	LED_DDR |= (1 << LED_PIN);   
   ec:	8a b1       	in	r24, 0x0a	; 10
   ee:	80 64       	ori	r24, 0x40	; 64
   f0:	8a b9       	out	0x0a, r24	; 10
-
-	// Fast PWM, TOP=0xFF; non-inverting on OC0A
-	// COM0A1=1, WGM01=1, WGM00=1
 	TCCR0A = (1 << COM0A1) | (1 << WGM01) | (1 << WGM00);
   f2:	83 e8       	ldi	r24, 0x83	; 131
   f4:	84 bd       	out	0x24, r24	; 36
-
-	// Prescaler /64 -> ~976 Hz PWM (quiet, flicker-free)
-	// CS01=1, CS00=1
 	TCCR0B = (1 << CS01) | (1 << CS00);
   f6:	83 e0       	ldi	r24, 0x03	; 3
   f8:	85 bd       	out	0x25, r24	; 37
-
-	OCR0A = 0; // start off
+	OCR0A = 0; 
   fa:	17 bc       	out	0x27, r1	; 39
-{
+}
+
+int main(void){
 	hcsr04_init();
 	pwm_init_timer0_oc0a();
-
-	// Optional: simple slew to reduce visible flicker
 	uint8_t duty = 0;
   fc:	c0 e0       	ldi	r28, 0x00	; 0
 
 	for (;;) {	
 		uint16_t d_cm = hcsr04_read_cm_blocking();
   fe:	0e 94 ba 00 	call	0x174	; 0x174 <hcsr04_read_cm_blocking>
+	TCCR0B = (1 << CS01) | (1 << CS00);
+	OCR0A = 0; 
 }
 
-/* Map distance [MIN_CM..MAX_CM] -> duty [255..0] (close = bright) */
-static inline uint8_t map_cm_to_duty(uint16_t cm)
-{
-	if (cm == 0xFFFF) return 0;  // no echo -> LED off
+static inline uint8_t map_cm_to_duty(uint16_t cm){
+	if (cm == 0xFFFF) return 0;  
  102:	8f 3f       	cpi	r24, 0xFF	; 255
  104:	2f ef       	ldi	r18, 0xFF	; 255
  106:	92 07       	cpc	r25, r18
  108:	c9 f0       	breq	.+50     	; 0x13c <main+0x7a>
 
-	const uint16_t MIN_CM = 5;     // clamp near limit
-	const uint16_t MAX_CM = 200;   // far limit
+	const uint16_t MIN_CM = 5;    
+	const uint16_t MAX_CM = 200;   
 
 	if (cm <= MIN_CM) return 255;
  10a:	86 30       	cpi	r24, 0x06	; 6
@@ -501,12 +482,12 @@ static inline uint8_t map_cm_to_duty(uint16_t cm)
  114:	b8 f4       	brcc	.+46     	; 0x144 <main+0x82>
 
 	uint32_t span = (uint32_t)(MAX_CM - MIN_CM);
-	uint32_t val  = (uint32_t)(MAX_CM - cm); // invert so close -> big value
+	uint32_t val  = (uint32_t)(MAX_CM - cm); 
  116:	28 ec       	ldi	r18, 0xC8	; 200
  118:	30 e0       	ldi	r19, 0x00	; 0
  11a:	28 1b       	sub	r18, r24
  11c:	39 0b       	sbc	r19, r25
-	uint32_t duty = (val * 255U + (span / 2)) / span; // round
+	uint32_t duty = (val * 255U + (span / 2)) / span; 
  11e:	af ef       	ldi	r26, 0xFF	; 255
  120:	b0 e0       	ldi	r27, 0x00	; 0
  122:	0e 94 9b 01 	call	0x336	; 0x336 <__umulhisi3>
@@ -520,28 +501,28 @@ static inline uint8_t map_cm_to_duty(uint16_t cm)
  134:	50 e0       	ldi	r21, 0x00	; 0
  136:	0e 94 79 01 	call	0x2f2	; 0x2f2 <__udivmodsi4>
  13a:	05 c0       	rjmp	.+10     	; 0x146 <main+0x84>
+	TCCR0B = (1 << CS01) | (1 << CS00);
+	OCR0A = 0; 
 }
 
-/* Map distance [MIN_CM..MAX_CM] -> duty [255..0] (close = bright) */
-static inline uint8_t map_cm_to_duty(uint16_t cm)
-{
-	if (cm == 0xFFFF) return 0;  // no echo -> LED off
+static inline uint8_t map_cm_to_duty(uint16_t cm){
+	if (cm == 0xFFFF) return 0;  
  13c:	20 e0       	ldi	r18, 0x00	; 0
  13e:	03 c0       	rjmp	.+6      	; 0x146 <main+0x84>
 
-	const uint16_t MIN_CM = 5;     // clamp near limit
-	const uint16_t MAX_CM = 200;   // far limit
+	const uint16_t MIN_CM = 5;    
+	const uint16_t MAX_CM = 200;   
 
 	if (cm <= MIN_CM) return 255;
  140:	2f ef       	ldi	r18, 0xFF	; 255
  142:	01 c0       	rjmp	.+2      	; 0x146 <main+0x84>
 	if (cm >= MAX_CM) return 0;
  144:	20 e0       	ldi	r18, 0x00	; 0
+	uint8_t duty = 0;
 
 	for (;;) {	
 		uint16_t d_cm = hcsr04_read_cm_blocking();
 		uint8_t target = map_cm_to_duty(d_cm);
-
 		duty += (target-duty)/4;
  146:	30 e0       	ldi	r19, 0x00	; 0
  148:	2c 1b       	sub	r18, r28
@@ -555,7 +536,6 @@ static inline uint8_t map_cm_to_duty(uint16_t cm)
  158:	95 95       	asr	r25
  15a:	87 95       	ror	r24
  15c:	c8 0f       	add	r28, r24
-		
 		OCR0A = duty;
  15e:	c7 bd       	out	0x27, r28	; 39
 	#else

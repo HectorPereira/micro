@@ -417,10 +417,10 @@ END GROUP
  .debug_abbrev  0x0000000000000000      0x5a2 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
  .debug_abbrev  0x00000000000005a2      0x1df main.o
 
-.debug_line     0x0000000000000000      0x3b8
+.debug_line     0x0000000000000000      0x3b7
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000      0x137 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
- .debug_line    0x0000000000000137      0x281 main.o
+ .debug_line    0x0000000000000137      0x280 main.o
 
 .debug_frame    0x0000000000000000       0x98
  *(.debug_frame)
