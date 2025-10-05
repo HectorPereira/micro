@@ -21,6 +21,39 @@ volatile const uint8_t LCD_MASKS[10] PROGMEM = {
 	PORTB4, PORTB5, PORTD4, PORTD5, PORTD6, PORTD7, PORTB0, PORTB1, PORTB2, PORTB3
 };
 
+void utoa_simple(uint16_t value, char *str) {
+	char buffer[6];      // enough for "65535\0"
+	int i = 0;
+
+	if (value == 0) {
+		str[0] = '0';
+		str[1] = '\0';
+		return;
+	}
+
+	while (value > 0 && i < 5) {
+		buffer[i++] = '0' + (value % 10);
+		value /= 10;
+	}
+
+	for (int j = 0; j < i; j++) {
+		str[j] = buffer[i - j - 1];
+	}
+	str[i] = '\0';
+}
+
+char keypad[4][4] = {
+	{'1', '2', '3', 'A'},
+	{'4', '5', '6', 'B'},
+	{'7', '8', '9', 'C'},
+	{'*', '0', '#', 'D'}
+};
+
+static const int thresholds[15] = {
+	90,150,210,270,331,391,451,511,572,632,692,752,813,873,933
+};
+
+
 static inline uint8_t reverse8(uint8_t x) {
 	x = (x >> 4) | (x << 4);
 	x = ((x & 0xCC) >> 2) | ((x & 0x33) << 2);
@@ -84,16 +117,6 @@ void lcd_write_str(const char *s) {
 }
 
 
-char keypad[4][4] = {
-	{'1', '2', '3', 'A'},
-	{'4', '5', '6', 'B'},
-	{'7', '8', '9', 'C'},
-	{'*', '0', '#', 'D'}
-};
-
-static const int thresholds[15] = {
-	90,150,210,270,331,391,451,511,572,632,692,752,813,873,933
-};
 
 static inline char key_from_index(int idx){
 	return keypad[idx/4][idx%4];
@@ -117,13 +140,13 @@ uint16_t adc_read(void){
 	return ADC;
 }
 
-char read_key(void){
+char read_key(void) {
 	uint16_t v = adc_read();
+	if (v > 980) return 0;     
 	int idx = 0;
 	while (idx < 15 && v > thresholds[idx]) idx++;
-	return keypad[idx];  
+	return keypad[idx / 4][idx % 4];
 }
-
 int read_key_index(void){
 	uint16_t v = adc_read();
 	int idx = 0;
@@ -136,8 +159,16 @@ int main(void){
 	lcd_set_outputs();
 	lcd_start_sequence();
 	adc_init();
+	
+	uint16_t v = adc_read();
+	lcd_clear();
+	lcd_write_str("ADC: ");
+	char buf[5];
+	itoa(v, buf, 10);
+	lcd_write_str(buf);
+	_delay_ms(300);
 
-	lcd_write_str("Key: ");
+	lcd_write_str("Tecla: ");
 	char last = 0;  // 0 = “none yet”
 
 	for(;;){
