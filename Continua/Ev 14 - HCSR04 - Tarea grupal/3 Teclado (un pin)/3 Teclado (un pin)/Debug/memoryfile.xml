@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<project>                                  
+  <executable name="3 Teclado (un pin).elf">                 
+    <memory name="program">              
+      <units>bytes</units>                 
+      <length>32768</length>                 
+      <used>984</used>                     
+      <free>31784</free>                     
+    </memory>                              
+    <memory name="data">                 
+      <units>bytes</units>                 
+      <length>2048</length>                 
+      <used>16</used>                     
+      <free>2032</free>                     
+    </memory>                              
+  </executable>                            
+</project>                                 

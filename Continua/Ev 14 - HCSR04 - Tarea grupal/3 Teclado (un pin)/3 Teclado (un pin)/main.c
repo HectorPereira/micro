@@ -13,9 +13,6 @@
 #endif
 
 
-//RS E DB0 DB1 DB2 DB3 DB4 DB5 DB6 DB7
-
-
 volatile const uint8_t LCD_PORTS[10] PROGMEM = {
 	0x25, 0x25, 0x2b, 0x2b, 0x2b, 0x2b, 0x25, 0x25, 0x25, 0x25
 };
@@ -41,11 +38,11 @@ void lcd_set_outputs(void) {
 }
 
 void pulse_enable(void){
-	_delay_ms(50);
+	_delay_ms(2);
 	MMIO8(0x25) |=  0b00100000;
-	_delay_ms(50);
+	_delay_ms(2);
 	MMIO8(0x25) &= ~0b00100000;
-	_delay_ms(50);
+	_delay_ms(2);
 	
 }
 
@@ -98,6 +95,17 @@ static const int thresholds[15] = {
 	90,150,210,270,331,391,451,511,572,632,692,752,813,873,933
 };
 
+static inline char key_from_index(int idx){
+	return keypad[idx/4][idx%4];
+}
+
+static inline void lcd_cmd(uint8_t cmd){
+	// RS=0 path (commands): just send the byte reversed, no 0b10 prefix
+	lcd_apply_sequence(reverse8(cmd));
+	_delay_ms(2); // commands like clear/home need >1.5 ms
+}
+static inline void lcd_clear(void){ lcd_cmd(0x01); }   // HD44780 "clear display"
+
 void adc_init(void){
 	ADMUX  = (1<<REFS0);            
 	ADCSRA = (1<<ADEN) | 0x07;      
@@ -116,11 +124,33 @@ char read_key(void){
 	return keypad[idx];  
 }
 
-int main(void){
-	adc_init();
-	for(;;){
-		char k = read_key();
-		_delay_ms(20);
-	}
+int read_key_index(void){
+	uint16_t v = adc_read();
+	int idx = 0;
+	while (idx < 15 && v > thresholds[idx]) idx++;
+	return idx;           // 0..15
 }
 
+
+int main(void){
+	lcd_set_outputs();
+	lcd_start_sequence();
+	adc_init();
+
+	lcd_write_str("Key: ");
+	char last = 0;  // 0 = “none yet”
+
+	for(;;){
+		int idx = read_key_index();        // 0..15
+		char k  = key_from_index(idx);     // '1'..'D'
+
+		if (k != last){
+			last = k;
+			lcd_clear();                   // wipe display
+			lcd_write_str("Key: ");
+			lcd_write((uint8_t)k);         // show the new key
+		}
+
+		_delay_ms(20); // debounce/limit refresh
+	}
+}
