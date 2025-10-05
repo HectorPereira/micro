@@ -8,7 +8,7 @@
 // PRONTO = CTRL + S
 /* ---------------- Pins ---------------- */
 #define TRIG_DDR   DDRB
-#define TRIG_PORT  PORTB
+#define TRIG_PORT  PORTB	
 #define TRIG_PIN   PB1        // Arduino D9 (TRIG)
 
 #define ECHO_DDR   DDRB
@@ -147,16 +147,14 @@ int main(void)
 	// Optional: simple slew to reduce visible flicker
 	uint8_t duty = 0;
 
-	for (;;) {
+	for (;;) {	
 		uint16_t d_cm = hcsr04_read_cm_blocking();
 		uint8_t target = map_cm_to_duty(d_cm);
 
-		// Slew 1 step per loop toward target (optional)
-		if (duty < target) duty = duty + 5;
-		else if (duty > target) duty = duty - 5;
-
+		duty += (target-duty)/4;
+		
 		OCR0A = duty;
 
-		_delay_ms(60);  // re-trigger interval per sensor guidelines
+		_delay_ms(70);  // re-trigger interval per sensor guidelines
 	}
 }
