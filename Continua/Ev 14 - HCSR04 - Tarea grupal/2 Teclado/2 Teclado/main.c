@@ -30,7 +30,7 @@ void lcd_pulse(void) {
 }
 
 void setearLCD(uint8_t x) {
-	PORTB &= ~(1 << LCD_RS);  // RS=0 → comando
+	PORTB &= ~(1 << LCD_RS);  // RS=0 ? comando
 	PORTB = (PORTB & 0xF0) | HI_NIBBLE(x);
 	lcd_pulse();
 	PORTB = (PORTB & 0xF0) | LO_NIBBLE(x);
@@ -40,7 +40,7 @@ void setearLCD(uint8_t x) {
 
 void Escribir_LCD(uint8_t x) {
 	
-	PORTB |= (1 << LCD_RS);   // RS=1 → datos
+	PORTB |= (1 << LCD_RS);   // RS=1 ? datos
 	PORTB = (PORTB & 0xF0) | HI_NIBBLE(x);
 	lcd_pulse();
 	PORTB = (PORTB & 0xF0) | LO_NIBBLE(x);
@@ -112,4 +112,9 @@ int main(void) {
 			setearLCD(d);
 		}
 	}
+}
+
+// ---- Interrupción por cambio de pin ----
+ISR(PCINT2_vect) {
+		boton_presionado = 1;   // Marca el evento
 }
