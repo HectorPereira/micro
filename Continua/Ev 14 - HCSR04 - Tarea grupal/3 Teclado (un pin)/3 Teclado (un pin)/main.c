@@ -21,26 +21,6 @@ volatile const uint8_t LCD_MASKS[10] PROGMEM = {
 	PORTB4, PORTB5, PORTD4, PORTD5, PORTD6, PORTD7, PORTB0, PORTB1, PORTB2, PORTB3
 };
 
-void utoa_simple(uint16_t value, char *str) {
-	char buffer[6];      // enough for "65535\0"
-	int i = 0;
-
-	if (value == 0) {
-		str[0] = '0';
-		str[1] = '\0';
-		return;
-	}
-
-	while (value > 0 && i < 5) {
-		buffer[i++] = '0' + (value % 10);
-		value /= 10;
-	}
-
-	for (int j = 0; j < i; j++) {
-		str[j] = buffer[i - j - 1];
-	}
-	str[i] = '\0';
-}
 
 char keypad[4][4] = {
 	{'1', '2', '3', 'A'},
@@ -49,10 +29,10 @@ char keypad[4][4] = {
 	{'*', '0', '#', 'D'}
 };
 
-static const int thresholds[15] = {
-	90,150,210,270,331,391,451,511,572,632,692,752,813,873,980
+static const uint16_t thresholds[16] = {
+	88,149,206,265,327,377,432,487,
+	544,599,646,702,754,804,854,904
 };
-
 
 static inline uint8_t reverse8(uint8_t x) {
 	x = (x >> 4) | (x << 4);
@@ -85,17 +65,18 @@ void lcd_apply_sequence(uint16_t sequence) {
 		uint8_t bit_idx   = pgm_read_byte(&LCD_MASKS[i]);
 		uint8_t mask      = (uint8_t)_BV(bit_idx);
 
-		if (sequence & (0b1000000000 >> i)) {     // LSB-first: i=0..9
-			MMIO8(port_addr) |=  mask;    // drive high
+		if (sequence & (0b1000000000 >> i)) {    
+			MMIO8(port_addr) |=  mask;   
 			} else {
-			MMIO8(port_addr) &= (uint8_t)~mask; // drive low
+			MMIO8(port_addr) &= (uint8_t)~mask;
 		}
 	}
 	pulse_enable();
 }
 
 
-void lcd_start_sequence(void){
+void lcd_init(void){
+	lcd_set_outputs();
 	lcd_apply_sequence(0b0000001100);
 	lcd_apply_sequence(0b0000011100);
 	lcd_apply_sequence(0b0010000000);
@@ -116,18 +97,15 @@ void lcd_write_str(const char *s) {
 	}
 }
 
-
-
 static inline char key_from_index(int idx){
 	return keypad[idx/4][idx%4];
 }
 
 static inline void lcd_cmd(uint8_t cmd){
-	// RS=0 path (commands): just send the byte reversed, no 0b10 prefix
 	lcd_apply_sequence(reverse8(cmd));
-	_delay_ms(2); // commands like clear/home need >1.5 ms
+	_delay_ms(2);
 }
-static inline void lcd_clear(void){ lcd_cmd(0x01); }   // HD44780 "clear display"
+static inline void lcd_clear(void){ lcd_cmd(0x01); } 
 
 void adc_init(void){
 	ADMUX  = (1<<REFS0);            
@@ -140,52 +118,52 @@ uint16_t adc_read(void){
 	return ADC;
 }
 
+
 char read_key(void) {
 	uint16_t v = adc_read();
-	if (v > 980) return 0;
-	int idx = 0;
-	while (idx < 15 && v > thresholds[idx]) idx++;
+
+	if (v > thresholds[15]) 
+	return 0;
+
+	uint8_t idx = 0;
+	while (idx < 15 && v > thresholds[idx])
+	idx++;
+
 	return keypad[idx / 4][idx % 4];
 }
-int read_key_index(void){
+
+int read_key_index(void) {
 	uint16_t v = adc_read();
-	int idx = 0;
-	while (idx < 15 && v > thresholds[idx]) idx++;
-	return idx;           // 0..15
+
+	if (v > thresholds[15]) 
+	return -1;
+
+	uint8_t idx = 0;
+	while (idx < 15 && v > thresholds[idx])
+	idx++;
+
+	return idx;  
 }
 
 
 int main(void){
-	lcd_set_outputs();
-	lcd_start_sequence();
+	lcd_init();
 	adc_init();
 
-
 	lcd_write_str("Tecla: ");
-	char last = 0;  // 0 = “none yet”
+	char last = 0; 
 
-	/* for(;;){
-		int idx = read_key_index();        // 0..15
-		char k  = key_from_index(idx);     // '1'..'D'
+	for(;;){
+		int idx = read_key_index();        
+		char k  = key_from_index(idx);     
 
 		if (k != last){
 			last = k;
-			lcd_clear();                   // wipe display
-			lcd_write_str("Key: ");
-			lcd_write((uint8_t)k);         // show the new key
+			lcd_clear();                   
+			lcd_write_str("Tecla: ");
+			lcd_write((uint8_t)k);         
 		}
 
-		_delay_ms(20); // debounce/limit refresh
-	} */
-	
-	for(;;){
-		uint16_t v = adc_read();
-		lcd_clear();
-
-		char buf[6];
-		utoa_simple(v, buf);
-		lcd_write_str(buf);   // show ADC value
-
-		_delay_ms(200);
+		_delay_ms(20); 
 	}
 }
