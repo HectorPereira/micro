@@ -20,6 +20,7 @@ uint8_t serialWritePos = 0;
 
 
 void appendSerial(char c);
+void serialWrite(const char *c);
 
 int main(void)
 {
@@ -36,7 +37,10 @@ int main(void)
 	
 	sei();
 	
-	serialWrite('Hola');
+	serialWrite("\nSelecciona la figura a dibujar:\n");
+	serialWrite("1 - Circulo\n");
+	serialWrite("1 - Cuadrado\n");
+	serialWrite("1 - Triangulo");
 	
 	_delay_ms(5);
 	
@@ -52,23 +56,22 @@ void appendSerial(char c)
 	serialWritePos++;
 
 	if (serialWritePos >= TX_BUFFER_SIZE) {
-		serialWritePos = 0;   // wrap-around
+		serialWritePos = 0;
 	}
 }
 
 
 
 
-void serialWrite(char c[])
+void serialWrite(const char *c)
 {
 	for (uint8_t i = 0; i < strlen(c); i++)
 	{
 		appendSerial(c[i]);
 	}
-
 	if (UCSR0A & (1 << UDRE0))
 	{
-		UDR0 = 0;  // Envía el primer byte si el registro está libre
+		UDR0 = 0;
 	}
 }
 
@@ -86,5 +89,4 @@ ISR(USART_TX_vect)
 		}
 	}
 }
-
 
