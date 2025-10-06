@@ -1,6 +1,7 @@
 # Tecnologias del Microprocesamiento
+Profesores: Jesus Martinez, Marcelo Diaz
+Estudiantes: Isaac Martirena, Hector Pereira
 
-Repositorio breve del curso dictado por los profesores Jesus Martinez y Marcelo Diaz.
-
-- Laboratorios y evaluaciones continuas
-- Recursos de apoyo para los estudiantes Hector Pereira e Isaac Martirena
+Contenido del repositorio:
+- Laboratorios
+- Evaluaciones contínuas
