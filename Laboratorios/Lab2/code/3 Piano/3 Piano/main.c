@@ -25,29 +25,38 @@ Funcionalidades detalladas:
 
 #define F_CPU 16000000UL
 #include <avr/io.h>
+#include <util/delay.h>
 
-void play(uint16_t Fout){
-	DDRD |= (1 << PORTD6);				// OC0A = PD6
-	
-	uint16_t prescaler = 0;
-	if (Fout < 128) prescaler = 1024;
-	else if (Fout < 490) prescaler = 256;
-	else prescaler = 64;
+void play(uint16_t freq){
+	if (!freq) return;
+	DDRD |= (1 << PORTD6);
 
-	OCR0A = (F_CPU/(2*prescaler*Fout))+1;
-	
-	TCCR0A = (1 << WGM01);              // CTC mode
-	TCCR0A |= (1 << COM0A0);            // Toggle OC0A on match
-	
-	if (Fout < 128) TCCR0B  = 0b101;
-	else if (Fout < 490) TCCR0B  = 0b100;
-	else TCCR0B  = 0b011;
-	
+	uint8_t presc_bits = 0b0; // Valor por defecto
+	uint16_t ocr;
+
+	// Probar todos los prescalers
+	const uint16_t presc_list[] = {8, 64, 256, 1024};
+	const uint8_t  bits_list[]  = { 0b010, 0b011, 0b100, 0b101 };
+
+	for (uint8_t i=0;i<4;i++) {
+		ocr = (F_CPU / (2UL * presc_list[i] * freq)) - 1;
+		if (ocr <= 255) { presc_bits = bits_list[i]; break; }
+	}
+
+	TCCR0A = (1 << COM0A0) | (1 << WGM01);
+	TCCR0B = presc_bits;        // prescaler elegido
+	OCR0A  = (uint8_t)ocr;
 }
 		
 
 int main(void) {
+	play(300);
+	_delay_ms(500);
+	play(400);
+	_delay_ms(500);
 	play(500);
-
+	_delay_ms(500);
+	play(600);
+	
 	while (1);
 }
