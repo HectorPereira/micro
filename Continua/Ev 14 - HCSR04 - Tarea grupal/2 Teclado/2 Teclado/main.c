@@ -72,7 +72,6 @@ int main(void) {
 	DDRB |= 0b00111111;  // PB0–PB5 salida
 	DDRD = 0x0F; // PD0 Salida 
 	DDRC = 0x00; //	PC0 Entrada
-	PORTD = 0x0F;
 	PORTC = 0x0F;
 	
 	
