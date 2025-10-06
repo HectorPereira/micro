@@ -15,6 +15,9 @@
 // ---- Bandera global ----
 volatile uint8_t boton_presionado = 0;
 
+// ---- Caracter -----
+volatile char caracter = 'a';
+
 // ---- Funciones auxiliares LCD ----
 static inline uint8_t LO_NIBBLE(uint8_t x) { return x & 0x0F; }
 static inline uint8_t HI_NIBBLE(uint8_t x) { return (x >> 4) & 0x0F; }
@@ -36,6 +39,7 @@ void setearLCD(uint8_t x) {
 }
 
 void Escribir_LCD(uint8_t x) {
+	
 	PORTB |= (1 << LCD_RS);   // RS=1 → datos
 	PORTB = (PORTB & 0xF0) | HI_NIBBLE(x);
 	lcd_pulse();
@@ -43,19 +47,38 @@ void Escribir_LCD(uint8_t x) {
 	lcd_pulse();
 }
 
-// ---- Interrupción por cambio de pin ----
-ISR(PCINT2_vect) {
-	if (!(PIND & (1 << PD0))) {
-		boton_presionado = 1;   // Marca el evento
+
+char keypad[4][4] = {
+	{'1', '2', '3', 'A'},
+	{'4', '5', '6', 'B'},
+	{'7', '8', '9', 'C'},
+	{'*', '0', '#', 'D'}
+};
+
+char read_keypad(void) {
+	for (uint8_t row = 0; row < 4; row++) {
+		PORTD = ~(1 << row);  //Pone a 0 la fila individual
+		_delay_us(5);
+
+		for (uint8_t col = 0; col < 4; col++) {
+			if (!(PINC & (1 << col))) {  // Lee columna de PORTC si esta en 0
+				return keypad[row][col];
+			}
+		}
 	}
+	return 0;
 }
+
 
 int main(void) {
 	DDRB |= 0b00111111;  // PB0–PB5 salida
-	DDRD &= ~(1 << PD0); // PD0 entrada
-	PORTD |= (1 << PD0); // Pull-up interno
-
-	// Habilitar interrupción PCINT16 (PD0)
+	DDRD = 0x0F; // PD0 Salida 
+	DDRC = 0x00; //	PC0 Entrada
+	PORTD = 0x0F;
+	PORTC = 0x0F;
+	
+	
+	// Habilitar interrupción 
 	PCICR |= (1 << PCIE2);
 	PCMSK2 |= (1 << PCINT16);
 	sei();
@@ -67,14 +90,26 @@ int main(void) {
 	setearLCD(c);
 	setearLCD(d);
 
-	Escribir_LCD('B');
 
+	char key;
 	while (1) {
+		Escribir_LCD('T');
+		Escribir_LCD('e');
+		Escribir_LCD('c');		 
+		Escribir_LCD('l');
+		Escribir_LCD('a');
+		Escribir_LCD(':');
+		Escribir_LCD(' ');
+		
+		
+		key = read_keypad();
 		if (boton_presionado) {
-			boton_presionado = 0;  // Limpia la bandera
-			Escribir_LCD('C');     // Acción del botón
-			_delay_ms(200);        // Anti-rebote
+			
+			Escribir_LCD(key);
+		
+			_delay_ms(500);
+			
+			setearLCD(d);
 		}
 	}
 }
-
