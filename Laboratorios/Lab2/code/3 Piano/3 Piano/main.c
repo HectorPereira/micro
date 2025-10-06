@@ -26,19 +26,28 @@ Funcionalidades detalladas:
 #define F_CPU 16000000UL
 #include <avr/io.h>
 
+void play(uint16_t Fout){
+	DDRD |= (1 << PORTD6);				// OC0A = PD6
+	
+	uint16_t prescaler = 0;
+	if (Fout < 128) prescaler = 1024;
+	else if (Fout < 490) prescaler = 256;
+	else prescaler = 64;
+
+	OCR0A = (F_CPU/(2*prescaler*Fout))+1;
+	
+	TCCR0A = (1 << WGM01);              // CTC mode
+	TCCR0A |= (1 << COM0A0);            // Toggle OC0A on match
+	
+	if (Fout < 128) TCCR0B  = 0b101;
+	else if (Fout < 490) TCCR0B  = 0b100;
+	else TCCR0B  = 0b011;
+	
+}
+		
+
 int main(void) {
-	// FCPU = 16MHz
-	// N = prescaler (1,8,64,256,1024)
-	// OCR0A = compare value
-	
-	DDRD |= (1 << PD6);   // OC0A is PD6 on Arduino Uno
-
-	TCCR0A = (1 << WGM01);              // CTC mode 
-	TCCR0A |= (1 << COM0A0);            // Toggle OC0A on compare match
-	TCCR0B = (1 << CS01) | (1 << CS00); // Prescaler 64
-
-	
-	OCR0A = 124;  
+	play(500);
 
 	while (1);
 }
