@@ -23,37 +23,98 @@ Funcionalidades detalladas:
 		reproducción de la canción y volver al modo piano
  */ 
 
+
+// ------------------------------------------------------------------
+// LIBRARIES
+// ------------------------------------------------------------------
+
 #define F_CPU 16000000UL
+#include <xc.h>
 #include <avr/io.h>
-#include <util/delay.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+#include <stdint.h>
+#include <stdbool.h>
 
-#define ARRAY_LEN(array) (sizeof(array) / sizeof(array[0]))
-#define G4 392
-#define Fb4 370
-#define E4 330
-#define D4 294
-#define A3 220
-#define Cb4 277
-#define F4 349
-#define C4 262
-#define Ab3 233
-#define A4 440
-#define Ab4 466
-#define B4 494
-#define A2 110
-#define D3 147
-#define Fb3 185
-#define B2 123
-#define E3 165
-#define G3 196
-#define Cb3 139
-#define Ab2 117
-#define F3 175
-#define C3 131
-#define G2 98
+// ------------------------------------------------------------------
+// DEFINITIONS
+// ------------------------------------------------------------------
 
+#define G4 392	
+#define Fb4 370	
+#define E4 330	
+#define D4 294	
+#define A3 220	
+#define Cb4 277	
+#define F4 349	
+#define C4 262	
+#define Ab3 233	
+#define A4 440	
+#define Ab4 466	
+#define B4 494	
+#define A2 110	
+#define D3 147	
+#define Fb3 185	
+#define B2 123	
+#define E3 165	
+#define G3 196	
+#define Cb3 139	
+#define Ab2 117	
+#define F3 175	
+#define C3 131	
+#define G2 98	
+
+#define UART_BAUD     9600UL
+#define UBRR_VAL      ((F_CPU/16/UART_BAUD) - 1)
+
+#define TX_BUF_SZ   128u
+#define TX_MASK     (TX_BUF_SZ - 1)
+
+#define RX_BUF_SZ	128u
+#define RX_MASK		(RX_BUF_SZ - 1)
+
+
+// ------------------------------------------------------------------
+// SRAM VARIABLES
+// ------------------------------------------------------------------
+
+static volatile uint8_t rx_buf[RX_BUF_SZ];
+static volatile uint8_t rx_head = 0;     // next write by ISR
+static volatile uint8_t rx_tail = 0;     // next read by main
+static volatile uint16_t rx_overruns = 0;
+static volatile uint16_t rx_errors   = 0;
+
+static volatile uint8_t tx_buf[TX_BUF_SZ];
+static volatile uint8_t tx_head = 0;   // next write
+static volatile uint8_t tx_tail = 0;   // next read
+
+uint8_t eventAon = 0; // Encender track A
+uint8_t eventAoff = 0; // Apagar track A
+uint16_t indexA = 0; // Posicion track A
+uint16_t countA = 0; // Conteo de overflow de notas de A
+uint16_t maxCountAon = 0; // Maximo conteo de overflow encendido en A
+uint16_t maxCountAoff = 0; // Maximo conteo de overflow apagado en A
+uint8_t enableCountAon = 0; // Habilitar conteo de encendido en A
+uint8_t enableCountAoff = 0; // Habilidad conteo de apagado en A
+
+uint8_t eventBon = 0; // Encender track B
+uint8_t eventBoff = 0; // Apagar track B
+uint16_t indexB = 0; // Posicion track B
+uint16_t countB = 0; // Conteo de overflow de notas de B
+uint16_t maxCountBon = 0; // Maximo conteo de overflow encendido en B
+uint16_t maxCountBoff = 0; // Maximo conteo de overflow apagado en B
+uint8_t enableCountBon = 0; // Habilitar conteo encendido en B
+uint8_t enableCountBoff = 0; // Habilitar conteo apagado en B
+
+
+
+// ------------------------------------------------------------------
+// PROGRAM MEMORY
+// ------------------------------------------------------------------
+
+
+// Midi tracks
+// Generated using https://github.com/ShivamJoker/MIDI-to-Arduino
 const int midiA[349][3] PROGMEM = {
 	{G4, 252, 0},
 	{Fb4, 252, 0},
@@ -839,19 +900,10 @@ const int midiB[433][3] PROGMEM = {
 	{B2, 504, 0},
 };
 
-uint16_t indexA = 0;
-uint16_t countA = 0;
-uint16_t maxCountAon = 0;
-uint16_t maxCountAoff = 0;
-uint8_t enableCountAon = 0;
-uint8_t enableCountAoff = 0;
 
-uint16_t indexB = 0;
-uint16_t countB = 0;
-uint16_t maxCountBon = 0;
-uint16_t maxCountBoff = 0;
-uint8_t enableCountBon = 0;
-uint8_t enableCountBoff = 0;
+// ------------------------------------------------------------------
+// HELPERS
+// ------------------------------------------------------------------
 
 
 void read_midi_event(const int (*track)[3], uint16_t index, int out_values[3]) {
@@ -860,11 +912,93 @@ void read_midi_event(const int (*track)[3], uint16_t index, int out_values[3]) {
 	}
 }
 
-// CONFIGURE TIMER 1 FOR 1MS OVERFLOW
-// Handles note timing
+static bool uart_putc(uint8_t c) {
+	uint8_t head = tx_head;
+	uint8_t next = (uint8_t)((head + 1) & TX_MASK);
+
+	// Full if advancing head hits tail
+	if (next == tx_tail) return false;
+
+	tx_buf[head] = c;
+	tx_head = next;
+
+	// Kick the transmitter: enable Data Register Empty interrupt
+	UCSR0B |= (1 << UDRIE0);
+	return true;
+}
 
 
-// Timer 0 handles track A wave generation
+
+// ------------------------------------------------------------------
+// INITIALIZERS
+// ------------------------------------------------------------------
+
+
+// Overflow = 1ms
+void timer1_init(void) {
+	TCCR1A = 0x00;
+	TCCR1B = (1 << CS11) | (1 << CS10);  // 64
+	TCNT1 = 65536 - 250;
+	TIMSK1 |= (1 << TOIE1);
+}
+
+void uart_init(void) {
+	// Baud
+	UBRR0H = (uint8_t)(UBRR_VAL >> 8);
+	UBRR0L = (uint8_t)(UBRR_VAL & 0xFF);
+
+	// 8N1
+	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
+
+	// Enable TX (RX optional) — leave UDRE interrupt OFF for now
+	UCSR0B = (1 << TXEN0);  // | (1<<RXEN0) if you also receive
+}
+
+void uart_init_rx(void) {
+	// Baud
+	UBRR0H = (uint8_t)(UBRR_VAL >> 8);
+	UBRR0L = (uint8_t)(UBRR_VAL & 0xFF);
+
+	// 8N1
+	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
+
+	// Enable RX and its interrupt (TX config can be elsewhere)
+	UCSR0B |= (1 << RXEN0) | (1 << RXCIE0);
+}
+
+
+// ------------------------------------------------------------------
+// UTILITY
+// ------------------------------------------------------------------
+
+/* ---- Non-blocking: copy up to maxlen bytes into dst; returns count ---- */
+uint8_t uart_read_bytes(uint8_t *dst, uint8_t maxlen) {
+	uint8_t n = 0;
+	while ((n < maxlen) && (rx_head != rx_tail)) {
+		dst[n++] = rx_buf[rx_tail];
+		rx_tail  = (uint8_t)((rx_tail + 1) & RX_MASK);
+	}
+	return n;  // 0 means no data right now
+}
+
+/* ---- Non-blocking: returns how many bytes are currently buffered ---- */
+uint8_t uart_rx_available(void) {
+	uint8_t head = rx_head;   // snapshot (atomic on AVR)
+	uint8_t tail = rx_tail;
+	return (uint8_t)((head - tail) & RX_MASK);
+}
+
+
+int uart_write_str(const char *s) {
+	int n = 0;
+	while (*s) {
+		if (!uart_putc((uint8_t)*s)) break;  // stop if buffer full
+		++s; ++n;
+	}
+	return n;   // if this is < strlen(s), buffer filled; call again later
+}
+
+
 void playA(){
 	int values[3];
 	read_midi_event(midiA, indexA++, values);
@@ -896,6 +1030,7 @@ void playA(){
 
 void stopA(void){
 	TCCR0B = 0b0;
+	enableCountAoff = 1;
 }
 
 
@@ -925,67 +1060,217 @@ void playB(){
 	TCCR2B = presc_bits;        // prescaler elegido
 	OCR2A  = (uint8_t)ocr;
 	
-	enableCountBon = 1; // Start playing
+	enableCountBon = 1; // Empezar a tocar
 }
 
 void stopB(void){
 	TCCR2B = 0b0;
+	enableCountBoff = 1;
 }
+
+
+// ------------------------------------------------------------------
+// WEIRD SHIT
+// ------------------------------------------------------------------
+
+typedef enum {
+    CMD_NONE = 0,
+    CMD_C1,
+    CMD_C2,
+    CMD_PIANO,
+    CMD_UNKNOWN
+} cmd_t;
+
+/* Small token buffer (adjust as needed) */
+#define CMD_BUF_SZ 16
+
+/* Helper: ASCII upper-case without locale */
+static inline char upc(char c) {
+    return (c >= 'a' && c <= 'z') ? (char)(c - 'a' + 'A') : c;
+}
+
+/* Return true if c is a delimiter that ends a token */
+static inline bool is_delim(char c) {
+    return (c == ' ') || (c == '\t') || (c == '\r') || (c == '\n') || (c == ',');
+}
+
+/* Compare token (already uppercased) to a literal (uppercased here) */
+static bool token_eq(const char *tok, uint8_t len, const char *lit) {
+    for (uint8_t i = 0; i < len; ++i) {
+        if (lit[i] == '\0' || tok[i] != lit[i]) return false;
+    }
+    return lit[len] == '\0';
+}
+
+/* Non-blocking parser:
+ * - Feed it repeatedly (e.g., every loop).
+ * - Returns one command when a token is completed; otherwise CMD_NONE.
+ * - Unrecognized tokens yield CMD_UNKNOWN (so you can notify or ignore).
+ */
+cmd_t uart_read_command(void) {
+    static char    buf[CMD_BUF_SZ];
+    static uint8_t len = 0;
+
+    uint8_t tmp[32];
+    uint8_t n = uart_read_bytes(tmp, sizeof(tmp));
+    for (uint8_t i = 0; i < n; ++i) {
+        char c = (char)tmp[i];
+
+        if (is_delim(c)) {
+            if (len == 0) continue;          // skip repeated delimiters
+            // We have a complete token in buf[0..len-1]
+            // Match against commands
+            if (token_eq(buf, len, "C1"))    { len = 0; return CMD_C1; }
+            if (token_eq(buf, len, "C2"))    { len = 0; return CMD_C2; }
+            if (token_eq(buf, len, "PIANO")) { len = 0; return CMD_PIANO; }
+            len = 0;
+            return CMD_UNKNOWN;
+        } else {
+            // Accumulate (uppercase); drop overflow safely
+            if (len < (CMD_BUF_SZ - 1)) {
+                buf[len++] = upc(c);
+                buf[len]   = '\0';
+            }
+            // If overflow, keep reading until a delimiter resets len
+        }
+    }
+
+    // No completed token this call
+    return CMD_NONE;
+}
+
+
+// ------------------------------------------------------------------
+// MAIN LOOP
+// ------------------------------------------------------------------
+
+
+
+int main(void) {
+	uart_init();
+	uart_init_rx();
+	timer1_init();
+	sei();
+	
+	uart_write_str("Elija una opción\r\n");
+	uart_write_str("[C1] \r\n");
+	uart_write_str("[C2] \r\n");
+	uart_write_str("[PIANO] \r\n");
+	
+	eventAoff = 1;
+	eventBoff = 1;
+	
+	while (1){
+		  cmd_t cmd = uart_read_command();
+		  switch (cmd) {
+			  case CMD_C1:
+				uart_write_str("[C1!!] \r\n");
+			  break;
+			  case CMD_C2: 
+				uart_write_str("[C2!!] \r\n");
+			  break;
+			  case CMD_PIANO: 
+				uart_write_str("[PIANO!!] \r\n");
+			  break;
+			  case CMD_UNKNOWN:
+				uart_write_str("[NOENTIENDO!!] \r\n");
+			  break;
+			  case CMD_NONE:
+				uart_write_str("[NOENTIENDO!!NONE] \r\n");
+			  break;
+			   
+			  default:
+			   uart_write_str("[NOENTIENDO!!DEFAULT] \r\n");
+			  break;
+		  }
+		
+		if (eventAon){
+			countA = 0;
+			enableCountAon = 0;
+			eventAon = 0;
+			stopA();
+		} if (eventAoff){
+			countA = 0;
+			enableCountAoff = 0;
+			eventAoff = 0;
+			playA();
+		}
+		if (eventBon) {
+			countB = 0;
+			enableCountBon = 0;
+			eventBon = 0;
+			stopB();
+		} if (eventBoff){
+			countB = 0;
+			enableCountBoff = 0;
+			eventBoff = 0;
+			playB();
+						
+		}
+	}
+}
+
+
+// ------------------------------------------------------------------
+// INTERRUPT SERVICE ROUTINES	
+// ------------------------------------------------------------------
+
 
 ISR(TIMER1_OVF_vect){
 	TCNT1 = 65536 - 250;  // 1ms preload
 	
 	if (enableCountAon) {
 		if (++countA > maxCountAon) {
-			countA = 0;
-			enableCountAon = 0;
-			enableCountAoff = 1;
-			stopA();
+			eventAon = 1;
 		}
 		
-	} else if (enableCountAoff){
+		} else if (enableCountAoff){
 		if (++countA > maxCountAoff){
-			countA = 0;
-			enableCountAoff = 0;
-			playA();
-			
+			eventAoff = 1;
 		}
 	}
 	
 	if (enableCountBon) {
 		if (++countB > maxCountBon) {
-			countB = 0;
-			enableCountBon = 0;
-			enableCountBoff = 1;
-			stopB();
+			eventBon = 1;
 		}
 		
 		} else if (enableCountBoff){
 		if (++countB > maxCountBoff){
-			countB = 0;
-			enableCountBoff = 0;
-			playB();
-			
+			eventBoff = 1;
 		}
 	}
-	
 }
 
-// Overflow = 1ms
-void timer1_init(void) {
-		TCCR1A = 0x00;
-		TCCR1B = (1 << CS11) | (1 << CS10);  // 64
-		TCNT1 = 65536 - 250;  
-		TIMSK1 |= (1 << TOIE1);
+ISR(USART_UDRE_vect) {
+	if (tx_head == tx_tail) {
+		// Nothing to send: disable UDRE interrupt to stop firing
+		UCSR0B &= ~(1 << UDRIE0);
+		return;
+	}
+	UDR0 = tx_buf[tx_tail];
+	tx_tail = (uint8_t)((tx_tail + 1) & TX_MASK);
 }
 
-		
+/* ---- ISR: push each received byte into the ring buffer ---- */
+ISR(USART_RX_vect) {
+	uint8_t status = UCSR0A;
+	uint8_t data   = UDR0;  // reading UDR0 clears RXC
 
-int main(void) {
-	timer1_init();
-	sei();
-	playA();
-	playB();
+	// Basic error accounting (frame/parity/overrun)
+	if (status & ((1 << FE0) | (1 << DOR0) | (1 << UPE0))) {
+		rx_errors++;
+		// Still store data to keep stream aligned; comment out to drop on error
+	}
 
-	while (1);
+	uint8_t next = (uint8_t)((rx_head + 1) & RX_MASK);
+	if (next == rx_tail) {
+		// Buffer full: drop the byte (or overwrite by advancing tail)
+		rx_overruns++;
+		// Optionally: rx_tail = (uint8_t)((rx_tail + 1) & RX_MASK); // overwrite oldest
+		return;
+	}
+
+	rx_buf[rx_head] = data;
+	rx_head = next;
 }
