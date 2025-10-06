@@ -15,12 +15,10 @@
 // ---- Bandera global ----
 volatile uint8_t boton_presionado = 0;
 
-// ---- Caracter -----
-volatile char caracter = 'a';
 
 // ---- Funciones auxiliares LCD ----
-static inline uint8_t LO_NIBBLE(uint8_t x) { return x & 0x0F; }
-static inline uint8_t HI_NIBBLE(uint8_t x) { return (x >> 4) & 0x0F; }
+uint8_t LO_NIBBLE(uint8_t x) { return x & 0x0F; }
+uint8_t HI_NIBBLE(uint8_t x) { return (x >> 4) & 0x0F; }
 
 void lcd_pulse(void) {
 	PORTB |= (1 << LCD_E);
