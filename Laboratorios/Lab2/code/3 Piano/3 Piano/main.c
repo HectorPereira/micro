@@ -1152,37 +1152,39 @@ int main(void) {
 	timer1_init();
 	sei();
 	
-	uart_write_str("Elija una opción\r\n");
-	uart_write_str("[C1] \r\n");
-	uart_write_str("[C2] \r\n");
-	uart_write_str("[PIANO] \r\n");
+	uart_write_str("Hola PIC 2\n");
+	//uart_write_str("[C1] \r\n");
+	//uart_write_str("[C2] \r\n");
+	//uart_write_str("[PIANO] \r\n");
 	
 	eventAoff = 1;
 	eventBoff = 1;
 	
 	while (1){
+		/*
 		  cmd_t cmd = uart_read_command();
 		  switch (cmd) {
 			  case CMD_C1:
-				uart_write_str("[C1!!] \r\n");
+			  uart_write_str("[C1!!] \r\n");
 			  break;
-			  case CMD_C2: 
-				uart_write_str("[C2!!] \r\n");
+			  case CMD_C2:
+			  uart_write_str("[C2!!] \r\n");
 			  break;
-			  case CMD_PIANO: 
-				uart_write_str("[PIANO!!] \r\n");
+			  case CMD_PIANO:
+			  uart_write_str("[PIANO!!] \r\n");
 			  break;
 			  case CMD_UNKNOWN:
-				uart_write_str("[NOENTIENDO!!] \r\n");
+			  uart_write_str("[NOENTIENDO!!] \r\n");
 			  break;
 			  case CMD_NONE:
-				uart_write_str("[NOENTIENDO!!NONE] \r\n");
+			  uart_write_str("[NOENTIENDO!!NONE] \r\n");
 			  break;
-			   
+			  
 			  default:
-			   uart_write_str("[NOENTIENDO!!DEFAULT] \r\n");
+			  uart_write_str("[NOENTIENDO!!DEFAULT] \r\n");
 			  break;
 		  }
+		  */
 		
 		if (eventAon){
 			countA = 0;
