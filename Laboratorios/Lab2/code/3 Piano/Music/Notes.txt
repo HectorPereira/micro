@@ -6,6 +6,31 @@
 // Generated using https://github.com/ShivamJoker/MIDI-to-Arduino
 // MIDI from: https://onlinesequencer.net/49966#
 
+#define ARRAY_LEN(array) (sizeof(array) / sizeof(array[0]))
+#define G4 392
+#define Fb4 370
+#define E4 330
+#define D4 294
+#define A3 220
+#define Cb4 277
+#define F4 349
+#define C4 262
+#define Ab3 233
+#define A4 440
+#define Ab4 466
+#define B4 494
+#define A2 110
+#define D3 147
+#define Fb3 185
+#define B2 123
+#define E3 165
+#define G3 196
+#define Cb3 139
+#define Ab2 117
+#define F3 175
+#define C3 131
+#define G2 98
+
 const int midi2[433][3] PROGMEM = {
 	{F3, 1, 1007},
 	{A2, 252, 0},

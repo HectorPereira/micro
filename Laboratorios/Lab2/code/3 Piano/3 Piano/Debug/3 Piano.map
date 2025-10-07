@@ -20,8 +20,16 @@ Discarded input sections
  .text          0x0000000000000000        0x0 main.o
  .data          0x0000000000000000        0x0 main.o
  .bss           0x0000000000000000        0x0 main.o
+ .text.token_eq
+                0x0000000000000000       0x8c main.o
+ .text.uart_read_bytes
+                0x0000000000000000       0x3a main.o
  .text.uart_rx_available
                 0x0000000000000000        0xe main.o
+ .text.uart_read_command
+                0x0000000000000000      0x130 main.o
+ .bss.buf.1916  0x0000000000000000       0x10 main.o
+ .bss.len.1917  0x0000000000000000        0x1 main.o
  .text          0x0000000000000000        0x0 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/avr5/memx-const\libgcc.a(_udivmodsi4.o)
  .data          0x0000000000000000        0x0 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/avr5/memx-const\libgcc.a(_udivmodsi4.o)
  .bss           0x0000000000000000        0x0 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/avr5/memx-const\libgcc.a(_udivmodsi4.o)
@@ -409,20 +417,20 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0x1490
+.debug_info     0x0000000000000000     0x1356
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000      0x5f4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
- .debug_info    0x00000000000005f4      0xe9c main.o
+ .debug_info    0x00000000000005f4      0xd62 main.o
 
 .debug_abbrev   0x0000000000000000      0x833
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x5a2 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
  .debug_abbrev  0x00000000000005a2      0x291 main.o
 
-.debug_line     0x0000000000000000      0x7c0
+.debug_line     0x0000000000000000      0x760
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000      0x137 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
- .debug_line    0x0000000000000137      0x689 main.o
+ .debug_line    0x0000000000000137      0x629 main.o
 
 .debug_frame    0x0000000000000000      0x2a4
  *(.debug_frame)
@@ -433,9 +441,9 @@ END GROUP
  .debug_str     0x0000000000000000      0x208 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
  .debug_str     0x0000000000000208       0x20 main.o
 
-.debug_loc      0x0000000000000000      0x973
+.debug_loc      0x0000000000000000      0x929
  *(.debug_loc)
- .debug_loc     0x0000000000000000      0x973 main.o
+ .debug_loc     0x0000000000000000      0x929 main.o
 
 .debug_macinfo
  *(.debug_macinfo)
@@ -470,117 +478,111 @@ LOAD data_init
  .note.gnu.avr.deviceinfo
                 0x0000000000000000       0x40 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
 
-.bss.buf.1916   0x000000000080021a       0x10
- .bss.buf.1916  0x000000000080021a       0x10 main.o
-
-.bss.len.1917   0x000000000080023e        0x1
- .bss.len.1917  0x000000000080023e        0x1 main.o
-
 .bss.enableCountBoff
-                0x000000000080023f        0x1
+                0x000000000080022e        0x1
  .bss.enableCountBoff
-                0x000000000080023f        0x1 main.o
-                0x000000000080023f                enableCountBoff
+                0x000000000080022e        0x1 main.o
+                0x000000000080022e                enableCountBoff
 
 .bss.enableCountBon
-                0x0000000000800240        0x1
+                0x000000000080022f        0x1
  .bss.enableCountBon
-                0x0000000000800240        0x1 main.o
-                0x0000000000800240                enableCountBon
+                0x000000000080022f        0x1 main.o
+                0x000000000080022f                enableCountBon
 
 .bss.maxCountBoff
-                0x000000000080022a        0x2
+                0x000000000080021a        0x2
  .bss.maxCountBoff
-                0x000000000080022a        0x2 main.o
-                0x000000000080022a                maxCountBoff
+                0x000000000080021a        0x2 main.o
+                0x000000000080021a                maxCountBoff
 
 .bss.maxCountBon
-                0x000000000080022c        0x2
+                0x000000000080021c        0x2
  .bss.maxCountBon
-                0x000000000080022c        0x2 main.o
-                0x000000000080022c                maxCountBon
+                0x000000000080021c        0x2 main.o
+                0x000000000080021c                maxCountBon
 
-.bss.countB     0x000000000080022e        0x2
- .bss.countB    0x000000000080022e        0x2 main.o
-                0x000000000080022e                countB
+.bss.countB     0x000000000080021e        0x2
+ .bss.countB    0x000000000080021e        0x2 main.o
+                0x000000000080021e                countB
 
-.bss.indexB     0x0000000000800230        0x2
- .bss.indexB    0x0000000000800230        0x2 main.o
-                0x0000000000800230                indexB
+.bss.indexB     0x0000000000800220        0x2
+ .bss.indexB    0x0000000000800220        0x2 main.o
+                0x0000000000800220                indexB
 
-.bss.eventBoff  0x0000000000800241        0x1
+.bss.eventBoff  0x0000000000800230        0x1
  .bss.eventBoff
-                0x0000000000800241        0x1 main.o
-                0x0000000000800241                eventBoff
+                0x0000000000800230        0x1 main.o
+                0x0000000000800230                eventBoff
 
-.bss.eventBon   0x0000000000800242        0x1
- .bss.eventBon  0x0000000000800242        0x1 main.o
-                0x0000000000800242                eventBon
+.bss.eventBon   0x0000000000800231        0x1
+ .bss.eventBon  0x0000000000800231        0x1 main.o
+                0x0000000000800231                eventBon
 
 .bss.enableCountAoff
-                0x0000000000800243        0x1
+                0x0000000000800232        0x1
  .bss.enableCountAoff
-                0x0000000000800243        0x1 main.o
-                0x0000000000800243                enableCountAoff
+                0x0000000000800232        0x1 main.o
+                0x0000000000800232                enableCountAoff
 
 .bss.enableCountAon
-                0x0000000000800244        0x1
+                0x0000000000800233        0x1
  .bss.enableCountAon
-                0x0000000000800244        0x1 main.o
-                0x0000000000800244                enableCountAon
+                0x0000000000800233        0x1 main.o
+                0x0000000000800233                enableCountAon
 
 .bss.maxCountAoff
-                0x0000000000800232        0x2
+                0x0000000000800222        0x2
  .bss.maxCountAoff
-                0x0000000000800232        0x2 main.o
-                0x0000000000800232                maxCountAoff
+                0x0000000000800222        0x2 main.o
+                0x0000000000800222                maxCountAoff
 
 .bss.maxCountAon
-                0x0000000000800234        0x2
+                0x0000000000800224        0x2
  .bss.maxCountAon
-                0x0000000000800234        0x2 main.o
-                0x0000000000800234                maxCountAon
+                0x0000000000800224        0x2 main.o
+                0x0000000000800224                maxCountAon
 
-.bss.countA     0x0000000000800236        0x2
- .bss.countA    0x0000000000800236        0x2 main.o
-                0x0000000000800236                countA
+.bss.countA     0x0000000000800226        0x2
+ .bss.countA    0x0000000000800226        0x2 main.o
+                0x0000000000800226                countA
 
-.bss.indexA     0x0000000000800238        0x2
- .bss.indexA    0x0000000000800238        0x2 main.o
-                0x0000000000800238                indexA
+.bss.indexA     0x0000000000800228        0x2
+ .bss.indexA    0x0000000000800228        0x2 main.o
+                0x0000000000800228                indexA
 
-.bss.eventAoff  0x0000000000800245        0x1
+.bss.eventAoff  0x0000000000800234        0x1
  .bss.eventAoff
-                0x0000000000800245        0x1 main.o
-                0x0000000000800245                eventAoff
+                0x0000000000800234        0x1 main.o
+                0x0000000000800234                eventAoff
 
-.bss.eventAon   0x0000000000800246        0x1
- .bss.eventAon  0x0000000000800246        0x1 main.o
-                0x0000000000800246                eventAon
+.bss.eventAon   0x0000000000800235        0x1
+ .bss.eventAon  0x0000000000800235        0x1 main.o
+                0x0000000000800235                eventAon
 
-.bss.tx_tail    0x0000000000800247        0x1
- .bss.tx_tail   0x0000000000800247        0x1 main.o
+.bss.tx_tail    0x0000000000800236        0x1
+ .bss.tx_tail   0x0000000000800236        0x1 main.o
 
-.bss.tx_head    0x0000000000800248        0x1
- .bss.tx_head   0x0000000000800248        0x1 main.o
+.bss.tx_head    0x0000000000800237        0x1
+ .bss.tx_head   0x0000000000800237        0x1 main.o
 
 .bss.tx_buf     0x0000000000800100       0x80
  .bss.tx_buf    0x0000000000800100       0x80 main.o
 
-.bss.rx_errors  0x000000000080023a        0x2
+.bss.rx_errors  0x000000000080022a        0x2
  .bss.rx_errors
-                0x000000000080023a        0x2 main.o
+                0x000000000080022a        0x2 main.o
 
 .bss.rx_overruns
-                0x000000000080023c        0x2
+                0x000000000080022c        0x2
  .bss.rx_overruns
-                0x000000000080023c        0x2 main.o
+                0x000000000080022c        0x2 main.o
 
-.bss.rx_tail    0x0000000000800249        0x1
- .bss.rx_tail   0x0000000000800249        0x1 main.o
+.bss.rx_tail    0x0000000000800238        0x1
+ .bss.rx_tail   0x0000000000800238        0x1 main.o
 
-.bss.rx_head    0x000000000080024a        0x1
- .bss.rx_head   0x000000000080024a        0x1 main.o
+.bss.rx_head    0x0000000000800239        0x1
+ .bss.rx_head   0x0000000000800239        0x1 main.o
 
 .bss.rx_buf     0x0000000000800180       0x80
  .bss.rx_buf    0x0000000000800180       0x80 main.o
@@ -597,162 +599,146 @@ LOAD data_init
                 0x0000000000000af4      0x82e main.o
                 0x0000000000000af4                midiA
 
-.progmemx.data  0x0000000000001322       0x9c
+.progmemx.data  0x0000000000001322       0x18
  .progmemx.data
-                0x0000000000001322       0x9c main.o
+                0x0000000000001322       0x18 main.o
 
-.text.uart_read_command
-                0x00000000000013be      0x130
- .text.uart_read_command
-                0x00000000000013be      0x130 main.o
-                0x00000000000013be                uart_read_command
+.text.playB     0x000000000000133a      0x12e
+ .text.playB    0x000000000000133a      0x12e main.o
+                0x000000000000133a                playB
 
-.text.playB     0x00000000000014ee      0x12e
- .text.playB    0x00000000000014ee      0x12e main.o
-                0x00000000000014ee                playB
-
-.text.playA     0x000000000000161c      0x126
- .text.playA    0x000000000000161c      0x126 main.o
-                0x000000000000161c                playA
-
-.text.main      0x0000000000001742      0x118
- .text.main     0x0000000000001742      0x118 main.o
-                0x0000000000001742                main
+.text.playA     0x0000000000001468      0x126
+ .text.playA    0x0000000000001468      0x126 main.o
+                0x0000000000001468                playA
 
 .text.__vector_13
-                0x000000000000185a       0xec
+                0x000000000000158e       0xec
  .text.__vector_13
-                0x000000000000185a       0xec main.o
-                0x000000000000185a                __vector_13
+                0x000000000000158e       0xec main.o
+                0x000000000000158e                __vector_13
 
-.text.token_eq  0x0000000000001946       0x8c
- .text.token_eq
-                0x0000000000001946       0x8c main.o
+.text.main      0x000000000000167a       0x94
+ .text.main     0x000000000000167a       0x94 main.o
+                0x000000000000167a                main
 
 .text.__vector_18
-                0x00000000000019d2       0x7a
+                0x000000000000170e       0x7a
  .text.__vector_18
-                0x00000000000019d2       0x7a main.o
-                0x00000000000019d2                __vector_18
+                0x000000000000170e       0x7a main.o
+                0x000000000000170e                __vector_18
 
 .text.read_midi_event
-                0x0000000000001a4c       0x72
+                0x0000000000001788       0x72
  .text.read_midi_event
-                0x0000000000001a4c       0x72 main.o
-                0x0000000000001a4c                read_midi_event
+                0x0000000000001788       0x72 main.o
+                0x0000000000001788                read_midi_event
 
 .text.__vector_19
-                0x0000000000001abe       0x58
+                0x00000000000017fa       0x58
  .text.__vector_19
-                0x0000000000001abe       0x58 main.o
-                0x0000000000001abe                __vector_19
+                0x00000000000017fa       0x58 main.o
+                0x00000000000017fa                __vector_19
 
 .text.libgcc.div
-                0x0000000000001b16       0x44
+                0x0000000000001852       0x44
  .text.libgcc.div
-                0x0000000000001b16       0x44 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/avr5/memx-const\libgcc.a(_udivmodsi4.o)
-                0x0000000000001b16                __udivmodsi4
+                0x0000000000001852       0x44 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/avr5/memx-const\libgcc.a(_udivmodsi4.o)
+                0x0000000000001852                __udivmodsi4
 
 .text.uart_write_str
-                0x0000000000001b5a       0x40
+                0x0000000000001896       0x40
  .text.uart_write_str
-                0x0000000000001b5a       0x40 main.o
-                0x0000000000001b5a                uart_write_str
-
-.text.uart_read_bytes
-                0x0000000000001b9a       0x3a
- .text.uart_read_bytes
-                0x0000000000001b9a       0x3a main.o
-                0x0000000000001b9a                uart_read_bytes
+                0x0000000000001896       0x40 main.o
+                0x0000000000001896                uart_write_str
 
 .text.uart_putc
-                0x0000000000001bd4       0x30
+                0x00000000000018d6       0x30
  .text.uart_putc
-                0x0000000000001bd4       0x30 main.o
+                0x00000000000018d6       0x30 main.o
 
 .text.timer1_init
-                0x0000000000001c04       0x22
+                0x0000000000001906       0x22
  .text.timer1_init
-                0x0000000000001c04       0x22 main.o
-                0x0000000000001c04                timer1_init
+                0x0000000000001906       0x22 main.o
+                0x0000000000001906                timer1_init
 
 .text.libgcc.mul
-                0x0000000000001c26       0x1e
+                0x0000000000001928       0x1e
  .text.libgcc.mul
-                0x0000000000001c26       0x1e c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/avr5/memx-const\libgcc.a(_umulhisi3.o)
-                0x0000000000001c26                __umulhisi3
+                0x0000000000001928       0x1e c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/avr5/memx-const\libgcc.a(_umulhisi3.o)
+                0x0000000000001928                __umulhisi3
 
 .text.uart_init_rx
-                0x0000000000001c44       0x1c
+                0x0000000000001946       0x1c
  .text.uart_init_rx
-                0x0000000000001c44       0x1c main.o
-                0x0000000000001c44                uart_init_rx
+                0x0000000000001946       0x1c main.o
+                0x0000000000001946                uart_init_rx
 
 .text.uart_init
-                0x0000000000001c60       0x18
+                0x0000000000001962       0x18
  .text.uart_init
-                0x0000000000001c60       0x18 main.o
-                0x0000000000001c60                uart_init
+                0x0000000000001962       0x18 main.o
+                0x0000000000001962                uart_init
 
-.text.exit      0x0000000000001c78       0x16
- .text.exit     0x0000000000001c78       0x16 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(exit.o)
-                0x0000000000001c78                exit
+.text.exit      0x000000000000197a       0x16
+ .text.exit     0x000000000000197a       0x16 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(exit.o)
+                0x000000000000197a                exit
 
-.text.stopB     0x0000000000001c8e        0xc
- .text.stopB    0x0000000000001c8e        0xc main.o
-                0x0000000000001c8e                stopB
+.text.stopB     0x0000000000001990        0xc
+ .text.stopB    0x0000000000001990        0xc main.o
+                0x0000000000001990                stopB
 
-.text.stopA     0x0000000000001c9a        0xa
- .text.stopA    0x0000000000001c9a        0xa main.o
-                0x0000000000001c9a                stopA
+.text.stopA     0x000000000000199c        0xa
+ .text.stopA    0x000000000000199c        0xa main.o
+                0x000000000000199c                stopA
 
-.text           0x0000000000001ca4        0x4
- .text          0x0000000000001ca4        0x4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
-                0x0000000000001ca4                __vector_22
-                0x0000000000001ca4                __vector_1
-                0x0000000000001ca4                __vector_24
-                0x0000000000001ca4                __vector_12
-                0x0000000000001ca4                __bad_interrupt
-                0x0000000000001ca4                __vector_6
-                0x0000000000001ca4                __vector_3
-                0x0000000000001ca4                __vector_23
-                0x0000000000001ca4                __vector_25
-                0x0000000000001ca4                __vector_11
-                0x0000000000001ca4                __vector_17
-                0x0000000000001ca4                __vector_7
-                0x0000000000001ca4                __vector_5
-                0x0000000000001ca4                __vector_4
-                0x0000000000001ca4                __vector_9
-                0x0000000000001ca4                __vector_2
-                0x0000000000001ca4                __vector_21
-                0x0000000000001ca4                __vector_15
-                0x0000000000001ca4                __vector_8
-                0x0000000000001ca4                __vector_14
-                0x0000000000001ca4                __vector_10
-                0x0000000000001ca4                __vector_16
-                0x0000000000001ca4                __vector_20
+.text           0x00000000000019a6        0x4
+ .text          0x00000000000019a6        0x4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
+                0x00000000000019a6                __vector_22
+                0x00000000000019a6                __vector_1
+                0x00000000000019a6                __vector_24
+                0x00000000000019a6                __vector_12
+                0x00000000000019a6                __bad_interrupt
+                0x00000000000019a6                __vector_6
+                0x00000000000019a6                __vector_3
+                0x00000000000019a6                __vector_23
+                0x00000000000019a6                __vector_25
+                0x00000000000019a6                __vector_11
+                0x00000000000019a6                __vector_17
+                0x00000000000019a6                __vector_7
+                0x00000000000019a6                __vector_5
+                0x00000000000019a6                __vector_4
+                0x00000000000019a6                __vector_9
+                0x00000000000019a6                __vector_2
+                0x00000000000019a6                __vector_21
+                0x00000000000019a6                __vector_15
+                0x00000000000019a6                __vector_8
+                0x00000000000019a6                __vector_14
+                0x00000000000019a6                __vector_10
+                0x00000000000019a6                __vector_16
+                0x00000000000019a6                __vector_20
 
-.text._Exit     0x0000000000001ca8        0x4
- .text._Exit    0x0000000000001ca8        0x4 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(_Exit.o)
-                0x0000000000001ca8                _Exit
+.text._Exit     0x00000000000019aa        0x4
+ .text._Exit    0x00000000000019aa        0x4 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(_Exit.o)
+                0x00000000000019aa                _Exit
 
 .text.__dummy_fini
-                0x0000000000001cac        0x2
+                0x00000000000019ae        0x2
  .text.__dummy_fini
-                0x0000000000001cac        0x2 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(exit.o)
-                0x0000000000001cac                _fini
+                0x00000000000019ae        0x2 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(exit.o)
+                0x00000000000019ae                _fini
 
 .text.__dummy_funcs_on_exit
-                0x0000000000001cae        0x2
+                0x00000000000019b0        0x2
  .text.__dummy_funcs_on_exit
-                0x0000000000001cae        0x2 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(exit.o)
-                0x0000000000001cae                __funcs_on_exit
+                0x00000000000019b0        0x2 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(exit.o)
+                0x00000000000019b0                __funcs_on_exit
 
 .text.__dummy_simulator_exit
-                0x0000000000001cb0        0x2
+                0x00000000000019b2        0x2
  .text.__dummy_simulator_exit
-                0x0000000000001cb0        0x2 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(exit.o)
-                0x0000000000001cb0                __simulator_exit
+                0x00000000000019b2        0x2 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(exit.o)
+                0x00000000000019b2                __simulator_exit
 
-.rodata         0x0000000000800200       0x1a load address 0x0000000000001cb2
+.rodata         0x0000000000800200       0x1a load address 0x00000000000019b4
  .rodata        0x0000000000800200       0x1a main.o
