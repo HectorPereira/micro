@@ -13,6 +13,21 @@
 #define BAUD 9600           // Velocidad de transmisión (baudios)
 #define BRC ((F_CPU / 16 / BAUD) - 1)   // Valor para UBRR
 #define TX_BUFFER_SIZE 128
+// ---- Buffer RX circular ----
+#define RX_BUFFER_SIZE 128
+
+
+// Set Bit in IO register
+#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
+
+// Clear Bit in IO register
+#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+
+
+// Si los usás dentro de una ISR, marcá como volatile
+volatile char    rxBuffer[RX_BUFFER_SIZE];
+volatile uint8_t rxReadPos  = 0;
+volatile uint8_t rxWritePos = 0;
 
 char    serialBuffer[TX_BUFFER_SIZE];
 uint8_t serialReadPos  = 0;
@@ -21,6 +36,8 @@ uint8_t serialWritePos = 0;
 
 void appendSerial(char c);
 void serialWrite(const char *c);
+char peekChar(void);
+char Chardos(void);
 
 int main(void)
 {
@@ -30,12 +47,14 @@ int main(void)
 
 
 	// Habilitar transmisor
-	UCSR0B = (1 << TXEN0) | (1 << TXCIE0);
+	UCSR0B = (1 << TXEN0) | (1 << TXCIE0) | (1 << RXEN0) | (1 << RXCIE0); // RXENn: Receiver Enable n ; TXCIEn: TX Complete Interrupt Enable n ;  TXENn: Transmitter Enable n; RXCIEn:  RX Complete Interrupt Enable n
 
 	// Modo asincrónico, 8 bits, 1 stop, sin paridad
 	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
 	
 	sei();
+	
+	DDRB |= (1 << PORTB0);
 	
 	serialWrite("\nSelecciona la figura a dibujar:\n");
 	serialWrite("1 - Circulo\n");
@@ -46,6 +65,17 @@ int main(void)
 	
     while(1)
     {
+		char c = Chardos();
+
+		if (c == '1')
+		{
+			serialWrite("algo");
+		}
+		else if (c == '0')
+		{
+			cbi(PORTB, PORTB0);
+		}
+
     }
 }
 
@@ -89,4 +119,53 @@ ISR(USART_TX_vect)
 		}
 	}
 }
+
+char peekChar(void)
+{
+	char ret = '\0';
+
+	if (rxReadPos != rxWritePos)
+	{
+		ret = rxBuffer[rxReadPos];
+	}
+
+	return ret;
+}
+
+
+
+char Chardos(void)
+{
+	char ret = '\0';
+
+	if (rxReadPos != rxWritePos)
+	{
+		ret = rxBuffer[rxReadPos];
+
+		rxReadPos++;
+
+		if (rxReadPos >= RX_BUFFER_SIZE)
+		{
+			rxReadPos = 0;
+		}
+	}
+
+	return ret;
+}
+
+
+ISR(USART_RX_vect)
+{
+	rxBuffer[rxWritePos] = UDR0;
+
+	rxWritePos++;
+
+	if (rxWritePos >= RX_BUFFER_SIZE)
+	{
+		rxWritePos = 0;
+	}
+}
+
+
+
 
