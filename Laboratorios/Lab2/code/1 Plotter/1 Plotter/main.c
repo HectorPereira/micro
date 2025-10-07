@@ -28,6 +28,8 @@
 volatile char    rxBuffer[RX_BUFFER_SIZE];
 volatile uint8_t rxReadPos  = 0;
 volatile uint8_t rxWritePos = 0;
+volatile uint8_t CONTADOR = 0; // La idea es usarlo para las figuras simples
+
 
 char    serialBuffer[TX_BUFFER_SIZE];
 uint8_t serialReadPos  = 0;
@@ -39,15 +41,24 @@ void serialWrite(const char *c);
 char peekChar(void);
 char Chardos(void);
 
+void Centrar(void);
+void Hacer_cuadrado(void);
+
+
 int main(void)
 {
 	
 	UBRR0H = (BRC >> 8);
 	UBRR0L = BRC;
-
-
+	
+	TCCR0A = 0x00;
+	TCCR0B |=  (1 << CS02) | (0 << CS01) | (1 << CS00); //Timer 1024
+	TIMSK0 |=  (1 << TOIE0);
+	
 	// Habilitar transmisor
-	UCSR0B = (1 << TXEN0) | (1 << TXCIE0) | (1 << RXEN0) | (1 << RXCIE0); // RXENn: Receiver Enable n ; TXCIEn: TX Complete Interrupt Enable n ;  TXENn: Transmitter Enable n; RXCIEn:  RX Complete Interrupt Enable n
+	
+	UCSR0B = (1 << TXEN0) | (1 << TXCIE0) | (1 << RXEN0) | (1 << RXCIE0);
+	 // RXENn: Receiver Enable n ; TXCIEn: TX Complete Interrupt Enable n ;  TXENn: Transmitter Enable n; RXCIEn:  RX Complete Interrupt Enable n
 
 	// Modo asincrónico, 8 bits, 1 stop, sin paridad
 	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
@@ -55,11 +66,12 @@ int main(void)
 	sei();
 	
 	DDRB |= (1 << PORTB0);
+	DDRD |= 0b11111100;
 	
 	serialWrite("\nSelecciona la figura a dibujar:\n");
 	serialWrite("1 - Circulo\n");
-	serialWrite("1 - Cuadrado\n");
-	serialWrite("1 - Triangulo");
+	serialWrite("2 - Cuadrado\n");
+	serialWrite("3 - Triangulo");
 	
 	_delay_ms(5);
 	
@@ -67,13 +79,13 @@ int main(void)
     {
 		char c = Chardos();
 
-		if (c == '1')
+		if (c == '2')
 		{
-			serialWrite("algo");
+			Centrar();// Hacer el cuadrado
 		}
 		else if (c == '0')
 		{
-			cbi(PORTB, PORTB0);
+			cbi(PORTD, 4);
 		}
 
     }
@@ -90,9 +102,6 @@ void appendSerial(char c)
 	}
 }
 
-
-
-
 void serialWrite(const char *c)
 {
 	for (uint8_t i = 0; i < strlen(c); i++)
@@ -104,7 +113,6 @@ void serialWrite(const char *c)
 		UDR0 = 0;
 	}
 }
-
 
 ISR(USART_TX_vect)
 {
@@ -132,8 +140,6 @@ char peekChar(void)
 	return ret;
 }
 
-
-
 char Chardos(void)
 {
 	char ret = '\0';
@@ -153,7 +159,6 @@ char Chardos(void)
 	return ret;
 }
 
-
 ISR(USART_RX_vect)
 {
 	rxBuffer[rxWritePos] = UDR0;
@@ -166,6 +171,25 @@ ISR(USART_RX_vect)
 	}
 }
 
+ISR(TIMER1_OVF_vect){
+	CONTADOR += 1;
+}
 
+
+void Centrar(void){
+	if(CONTADOR < 2)
+	{
+		sbi(PORTD, 4);   // Pone en 1 el bit 2 de PORTD
+	}
+	else if (2 < CONTADOR  & 2 > CONTADOR)
+	{
+		cbi(PORTD, 4);
+		sbi(PORTD, 5);
+	}
+}
+
+void Hacer_cuadrado(void){
+	
+}
 
 
