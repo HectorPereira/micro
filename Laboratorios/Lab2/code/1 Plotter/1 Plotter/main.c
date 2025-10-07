@@ -4,16 +4,15 @@
  * Created: 10/6/2025 7:11:20 PM
  *  Author: isacm
  */ 
-
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
+#include <string.h>
 
 #define F_CPU 16000000UL    // Frecuencia del reloj del micro (16 MHz)
 #define BAUD 9600           // Velocidad de transmisión (baudios)
 #define BRC ((F_CPU / 16 / BAUD) - 1)   // Valor para UBRR
 #define TX_BUFFER_SIZE 128
-// ---- Buffer RX circular ----
 #define RX_BUFFER_SIZE 128
 
 
@@ -38,11 +37,18 @@ uint8_t serialWritePos = 0;
 
 void appendSerial(char c);
 void serialWrite(const char *c);
+ISR(USART_TX_vect);
 char peekChar(void);
 char Chardos(void);
 
-void Centrar(void);
-void Hacer_cuadrado(void);
+
+void Subir(void);
+void bajar(void);
+void izquierda(void);
+void Derecha(void);
+void X(void);
+void Y(void);
+
 
 
 int main(void)
@@ -66,10 +72,10 @@ int main(void)
 	sei();
 	
 	DDRB |= (1 << PORTB0);
-	DDRD |= 0b11111100;
+ 	DDRD = 0b11111100;
 	
 	serialWrite("\nSelecciona la figura a dibujar:\n");
-	serialWrite("1 - Circulo\n");
+	serialWrite("1 - Cruz \n");
 	serialWrite("2 - Cuadrado\n");
 	serialWrite("3 - Triangulo");
 	
@@ -77,19 +83,13 @@ int main(void)
 	
     while(1)
     {
-		char c = Chardos();
-
-		if (c == '2')
-		{
-			Centrar();// Hacer el cuadrado
-		}
-		else if (c == '0')
-		{
-			cbi(PORTD, 4);
-		}
+	
 
     }
 }
+
+
+
 
 
 void appendSerial(char c)
@@ -98,9 +98,12 @@ void appendSerial(char c)
 	serialWritePos++;
 
 	if (serialWritePos >= TX_BUFFER_SIZE) {
-		serialWritePos = 0;
+		serialWritePos = 0;   // wrap-around
 	}
 }
+
+
+
 
 void serialWrite(const char *c)
 {
@@ -108,11 +111,13 @@ void serialWrite(const char *c)
 	{
 		appendSerial(c[i]);
 	}
+
 	if (UCSR0A & (1 << UDRE0))
 	{
-		UDR0 = 0;
+		UDR0 = 0;  // Envía el primer byte si el registro está libre
 	}
 }
+
 
 ISR(USART_TX_vect)
 {
@@ -171,25 +176,40 @@ ISR(USART_RX_vect)
 	}
 }
 
-ISR(TIMER1_OVF_vect){
-	CONTADOR += 1;
+
+
+void Subir(void)
+{
+	cbi(PORTD, 4);   // D3 - Subir solenoide X1
+	sbi(PORTD, 5);
 }
 
-
-void Centrar(void){
-	if(CONTADOR < 2)
-	{
-		sbi(PORTD, 4);   // Pone en 1 el bit 2 de PORTD
-	}
-	else if (2 < CONTADOR  & 2 > CONTADOR)
-	{
-		cbi(PORTD, 4);
-		sbi(PORTD, 5);
-	}
+void Bajar(void)
+{
+	cbi(PORTD, 5);   // D3 - Subir solenoide X1
+	sbi(PORTD, 4);
 }
 
-void Hacer_cuadrado(void){
-	
+void Izquierda(void)
+{
+	cbi(PORTD, 5);   // D3 - Subir solenoide X1
+	sbi(PORTD, 6);
 }
 
+void Derecha(void)
+{
+	cbi(PORTD, 6);   // D3 - Subir solenoide X1
+	sbi(PORTD, 5);
+}
 
+void bajar_s(void)
+{
+	cbi(PORTD, 2);   
+	cbi(PORTD, 3);  
+}
+
+void Subir_s(void)
+{
+	cbi(PORTD, 3);   // X5 - movimiento hacia abajo
+	cbi(PORTD, 2);   // X6 - movimiento hacia arriba
+}
