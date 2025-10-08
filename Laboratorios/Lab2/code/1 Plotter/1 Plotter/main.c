@@ -28,7 +28,9 @@ volatile uint8_t serialWritePos = 0;
 volatile char    rxBuffer[RX_BUFFER_SIZE];
 volatile uint8_t rxReadPos  = 0;
 volatile uint8_t rxWritePos = 0;
-volatile uint8_t CONTADOR = 0; // La idea es usarlo para las figuras simples
+volatile uint8_t CONTADOR = 0; // La idea es usarlo para mover el puntero
+volatile uint8_t CONTADOR2 = 0; // La idea es usarlo para las pausas
+volatile bool chan = true; // La idea es usarlo para las figuras simples
 
 void appendSerial(char c);
 void serialWrite(const char *c);
@@ -67,7 +69,8 @@ void X(void);
 void Y(void);
 
 void centrar(void);
-
+void peurbas(char c);
+void dibujar_cuadrado(void);
 
 int main(void)
 {
@@ -76,7 +79,7 @@ int main(void)
 	UBRR0L = BRC;
 	
 	TCCR1A = 0x00;
-	TCCR1B |=  (1 << CS02) | (0 << CS01) | (1 << CS00); //Timer 1024
+	TCCR1B |=  (0 << CS02) | (1 << CS01) | (1 << CS00); //Timer 64
 	TIMSK1 |=  (1 << TOIE1);
 	
 	// Habilitar transmisor
@@ -92,6 +95,8 @@ int main(void)
 	DDRB |= (1 << PORTB0);
  	DDRD = 0b11111110;
 	
+	
+	
 	serialWrite("\nSelecciona la figura a dibujar:\n");
 	serialWrite("1 - Triangulo\n");
 	
@@ -101,29 +106,105 @@ int main(void)
     {
 	    char c = Chardos();
 		
-		if (c == '1')
-		{
-			centrar();
+		if (c == '1'){
+			dibujar_cuadrado();
 		}
-		if (c == '2')
-		{
-			Subir_s();
+		
+		peurbas(c);
 		}
-		if (c == '3')
-		{
-			Bajar();
-		}
-		if (c == '4')
-		{
-			Derecha();
-		}
-
+		
+		
 
     }
   
     
-}
 
+void dibujar_cuadrado(void){
+	CONTADOR = 0;
+
+	int n = 1;
+	
+	Subir_s();
+	
+	// 0–2 s: ARRIBA
+	while (CONTADOR < 1) {
+		Subir();
+		// opcional: serialWrite("Arriba\n");
+	}
+
+	// 2–4 s: DERECHA
+	while (CONTADOR < 2) {
+		Derecha();
+		// opcional: serialWrite("Derecha\n");
+	}
+
+	// 4–6 s: ABAJO
+	while (CONTADOR < 3) {
+		Bajar();
+		// opcional: serialWrite("Abajo\n");
+	}
+
+	// 6–8 s: IZQUIERDA
+	while (CONTADOR < 4) {
+		Izquierda();
+		// opcional: serialWrite("Izquierda\n");
+	}
+	apagar();        // detener salidas al terminar el cuadrado
+}
+ //Para hacer cada pixel
+
+// Con TCNT1\H = 0xC2; TCNT1L = 0xF7; 19 bit en x , 21 en y
+void peurbas(char c){
+	switch (c)
+	{
+		case 'x':  // apagar todo
+		apagar();
+		break;
+
+		case 's':  // subir solenoide (D2)
+		Subir_s();
+		break;
+
+		case 'u':  // arriba (D5)
+		Subir();
+		break;
+
+		case 'd':  // abajo (D4)
+		Bajar();
+		break;
+
+		case 'l':  // izquierda (D6)
+		Izquierda();
+		break;
+
+		case 'r':  // derecha (D7)
+		Derecha();
+		break;
+
+		case 'z':  // abajo-izquierda (D4 + D6)
+		AbajoIzquierda();
+		break;
+
+		case 'c':  // abajo-derecha (D4 + D7)
+		AbajoDerecha();
+		break;
+
+		case 'q':  // arriba-izquierda (D5 + D6)
+		ArribaIzquierda();
+		break;
+
+		case 'e':  // arriba-derecha (D5 + D7)
+		ArribaDerecha();
+		
+		case 'j':  // arriba-derecha (D5 + D7)
+		centrar();
+		break;
+
+		default:
+		// opcional: no-op o mensaje de comando inválido
+		break;
+	}
+}
 
 void centrar(void){
 	CONTADOR = 0;
@@ -138,46 +219,72 @@ void centrar(void){
 	}
 	apagar();
 }
+
+
 void apagar(void){
+chan = false;
 PORTD = (PORTD & 0b00000011) | 0b00001000;
+
 }
 
 
 void Subir_s(void)
 {
-PORTD = (PORTD & 0b00000011) | 0b00000100;
+PORTD = (PORTD & 0b00001111) | 0b00000100;
+chan = false;
+
 }
 
 void Bajar(void)
 {
-PORTD = (PORTD & 0b00000011) | 0b00010000;
+PORTD = (PORTD & 0b00001111) | 0b00010000;
 }
 
 void Subir(void)
 {
-PORTD = (PORTD & 0b00000011) | 0b00100000;
+PORTD = (PORTD & 0b00001111) | 0b00100000;
 }
 
 void Izquierda(void)
 {
-PORTD = (PORTD & 0b00000011) | 0b01000000;
+PORTD = (PORTD & 0b00001111) | 0b01000000;
 }
 
 
 void Derecha(void)
 {
-PORTD = (PORTD & 0b00000011) | 0b10000000;
+PORTD = (PORTD & 0b00001111) | 0b10000000;
 }
 
+void AbajoIzquierda(void)
+{
+	PORTD = (PORTD & 0b00001111) | 0b01010000; // D6 y D4
+}
 
+void AbajoDerecha(void){
+	PORTD = (PORTD & 0b00001111) | 0b10010000; // D6 y D4
+}
 
+void ArribaIzquierda(void)
+{
+	PORTD = (PORTD & 0b00001111) | 0b01100000; // D3 y D4
+}
+
+void ArribaDerecha(void){
+	PORTD = (PORTD & 0b00001111) | 0b10100000; // D6 y D4
+}
 
 
 ISR(TIMER1_OVF_vect) {
 	TCNT1H = 0xC2;
 	TCNT1L = 0xF7;
-	
-	CONTADOR ++;
+	if(chan){
+	CONTADOR ++;	
+	} else {
+		if (5 < CONTADOR2){
+			chan = true;
+		}
+	}
 }
 
 
@@ -246,3 +353,7 @@ ISR(USART_RX_vect)
 		rxWritePos = 0;
 	}
 }
+
+
+
+
