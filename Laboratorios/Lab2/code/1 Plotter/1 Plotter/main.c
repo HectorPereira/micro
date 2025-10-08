@@ -9,7 +9,42 @@
 #include <avr/interrupt.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+// Seccion para USART
+#define F_CPU 16000000UL    // Frecuencia del reloj del micro (16 MHz)
+#define BAUD 9600           // Velocidad de transmisión (baudios)
+#define BRC ((F_CPU / 16 / BAUD) - 1)   // Valor para UBRR
+#define TX_BUFFER_SIZE 128
+#define RX_BUFFER_SIZE 128
+#define precarger 10000
+
+
+
+volatile char    serialBuffer[TX_BUFFER_SIZE];
+volatile uint8_t serialReadPos  = 0;
+volatile uint8_t serialWritePos = 0;
+
+volatile char    rxBuffer[RX_BUFFER_SIZE];
+volatile uint8_t rxReadPos  = 0;
+volatile uint8_t rxWritePos = 0;
+volatile uint8_t CONTADOR = 0; // La idea es usarlo para las figuras simples
+
+void appendSerial(char c);
+void serialWrite(const char *c);
+char peekChar(void);
+char Chardos(void);
+
+
+// macro para setear
+#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
+
+// macro para resetear
+#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+
+
+
+// Seccion para algoritmo de dibujar
 #define N 8
 
 // Estado actual del "cursor"
@@ -53,39 +88,11 @@ void mover_arr_izq(uint8_t M[N][N]) { mover_delta(M, -1, -1); }
 void mover_arr_der(uint8_t M[N][N]) { mover_delta(M, -1,  1); }
 void mover_aba_izq(uint8_t M[N][N]) { mover_delta(M,  1, -1); }
 void mover_aba_der(uint8_t M[N][N]) { mover_delta(M,  1,  1); }
-	
-// Seccion para USART
-#define F_CPU 16000000UL    // Frecuencia del reloj del micro (16 MHz)
-#define BAUD 9600           // Velocidad de transmisión (baudios)
-#define BRC ((F_CPU / 16 / BAUD) - 1)   // Valor para UBRR
-#define TX_BUFFER_SIZE 128
-#define RX_BUFFER_SIZE 128
-#define precarger 10000
 
 
-
-volatile char    serialBuffer[TX_BUFFER_SIZE];
-volatile uint8_t serialReadPos  = 0;
-volatile uint8_t serialWritePos = 0;
-
-volatile char    rxBuffer[RX_BUFFER_SIZE];
-volatile uint8_t rxReadPos  = 0;
-volatile uint8_t rxWritePos = 0;
-volatile uint8_t CONTADOR = 0; // La idea es usarlo para las figuras simples
-
-void appendSerial(char c);
-void serialWrite(const char *c);
-char peekChar(void);
-char Chardos(void);
-
-
-// macro para setear
-#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
-
-// macro para resetear
-#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
-
-
+static const int8_t DR[8] = { {-1, -1,  0,  1,  1,  1,  0, -1}, 
+							  { 0,  1,  1,  1,  0, -1, -1, -1} }; // Para escanear filas
+ // Para escanear columnas
 
 
 // Matrices para dibujar
@@ -134,9 +141,10 @@ void diagD_inf(void);
 void X(void);
 void Y(void);
 
-void sumar_m(const uint8_t A[N][N], const uint8_t B[N][N], uint8_t R[N][N]); // A + B = R
 
-void detectar_uno(void);
+void sumar_m(const uint8_t A[N][N], const uint8_t B[N][N], uint8_t R[N][N]); // A + B = R, Para leer la figura
+
+void detectar_uno(const uint8_t mov[N][N], uint8_t copy[N][N]); // Para moverse en la figura
 
 int main(void)
 {
@@ -186,7 +194,21 @@ void sumar_m(const uint8_t A[N][N], const uint8_t B[N][N], uint8_t R[N][N]){ //A
 }
 
 
+// 	 0 0 0
+//   0 A 0
+// 	 0 0 0
 
+// Matriz con 1 solo -> evaluar proximo uno en copia de dibujo -> Eliminar ese uno en copia y mover el uno de la de movimiento a ese uno
+
+
+void detectar_uno(const uint8_t mov[N][N], uint8_t copy[N][N]){
+	bool var = false;
+	
+
+	
+	
+	
+}
 void apagar(void){
 	cbi(PORTD, 4);
 	cbi(PORTD, 5);

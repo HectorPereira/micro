@@ -46,6 +46,8 @@ Discarded input sections
  .text.mover_aba_der
                 0x0000000000000000        0xe main.o
  .text.sumar_m  0x0000000000000000       0x6e main.o
+ .text.detectar_uno
+                0x0000000000000000        0x2 main.o
  .text.apagar   0x0000000000000000       0x20 main.o
  .text.Subir    0x0000000000000000        0xe main.o
  .text.Bajar    0x0000000000000000        0xe main.o
@@ -417,32 +419,32 @@ END GROUP
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x0000000000000000       0xf0
+.debug_aranges  0x0000000000000000       0xf8
  *(.debug_aranges)
  .debug_aranges
-                0x0000000000000000       0xf0 main.o
+                0x0000000000000000       0xf8 main.o
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0x11ad
+.debug_info     0x0000000000000000     0x1225
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000      0x5f4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
- .debug_info    0x00000000000005f4      0xbb9 main.o
+ .debug_info    0x00000000000005f4      0xc31 main.o
 
-.debug_abbrev   0x0000000000000000      0x7f5
+.debug_abbrev   0x0000000000000000      0x843
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x5a2 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
- .debug_abbrev  0x00000000000005a2      0x253 main.o
+ .debug_abbrev  0x00000000000005a2      0x2a1 main.o
 
-.debug_line     0x0000000000000000      0x69e
+.debug_line     0x0000000000000000      0x6b8
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000      0x137 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
- .debug_line    0x0000000000000137      0x567 main.o
+ .debug_line    0x0000000000000137      0x581 main.o
 
-.debug_frame    0x0000000000000000      0x26c
+.debug_frame    0x0000000000000000      0x27c
  *(.debug_frame)
- .debug_frame   0x0000000000000000      0x26c main.o
+ .debug_frame   0x0000000000000000      0x27c main.o
 
 .debug_str      0x0000000000000000      0x208
  *(.debug_str)
@@ -471,9 +473,9 @@ END GROUP
 .debug_pubtypes
  *(.debug_pubtypes)
 
-.debug_ranges   0x0000000000000000      0x110
+.debug_ranges   0x0000000000000000      0x118
  *(.debug_ranges)
- .debug_ranges  0x0000000000000000      0x110 main.o
+ .debug_ranges  0x0000000000000000      0x118 main.o
 
 .debug_macro
  *(.debug_macro)
