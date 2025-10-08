@@ -3,96 +3,96 @@
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  00800100  00000382  2**0
+  0 .data         00000000  00800100  00800100  000003ba  2**0
                   ALLOC, LOAD, DATA
   1 .text         000000c2  00000000  00000000  000000b4  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .bss          00000100  00800100  00800100  00000382  2**0
+  2 .bss          00000100  00800100  00800100  000003ba  2**0
                   ALLOC
-  3 .comment      0000002f  00000000  00000000  00000382  2**0
+  3 .comment      0000002f  00000000  00000000  000003ba  2**0
                   CONTENTS, READONLY
-  4 .stack.descriptors.hdr 0000000e  00000000  00000000  000003b1  2**0
+  4 .stack.descriptors.hdr 0000000e  00000000  00000000  000003e9  2**0
                   CONTENTS, READONLY
-  5 .debug_aranges 00000088  00000000  00000000  000003bf  2**0
+  5 .debug_aranges 00000088  00000000  00000000  000003f7  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000cc5  00000000  00000000  00000447  2**0
+  6 .debug_info   00000cb7  00000000  00000000  0000047f  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000797  00000000  00000000  0000110c  2**0
+  7 .debug_abbrev 0000077d  00000000  00000000  00001136  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   00000494  00000000  00000000  000018a3  2**0
+  8 .debug_line   00000498  00000000  00000000  000018b3  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  0000014c  00000000  00000000  00001d38  2**2
+  9 .debug_frame  0000015c  00000000  00000000  00001d4c  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000208  00000000  00000000  00001e84  2**0
+ 10 .debug_str    00000208  00000000  00000000  00001ea8  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    000001ec  00000000  00000000  0000208c  2**0
+ 11 .debug_loc    00000255  00000000  00000000  000020b0  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000078  00000000  00000000  00002278  2**0
+ 12 .debug_ranges 00000078  00000000  00000000  00002305  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .text         00000004  000002c0  000002c0  00000374  2**1
+ 13 .text         00000004  000002f8  000002f8  000003ac  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 14 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000022f0  2**2
+ 14 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00002380  2**2
                   CONTENTS, READONLY, DEBUGGING
- 15 .text.appendSerial 0000001e  0000028c  0000028c  00000340  2**1
+ 15 .text.__vector_16 00000014  000002e4  000002e4  00000398  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 16 .text.serialWrite 0000005a  00000176  00000176  0000022a  2**1
+ 16 .text.serialWrite 0000007e  0000010c  0000010c  000001c0  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
  17 .progmemx.data 00000049  000000c2  000000c2  00000176  2**0
                   CONTENTS, ALLOC, LOAD, READONLY, PROGMEMX
- 18 .text.main    0000006a  0000010c  0000010c  000001c0  2**1
+ 18 .text.main    0000006a  0000018a  0000018a  0000023e  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 19 .text.__vector_20 0000004a  000001d0  000001d0  00000284  2**1
+ 19 .text.__vector_19 00000068  000001f4  000001f4  000002a8  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 20 .text.__vector_18 00000046  0000021a  0000021a  000002ce  2**1
+ 20 .text.__vector_18 00000046  0000025c  0000025c  00000310  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 21 .bss.serialWritePos 00000001  00800200  00800200  00000382  2**0
+ 21 .bss.rxWritePos 00000001  00800200  00800200  000003ba  2**0
                   ALLOC
- 22 .bss.serialReadPos 00000001  00800201  00800201  00000382  2**0
+ 22 .bss.serialWritePos 00000001  00800201  00800201  000003ba  2**0
                   ALLOC
- 23 .bss.rxWritePos 00000001  00800202  00800202  00000382  2**0
+ 23 .bss.serialReadPos 00000001  00800202  00800202  000003ba  2**0
                   ALLOC
- 24 .text.__dummy_fini 00000002  000002c8  000002c8  0000037c  2**1
+ 24 .text.__dummy_fini 00000002  00000300  00000300  000003b4  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 25 .text.__dummy_funcs_on_exit 00000002  000002ca  000002ca  0000037e  2**1
+ 25 .text.__dummy_funcs_on_exit 00000002  00000302  00000302  000003b6  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 26 .text.__dummy_simulator_exit 00000002  000002cc  000002cc  00000380  2**1
+ 26 .text.__dummy_simulator_exit 00000002  00000304  00000304  000003b8  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 27 .text.exit    00000016  000002aa  000002aa  0000035e  2**1
+ 27 .text.exit    00000016  000002ce  000002ce  00000382  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 28 .text.strlen  0000002c  00000260  00000260  00000314  2**1
+ 28 .text.strlen  0000002c  000002a2  000002a2  00000356  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 29 .text._Exit   00000004  000002c4  000002c4  00000378  2**1
+ 29 .text._Exit   00000004  000002fc  000002fc  000003b0  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
 
 Disassembly of section .text:
 
 00000000 <__vectors>:
    0:	0c 94 37 00 	jmp	0x6e	; 0x6e <__ctors_end>
-   4:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-   8:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-   c:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  10:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  14:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  18:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  1c:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  20:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  24:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  28:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  2c:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  30:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  34:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  38:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  3c:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  40:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  44:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  48:	0c 94 0d 01 	jmp	0x21a	; 0x21a <__vector_18>
-  4c:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  50:	0c 94 e8 00 	jmp	0x1d0	; 0x1d0 <__vector_20>
-  54:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  58:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  5c:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  60:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
-  64:	0c 94 60 01 	jmp	0x2c0	; 0x2c0 <__bad_interrupt>
+   4:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+   8:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+   c:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+  10:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+  14:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+  18:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+  1c:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+  20:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+  24:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+  28:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+  2c:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+  30:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+  34:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+  38:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+  3c:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+  40:	0c 94 72 01 	jmp	0x2e4	; 0x2e4 <__vector_16>
+  44:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+  48:	0c 94 2e 01 	jmp	0x25c	; 0x25c <__vector_18>
+  4c:	0c 94 fa 00 	jmp	0x1f4	; 0x1f4 <__vector_19>
+  50:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+  54:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+  58:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+  5c:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+  60:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
+  64:	0c 94 7c 01 	jmp	0x2f8	; 0x2f8 <__bad_interrupt>
 
 00000068 <.dinit>:
   68:	01 00       	.word	0x0001	; ????
@@ -140,8 +140,8 @@ Disassembly of section .text:
   b0:	ed 36       	cpi	r30, 0x6D	; 109
   b2:	f4 07       	cpc	r31, r20
   b4:	31 f7       	brne	.-52     	; 0x82 <__do_copy_data+0x8>
-  b6:	0e 94 86 00 	call	0x10c	; 0x10c <main>
-  ba:	0c 94 55 01 	jmp	0x2aa	; 0x2aa <exit>
+  b6:	0e 94 c5 00 	call	0x18a	; 0x18a <main>
+  ba:	0c 94 67 01 	jmp	0x2ce	; 0x2ce <exit>
 
 000000be <_exit>:
   be:	f8 94       	cli
@@ -151,268 +151,285 @@ Disassembly of section .text:
 
 Disassembly of section .text:
 
-000002c0 <__bad_interrupt>:
- 2c0:	0c 94 00 00 	jmp	0	; 0x0 <__TEXT_REGION_ORIGIN__>
+000002f8 <__bad_interrupt>:
+ 2f8:	0c 94 00 00 	jmp	0	; 0x0 <__TEXT_REGION_ORIGIN__>
 
-Disassembly of section .text.appendSerial:
+Disassembly of section .text.__vector_16:
 
-0000028c <appendSerial>:
-
-
-
-void appendSerial(char c)
-{
-	serialBuffer[serialWritePos] = c;
- 28c:	90 91 00 02 	lds	r25, 0x0200	; 0x800200 <_end>
- 290:	e9 2f       	mov	r30, r25
- 292:	f0 e0       	ldi	r31, 0x00	; 0
- 294:	e0 58       	subi	r30, 0x80	; 128
- 296:	fe 4f       	sbci	r31, 0xFE	; 254
- 298:	80 83       	st	Z, r24
-	serialWritePos++;
- 29a:	9f 5f       	subi	r25, 0xFF	; 255
- 29c:	90 93 00 02 	sts	0x0200, r25	; 0x800200 <_end>
-
+000002e4 <__vector_16>:
 	if (serialWritePos >= TX_BUFFER_SIZE) {
- 2a0:	99 23       	and	r25, r25
- 2a2:	14 f4       	brge	.+4      	; 0x2a8 <appendSerial+0x1c>
 		serialWritePos = 0;   // wrap-around
- 2a4:	10 92 00 02 	sts	0x0200, r1	; 0x800200 <_end>
- 2a8:	08 95       	ret
+	}
+}
+
+ISR(TIMER0_OVF_vect) {
+ 2e4:	1f 92       	push	r1
+ 2e6:	0f 92       	push	r0
+ 2e8:	0f b6       	in	r0, 0x3f	; 63
+ 2ea:	0f 92       	push	r0
+ 2ec:	11 24       	eor	r1, r1
+	// vacío por ahora
+}
+ 2ee:	0f 90       	pop	r0
+ 2f0:	0f be       	out	0x3f, r0	; 63
+ 2f2:	0f 90       	pop	r0
+ 2f4:	1f 90       	pop	r1
+ 2f6:	18 95       	reti
 
 Disassembly of section .text.serialWrite:
 
-00000176 <serialWrite>:
-			rxReadPos = 0;
-		}
-	}
+0000010c <serialWrite>:
+{
+	serialBuffer[serialWritePos] = c;
+	serialWritePos++;
 
-	return ret;
-}
- 176:	cf 92       	push	r12
- 178:	df 92       	push	r13
- 17a:	ef 92       	push	r14
- 17c:	0f 93       	push	r16
- 17e:	1f 93       	push	r17
- 180:	cf 93       	push	r28
- 182:	6b 01       	movw	r12, r22
- 184:	e8 2e       	mov	r14, r24
- 186:	c0 e0       	ldi	r28, 0x00	; 0
- 188:	0e c0       	rjmp	.+28     	; 0x1a6 <serialWrite+0x30>
- 18a:	ae 2d       	mov	r26, r14
- 18c:	c6 01       	movw	r24, r12
- 18e:	80 0f       	add	r24, r16
- 190:	91 1f       	adc	r25, r17
- 192:	a1 1d       	adc	r26, r1
- 194:	17 fd       	sbrc	r17, 7
- 196:	aa 95       	dec	r26
- 198:	fc 01       	movw	r30, r24
- 19a:	84 91       	lpm	r24, Z
- 19c:	a7 fd       	sbrc	r26, 7
- 19e:	80 81       	ld	r24, Z
- 1a0:	0e 94 46 01 	call	0x28c	; 0x28c <appendSerial>
- 1a4:	cf 5f       	subi	r28, 0xFF	; 255
- 1a6:	0c 2f       	mov	r16, r28
- 1a8:	10 e0       	ldi	r17, 0x00	; 0
- 1aa:	8e 2d       	mov	r24, r14
- 1ac:	b6 01       	movw	r22, r12
- 1ae:	0e 94 30 01 	call	0x260	; 0x260 <strlen>
- 1b2:	08 17       	cp	r16, r24
- 1b4:	19 07       	cpc	r17, r25
- 1b6:	48 f3       	brcs	.-46     	; 0x18a <serialWrite+0x14>
- 1b8:	80 91 c0 00 	lds	r24, 0x00C0	; 0x8000c0 <__TEXT_REGION_LENGTH__+0x7f80c0>
- 1bc:	85 fd       	sbrc	r24, 5
- 1be:	10 92 c6 00 	sts	0x00C6, r1	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7f80c6>
- 1c2:	cf 91       	pop	r28
- 1c4:	1f 91       	pop	r17
- 1c6:	0f 91       	pop	r16
- 1c8:	ef 90       	pop	r14
- 1ca:	df 90       	pop	r13
- 1cc:	cf 90       	pop	r12
- 1ce:	08 95       	ret
+	if (serialWritePos >= TX_BUFFER_SIZE) {
+		serialWritePos = 0;   // wrap-around
+ 10c:	cf 92       	push	r12
+ 10e:	df 92       	push	r13
+ 110:	ef 92       	push	r14
+ 112:	0f 93       	push	r16
+ 114:	1f 93       	push	r17
+ 116:	cf 93       	push	r28
+ 118:	6b 01       	movw	r12, r22
+ 11a:	e8 2e       	mov	r14, r24
+ 11c:	c0 e0       	ldi	r28, 0x00	; 0
+ 11e:	1f c0       	rjmp	.+62     	; 0x15e <serialWrite+0x52>
+ 120:	80 91 01 02 	lds	r24, 0x0201	; 0x800201 <serialWritePos>
+ 124:	90 e0       	ldi	r25, 0x00	; 0
+ 126:	4e 2d       	mov	r20, r14
+ 128:	96 01       	movw	r18, r12
+ 12a:	2c 0f       	add	r18, r28
+ 12c:	31 1d       	adc	r19, r1
+ 12e:	41 1d       	adc	r20, r1
+ 130:	f9 01       	movw	r30, r18
+ 132:	24 91       	lpm	r18, Z
+ 134:	47 fd       	sbrc	r20, 7
+ 136:	20 81       	ld	r18, Z
+ 138:	fc 01       	movw	r30, r24
+ 13a:	e0 58       	subi	r30, 0x80	; 128
+ 13c:	fe 4f       	sbci	r31, 0xFE	; 254
+ 13e:	20 83       	st	Z, r18
+ 140:	80 91 01 02 	lds	r24, 0x0201	; 0x800201 <serialWritePos>
+ 144:	90 e0       	ldi	r25, 0x00	; 0
+ 146:	01 96       	adiw	r24, 0x01	; 1
+ 148:	8f 77       	andi	r24, 0x7F	; 127
+ 14a:	90 78       	andi	r25, 0x80	; 128
+ 14c:	99 23       	and	r25, r25
+ 14e:	24 f4       	brge	.+8      	; 0x158 <serialWrite+0x4c>
+ 150:	01 97       	sbiw	r24, 0x01	; 1
+ 152:	80 68       	ori	r24, 0x80	; 128
+ 154:	9f 6f       	ori	r25, 0xFF	; 255
+ 156:	01 96       	adiw	r24, 0x01	; 1
+ 158:	80 93 01 02 	sts	0x0201, r24	; 0x800201 <serialWritePos>
+ 15c:	cf 5f       	subi	r28, 0xFF	; 255
+ 15e:	0c 2f       	mov	r16, r28
+ 160:	10 e0       	ldi	r17, 0x00	; 0
+ 162:	8e 2d       	mov	r24, r14
+ 164:	b6 01       	movw	r22, r12
+ 166:	0e 94 51 01 	call	0x2a2	; 0x2a2 <strlen>
+ 16a:	99 27       	eor	r25, r25
+ 16c:	08 17       	cp	r16, r24
+ 16e:	19 07       	cpc	r17, r25
+ 170:	bc f2       	brlt	.-82     	; 0x120 <serialWrite+0x14>
+ 172:	e1 ec       	ldi	r30, 0xC1	; 193
+ 174:	f0 e0       	ldi	r31, 0x00	; 0
+ 176:	80 81       	ld	r24, Z
+ 178:	80 62       	ori	r24, 0x20	; 32
+ 17a:	80 83       	st	Z, r24
+ 17c:	cf 91       	pop	r28
+ 17e:	1f 91       	pop	r17
+ 180:	0f 91       	pop	r16
+ 182:	ef 90       	pop	r14
+ 184:	df 90       	pop	r13
+ 186:	cf 90       	pop	r12
+ 188:	08 95       	ret
 
 Disassembly of section .text.main:
 
-0000010c <main>:
- 10c:	10 92 c5 00 	sts	0x00C5, r1	; 0x8000c5 <__TEXT_REGION_LENGTH__+0x7f80c5>
- 110:	87 e6       	ldi	r24, 0x67	; 103
- 112:	80 93 c4 00 	sts	0x00C4, r24	; 0x8000c4 <__TEXT_REGION_LENGTH__+0x7f80c4>
- 116:	14 bc       	out	0x24, r1	; 36
- 118:	85 b5       	in	r24, 0x25	; 37
- 11a:	85 60       	ori	r24, 0x05	; 5
- 11c:	85 bd       	out	0x25, r24	; 37
- 11e:	ee e6       	ldi	r30, 0x6E	; 110
- 120:	f0 e0       	ldi	r31, 0x00	; 0
- 122:	80 81       	ld	r24, Z
- 124:	81 60       	ori	r24, 0x01	; 1
- 126:	80 83       	st	Z, r24
- 128:	88 ed       	ldi	r24, 0xD8	; 216
- 12a:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7f80c1>
- 12e:	86 e0       	ldi	r24, 0x06	; 6
- 130:	80 93 c2 00 	sts	0x00C2, r24	; 0x8000c2 <__TEXT_REGION_LENGTH__+0x7f80c2>
- 134:	78 94       	sei
- 136:	84 b1       	in	r24, 0x04	; 4
- 138:	81 60       	ori	r24, 0x01	; 1
- 13a:	84 b9       	out	0x04, r24	; 4
- 13c:	8c ef       	ldi	r24, 0xFC	; 252
- 13e:	8a b9       	out	0x0a, r24	; 10
- 140:	62 ec       	ldi	r22, 0xC2	; 194
- 142:	70 e0       	ldi	r23, 0x00	; 0
- 144:	80 e0       	ldi	r24, 0x00	; 0
- 146:	0e 94 bb 00 	call	0x176	; 0x176 <serialWrite>
- 14a:	64 ee       	ldi	r22, 0xE4	; 228
- 14c:	70 e0       	ldi	r23, 0x00	; 0
- 14e:	80 e0       	ldi	r24, 0x00	; 0
- 150:	0e 94 bb 00 	call	0x176	; 0x176 <serialWrite>
- 154:	6f ee       	ldi	r22, 0xEF	; 239
- 156:	70 e0       	ldi	r23, 0x00	; 0
- 158:	80 e0       	ldi	r24, 0x00	; 0
- 15a:	0e 94 bb 00 	call	0x176	; 0x176 <serialWrite>
- 15e:	6d ef       	ldi	r22, 0xFD	; 253
- 160:	70 e0       	ldi	r23, 0x00	; 0
- 162:	80 e0       	ldi	r24, 0x00	; 0
- 164:	0e 94 bb 00 	call	0x176	; 0x176 <serialWrite>
- 168:	81 ee       	ldi	r24, 0xE1	; 225
- 16a:	94 e0       	ldi	r25, 0x04	; 4
- 16c:	01 97       	sbiw	r24, 0x01	; 1
- 16e:	f1 f7       	brne	.-4      	; 0x16c <main+0x60>
- 170:	00 c0       	rjmp	.+0      	; 0x172 <main+0x66>
- 172:	00 00       	nop
- 174:	ff cf       	rjmp	.-2      	; 0x174 <main+0x68>
+0000018a <main>:
+ 18a:	10 92 c5 00 	sts	0x00C5, r1	; 0x8000c5 <__TEXT_REGION_LENGTH__+0x7f80c5>
+ 18e:	87 e6       	ldi	r24, 0x67	; 103
+ 190:	80 93 c4 00 	sts	0x00C4, r24	; 0x8000c4 <__TEXT_REGION_LENGTH__+0x7f80c4>
+ 194:	14 bc       	out	0x24, r1	; 36
+ 196:	85 b5       	in	r24, 0x25	; 37
+ 198:	85 60       	ori	r24, 0x05	; 5
+ 19a:	85 bd       	out	0x25, r24	; 37
+ 19c:	ee e6       	ldi	r30, 0x6E	; 110
+ 19e:	f0 e0       	ldi	r31, 0x00	; 0
+ 1a0:	80 81       	ld	r24, Z
+ 1a2:	81 60       	ori	r24, 0x01	; 1
+ 1a4:	80 83       	st	Z, r24
+ 1a6:	88 e9       	ldi	r24, 0x98	; 152
+ 1a8:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7f80c1>
+ 1ac:	86 e0       	ldi	r24, 0x06	; 6
+ 1ae:	80 93 c2 00 	sts	0x00C2, r24	; 0x8000c2 <__TEXT_REGION_LENGTH__+0x7f80c2>
+ 1b2:	78 94       	sei
+ 1b4:	84 b1       	in	r24, 0x04	; 4
+ 1b6:	81 60       	ori	r24, 0x01	; 1
+ 1b8:	84 b9       	out	0x04, r24	; 4
+ 1ba:	8e ef       	ldi	r24, 0xFE	; 254
+ 1bc:	8a b9       	out	0x0a, r24	; 10
+ 1be:	62 ec       	ldi	r22, 0xC2	; 194
+ 1c0:	70 e0       	ldi	r23, 0x00	; 0
+ 1c2:	80 e0       	ldi	r24, 0x00	; 0
+ 1c4:	0e 94 86 00 	call	0x10c	; 0x10c <serialWrite>
+ 1c8:	64 ee       	ldi	r22, 0xE4	; 228
+ 1ca:	70 e0       	ldi	r23, 0x00	; 0
+ 1cc:	80 e0       	ldi	r24, 0x00	; 0
+ 1ce:	0e 94 86 00 	call	0x10c	; 0x10c <serialWrite>
+ 1d2:	6f ee       	ldi	r22, 0xEF	; 239
+ 1d4:	70 e0       	ldi	r23, 0x00	; 0
+ 1d6:	80 e0       	ldi	r24, 0x00	; 0
+ 1d8:	0e 94 86 00 	call	0x10c	; 0x10c <serialWrite>
+ 1dc:	6d ef       	ldi	r22, 0xFD	; 253
+ 1de:	70 e0       	ldi	r23, 0x00	; 0
+ 1e0:	80 e0       	ldi	r24, 0x00	; 0
+ 1e2:	0e 94 86 00 	call	0x10c	; 0x10c <serialWrite>
+ 1e6:	81 ee       	ldi	r24, 0xE1	; 225
+ 1e8:	94 e0       	ldi	r25, 0x04	; 4
+ 1ea:	01 97       	sbiw	r24, 0x01	; 1
+ 1ec:	f1 f7       	brne	.-4      	; 0x1ea <main+0x60>
+ 1ee:	00 c0       	rjmp	.+0      	; 0x1f0 <main+0x66>
+ 1f0:	00 00       	nop
+ 1f2:	ff cf       	rjmp	.-2      	; 0x1f2 <main+0x68>
 
-Disassembly of section .text.__vector_20:
+Disassembly of section .text.__vector_19:
 
-000001d0 <__vector_20>:
- 1d0:	1f 92       	push	r1
- 1d2:	0f 92       	push	r0
- 1d4:	0f b6       	in	r0, 0x3f	; 63
- 1d6:	0f 92       	push	r0
- 1d8:	11 24       	eor	r1, r1
- 1da:	8f 93       	push	r24
- 1dc:	ef 93       	push	r30
- 1de:	ff 93       	push	r31
- 1e0:	e0 91 01 02 	lds	r30, 0x0201	; 0x800201 <serialReadPos>
- 1e4:	80 91 00 02 	lds	r24, 0x0200	; 0x800200 <_end>
- 1e8:	e8 17       	cp	r30, r24
- 1ea:	79 f0       	breq	.+30     	; 0x20a <__vector_20+0x3a>
- 1ec:	f0 e0       	ldi	r31, 0x00	; 0
- 1ee:	e0 58       	subi	r30, 0x80	; 128
- 1f0:	fe 4f       	sbci	r31, 0xFE	; 254
- 1f2:	80 81       	ld	r24, Z
- 1f4:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7f80c6>
- 1f8:	80 91 01 02 	lds	r24, 0x0201	; 0x800201 <serialReadPos>
- 1fc:	8f 5f       	subi	r24, 0xFF	; 255
- 1fe:	80 93 01 02 	sts	0x0201, r24	; 0x800201 <serialReadPos>
- 202:	88 23       	and	r24, r24
- 204:	14 f4       	brge	.+4      	; 0x20a <__vector_20+0x3a>
- 206:	10 92 01 02 	sts	0x0201, r1	; 0x800201 <serialReadPos>
- 20a:	ff 91       	pop	r31
- 20c:	ef 91       	pop	r30
- 20e:	8f 91       	pop	r24
- 210:	0f 90       	pop	r0
- 212:	0f be       	out	0x3f, r0	; 63
- 214:	0f 90       	pop	r0
- 216:	1f 90       	pop	r1
- 218:	18 95       	reti
+000001f4 <__vector_19>:
+ 1f4:	1f 92       	push	r1
+ 1f6:	0f 92       	push	r0
+ 1f8:	0f b6       	in	r0, 0x3f	; 63
+ 1fa:	0f 92       	push	r0
+ 1fc:	11 24       	eor	r1, r1
+ 1fe:	8f 93       	push	r24
+ 200:	9f 93       	push	r25
+ 202:	ef 93       	push	r30
+ 204:	ff 93       	push	r31
+ 206:	90 91 02 02 	lds	r25, 0x0202	; 0x800202 <serialReadPos>
+ 20a:	80 91 01 02 	lds	r24, 0x0201	; 0x800201 <serialWritePos>
+ 20e:	98 17       	cp	r25, r24
+ 210:	b9 f0       	breq	.+46     	; 0x240 <__vector_19+0x4c>
+ 212:	e0 91 02 02 	lds	r30, 0x0202	; 0x800202 <serialReadPos>
+ 216:	f0 e0       	ldi	r31, 0x00	; 0
+ 218:	e0 58       	subi	r30, 0x80	; 128
+ 21a:	fe 4f       	sbci	r31, 0xFE	; 254
+ 21c:	80 81       	ld	r24, Z
+ 21e:	80 93 c6 00 	sts	0x00C6, r24	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7f80c6>
+ 222:	80 91 02 02 	lds	r24, 0x0202	; 0x800202 <serialReadPos>
+ 226:	90 e0       	ldi	r25, 0x00	; 0
+ 228:	01 96       	adiw	r24, 0x01	; 1
+ 22a:	8f 77       	andi	r24, 0x7F	; 127
+ 22c:	90 78       	andi	r25, 0x80	; 128
+ 22e:	99 23       	and	r25, r25
+ 230:	24 f4       	brge	.+8      	; 0x23a <__vector_19+0x46>
+ 232:	01 97       	sbiw	r24, 0x01	; 1
+ 234:	80 68       	ori	r24, 0x80	; 128
+ 236:	9f 6f       	ori	r25, 0xFF	; 255
+ 238:	01 96       	adiw	r24, 0x01	; 1
+ 23a:	80 93 02 02 	sts	0x0202, r24	; 0x800202 <serialReadPos>
+ 23e:	05 c0       	rjmp	.+10     	; 0x24a <__vector_19+0x56>
+ 240:	e1 ec       	ldi	r30, 0xC1	; 193
+ 242:	f0 e0       	ldi	r31, 0x00	; 0
+ 244:	80 81       	ld	r24, Z
+ 246:	8f 7d       	andi	r24, 0xDF	; 223
+ 248:	80 83       	st	Z, r24
+ 24a:	ff 91       	pop	r31
+ 24c:	ef 91       	pop	r30
+ 24e:	9f 91       	pop	r25
+ 250:	8f 91       	pop	r24
+ 252:	0f 90       	pop	r0
+ 254:	0f be       	out	0x3f, r0	; 63
+ 256:	0f 90       	pop	r0
+ 258:	1f 90       	pop	r1
+ 25a:	18 95       	reti
 
 Disassembly of section .text.__vector_18:
 
-0000021a <__vector_18>:
-
-ISR(USART_RX_vect)
-{
- 21a:	1f 92       	push	r1
- 21c:	0f 92       	push	r0
- 21e:	0f b6       	in	r0, 0x3f	; 63
- 220:	0f 92       	push	r0
- 222:	11 24       	eor	r1, r1
- 224:	8f 93       	push	r24
- 226:	ef 93       	push	r30
- 228:	ff 93       	push	r31
-	rxBuffer[rxWritePos] = UDR0;
- 22a:	e0 91 02 02 	lds	r30, 0x0202	; 0x800202 <rxWritePos>
- 22e:	f0 e0       	ldi	r31, 0x00	; 0
- 230:	80 91 c6 00 	lds	r24, 0x00C6	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7f80c6>
- 234:	e0 50       	subi	r30, 0x00	; 0
- 236:	ff 4f       	sbci	r31, 0xFF	; 255
- 238:	80 83       	st	Z, r24
-
-	rxWritePos++;
- 23a:	80 91 02 02 	lds	r24, 0x0202	; 0x800202 <rxWritePos>
- 23e:	8f 5f       	subi	r24, 0xFF	; 255
- 240:	80 93 02 02 	sts	0x0202, r24	; 0x800202 <rxWritePos>
-
-	if (rxWritePos >= RX_BUFFER_SIZE)
- 244:	80 91 02 02 	lds	r24, 0x0202	; 0x800202 <rxWritePos>
- 248:	88 23       	and	r24, r24
- 24a:	14 f4       	brge	.+4      	; 0x250 <__vector_18+0x36>
-	{
-		rxWritePos = 0;
- 24c:	10 92 02 02 	sts	0x0202, r1	; 0x800202 <rxWritePos>
-	}
-}
- 250:	ff 91       	pop	r31
- 252:	ef 91       	pop	r30
- 254:	8f 91       	pop	r24
- 256:	0f 90       	pop	r0
- 258:	0f be       	out	0x3f, r0	; 63
- 25a:	0f 90       	pop	r0
- 25c:	1f 90       	pop	r1
- 25e:	18 95       	reti
+0000025c <__vector_18>:
+ 25c:	1f 92       	push	r1
+ 25e:	0f 92       	push	r0
+ 260:	0f b6       	in	r0, 0x3f	; 63
+ 262:	0f 92       	push	r0
+ 264:	11 24       	eor	r1, r1
+ 266:	8f 93       	push	r24
+ 268:	ef 93       	push	r30
+ 26a:	ff 93       	push	r31
+ 26c:	e0 91 00 02 	lds	r30, 0x0200	; 0x800200 <_end>
+ 270:	f0 e0       	ldi	r31, 0x00	; 0
+ 272:	80 91 c6 00 	lds	r24, 0x00C6	; 0x8000c6 <__TEXT_REGION_LENGTH__+0x7f80c6>
+ 276:	e0 50       	subi	r30, 0x00	; 0
+ 278:	ff 4f       	sbci	r31, 0xFF	; 255
+ 27a:	80 83       	st	Z, r24
+ 27c:	80 91 00 02 	lds	r24, 0x0200	; 0x800200 <_end>
+ 280:	8f 5f       	subi	r24, 0xFF	; 255
+ 282:	80 93 00 02 	sts	0x0200, r24	; 0x800200 <_end>
+ 286:	80 91 00 02 	lds	r24, 0x0200	; 0x800200 <_end>
+ 28a:	88 23       	and	r24, r24
+ 28c:	14 f4       	brge	.+4      	; 0x292 <__vector_18+0x36>
+ 28e:	10 92 00 02 	sts	0x0200, r1	; 0x800200 <_end>
+ 292:	ff 91       	pop	r31
+ 294:	ef 91       	pop	r30
+ 296:	8f 91       	pop	r24
+ 298:	0f 90       	pop	r0
+ 29a:	0f be       	out	0x3f, r0	; 63
+ 29c:	0f 90       	pop	r0
+ 29e:	1f 90       	pop	r1
+ 2a0:	18 95       	reti
 
 Disassembly of section .text.__dummy_fini:
 
-000002c8 <_fini>:
- 2c8:	08 95       	ret
+00000300 <_fini>:
+ 300:	08 95       	ret
 
 Disassembly of section .text.__dummy_funcs_on_exit:
 
-000002ca <__funcs_on_exit>:
- 2ca:	08 95       	ret
+00000302 <__funcs_on_exit>:
+ 302:	08 95       	ret
 
 Disassembly of section .text.__dummy_simulator_exit:
 
-000002cc <__simulator_exit>:
- 2cc:	08 95       	ret
+00000304 <__simulator_exit>:
+ 304:	08 95       	ret
 
 Disassembly of section .text.exit:
 
-000002aa <exit>:
- 2aa:	ec 01       	movw	r28, r24
- 2ac:	0e 94 65 01 	call	0x2ca	; 0x2ca <__funcs_on_exit>
- 2b0:	0e 94 64 01 	call	0x2c8	; 0x2c8 <_fini>
- 2b4:	ce 01       	movw	r24, r28
- 2b6:	0e 94 66 01 	call	0x2cc	; 0x2cc <__simulator_exit>
- 2ba:	ce 01       	movw	r24, r28
- 2bc:	0e 94 62 01 	call	0x2c4	; 0x2c4 <_Exit>
+000002ce <exit>:
+ 2ce:	ec 01       	movw	r28, r24
+ 2d0:	0e 94 81 01 	call	0x302	; 0x302 <__funcs_on_exit>
+ 2d4:	0e 94 80 01 	call	0x300	; 0x300 <_fini>
+ 2d8:	ce 01       	movw	r24, r28
+ 2da:	0e 94 82 01 	call	0x304	; 0x304 <__simulator_exit>
+ 2de:	ce 01       	movw	r24, r28
+ 2e0:	0e 94 7e 01 	call	0x2fc	; 0x2fc <_Exit>
 
 Disassembly of section .text.strlen:
 
-00000260 <strlen>:
- 260:	cf 92       	push	r12
- 262:	df 92       	push	r13
- 264:	ef 92       	push	r14
- 266:	6b 01       	movw	r12, r22
- 268:	e8 2e       	mov	r14, r24
- 26a:	a8 2f       	mov	r26, r24
- 26c:	cb 01       	movw	r24, r22
- 26e:	fc 01       	movw	r30, r24
- 270:	24 91       	lpm	r18, Z
- 272:	a7 fd       	sbrc	r26, 7
- 274:	20 81       	ld	r18, Z
- 276:	22 23       	and	r18, r18
- 278:	19 f0       	breq	.+6      	; 0x280 <strlen+0x20>
- 27a:	01 96       	adiw	r24, 0x01	; 1
- 27c:	a1 1d       	adc	r26, r1
- 27e:	f7 cf       	rjmp	.-18     	; 0x26e <strlen+0xe>
- 280:	8c 19       	sub	r24, r12
- 282:	9d 09       	sbc	r25, r13
- 284:	ef 90       	pop	r14
- 286:	df 90       	pop	r13
- 288:	cf 90       	pop	r12
- 28a:	08 95       	ret
+000002a2 <strlen>:
+ 2a2:	cf 92       	push	r12
+ 2a4:	df 92       	push	r13
+ 2a6:	ef 92       	push	r14
+ 2a8:	6b 01       	movw	r12, r22
+ 2aa:	e8 2e       	mov	r14, r24
+ 2ac:	a8 2f       	mov	r26, r24
+ 2ae:	cb 01       	movw	r24, r22
+ 2b0:	fc 01       	movw	r30, r24
+ 2b2:	24 91       	lpm	r18, Z
+ 2b4:	a7 fd       	sbrc	r26, 7
+ 2b6:	20 81       	ld	r18, Z
+ 2b8:	22 23       	and	r18, r18
+ 2ba:	19 f0       	breq	.+6      	; 0x2c2 <strlen+0x20>
+ 2bc:	01 96       	adiw	r24, 0x01	; 1
+ 2be:	a1 1d       	adc	r26, r1
+ 2c0:	f7 cf       	rjmp	.-18     	; 0x2b0 <strlen+0xe>
+ 2c2:	8c 19       	sub	r24, r12
+ 2c4:	9d 09       	sbc	r25, r13
+ 2c6:	ef 90       	pop	r14
+ 2c8:	df 90       	pop	r13
+ 2ca:	cf 90       	pop	r12
+ 2cc:	08 95       	ret
 
 Disassembly of section .text._Exit:
 
-000002c4 <_Exit>:
- 2c4:	0e 94 5f 00 	call	0xbe	; 0xbe <_exit>
+000002fc <_Exit>:
+ 2fc:	0e 94 5f 00 	call	0xbe	; 0xbe <_exit>

@@ -24,20 +24,21 @@
 
 
 // Si los usás dentro de una ISR, marcá como volatile
+
+volatile char    serialBuffer[TX_BUFFER_SIZE];
+volatile uint8_t serialReadPos  = 0;
+volatile uint8_t serialWritePos = 0;
+
 volatile char    rxBuffer[RX_BUFFER_SIZE];
 volatile uint8_t rxReadPos  = 0;
 volatile uint8_t rxWritePos = 0;
 volatile uint8_t CONTADOR = 0; // La idea es usarlo para las figuras simples
 
 
-char    serialBuffer[TX_BUFFER_SIZE];
-uint8_t serialReadPos  = 0;
-uint8_t serialWritePos = 0;
 
 
 void appendSerial(char c);
 void serialWrite(const char *c);
-ISR(USART_TX_vect);
 char peekChar(void);
 char Chardos(void);
 
@@ -63,16 +64,16 @@ int main(void)
 	
 	// Habilitar transmisor
 	
-	UCSR0B = (1 << TXEN0) | (1 << TXCIE0) | (1 << RXEN0) | (1 << RXCIE0);
-	 // RXENn: Receiver Enable n ; TXCIEn: TX Complete Interrupt Enable n ;  TXENn: Transmitter Enable n; RXCIEn:  RX Complete Interrupt Enable n
-
+	
+	UCSR0B = (1 << TXEN0) | (1 << RXEN0) | (1 << RXCIE0);
+	
 	// Modo asincrónico, 8 bits, 1 stop, sin paridad
 	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
 	
 	sei();
 	
 	DDRB |= (1 << PORTB0);
- 	DDRD = 0b11111100;
+ 	DDRD = 0b11111110;
 	
 	serialWrite("\nSelecciona la figura a dibujar:\n");
 	serialWrite("1 - Cruz \n");
@@ -102,34 +103,25 @@ void appendSerial(char c)
 	}
 }
 
-
-
-
-void serialWrite(const char *c)
-{
-	for (uint8_t i = 0; i < strlen(c); i++)
-	{
-		appendSerial(c[i]);
-	}
-
-	if (UCSR0A & (1 << UDRE0))
-	{
-		UDR0 = 0;  // Envía el primer byte si el registro está libre
-	}
+ISR(TIMER0_OVF_vect) {
+	// vacío por ahora
 }
 
 
-ISR(USART_TX_vect)
-{
-	if (serialReadPos != serialWritePos)
-	{
+void serialWrite(const char *s){
+	for (uint8_t i = 0; i < (uint8_t)strlen(s); i++){
+		serialBuffer[serialWritePos] = s[i];
+		serialWritePos = (serialWritePos + 1) % TX_BUFFER_SIZE;
+	}
+	UCSR0B |= (1 << UDRIE0);   // habilita ISR UDRE
+}
+// ISR: Data Register Empty
+ISR(USART_UDRE_vect){
+	if (serialReadPos != serialWritePos){
 		UDR0 = serialBuffer[serialReadPos];
-		serialReadPos++;
-
-		if (serialReadPos >= TX_BUFFER_SIZE)
-		{
-			serialReadPos = 0;  // Reinicia al inicio del buffer
-		}
+		serialReadPos = (serialReadPos + 1) % TX_BUFFER_SIZE;
+		} else {
+		UCSR0B &= ~(1 << UDRIE0);  // nada más que enviar
 	}
 }
 
