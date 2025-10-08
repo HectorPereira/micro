@@ -2060,11 +2060,8 @@ void song_mode(void){
 ISR(TIMER1_OVF_vect){
 	TCNT1 = 65536 - 250;  // 1ms preload
 	
-	// Debouncing
-	if (debounce_active && ++debounce_ms >= 20) {  // 20 ms debounce
-		PCICR |= (1 << PCIE1) | (1 << PCIE2);
-		debounce_active = 0;
-	}
+	PCICR |= (1 << PCIE1) | (1 << PCIE2); // debouncing
+	debounce_active = 0;
 	
 	// Note playing
 	if (enableCountAon) {
