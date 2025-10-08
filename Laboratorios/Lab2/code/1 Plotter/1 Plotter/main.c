@@ -36,10 +36,13 @@ volatile uint8_t rxReadPos  = 0;
 volatile uint8_t rxWritePos = 0;
 volatile uint8_t CONTADOR = 0; // La idea es usarlo para las figuras simples
 
+uint8_t M[8][8] = {0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,
+					0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,
+					0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,
+					0 , 0 , 0 , 0 , 0 , 0 , 0 , 0};     // todas las entradas quedan en 0
+               
 
-
-
-void appendSerial(char c);
+void appendSerial(char c);     
 void serialWrite(const char *c);
 char peekChar(void);
 char Chardos(void);

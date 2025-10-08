@@ -28,6 +28,7 @@ Discarded input sections
                 0x0000000000000000       0x24 main.o
  .text.peekChar
                 0x0000000000000000       0x1e main.o
+ .bss.M         0x0000000000000000       0x40 main.o
  .text          0x0000000000000000        0x0 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/avr5/memx-const\libgcc.a(_copy_data.o)
  .data          0x0000000000000000        0x0 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/avr5/memx-const\libgcc.a(_copy_data.o)
  .bss           0x0000000000000000        0x0 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/avr5/memx-const\libgcc.a(_copy_data.o)
@@ -388,10 +389,10 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000      0xe9d
+.debug_info     0x0000000000000000      0xec3
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000      0x5f4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
- .debug_info    0x00000000000005f4      0x8a9 main.o
+ .debug_info    0x00000000000005f4      0x8cf main.o
 
 .debug_abbrev   0x0000000000000000      0x7ee
  *(.debug_abbrev)
