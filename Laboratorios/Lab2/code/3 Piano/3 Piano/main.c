@@ -1728,15 +1728,15 @@ void timer1_init(void) {
 }
 
 void init_piano_buttons(void) {
-	DDRC &= ~((1 << PC0) | (1 << PC1) | (1 << PC2) |
-	(1 << PC3) | (1 << PC4) | (1 << PC5)); 
-	PORTC |= (1 << PC0) | (1 << PC1) | (1 << PC2) |
-	(1 << PC3) | (1 << PC4) | (1 << PC5);   
+	DDRC &= ~((1 << PORTC0) | (1 << PORTC1) | (1 << PORTC2) |
+	(1 << PORTC3) | (1 << PORTC4) | (1 << PORTC5)); 
+	PORTC |= (1 << PORTC0) | (1 << PORTC1) | (1 << PORTC2) |
+	(1 << PORTC3) | (1 << PORTC4) | (1 << PORTC5);   
 
-	DDRD &= ~((1 << PD4) | (1 << PD5)); 
-	PORTD |=  (1 << PD4) | (1 << PD5);  
+	DDRD &= ~((1 << PORTD4) | (1 << PORTD5)); 
+	PORTD |=  (1 << PORTD4) | (1 << PORTD5);  
 
-	DDRB  |= (1 << PB5);  
+	DDRB  |= (1 << PORTB5);  
 
 	PCICR = (1 << PCIE1) | (1 << PCIE2);
 
@@ -1992,7 +1992,6 @@ int main(void) {
 	usart_write_str("[1] Dragon Ball - Cha-La Head-Cha-La\r\n");
 	usart_write_str("[2] Portal - Still alive\r\n");
 	usart_write_str("[P] Modo piano\r\n");
-	
 
 	
 	while (1){
@@ -2099,14 +2098,12 @@ ISR(TIMER0_OVF_vect) {
 
 // Piano buttons
 ISR(PCINT1_vect) {   
-	PORTB ^= (1 << PORTB5);   // toggle LED (Arduino pin 13)
 	handleButtonChange(0);
 	PCICR &= ~((1 << PCIE1) | (1 << PCIE2));
 	startDebounceTimer();
 }
 
 ISR(PCINT2_vect) {   
-	PORTB ^= (1 << PORTB5);   // toggle LED (Arduino pin 13)
 	handleButtonChange(1);
 	PCICR &= ~((1 << PCIE1) | (1 << PCIE2));
 	startDebounceTimer();
@@ -2114,8 +2111,8 @@ ISR(PCINT2_vect) {
 
 // USART
 ISR(USART_UDRE_vect) {
-	if (tx_head == tx_tail) {                    // nothing left
-		UCSR0B &= (uint8_t)~_BV(UDRIE0);         // stop IRQs
+	if (tx_head == tx_tail) {                    
+		UCSR0B &= (uint8_t)~_BV(UDRIE0);         
 		return;
 	}
 	UDR0 = tx_buf[tx_tail];
@@ -2125,7 +2122,7 @@ ISR(USART_UDRE_vect) {
 ISR(USART_RX_vect) {
 	uint8_t d = UDR0;
 	uint8_t next = (uint8_t)((rx_head + 1) & RX_MASK);
-	if (next != rx_tail) {                // space available
+	if (next != rx_tail) {                
 		rx_buf[rx_head] = d;
 		rx_head = next;
 	}
