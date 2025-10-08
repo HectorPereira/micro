@@ -1670,7 +1670,7 @@ void read_midi_event(const int (*track)[3], uint16_t index, int out_values[3]) {
 	}
 }
 
-static inline uint8_t usart_rx_available(void) {
+uint8_t usart_rx_available(void) {
 	return (uint8_t)((rx_head - rx_tail) & RX_MASK);
 }
 
@@ -1683,7 +1683,7 @@ static inline uint8_t usart_rx_available(void) {
 
 
 // USART
-static inline void usart_init_9600(void) {
+void usart_init_9600(void) {
 	const uint16_t ubrr = (16000000UL / (16UL * 9600)) - 1;
 	UBRR0H = ubrr >> 8;
 	UBRR0L = ubrr;
@@ -1693,7 +1693,7 @@ static inline void usart_init_9600(void) {
 }
 
 
-static inline uint8_t usart_write_try(uint8_t b) {
+uint8_t usart_write_try(uint8_t b) {
 	uint8_t next = (uint8_t)((tx_head + 1) & TX_MASK);
 	if (next == tx_tail) return 0;               // full
 	tx_buf[tx_head] = b;
@@ -1703,14 +1703,14 @@ static inline uint8_t usart_write_try(uint8_t b) {
 }
 
 // Non-blocking: queues as many chars as fit, returns how many were queued.
-static inline uint16_t usart_write_str(const char *s) {
+uint16_t usart_write_str(const char *s) {
 	uint16_t n = 0;
 	while (*s && usart_write_try((uint8_t)*s++)) n++;
 	return n;
 }
 
 
-static inline uint8_t usart_read_try(uint8_t *b) {
+uint8_t usart_read_try(uint8_t *b) {
 	if (rx_head == rx_tail) return 0;                 // empty
 	*b = rx_buf[rx_tail];
 	rx_tail = (uint8_t)((rx_tail + 1) & RX_MASK);
