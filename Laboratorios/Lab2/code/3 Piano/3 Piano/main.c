@@ -51,7 +51,7 @@ Funcionalidades detalladas:
 #define B4  494
 #define C5  523
 
-// Still alive
+// Midi A y B
 #define G4 392	
 #define Fb4 370	
 #define E4 330	
@@ -1719,7 +1719,6 @@ static inline uint8_t usart_read_try(uint8_t *b) {
 
 
 // Overflow = 1ms
-// Handles 
 void timer1_init(void) {
 	TCCR1A = 0x00;
 	TCCR1B = (1 << CS11) | (1 << CS10);  // 64
