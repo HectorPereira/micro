@@ -41,15 +41,7 @@ Funcionalidades detalladas:
 // DEFINITIONS
 // ------------------------------------------------------------------
 
-// Octavas principales
-#define C4  262
-#define D4  294
-#define E4  330
-#define F4  349
-#define G4  392
-#define A4  440
-#define B4  494
-#define C5  523
+
 
 // Midi A y B
 #define G4 392	
@@ -120,6 +112,15 @@ Funcionalidades detalladas:
 #define E6 1319
 #define C3 131
 
+// Octavas principales
+#define C4  262
+#define D4  294
+#define E4  330
+#define F4  349
+#define G4  392
+#define A4  440
+#define B4  494
+#define C5  523
 
 
 #define TX_BUF_SZ 128
@@ -1864,7 +1865,7 @@ void handleButtonChange(uint8_t PORT) {
 		for (uint8_t i = 0; i < 6; i++) {
 			mask = (1 << i);
 			if (pressed & mask)
-			playFrequencyB(NOTE_TABLE[i]);
+			playFrequencyB(NOTE_TABLE[i+2]);
 			else if (released & mask)
 			stopFrequencyB();
 		}
@@ -1877,9 +1878,9 @@ void handleButtonChange(uint8_t PORT) {
 		released = changed & ~prevD;
 
 		for (uint8_t i = 4; i <= 5; i++) {
-			mask = (1 << i);
+			mask = (1 << (i));
 			if (pressed & mask)
-			playFrequencyB(NOTE_TABLE[i]);
+			playFrequencyB(NOTE_TABLE[i-4]);
 			else if (released & mask)
 			stopFrequencyB();
 		}

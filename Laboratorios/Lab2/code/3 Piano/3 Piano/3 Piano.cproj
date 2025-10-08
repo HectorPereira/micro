@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>7.0</ProjectVersion>
     <ToolchainName>com.microchip.xc8</ToolchainName>
-    <ProjectGuid>{df589755-9187-442f-bd9f-7c913707956c}</ProjectGuid>
+    <ProjectGuid>{2285c48d-296e-43fd-a7b6-69885f64cffd}</ProjectGuid>
     <avrdevice>ATmega328P</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
     <OutputType>Executable</OutputType>
