@@ -9,21 +9,13 @@
 #include <avr/interrupt.h>
 #include <string.h>
 
+// Seccion para USART
 #define F_CPU 16000000UL    // Frecuencia del reloj del micro (16 MHz)
 #define BAUD 9600           // Velocidad de transmisión (baudios)
 #define BRC ((F_CPU / 16 / BAUD) - 1)   // Valor para UBRR
 #define TX_BUFFER_SIZE 128
 #define RX_BUFFER_SIZE 128
 #define precarger 10000
-
-// Set Bit in IO register
-#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
-
-// Clear Bit in IO register
-#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
-
-
-// Si los usás dentro de una ISR, marcá como volatile
 
 
 
@@ -36,27 +28,57 @@ volatile uint8_t rxReadPos  = 0;
 volatile uint8_t rxWritePos = 0;
 volatile uint8_t CONTADOR = 0; // La idea es usarlo para las figuras simples
 
-uint8_t M[8][8] = {0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,
-					0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,
-					0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ,
-					0 , 0 , 0 , 0 , 0 , 0 , 0 , 0};     // todas las entradas quedan en 0
-               
-
-void appendSerial(char c);     
+void appendSerial(char c);
 void serialWrite(const char *c);
 char peekChar(void);
 char Chardos(void);
 
 
+// macro para setear
+#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
+
+// macro para resetear
+#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+
+
+
+
+// Matrices para dibujar
+uint8_t Posicion[8][8] = {
+	{0,0,0,0,0,0,0,1},
+	{0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0}
+};
+
+uint8_t para_mascara[8][8] = {
+	{0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0},
+	{0,0,0,0,0,0,0,0}
+}; 
+
+//Funciones para moverse en la matriz
+
 void Subir(void);
 void bajar(void);
 void izquierda(void);
 void Derecha(void);
+void diagI_sup(void);
+void diagI_inf(void);
+void diagD_sup(void);
+void diagD_inf(void);
 void X(void);
 void Y(void);
 
-void Hacer_Triangulo(void);
-void centrar(void);
 
 
 int main(void)
@@ -114,43 +136,7 @@ int main(void)
 
 
 
-void centrar(void){
-	CONTADOR = 0;
 
-	while (CONTADOR < 5) {   // espera hasta 2 s
-		Bajar();
-		serialWrite("Bajando \n");
-	}
-	apagar();
-	while (CONTADOR < 8) {   // ahora CONTADOR ya es 2; espera hasta 4 s
-		Izquierda();
-		serialWrite("Izquierda \n");
-	}
-	
-	apagar();
-	CONTADOR = 0;
-	
-	serialWrite("Apagado \n");
-}
-
-
-void Hacer_Triangulo(void){
-	CONTADOR = 0;
-	bajar_s();
-	while (CONTADOR < 2){
-		Bajar();
-	}
-	while (CONTADOR < 5){
-		Subir();
-		Izquierda();
-	}
-	while (CONTADOR <8){
-		Subir();
-		Derecha();
-	}
-	Subir_s();
-	return;	
-}
 
 void appendSerial(char c)
 {
