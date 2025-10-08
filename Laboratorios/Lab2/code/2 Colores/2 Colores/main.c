@@ -11,17 +11,17 @@ Descripción General del Proyecto
 	color identificado y mostrar dicho color en la tira de LEDs WS2812.
 
 Componentes Utilizados
-	? Microcontrolador ATmega328P
-	? Fotocelda (Sensor de Luz)
-	? Tira de LEDs WS2812
-	? Servomotor
-	? Comunicación Serial
+	- Microcontrolador ATmega328P
+	- Fotocelda (Sensor de Luz)
+	- Tira de LEDs WS2812
+	- Servomotor
+	- Comunicación Serial
 
 Comunicación Serial
-	? Valor de la fotocelda
-	? Color detectado
-	? Valor del color establecido
-	? Diferencia entre valor establecido y valor de lectura
+	- Valor de la fotocelda
+	- Color detectado
+	- Valor del color establecido
+	- Diferencia entre valor establecido y valor de lectura
 
 Proceso de Funcionamiento
 	El microcontrolador se encargará de leer los valores de la fotocelda (sensor de
