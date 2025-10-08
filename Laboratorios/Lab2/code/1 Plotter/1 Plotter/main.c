@@ -14,7 +14,7 @@
 #define BRC ((F_CPU / 16 / BAUD) - 1)   // Valor para UBRR
 #define TX_BUFFER_SIZE 128
 #define RX_BUFFER_SIZE 128
-
+#define precarger 10000
 
 // Set Bit in IO register
 #define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
@@ -24,6 +24,8 @@
 
 
 // Si los usás dentro de una ISR, marcá como volatile
+
+
 
 volatile char    serialBuffer[TX_BUFFER_SIZE];
 volatile uint8_t serialReadPos  = 0;
@@ -50,6 +52,8 @@ void Derecha(void);
 void X(void);
 void Y(void);
 
+void Hacer_Triangulo(void);
+void centrar(void);
 
 
 int main(void)
@@ -58,9 +62,9 @@ int main(void)
 	UBRR0H = (BRC >> 8);
 	UBRR0L = BRC;
 	
-	TCCR0A = 0x00;
-	TCCR0B |=  (1 << CS02) | (0 << CS01) | (1 << CS00); //Timer 1024
-	TIMSK0 |=  (1 << TOIE0);
+	TCCR1A = 0x00;
+	TCCR1B |=  (1 << CS02) | (0 << CS01) | (1 << CS00); //Timer 1024
+	TIMSK0 |=  (1 << TOIE1);
 	
 	// Habilitar transmisor
 	
@@ -76,22 +80,52 @@ int main(void)
  	DDRD = 0b11111110;
 	
 	serialWrite("\nSelecciona la figura a dibujar:\n");
-	serialWrite("1 - Cruz \n");
-	serialWrite("2 - Cuadrado\n");
-	serialWrite("3 - Triangulo");
+	serialWrite("1 - Triangulo\n");
 	
 	_delay_ms(5);
 	
     while(1)
     {
-	
-
+	    char c = Chardos();
+				
+			    if (c == '1')
+			    {
+				    serialWrite("Triangulo: \n");
+					centrar();
+				
+			    }
+			    else if (c == '0')
+			    {
+				    apagar();
+			    }
+				 else if (c == '2')
+				 {
+					 Subir();
+				 }
+		
     }
+  
+    
 }
 
 
 
+void centrar(void){
+	CONTADOR = 0;
+	while(CONTADOR < 2){
+		Bajar();
+		serialWrite("Bajando \n");
+	}
+		apagar();
+		serialWrite("Apagado \n");
+	return;
+}
 
+void Hacer_Triangulo(void){
+	centrar();
+	return;
+	
+}
 
 void appendSerial(char c)
 {
@@ -103,8 +137,10 @@ void appendSerial(char c)
 	}
 }
 
-ISR(TIMER0_OVF_vect) {
-	// vacío por ahora
+ISR(TIMER1_OVF_vect) {
+	TCNT1H = (uint8_t)(precarger >> 8);
+	TCNT1L = (uint8_t)(precarger);
+	CONTADOR ++;
 }
 
 
@@ -115,7 +151,7 @@ void serialWrite(const char *s){
 	}
 	UCSR0B |= (1 << UDRIE0);   // habilita ISR UDRE
 }
-// ISR: Data Register Empty
+
 ISR(USART_UDRE_vect){
 	if (serialReadPos != serialWritePos){
 		UDR0 = serialBuffer[serialReadPos];
@@ -169,39 +205,47 @@ ISR(USART_RX_vect)
 }
 
 
+void apagar(void){
+	cbi(PORTD, 4);
+	cbi(PORTD, 4);
+	cbi(PORTD, 4);
+	cbi(PORTD, 4);
+	cbi(PORTD, 4);
+	sbi(PORTD, 4);
+}
 
 void Subir(void)
 {
-	cbi(PORTD, 4);   // D3 - Subir solenoide X1
+	cbi(PORTD, 4);   
 	sbi(PORTD, 5);
 }
 
 void Bajar(void)
 {
-	cbi(PORTD, 5);   // D3 - Subir solenoide X1
+	cbi(PORTD, 5);   
 	sbi(PORTD, 4);
 }
 
 void Izquierda(void)
 {
-	cbi(PORTD, 5);   // D3 - Subir solenoide X1
+	cbi(PORTD, 5);   
 	sbi(PORTD, 6);
 }
 
 void Derecha(void)
 {
-	cbi(PORTD, 6);   // D3 - Subir solenoide X1
+	cbi(PORTD, 6);   
 	sbi(PORTD, 5);
 }
 
 void bajar_s(void)
 {
-	cbi(PORTD, 2);   
+	sbi(PORTD, 2);   
 	cbi(PORTD, 3);  
 }
 
 void Subir_s(void)
 {
-	cbi(PORTD, 3);   // X5 - movimiento hacia abajo
-	cbi(PORTD, 2);   // X6 - movimiento hacia arriba
+	sbi(PORTD, 3);  
+	cbi(PORTD, 2);   
 }
