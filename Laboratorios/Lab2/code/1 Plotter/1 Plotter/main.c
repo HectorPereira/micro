@@ -47,9 +47,6 @@ char Chardos(void);
 // Seccion para algoritmo de dibujar
 #define N 8
 
-// Estado actual del "cursor"
-uint8_t fila = 0, col = 0;
-
 
 uint8_t clamp8(int v) {
 	if (v < 0)   return 0;
@@ -57,82 +54,10 @@ uint8_t clamp8(int v) {
 	return (uint8_t)v;
 }
 
-// Inicializa (fila,col) buscando el único '1' en la matriz.
-// Si no lo encuentra, deja (0,0) y escribe un 1 ahí.
-void posicion_init(uint8_t M[N][N]) {
-	for (uint8_t i = 0; i < N; i++) {
-		for (uint8_t j = 0; j < N; j++) {
-			if (M[i][j] == 1) { fila = i; col = j; return; }
-		}
-	}
-	fila = 0; col = 0;
-	M[0][0] = 1;
-}
-
-// Mueve por delta (df, dc) con choque en bordes
-void mover_delta(uint8_t M[N][N], int df, int dc) {
-	M[fila][col] = 0;                          // borra posición actual
-	fila = clamp8((int)fila + df);             // actualiza con límites
-	col  = clamp8((int)col  + dc);
-	M[fila][col] = 1;                          // escribe nueva posición
-}
-
-// --- Movimientos cardinales ---
-void mover_arriba   (uint8_t M[N][N]) { mover_delta(M, -1,  0); }
-void mover_abajo    (uint8_t M[N][N]) { mover_delta(M,  1,  0); }
-void mover_izquierda(uint8_t M[N][N]) { mover_delta(M,  0, -1); }
-void mover_derecha  (uint8_t M[N][N]) { mover_delta(M,  0,  1); }
-
-// --- Diagonales ---
-void mover_arr_izq(uint8_t M[N][N]) { mover_delta(M, -1, -1); }
-void mover_arr_der(uint8_t M[N][N]) { mover_delta(M, -1,  1); }
-void mover_aba_izq(uint8_t M[N][N]) { mover_delta(M,  1, -1); }
-void mover_aba_der(uint8_t M[N][N]) { mover_delta(M,  1,  1); }
-
-
-static const int8_t DR[8] = { {-1, -1,  0,  1,  1,  1,  0, -1}, 
-							  { 0,  1,  1,  1,  0, -1, -1, -1} }; // Para escanear filas
- // Para escanear columnas
-
-
-// Matrices para dibujar
-uint8_t Posicion[8][8] = {
-	{0,0,0,0,0,0,0,1},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0}
-};
-
-uint8_t mascara[8][8] = {
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0}
-}; 
-
-uint8_t Triangulo[8][8] = {
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,1,0,0,0},
-	{0,0,0,1,0,1,0,0},
-	{0,0,1,0,0,0,1,0},
-	{0,1,1,1,1,1,1,1},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0}
-};
-//Funciones para moverse en la matriz
 
 void Subir(void);
-void bajar(void);
-void izquierda(void);
+void Bajar(void);
+void Izquierda(void);
 void Derecha(void);
 void diagI_sup(void);
 void diagI_inf(void);
@@ -141,10 +66,8 @@ void diagD_inf(void);
 void X(void);
 void Y(void);
 
+void centrar(void);
 
-void sumar_m(const uint8_t A[N][N], const uint8_t B[N][N], uint8_t R[N][N]); // A + B = R, Para leer la figura
-
-void detectar_uno(const uint8_t mov[N][N], uint8_t copy[N][N]); // Para moverse en la figura
 
 int main(void)
 {
@@ -177,6 +100,24 @@ int main(void)
     while(1)
     {
 	    char c = Chardos();
+		
+		if (c == '1')
+		{
+			centrar();
+		}
+		if (c == '2')
+		{
+			Subir_s();
+		}
+		if (c == '3')
+		{
+			Bajar();
+		}
+		if (c == '4')
+		{
+			Derecha();
+		}
+
 
     }
   
@@ -184,74 +125,52 @@ int main(void)
 }
 
 
-
-void sumar_m(const uint8_t A[N][N], const uint8_t B[N][N], uint8_t R[N][N]){ //Asignar const a A y B, asegura que no sean modificadas
-	for(uint8_t i = 0 ; i < N ; i++ ){ // recorrer Filas
-		for(uint8_t h = 0 ; h < N ; h++ ){ // recorrer Columnas
-			R[i][h]= (uint8_t)(A[i][h] + B[i][h]); //especificar que se asigna el valor 
-		}
+void centrar(void){
+	CONTADOR = 0;
+	TCNT1H = 0xC2;
+	TCNT1L = 0xF7;
+	
+	while(CONTADOR < 2){
+	Bajar();
 	}
-}
-
-
-// 	 0 0 0
-//   0 A 0
-// 	 0 0 0
-
-// Matriz con 1 solo -> evaluar proximo uno en copia de dibujo -> Eliminar ese uno en copia y mover el uno de la de movimiento a ese uno
-
-
-void detectar_uno(const uint8_t mov[N][N], uint8_t copy[N][N]){
-	bool var = false;
-	
-
-	
-	
-	
+	while(CONTADOR < 4){
+	Derecha();	
+	}
+	apagar();
 }
 void apagar(void){
-	cbi(PORTD, 4);
-	cbi(PORTD, 5);
-	cbi(PORTD, 6);
-	cbi(PORTD, 2);
-	sbi(PORTD, 3);
+PORTD = (PORTD & 0b00000011) | 0b00001000;
 }
 
-void Subir(void)
+
+void Subir_s(void)
 {
-	cbi(PORTD, 4);   
-	sbi(PORTD, 5);
+PORTD = (PORTD & 0b00000011) | 0b00000100;
 }
 
 void Bajar(void)
 {
-	cbi(PORTD, 5);   
-	sbi(PORTD, 4);
+PORTD = (PORTD & 0b00000011) | 0b00010000;
+}
+
+void Subir(void)
+{
+PORTD = (PORTD & 0b00000011) | 0b00100000;
 }
 
 void Izquierda(void)
 {
-	cbi(PORTD, 6);   
-	sbi(PORTD, 7);
+PORTD = (PORTD & 0b00000011) | 0b01000000;
 }
+
 
 void Derecha(void)
 {
-	cbi(PORTD, 7);   
-	sbi(PORTD, 6);
+PORTD = (PORTD & 0b00000011) | 0b10000000;
 }
 
-void bajar_s(void)
-{
-	sbi(PORTD, 2);   
-	cbi(PORTD, 3);  
-}
 
-void Subir_s(void)
-{
-	sbi(PORTD, 3);  
-	cbi(PORTD, 2);   
-}
+
 
 
 ISR(TIMER1_OVF_vect) {
