@@ -64,7 +64,7 @@ int main(void)
 	
 	TCCR1A = 0x00;
 	TCCR1B |=  (1 << CS02) | (0 << CS01) | (1 << CS00); //Timer 1024
-	TIMSK0 |=  (1 << TOIE1);
+	TIMSK1 |=  (1 << TOIE1);
 	
 	// Habilitar transmisor
 	
@@ -87,22 +87,23 @@ int main(void)
     while(1)
     {
 	    char c = Chardos();
-				
-			    if (c == '1')
-			    {
-				    serialWrite("Triangulo: \n");
-					centrar();
-				
-			    }
-			    else if (c == '0')
-			    {
-				    apagar();
-			    }
-				 else if (c == '2')
-				 {
-					 Subir();
-				 }
 		
+	if (c == '0')
+	{
+		Hacer_Triangulo();
+	}		
+	if (c == '1')
+	{
+		centrar();
+	}
+	if (c == '2')
+	{
+		Subir();
+	}
+	if (c == '3')
+	{
+		Derecha();
+	}
     }
   
     
@@ -112,19 +113,40 @@ int main(void)
 
 void centrar(void){
 	CONTADOR = 0;
-	while(CONTADOR < 2){
+
+	while (CONTADOR < 5) {   // espera hasta 2 s
 		Bajar();
 		serialWrite("Bajando \n");
 	}
-		apagar();
-		serialWrite("Apagado \n");
-	return;
+	apagar();
+	while (CONTADOR < 8) {   // ahora CONTADOR ya es 2; espera hasta 4 s
+		Izquierda();
+		serialWrite("Izquierda \n");
+	}
+	
+	apagar();
+	CONTADOR = 0;
+	
+	serialWrite("Apagado \n");
 }
 
+
 void Hacer_Triangulo(void){
-	centrar();
-	return;
-	
+	CONTADOR = 0;
+	bajar_s();
+	while (CONTADOR < 2){
+		Bajar();
+	}
+	while (CONTADOR < 5){
+		Subir();
+		Izquierda();
+	}
+	while (CONTADOR <8){
+		Subir();
+		Derecha();
+	}
+	Subir_s();
+	return;	
 }
 
 void appendSerial(char c)
@@ -138,8 +160,9 @@ void appendSerial(char c)
 }
 
 ISR(TIMER1_OVF_vect) {
-	TCNT1H = (uint8_t)(precarger >> 8);
-	TCNT1L = (uint8_t)(precarger);
+	TCNT1H = 0xC2;
+	TCNT1L = 0xF7;
+	
 	CONTADOR ++;
 }
 
@@ -207,11 +230,10 @@ ISR(USART_RX_vect)
 
 void apagar(void){
 	cbi(PORTD, 4);
-	cbi(PORTD, 4);
-	cbi(PORTD, 4);
-	cbi(PORTD, 4);
-	cbi(PORTD, 4);
-	sbi(PORTD, 4);
+	cbi(PORTD, 5);
+	cbi(PORTD, 6);
+	cbi(PORTD, 2);
+	sbi(PORTD, 3);
 }
 
 void Subir(void)
@@ -228,14 +250,14 @@ void Bajar(void)
 
 void Izquierda(void)
 {
-	cbi(PORTD, 5);   
-	sbi(PORTD, 6);
+	cbi(PORTD, 6);   
+	sbi(PORTD, 7);
 }
 
 void Derecha(void)
 {
-	cbi(PORTD, 6);   
-	sbi(PORTD, 5);
+	cbi(PORTD, 7);   
+	sbi(PORTD, 6);
 }
 
 void bajar_s(void)
