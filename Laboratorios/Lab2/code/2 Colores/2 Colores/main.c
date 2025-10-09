@@ -1,46 +1,71 @@
-/*
-Problema B
-	Sistema de Selección de Colores con ATmega328P, Fotocelda, Tira de
-	LEDs WS2812 y Servomotor
+#define F_CPU 16000000UL
+#include <avr/io.h>
+#include <util/delay.h>
+#include <stdint.h>
 
-Descripción General del Proyecto
-	El sistema consiste en un selector de colores basado en un microcontrolador
-	ATmega328P, una fotocelda, una tira de LEDs WS2812 y un servomotor. La
-	idea principal es detectar el color presente en una hoja de referencia utilizando
-	la fotocelda, posicionar un servomotor en un ángulo determinado en función del
-	color identificado y mostrar dicho color en la tira de LEDs WS2812.
+#define LED_PIN  PD6
+#define LED_PORT PORTD
+#define LED_DDR  DDRD
 
-Componentes Utilizados
-	- Microcontrolador ATmega328P
-	- Fotocelda (Sensor de Luz)
-	- Tira de LEDs WS2812
-	- Servomotor
-	- Comunicación Serial
+#define NUM_LEDS 200
 
-Comunicación Serial
-	- Valor de la fotocelda
-	- Color detectado
-	- Valor del color establecido
-	- Diferencia entre valor establecido y valor de lectura
+// ---------- Low-Level Timings ----------
+static inline void sendBit(uint8_t bit) {
+	if (bit) {
+		LED_PORT |=  (1 << LED_PIN);
+		_delay_us(0.7);   // '1' high
+		LED_PORT &= ~(1 << LED_PIN);
+		_delay_us(0.55);  // '1' low
+		} else {
+		LED_PORT |=  (1 << LED_PIN);
+		_delay_us(0.35);  // '0' high
+		LED_PORT &= ~(1 << LED_PIN);
+		_delay_us(0.80);  // '0' low
+	}
+}
 
-Proceso de Funcionamiento
-	El microcontrolador se encargará de leer los valores de la fotocelda (sensor de
-	luz), realizar el procesamiento para identificar el color, controlar el servomotor
-	para moverlo al ángulo correspondiente al color detectado y encender la tira de
-	LEDs WS2812 mostrando el mismo color identificado.
-	Este sistema se configurará para detectar un número limitado de colores (los
-	presentes en la hoja de referencia). Cada color tendrá un valor ADC
-	(Analog-to-Digital Conversion) preestablecido para asegurar la correcta
-	identificación y su representación precisa en la tira de LEDs.
+void sendByte(uint8_t byte) {
+	for (int8_t i = 7; i >= 0; i--) {
+		sendBit(byte & (1 << i));
+	}
+}
 
- */ 
+void sendColor(uint8_t g, uint8_t r, uint8_t b) {
+	sendByte(g);
+	sendByte(r);
+	sendByte(b);
+}
 
-#include <xc.h>
+void ws2812_reset(void) {
+	_delay_us(80);  // latch/reset
+}
 
-int main(void)
-{
-    while(1)
-    {
-        //TODO:: Please write your application code 
-    }
+// ---------- Strip Control ----------
+void fillStrip(uint8_t r, uint8_t g, uint8_t b) {
+	for (uint16_t i = 0; i < NUM_LEDS; i++) {
+		sendColor(g, r, b);  // GRB order
+	}
+	ws2812_reset();
+}
+
+// ---------- Main ----------
+int main(void) {
+	LED_DDR |= (1 << LED_PIN);  // Data pin as output
+
+	while (1) {
+		fillStrip(255, 0, 0);    // Red
+		_delay_ms(1000);
+
+		fillStrip(0, 255, 0);    // Green
+		_delay_ms(1000);
+
+		fillStrip(0, 0, 255);    // Blue
+		_delay_ms(1000);
+
+		fillStrip(255, 255, 255); // White
+		_delay_ms(1000);
+
+		fillStrip(0, 0, 0);      // Off
+		_delay_ms(500);
+	}
 }
