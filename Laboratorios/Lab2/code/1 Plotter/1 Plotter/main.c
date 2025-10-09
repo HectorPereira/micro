@@ -70,6 +70,7 @@ void Y(void);
 
 void centrar(void);
 void peurbas(char c);
+void dibujar_triangulo(void);
 void dibujar_cuadrado(void);
 
 int main(void)
@@ -79,7 +80,7 @@ int main(void)
 	UBRR0L = BRC;
 	
 	TCCR1A = 0x00;
-	TCCR1B |=  (0 << CS02) | (1 << CS01) | (1 << CS00); //Timer 64
+	TCCR1B |=  (1 << CS02) | (0 << CS01) | (1 << CS00); //Timer 64
 	TIMSK1 |=  (1 << TOIE1);
 	
 	// Habilitar transmisor
@@ -109,100 +110,72 @@ int main(void)
 		if (c == '1'){
 			dibujar_cuadrado();
 		}
-		
-		peurbas(c);
+		if (c == '2'){
+			dibujar_triangulo();
+		}
+		//peurbas(c);
 		}
 		
 		
 
     }
-  
-    
-
-void dibujar_cuadrado(void){
+ 
+ 
+ void dibujar_triangulo(void){
+		centrar();
+		
+		Subir_s();
+	
+		CONTADOR = 0;
+		TCNT1H = 0xC2;
+		TCNT1L = 0xF7;
+		
+		while (CONTADOR < 2) { Bajar();     }   // 2 s
+		while (CONTADOR < 3) { ArribaDerecha();   }   // 2 s
+		while (CONTADOR < 4) { ArribaIzquierda();     }   // 2 s
+			
+		apagar();
+		
+ }
+		
+ void dibujar_cuadrado(void){
+	 
+	_delay_ms(100);
+	
+	 Subir_s();          
+	 
+	 _delay_ms(100);
 	CONTADOR = 0;
-
-	int n = 1;
 	
-	Subir_s();
 	
-	// 0–2 s: ARRIBA
-	while (CONTADOR < 1) {
-		Subir();
-		// opcional: serialWrite("Arriba\n");
-	}
+	 while (CONTADOR < 2) { Subir();     }   // 2 s
+	 while (CONTADOR < 4) { Derecha();   }   // 2 s
+	 while (CONTADOR < 6) { Bajar();     }   // 2 s
+	 while (CONTADOR < 8) { Izquierda(); }   // 2 s
+	 //x
+	 
+	  _delay_ms(100);
+	 apagar();
+	 _delay_ms(100);
+	 
+ }
 
-	// 2–4 s: DERECHA
-	while (CONTADOR < 2) {
-		Derecha();
-		// opcional: serialWrite("Derecha\n");
-	}
-
-	// 4–6 s: ABAJO
-	while (CONTADOR < 3) {
-		Bajar();
-		// opcional: serialWrite("Abajo\n");
-	}
-
-	// 6–8 s: IZQUIERDA
-	while (CONTADOR < 4) {
-		Izquierda();
-		// opcional: serialWrite("Izquierda\n");
-	}
-	apagar();        // detener salidas al terminar el cuadrado
-}
  //Para hacer cada pixel
 
-// Con TCNT1\H = 0xC2; TCNT1L = 0xF7; 19 bit en x , 21 en y
 void peurbas(char c){
-	switch (c)
-	{
-		case 'x':  // apagar todo
-		apagar();
-		break;
-
-		case 's':  // subir solenoide (D2)
-		Subir_s();
-		break;
-
-		case 'u':  // arriba (D5)
-		Subir();
-		break;
-
-		case 'd':  // abajo (D4)
-		Bajar();
-		break;
-
-		case 'l':  // izquierda (D6)
-		Izquierda();
-		break;
-
-		case 'r':  // derecha (D7)
-		Derecha();
-		break;
-
-		case 'z':  // abajo-izquierda (D4 + D6)
-		AbajoIzquierda();
-		break;
-
-		case 'c':  // abajo-derecha (D4 + D7)
-		AbajoDerecha();
-		break;
-
-		case 'q':  // arriba-izquierda (D5 + D6)
-		ArribaIzquierda();
-		break;
-
-		case 'e':  // arriba-derecha (D5 + D7)
-		ArribaDerecha();
-		
-		case 'j':  // arriba-derecha (D5 + D7)
-		centrar();
-		break;
-
-		default:
-		// opcional: no-op o mensaje de comando inválido
-		break;
+	switch (c) {
+		case 'x': apagar(); break;
+		case 's': Subir_s(); break;
+		case 'u': Subir(); break;
+		case 'd': Bajar(); break;
+		case 'l': Izquierda(); break;
+		case 'r': Derecha(); break;
+		case 'z': AbajoIzquierda(); break;
+		case 'c': AbajoDerecha(); break;
+		case 'q': ArribaIzquierda(); break;
+		case 'e': ArribaDerecha(); break;   // <-- faltaba break
+		case 'j': centrar(); break;
+		default: break;
 	}
 }
 
@@ -211,11 +184,8 @@ void centrar(void){
 	TCNT1H = 0xC2;
 	TCNT1L = 0xF7;
 	
-	while(CONTADOR < 2){
-	Bajar();
-	}
 	while(CONTADOR < 4){
-	Derecha();	
+	AbajoDerecha();	
 	}
 	apagar();
 }
@@ -230,7 +200,7 @@ PORTD = (PORTD & 0b00000011) | 0b00001000;
 
 void Subir_s(void)
 {
-PORTD = (PORTD & 0b00001111) | 0b00000100;
+PORTD = (PORTD & 0b00000011) | 0b00000100;
 chan = false;
 
 }
@@ -276,16 +246,11 @@ void ArribaDerecha(void){
 
 
 ISR(TIMER1_OVF_vect) {
+	CONTADOR++;
 	TCNT1H = 0xC2;
 	TCNT1L = 0xF7;
-	if(chan){
-	CONTADOR ++;	
-	} else {
-		if (5 < CONTADOR2){
-			chan = true;
-		}
-	}
 }
+
 
 
 
