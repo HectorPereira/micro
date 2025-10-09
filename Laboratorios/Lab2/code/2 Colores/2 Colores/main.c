@@ -20,11 +20,16 @@
 #define RX_MASK   (RX_BUF_SZ - 1)
 #define BAUD_RATE 9600
 
+#define RED   PB0
+#define GREEN PB1
+#define BLUE  PB2
+
 
 
 // ------------------------------------------------------------------
 // PROGRAM VARIABLES
 // ------------------------------------------------------------------
+
 
 // Color mapping
 typedef struct {
@@ -53,9 +58,14 @@ uint8_t rx_head = 0, rx_tail = 0;
 uint16_t adc_result = 0;
 uint8_t  adc_done   = 0;
 
+// RGB LED
+uint8_t led_state = 0;
+
+
 // ------------------------------------------------------------------
 // HELPERS
 // ------------------------------------------------------------------
+
 
 // Retorna la cantidad de elementos en el buffer de RX
 uint8_t usart_rx_available(void) {
@@ -83,9 +93,11 @@ void UTOA(uint16_t value, char *buffer) { // <- String stored in buffer
 	buffer[j] = '\0';
 }
 
+
 // ------------------------------------------------------------------
 // INITIALIZERS
 // ------------------------------------------------------------------
+
 
 void usart_init(void) {
 	const uint16_t ubrr = (16000000UL / (16UL * BAUD_RATE)) - 1;
@@ -94,6 +106,16 @@ void usart_init(void) {
 	UCSR0A = 0;
 	UCSR0B = (1 << TXEN0) | (1 << RXEN0) | (1 << RXCIE0);   // <- RX interrupt
 	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);               // 8N1
+}
+
+void adc_init(void) {
+	ADMUX  = (1 << REFS0);                        // AVcc ref, ADC0 input
+	ADCSRA = (1 << ADEN)                          // Enable ADC
+	| (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Prescaler 128
+}
+
+void rgb_init(void){
+	DDRB |= (1<<RED) | (1<<GREEN) | (1<<BLUE);
 }
 
 
@@ -141,17 +163,17 @@ uint8_t usart_read_str(char *dest, uint8_t max_len) {
 	return count;
 }
 
-void adc_init(void) {
-	ADMUX  = (1 << REFS0);                        // AVcc ref, ADC0 input
-	ADCSRA = (1 << ADEN)                          // Enable ADC
-	| (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Prescaler 128
-}
 
 uint16_t adc_read(uint8_t channel) {
 	ADMUX = (ADMUX & 0xF0) | (channel & 0x0F);  // Select ADC channel 0–7
 	ADCSRA |= (1 << ADSC);                      // Start conversion
 	while (ADCSRA & (1 << ADSC));               // Wait for conversion to finish
 	return ADC;                                 // Return 10-bit result
+}
+
+void rgb_set(uint8_t r, uint8_t g, uint8_t b) {
+	PORTB = (PORTB & ~((1 << RED)|(1 << GREEN)|(1 << BLUE))) |
+	((r<<RED) | (g<<GREEN) | (b<<BLUE));
 }
 
 
@@ -164,24 +186,43 @@ uint16_t adc_read(uint8_t channel) {
 int main(void) {
 	usart_init();
 	adc_init();
+	rgb_init();
 	sei();
 	
 	while (1) {
 		uint16_t adc = adc_read(0);
 		char buffer[8]; UTOA(adc, buffer); 
 		
-		usart_write_str("ADC -> ");
 		usart_write_str(buffer);
+		
+		switch(led_state){
+			case 0:
+				usart_write_str(" <- Rojo");
+				rgb_set(1,0,0);
+			break;
+			case 1:
+				usart_write_str(" <- Verde"); 
+				rgb_set(0,1,0);
+			break;
+			case 2:
+				usart_write_str(" <- Azul\r\n");
+				rgb_set(0,0,1);
+			break;
+		}
 		usart_write_str("\r\n");
 		
-		_delay_ms(50);
+		led_state = (led_state+1) % 3;
 		
+		_delay_ms(250);
 	}
 }
+
 
 // ------------------------------------------------------------------
 // ISRs
 // ------------------------------------------------------------------
+
+
 
 ISR(USART_UDRE_vect) {
 	if (tx_head == tx_tail) {
