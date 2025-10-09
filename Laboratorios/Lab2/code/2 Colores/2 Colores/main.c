@@ -125,6 +125,8 @@ uint8_t usart_read_str(char *dest, uint8_t max_len) {
 int main(void) {
 	usart_init();
 	sei();
+	
+	usart_write_str("Hello world!");
 	while (1) {
 	
 	}
