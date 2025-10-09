@@ -20,9 +20,9 @@
 #define RX_MASK   (RX_BUF_SZ - 1)
 #define BAUD_RATE 9600
 
-#define RED   PB0
-#define GREEN PB1
-#define BLUE  PB2
+#define RED   PB2
+#define GREEN PB3
+#define BLUE  PB4
 
 #define NUM_COLORS (sizeof(color_refs)/sizeof(color_refs[0]))
 
@@ -120,11 +120,23 @@ void rgb_init(void){
 }
 
 
+void servo_init(void) {
+	DDRB |= (1 << PB1); 
+
+	TCCR1A = (1 << COM1A1) | (1 << WGM11);
+	TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS11); // 8
+
+	ICR1 = 39999;   
+}
 // ------------------------------------------------------------------
 // UTILITY
 // ------------------------------------------------------------------
 
 
+void servo_set_angle(uint8_t angle) {
+	uint16_t pulse = 1000 + ((uint32_t)angle * 4000) / 180;
+	OCR1A = pulse;
+}
 
 uint8_t usart_write_try(uint8_t b) {
 	uint8_t next = (uint8_t)((tx_head + 1) & TX_MASK);
@@ -248,11 +260,23 @@ int main(void) {
 	usart_init();
 	adc_init();
 	rgb_init();
+	servo_init();
 	sei();
 	
 	while (1) {
-		rgb_read();
-		_delay_ms(50);
+		//rgb_read();
+		//_delay_ms(10);
+        servo_set_angle(0);
+        _delay_ms(1000);
+
+        servo_set_angle(60);
+        _delay_ms(1000);
+		
+		servo_set_angle(120);
+		_delay_ms(1000);
+
+        servo_set_angle(180);
+        _delay_ms(1000);
 	
 	}
 }
