@@ -72,6 +72,7 @@ void centrar(void);
 void peurbas(char c);
 void dibujar_triangulo(void);
 void dibujar_cuadrado(void);
+void dibujar_cruz(void);
 
 int main(void)
 {
@@ -108,18 +109,33 @@ int main(void)
 	    char c = Chardos();
 		
 		if (c == '1'){
-			dibujar_cuadrado();
+			dibujar_cruz();
 		}
 		if (c == '2'){
 			dibujar_triangulo();
 		}
-		//peurbas(c);
+		peurbas(c);
 		}
 		
 		
 
     }
  
+ void dibujar_cruz(void){
+	 centrar();
+	 
+	 CONTADOR = 0;
+	 TCNT1H = 0xC2;
+	 TCNT1L = 0xF7;
+		Subir_s();
+		
+		
+	 while (CONTADOR < 4) { ArribaDerecha();   }   // 2 s
+	 while (CONTADOR < 6) { AbajoIzquierda();   }   // 2 s
+	 while (CONTADOR < 8) {AbajoDerecha();     }   // 2 s
+	 while (CONTADOR < 12) {ArribaIzquierda();     }   // 2 s
+	 
+ }
  
  void dibujar_triangulo(void){
 		centrar();
@@ -141,9 +157,7 @@ int main(void)
  void dibujar_cuadrado(void){
 	 
 	_delay_ms(100);
-	
 	 Subir_s();          
-	 
 	 _delay_ms(100);
 	CONTADOR = 0;
 	
@@ -184,7 +198,7 @@ void centrar(void){
 	TCNT1H = 0xC2;
 	TCNT1L = 0xF7;
 	
-	while(CONTADOR < 4){
+	while(CONTADOR < 6){
 	AbajoDerecha();	
 	}
 	apagar();
