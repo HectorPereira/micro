@@ -60,6 +60,7 @@ uint8_t  adc_done   = 0;
 
 // RGB LED
 uint8_t led_state = 0;
+uint16_t adc_sample[] = {0,0,0};
 
 
 // ------------------------------------------------------------------
@@ -176,6 +177,51 @@ void rgb_set(uint8_t r, uint8_t g, uint8_t b) {
 	((r<<RED) | (g<<GREEN) | (b<<BLUE));
 }
 
+void determine_color(void){
+	return;
+}
+
+
+void rgb_read(void){
+	char buffer[8];
+		
+	switch(led_state){
+		case 0:
+		rgb_set(1,0,0);
+		adc_sample[0] = adc_read(0); // Red
+
+		UTOA(adc_sample[0], buffer);
+		usart_write_str(buffer);
+		usart_write_str(" <- Rojo");
+		break;
+		case 1:
+		rgb_set(0,1,0);
+		adc_sample[1] = adc_read(0); // Verde
+
+		UTOA(adc_sample[1], buffer);
+		usart_write_str(buffer);
+		usart_write_str(" <- Verde");
+		break;
+		case 2:
+		rgb_set(0,0,1);
+		adc_sample[2] = adc_read(0); // Verde
+
+		UTOA(adc_sample[2], buffer);
+		usart_write_str(buffer);
+		usart_write_str(" <- Azul");
+		usart_write_str("\r\n");
+		
+		determine_color();
+		break;
+	}
+	usart_write_str("\r\n");
+	
+	led_state = (led_state+1) % 3;
+	
+	_delay_ms(250);
+}
+
+
 
 
 // ------------------------------------------------------------------
@@ -190,30 +236,7 @@ int main(void) {
 	sei();
 	
 	while (1) {
-		uint16_t adc = adc_read(0);
-		char buffer[8]; UTOA(adc, buffer); 
-		
-		usart_write_str(buffer);
-		
-		switch(led_state){
-			case 0:
-				usart_write_str(" <- Rojo");
-				rgb_set(1,0,0);
-			break;
-			case 1:
-				usart_write_str(" <- Verde"); 
-				rgb_set(0,1,0);
-			break;
-			case 2:
-				usart_write_str(" <- Azul\r\n");
-				rgb_set(0,0,1);
-			break;
-		}
-		usart_write_str("\r\n");
-		
-		led_state = (led_state+1) % 3;
-		
-		_delay_ms(250);
+		rgb_read();
 	}
 }
 
