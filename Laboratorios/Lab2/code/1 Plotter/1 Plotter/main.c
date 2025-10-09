@@ -9,51 +9,8 @@
 #include <avr/interrupt.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
-#define N 8
-
-// Estado actual del "cursor"
-uint8_t fila = 0, col = 0;
-
-
-uint8_t clamp8(int v) {
-	if (v < 0)   return 0;
-	if (v >= N)  return N - 1;
-	return (uint8_t)v;
-}
-
-// Inicializa (fila,col) buscando el único '1' en la matriz.
-// Si no lo encuentra, deja (0,0) y escribe un 1 ahí.
-void posicion_init(uint8_t M[N][N]) {
-	for (uint8_t i = 0; i < N; i++) {
-		for (uint8_t j = 0; j < N; j++) {
-			if (M[i][j] == 1) { fila = i; col = j; return; }
-		}
-	}
-	fila = 0; col = 0;
-	M[0][0] = 1;
-}
-
-// Mueve por delta (df, dc) con choque en bordes
-void mover_delta(uint8_t M[N][N], int df, int dc) {
-	M[fila][col] = 0;                          // borra posición actual
-	fila = clamp8((int)fila + df);             // actualiza con límites
-	col  = clamp8((int)col  + dc);
-	M[fila][col] = 1;                          // escribe nueva posición
-}
-
-// --- Movimientos cardinales ---
-void mover_arriba   (uint8_t M[N][N]) { mover_delta(M, -1,  0); }
-void mover_abajo    (uint8_t M[N][N]) { mover_delta(M,  1,  0); }
-void mover_izquierda(uint8_t M[N][N]) { mover_delta(M,  0, -1); }
-void mover_derecha  (uint8_t M[N][N]) { mover_delta(M,  0,  1); }
-
-// --- Diagonales ---
-void mover_arr_izq(uint8_t M[N][N]) { mover_delta(M, -1, -1); }
-void mover_arr_der(uint8_t M[N][N]) { mover_delta(M, -1,  1); }
-void mover_aba_izq(uint8_t M[N][N]) { mover_delta(M,  1, -1); }
-void mover_aba_der(uint8_t M[N][N]) { mover_delta(M,  1,  1); }
-	
 // Seccion para USART
 #define F_CPU 16000000UL    // Frecuencia del reloj del micro (16 MHz)
 #define BAUD 9600           // Velocidad de transmisión (baudios)
@@ -71,7 +28,9 @@ volatile uint8_t serialWritePos = 0;
 volatile char    rxBuffer[RX_BUFFER_SIZE];
 volatile uint8_t rxReadPos  = 0;
 volatile uint8_t rxWritePos = 0;
-volatile uint8_t CONTADOR = 0; // La idea es usarlo para las figuras simples
+volatile uint8_t CONTADOR = 0; // La idea es usarlo para mover el puntero
+volatile uint8_t CONTADOR2 = 0; // La idea es usarlo para las pausas
+volatile bool chan = true; // La idea es usarlo para las figuras simples
 
 void appendSerial(char c);
 void serialWrite(const char *c);
@@ -87,45 +46,20 @@ char Chardos(void);
 
 
 
+// Seccion para algoritmo de dibujar
+#define N 8
 
-// Matrices para dibujar
-uint8_t Posicion[8][8] = {
-	{0,0,0,0,0,0,0,1},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0}
-};
 
-uint8_t mascara[8][8] = {
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0}
-}; 
+uint8_t clamp8(int v) {
+	if (v < 0)   return 0;
+	if (v >= N)  return N - 1;
+	return (uint8_t)v;
+}
 
-uint8_t Triangulo[8][8] = {
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,1,0,0,0},
-	{0,0,0,1,0,1,0,0},
-	{0,0,1,0,0,0,1,0},
-	{0,1,1,1,1,1,1,1},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0}
-};
-//Funciones para moverse en la matriz
 
 void Subir(void);
-void bajar(void);
-void izquierda(void);
+void Bajar(void);
+void Izquierda(void);
 void Derecha(void);
 void diagI_sup(void);
 void diagI_inf(void);
@@ -134,9 +68,11 @@ void diagD_inf(void);
 void X(void);
 void Y(void);
 
-void sumar_m(const uint8_t A[N][N], const uint8_t B[N][N], uint8_t R[N][N]); // A + B = R
-
-void detectar_uno(void);
+void centrar(void);
+void peurbas(char c);
+void dibujar_triangulo(void);
+void dibujar_cuadrado(void);
+void dibujar_cruz(void);
 
 int main(void)
 {
@@ -145,7 +81,7 @@ int main(void)
 	UBRR0L = BRC;
 	
 	TCCR1A = 0x00;
-	TCCR1B |=  (1 << CS02) | (0 << CS01) | (1 << CS00); //Timer 1024
+	TCCR1B |=  (1 << CS02) | (0 << CS01) | (1 << CS00); //Timer 64
 	TIMSK1 |=  (1 << TOIE1);
 	
 	// Habilitar transmisor
@@ -161,6 +97,8 @@ int main(void)
 	DDRB |= (1 << PORTB0);
  	DDRD = 0b11111110;
 	
+	
+	
 	serialWrite("\nSelecciona la figura a dibujar:\n");
 	serialWrite("1 - Triangulo\n");
 	
@@ -169,75 +107,164 @@ int main(void)
     while(1)
     {
 	    char c = Chardos();
+		
+		if (c == '1'){
+			dibujar_cruz();
+		}
+		if (c == '2'){
+			dibujar_triangulo();
+		}
+		peurbas(c);
+		}
+		
+		
 
     }
-  
-    
-}
+ 
+ void dibujar_cruz(void){
+	 centrar();
+	 
+	 CONTADOR = 0;
+	 TCNT1H = 0xC2;
+	 TCNT1L = 0xF7;
+		Subir_s();
+		
+		
+	 while (CONTADOR < 4) { ArribaDerecha();   }   // 2 s
+	 while (CONTADOR < 6) { AbajoIzquierda();   }   // 2 s
+	 while (CONTADOR < 8) {AbajoDerecha();     }   // 2 s
+	 while (CONTADOR < 12) {ArribaIzquierda();     }   // 2 s
+	 
+ }
+ 
+ void dibujar_triangulo(void){
+		centrar();
+		
+		Subir_s();
+	
+		CONTADOR = 0;
+		TCNT1H = 0xC2;
+		TCNT1L = 0xF7;
+		
+		while (CONTADOR < 2) { Bajar();     }   // 2 s
+		while (CONTADOR < 3) { ArribaDerecha();   }   // 2 s
+		while (CONTADOR < 4) { ArribaIzquierda();     }   // 2 s
+			
+		apagar();
+		
+ }
+		
+ void dibujar_cuadrado(void){
+	 
+	_delay_ms(100);
+	 Subir_s();          
+	 _delay_ms(100);
+	CONTADOR = 0;
+	
+	
+	 while (CONTADOR < 2) { Subir();     }   // 2 s
+	 while (CONTADOR < 4) { Derecha();   }   // 2 s
+	 while (CONTADOR < 6) { Bajar();     }   // 2 s
+	 while (CONTADOR < 8) { Izquierda(); }   // 2 s
+	 //x
+	 
+	  _delay_ms(100);
+	 apagar();
+	 _delay_ms(100);
+	 
+ }
 
+ //Para hacer cada pixel
 
-
-void sumar_m(const uint8_t A[N][N], const uint8_t B[N][N], uint8_t R[N][N]){ //Asignar const a A y B, asegura que no sean modificadas
-	for(uint8_t i = 0 ; i < N ; i++ ){ // recorrer Filas
-		for(uint8_t h = 0 ; h < N ; h++ ){ // recorrer Columnas
-			R[i][h]= (uint8_t)(A[i][h] + B[i][h]); //especificar que se asigna el valor 
-		}
+void peurbas(char c){
+	switch (c) {
+		case 'x': apagar(); break;
+		case 's': Subir_s(); break;
+		case 'u': Subir(); break;
+		case 'd': Bajar(); break;
+		case 'l': Izquierda(); break;
+		case 'r': Derecha(); break;
+		case 'z': AbajoIzquierda(); break;
+		case 'c': AbajoDerecha(); break;
+		case 'q': ArribaIzquierda(); break;
+		case 'e': ArribaDerecha(); break;   // <-- faltaba break
+		case 'j': centrar(); break;
+		default: break;
 	}
 }
 
+void centrar(void){
+	CONTADOR = 0;
+	TCNT1H = 0xC2;
+	TCNT1L = 0xF7;
+	
+	while(CONTADOR < 6){
+	AbajoDerecha();	
+	}
+	apagar();
+}
 
 
 void apagar(void){
-	cbi(PORTD, 4);
-	cbi(PORTD, 5);
-	cbi(PORTD, 6);
-	cbi(PORTD, 2);
-	sbi(PORTD, 3);
+chan = false;
+PORTD = (PORTD & 0b00000011) | 0b00001000;
+
 }
 
-void Subir(void)
+
+void Subir_s(void)
 {
-	cbi(PORTD, 4);   
-	sbi(PORTD, 5);
+PORTD = (PORTD & 0b00000011) | 0b00000100;
+chan = false;
+
 }
 
 void Bajar(void)
 {
-	cbi(PORTD, 5);   
-	sbi(PORTD, 4);
+PORTD = (PORTD & 0b00001111) | 0b00010000;
+}
+
+void Subir(void)
+{
+PORTD = (PORTD & 0b00001111) | 0b00100000;
 }
 
 void Izquierda(void)
 {
-	cbi(PORTD, 6);   
-	sbi(PORTD, 7);
+PORTD = (PORTD & 0b00001111) | 0b01000000;
 }
+
 
 void Derecha(void)
 {
-	cbi(PORTD, 7);   
-	sbi(PORTD, 6);
+PORTD = (PORTD & 0b00001111) | 0b10000000;
 }
 
-void bajar_s(void)
+void AbajoIzquierda(void)
 {
-	sbi(PORTD, 2);   
-	cbi(PORTD, 3);  
+	PORTD = (PORTD & 0b00001111) | 0b01010000; // D6 y D4
 }
 
-void Subir_s(void)
+void AbajoDerecha(void){
+	PORTD = (PORTD & 0b00001111) | 0b10010000; // D6 y D4
+}
+
+void ArribaIzquierda(void)
 {
-	sbi(PORTD, 3);  
-	cbi(PORTD, 2);   
+	PORTD = (PORTD & 0b00001111) | 0b01100000; // D3 y D4
+}
+
+void ArribaDerecha(void){
+	PORTD = (PORTD & 0b00001111) | 0b10100000; // D6 y D4
 }
 
 
 ISR(TIMER1_OVF_vect) {
+	CONTADOR++;
 	TCNT1H = 0xC2;
 	TCNT1L = 0xF7;
-	
-	CONTADOR ++;
 }
+
 
 
 
@@ -305,3 +332,7 @@ ISR(USART_RX_vect)
 		rxWritePos = 0;
 	}
 }
+
+
+
+
