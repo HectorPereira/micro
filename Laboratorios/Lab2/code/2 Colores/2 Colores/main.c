@@ -2,14 +2,16 @@
 // LIBRARIES
 // ------------------------------------------------------------------
 
+#define F_CPU 16000000UL
+
 #include <avr/io.h>
+#include <util/delay.h>
 #include <avr/interrupt.h>
 
 // -----------------------------------------------------------------
 // DEFINITIONS
 // ------------------------------------------------------------------
 
-#define F_CPU 16000000UL
 
 // USART
 #define TX_BUF_SZ 128
@@ -44,9 +46,12 @@ const ColorRef color_refs[] = {
 // USART
 uint8_t tx_buf[TX_BUF_SZ];
 uint8_t tx_head = 0, tx_tail = 0;
-
 uint8_t rx_buf[RX_BUF_SZ];
 uint8_t rx_head = 0, rx_tail = 0;
+
+// ADC
+uint16_t adc_result = 0;
+uint8_t  adc_done   = 0;
 
 // ------------------------------------------------------------------
 // HELPERS
@@ -55,6 +60,27 @@ uint8_t rx_head = 0, rx_tail = 0;
 // Retorna la cantidad de elementos en el buffer de RX
 uint8_t usart_rx_available(void) {
 	return (uint8_t)((rx_head - rx_tail) & RX_MASK);
+}
+
+void UTOA(uint16_t value, char *buffer) { // <- String stored in buffer
+	char temp[6];
+	int i = 0, j = 0;
+
+	if (value == 0) {
+		buffer[0] = '0';
+		buffer[1] = '\0';
+		return;
+	}
+
+	// Convert digits to temp buffer (reversed)
+	while (value > 0 && i < sizeof(temp) - 1) {
+		temp[i++] = (value % 10) + '0';
+		value /= 10;
+	}
+
+	// Reverse digits into final buffer
+	while (i > 0) buffer[j++] = temp[--i];
+	buffer[j] = '\0';
 }
 
 // ------------------------------------------------------------------
@@ -115,6 +141,19 @@ uint8_t usart_read_str(char *dest, uint8_t max_len) {
 	return count;
 }
 
+void adc_init(void) {
+	ADMUX  = (1 << REFS0);                        // AVcc ref, ADC0 input
+	ADCSRA = (1 << ADEN)                          // Enable ADC
+	| (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Prescaler 128
+}
+
+uint16_t adc_read(uint8_t channel) {
+	ADMUX = (ADMUX & 0xF0) | (channel & 0x0F);  // Select ADC channel 0–7
+	ADCSRA |= (1 << ADSC);                      // Start conversion
+	while (ADCSRA & (1 << ADSC));               // Wait for conversion to finish
+	return ADC;                                 // Return 10-bit result
+}
+
 
 
 // ------------------------------------------------------------------
@@ -124,11 +163,19 @@ uint8_t usart_read_str(char *dest, uint8_t max_len) {
 
 int main(void) {
 	usart_init();
+	adc_init();
 	sei();
 	
-	usart_write_str("Hello world!");
 	while (1) {
-	
+		uint16_t adc = adc_read(0);
+		char buffer[8]; UTOA(adc, buffer); 
+		
+		usart_write_str("ADC -> ");
+		usart_write_str(buffer);
+		usart_write_str("\r\n");
+		
+		_delay_ms(50);
+		
 	}
 }
 
