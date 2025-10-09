@@ -7,6 +7,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
+#include <string.h>
 
 // -----------------------------------------------------------------
 // DEFINITIONS
@@ -240,6 +241,19 @@ void rgb_read(void){
 		const char * color_name = identify_color(adc_sample[0], adc_sample[1], adc_sample[2]);
 		usart_write_str(color_name);
 		usart_write_str("\r\n");
+		
+		if (strcmp(color_name, "ROJO") == 0) {
+			servo_set_angle(0);
+		}
+		else if (strcmp(color_name, "AMARILLO") == 0) {
+			servo_set_angle(60);
+		}
+		else if (strcmp(color_name, "VERDE") == 0) {
+			servo_set_angle(120);
+		}
+		else if (strcmp(color_name, "AZUL CLARO") == 0) {
+			servo_set_angle(180);
+		}
 	
 		break;
 	}
@@ -264,19 +278,9 @@ int main(void) {
 	sei();
 	
 	while (1) {
-		//rgb_read();
-		//_delay_ms(10);
-        servo_set_angle(0);
-        _delay_ms(1000);
+		rgb_read();
+		_delay_ms(10);
 
-        servo_set_angle(60);
-        _delay_ms(1000);
-		
-		servo_set_angle(120);
-		_delay_ms(1000);
-
-        servo_set_angle(180);
-        _delay_ms(1000);
 	
 	}
 }
