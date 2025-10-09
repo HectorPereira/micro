@@ -24,7 +24,7 @@
 #define GREEN PB1
 #define BLUE  PB2
 
-
+#define NUM_COLORS (sizeof(color_refs)/sizeof(color_refs[0]))
 
 // ------------------------------------------------------------------
 // PROGRAM VARIABLES
@@ -177,8 +177,22 @@ void rgb_set(uint8_t r, uint8_t g, uint8_t b) {
 	((r<<RED) | (g<<GREEN) | (b<<BLUE));
 }
 
-void determine_color(void){
-	return;
+const char* identify_color(uint16_t r, uint16_t g, uint16_t b) {
+	uint32_t best_dist = 0xFFFFFFFF;
+	const char *best_name = "UNKNOWN";
+
+	for (uint8_t i = 0; i < NUM_COLORS; i++) {
+		int32_t dr = (int32_t)r - color_refs[i].r;
+		int32_t dg = (int32_t)g - color_refs[i].g;
+		int32_t db = (int32_t)b - color_refs[i].b;
+		uint32_t dist = dr*dr + dg*dg + db*db;
+
+		if (dist < best_dist) {
+			best_dist = dist;
+			best_name = color_refs[i].name;
+		}
+	}
+	return best_name;
 }
 
 
@@ -191,34 +205,35 @@ void rgb_read(void){
 		adc_sample[0] = adc_read(0); // Red
 
 		UTOA(adc_sample[0], buffer);
-		usart_write_str(buffer);
-		usart_write_str(" <- Rojo");
+		//usart_write_str(buffer);
+		//usart_write_str(" <- Rojo");
 		break;
 		case 1:
 		rgb_set(0,1,0);
 		adc_sample[1] = adc_read(0); // Verde
 
 		UTOA(adc_sample[1], buffer);
-		usart_write_str(buffer);
-		usart_write_str(" <- Verde");
+		//usart_write_str(buffer);
+		//usart_write_str(" <- Verde");
 		break;
 		case 2:
 		rgb_set(0,0,1);
-		adc_sample[2] = adc_read(0); // Verde
+		adc_sample[2] = adc_read(0); // Azul
 
 		UTOA(adc_sample[2], buffer);
-		usart_write_str(buffer);
-		usart_write_str(" <- Azul");
-		usart_write_str("\r\n");
+		//usart_write_str(buffer);
+		//usart_write_str(" <- Azul");
+		//usart_write_str("\r\n");
 		
-		determine_color();
+		const char * color_name = identify_color(adc_sample[0], adc_sample[1], adc_sample[2]);
+		usart_write_str(color_name);
+		usart_write_str("\r\n");
+	
 		break;
 	}
-	usart_write_str("\r\n");
-	
+
 	led_state = (led_state+1) % 3;
 	
-	_delay_ms(250);
 }
 
 
@@ -237,6 +252,8 @@ int main(void) {
 	
 	while (1) {
 		rgb_read();
+		_delay_ms(50);
+	
 	}
 }
 
