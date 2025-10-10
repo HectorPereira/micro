@@ -101,11 +101,8 @@ int main(void) {
 		
 		key = read_keypad();
 		if (boton_presionado) {
-			
 			Escribir_LCD(key);
-		
 			_delay_ms(500);
-			
 			setearLCD(d);
 		}
 	}
