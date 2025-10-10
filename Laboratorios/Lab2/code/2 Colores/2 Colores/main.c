@@ -63,6 +63,14 @@ Proceso de Funcionamiento
 #define GREEN PORTB3
 #define BLUE  PORTB4
 
+#define SERVO_PORT PORTB
+#define SERVO_DDR DDRB
+#define SERVO_PIN PORTB1
+
+#define LED_PORT PORTD
+#define LED_DDR  DDRD
+#define LED_PIN  PORTD6
+
 #define NUM_COLORS (sizeof(color_refs)/sizeof(color_refs[0]))
 
 // ------------------------------------------------------------------
@@ -77,13 +85,13 @@ typedef struct {
 } ColorRef;
 
 const ColorRef color_refs[] = {
-	{"MORADO",    309, 220, 375},
-	{"ROJO",       370, 170, 372},
-	{"AMARILLO",    322, 152, 164},
-	{"VERDE",     414, 276, 221},
-	{"AZUL CLARO", 223, 226, 181},
-	{"VIOLETA",    345, 356, 434},
-	{"BLANCO",    180, 180, 180},
+	{"MORADO",    216, 157, 274},
+	{"ROJO",       206, 149, 262},
+	{"AMARILLO",    196, 99, 105},
+	{"VERDE",     272, 192, 152},
+	{"AZUL CLARO", 151, 153, 122},
+	{"VIOLETA",    253, 275, 338},
+	{"BLANCO",    110, 93, 91},
 };
 
 
@@ -133,6 +141,41 @@ void UTOA(uint16_t value, char *buffer) { // <- String stored in buffer
 	buffer[j] = '\0';
 }
 
+void send_bit(uint8_t bitVal){
+	if(bitVal){
+		PORTD |=  (1<<LED_PIN);
+		asm volatile (
+		"nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"
+		"nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+		
+		PORTD &= ~(1<<LED_PIN);
+		
+		asm volatile (
+		"nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+		
+		} else {
+		PORTD |=  (1<<LED_PIN);
+		asm volatile (
+		"nop\n\t""nop\n\t""nop\n\t");
+		
+		PORTD &= ~(1<<LED_PIN);
+		asm volatile (
+		"nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"
+		"nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+	}
+}
+
+void send_byte(uint8_t byte) {
+	cli();  // disable interrupts for precise timing
+	for (uint8_t i = 0; i < 8; i++) {
+		send_bit(byte & 0x80);  // send most significant bit first
+		byte <<= 1;             // shift next bit into MSB position
+	}
+	sei();  // re-enable interrupts
+}
+
+
+
 
 // ------------------------------------------------------------------
 // INITIALIZERS
@@ -160,17 +203,83 @@ void rgb_init(void){
 
 
 void servo_init(void) {
-	DDRB |= (1 << PORTB1); 
+	SERVO_DDR |= (1 << SERVO_PORT); 
 
 	TCCR1A = (1 << COM1A1) | (1 << WGM11);
 	TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS11); // 8
 
 	ICR1 = 39999;   
 }
+
+void ws2812_init(void) {
+	LED_DDR |= (1 << LED_PIN);
+}
 // ------------------------------------------------------------------
 // UTILITY
 // ------------------------------------------------------------------
 
+void ws2812_send_pixel(uint8_t r, uint8_t g, uint8_t b) {
+	send_byte(g);
+	send_byte(b);
+	send_byte(r);
+}
+
+
+void ws2812_show(void) {
+	_delay_us(60);  // Reset/latch time
+}
+
+void ws2812_fill(uint8_t r, uint8_t g, uint8_t b, uint16_t n) {
+	cli(); // Disable interrupts for precise timing
+	for (uint16_t i = 0; i < n; i++) {
+		ws2812_send_pixel(r, g, b);
+	}
+	sei();
+	ws2812_show();
+}
+
+
+void led_strip_set_color(uint8_t color_id) {
+	uint8_t r = 0, g = 0, b = 0;
+
+	switch (color_id) {
+		case 1: // Rojo
+		r = 255; g = 0; b = 0;
+		break;
+
+		case 2: // Amarillo
+		r = 255; g = 100; b = 0;
+		break;
+
+		case 3: // Verde
+		r = 0; g = 255; b = 0;
+		break;
+
+		case 4: // Azul claro
+		r = 0; g = 255; b = 255;
+		break;
+
+		case 5: // Violeta
+		r = 100; g = 0; b = 100;
+		
+		break;
+
+		case 6: // Morado
+		r = 200; g = 0; b = 75;
+		
+		break;
+
+		case 7: // Blanco
+		r = 255; g = 255; b = 255;
+		break;
+
+		default: // Apagar LED
+		r = g = b = 0;
+		break;
+	}
+
+	ws2812_fill(r, g, b, 50);
+}
 
 void servo_set_angle(uint8_t angle) {
 	uint16_t pulse = 1000 + ((uint32_t)angle * 4000) / 180;
@@ -325,16 +434,29 @@ void rgb_read(void){
 		print_data(color_name);
 		
 		if (strcmp(color_name, "ROJO") == 0) {
+			led_strip_set_color(1);
 			servo_set_angle(0);
 		}
 		else if (strcmp(color_name, "AMARILLO") == 0) {
+			led_strip_set_color(2);
 			servo_set_angle(60);
 		}
 		else if (strcmp(color_name, "VERDE") == 0) {
+			led_strip_set_color(3);
 			servo_set_angle(120);
 		}
 		else if (strcmp(color_name, "AZUL CLARO") == 0) {
+			led_strip_set_color(4);
 			servo_set_angle(180);
+		}
+		else if (strcmp(color_name, "VIOLETA") == 0) {
+			led_strip_set_color(5);
+		}
+		else if (strcmp(color_name, "MORADO") == 0) {
+			led_strip_set_color(6);
+		}
+		else if (strcmp(color_name, "BLANCO") == 0) {
+			led_strip_set_color(7);
 		}
 	
 		break;
@@ -353,6 +475,7 @@ void rgb_read(void){
 
 
 int main(void) {
+	ws2812_init();
 	usart_init();
 	adc_init();
 	rgb_init();
