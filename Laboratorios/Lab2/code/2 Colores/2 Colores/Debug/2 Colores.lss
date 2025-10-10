@@ -198,7 +198,7 @@ Disassembly of section .text:
 Disassembly of section .text:
 
 00000bee <__bad_interrupt>:
- bee:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+ bee:	0c 94 00 00 	jmp	0	; 0x0 <__TEXT_REGION_ORIGIN__>
 
 Disassembly of section .text.UTOA:
 
@@ -377,7 +377,7 @@ Disassembly of section .text.servo_init:
 
 
 void servo_init(void) {
-	DDRB |= (1 << PB1); 
+	DDRB |= (1 << PORTB1); 
  b0e:	84 b1       	in	r24, 0x04	; 4
  b10:	82 60       	ori	r24, 0x02	; 2
  b12:	84 b9       	out	0x04, r24	; 4

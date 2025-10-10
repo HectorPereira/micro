@@ -21,9 +21,9 @@
 #define RX_MASK   (RX_BUF_SZ - 1)
 #define BAUD_RATE 9600
 
-#define RED   PB2
-#define GREEN PB3
-#define BLUE  PB4
+#define RED   PORTB2
+#define GREEN PORTB3
+#define BLUE  PORTB4
 
 #define NUM_COLORS (sizeof(color_refs)/sizeof(color_refs[0]))
 
@@ -122,7 +122,7 @@ void rgb_init(void){
 
 
 void servo_init(void) {
-	DDRB |= (1 << PB1); 
+	DDRB |= (1 << PORTB1); 
 
 	TCCR1A = (1 << COM1A1) | (1 << WGM11);
 	TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS11); // 8
@@ -338,7 +338,7 @@ int main(void) {
 
 ISR(USART_UDRE_vect) {
 	if (tx_head == tx_tail) {
-		UCSR0B &= (uint8_t)~_BV(UDRIE0);
+		UCSR0B &= (uint8_t)~(1<<UDRIE0);
 		return;
 	}
 	UDR0 = tx_buf[tx_tail];
@@ -352,7 +352,4 @@ ISR(USART_RX_vect) {
 		rx_buf[rx_head] = d;
 		rx_head = next;
 	}
-	
-	// uint8_t data = usart_read_try();
-	// ... check for command character
 }
