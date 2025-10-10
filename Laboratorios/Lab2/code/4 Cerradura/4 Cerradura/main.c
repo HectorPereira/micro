@@ -25,6 +25,15 @@ Funcionalidades detalladas:
 		primero la contraseña actual.
 	-	Luego, el usuario puede elegir una nueva contraseña de entre 4 y
 		6 dígitos, que será almacenada en la EEPROM.
+		
+Requerimientos:
+	-	Microcontrolador: ATmega328P
+	-	Teclado Matricial: 4x4 (16 teclas)
+	-	Pantalla LCD: 16x2 o similar
+	-	LED Verde: Indica éxito (contraseña correcta)
+	-	LED Rojo: Indica error (contraseña incorrecta)
+	-	Alarma: Buzzer o LED de advertencia
+	-	EEPROM: Almacena la contraseña de manera persistente
  */ 
 
 #include <xc.h>
