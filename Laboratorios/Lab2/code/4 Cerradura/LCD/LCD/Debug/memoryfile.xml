@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?> 
 <project>                                  
-  <executable name="4 Cerradura.elf">                 
+  <executable name="LCD.elf">                 
     <memory name="program">              
       <units>bytes</units>                 
       <length>32768</length>                 
-      <used>911</used>                     
-      <free>31857</free>                     
+      <used>780</used>                     
+      <free>31988</free>                     
     </memory>                              
     <memory name="data">                 
       <units>bytes</units>                 
