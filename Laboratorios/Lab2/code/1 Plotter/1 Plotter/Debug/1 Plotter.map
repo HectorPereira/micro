@@ -33,6 +33,8 @@ Discarded input sections
                 0x0000000000000000       0x22 main.o
  .text.generar_escalon3
                 0x0000000000000000       0x22 main.o
+ .text.generar_escalon5
+                0x0000000000000000       0x28 main.o
  .text.dibujar_cuadrado
                 0x0000000000000000       0x76 main.o
  .text.dibujar_cruz
@@ -43,8 +45,6 @@ Discarded input sections
                 0x0000000000000000       0x24 main.o
  .text.peekChar
                 0x0000000000000000       0x1e main.o
- .bss.CONTADOR2
-                0x0000000000000000        0x1 main.o
  .text          0x0000000000000000        0x0 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/avr5/memx-const\libgcc.a(_tablejump2.o)
  .data          0x0000000000000000        0x0 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/avr5/memx-const\libgcc.a(_tablejump2.o)
  .bss           0x0000000000000000        0x0 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/avr5/memx-const\libgcc.a(_tablejump2.o)
@@ -418,41 +418,41 @@ END GROUP
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x0000000000000000      0x100
+.debug_aranges  0x0000000000000000      0x108
  *(.debug_aranges)
  .debug_aranges
-                0x0000000000000000      0x100 main.o
+                0x0000000000000000      0x108 main.o
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0x1587
+.debug_info     0x0000000000000000     0x15da
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000      0x5f4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
- .debug_info    0x00000000000005f4      0xf93 main.o
+ .debug_info    0x00000000000005f4      0xfe6 main.o
 
 .debug_abbrev   0x0000000000000000      0x846
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x5a2 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
  .debug_abbrev  0x00000000000005a2      0x2a4 main.o
 
-.debug_line     0x0000000000000000      0x86e
+.debug_line     0x0000000000000000      0x893
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000      0x137 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
- .debug_line    0x0000000000000137      0x737 main.o
+ .debug_line    0x0000000000000137      0x75c main.o
 
-.debug_frame    0x0000000000000000      0x250
+.debug_frame    0x0000000000000000      0x260
  *(.debug_frame)
- .debug_frame   0x0000000000000000      0x250 main.o
+ .debug_frame   0x0000000000000000      0x260 main.o
 
 .debug_str      0x0000000000000000      0x251
  *(.debug_str)
  .debug_str     0x0000000000000000      0x208 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
  .debug_str     0x0000000000000208       0x49 main.o
 
-.debug_loc      0x0000000000000000      0x7c7
+.debug_loc      0x0000000000000000      0x80f
  *(.debug_loc)
- .debug_loc     0x0000000000000000      0x7c7 main.o
+ .debug_loc     0x0000000000000000      0x80f main.o
 
 .debug_macinfo
  *(.debug_macinfo)
@@ -472,9 +472,9 @@ END GROUP
 .debug_pubtypes
  *(.debug_pubtypes)
 
-.debug_ranges   0x0000000000000000       0xf0
+.debug_ranges   0x0000000000000000       0xf8
  *(.debug_ranges)
- .debug_ranges  0x0000000000000000       0xf0 main.o
+ .debug_ranges  0x0000000000000000       0xf8 main.o
 
 .debug_macro
  *(.debug_macro)
@@ -549,134 +549,134 @@ LOAD data_init
  .text.Chardos  0x0000000000000314       0x34 main.o
                 0x0000000000000314                Chardos
 
-.text.generar_escalon4
-                0x0000000000000348       0x32
- .text.generar_escalon4
-                0x0000000000000348       0x32 main.o
-                0x0000000000000348                generar_escalon4
-
 .text.__vector_13
-                0x000000000000037a       0x2e
+                0x0000000000000348       0x2e
  .text.__vector_13
-                0x000000000000037a       0x2e main.o
-                0x000000000000037a                __vector_13
+                0x0000000000000348       0x2e main.o
+                0x0000000000000348                __vector_13
 
-.text.strlen    0x00000000000003a8       0x2c
- .text.strlen   0x00000000000003a8       0x2c c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(strlen.o)
-                0x00000000000003a8                strlen
+.text.strlen    0x0000000000000376       0x2c
+ .text.strlen   0x0000000000000376       0x2c c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(strlen.o)
+                0x0000000000000376                strlen
 
-.text.centrar   0x00000000000003d4       0x24
- .text.centrar  0x00000000000003d4       0x24 main.o
-                0x00000000000003d4                centrar
+.text.generar_escalon4
+                0x00000000000003a2       0x28
+ .text.generar_escalon4
+                0x00000000000003a2       0x28 main.o
+                0x00000000000003a2                generar_escalon4
+
+.text.centrar   0x00000000000003ca       0x24
+ .text.centrar  0x00000000000003ca       0x24 main.o
+                0x00000000000003ca                centrar
 
 .text.Hacer_circulo
-                0x00000000000003f8       0x1c
+                0x00000000000003ee       0x1e
  .text.Hacer_circulo
-                0x00000000000003f8       0x1c main.o
-                0x00000000000003f8                Hacer_circulo
+                0x00000000000003ee       0x1e main.o
+                0x00000000000003ee                Hacer_circulo
 
-.text.exit      0x0000000000000414       0x16
- .text.exit     0x0000000000000414       0x16 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(exit.o)
-                0x0000000000000414                exit
+.text.exit      0x000000000000040c       0x16
+ .text.exit     0x000000000000040c       0x16 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(exit.o)
+                0x000000000000040c                exit
 
-.text.libgcc    0x000000000000042a        0xc
- .text.libgcc   0x000000000000042a        0xc c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/avr5/memx-const\libgcc.a(_tablejump2.o)
-                0x000000000000042a                __tablejump2__
+.text.libgcc    0x0000000000000422        0xc
+ .text.libgcc   0x0000000000000422        0xc c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/avr5/memx-const\libgcc.a(_tablejump2.o)
+                0x0000000000000422                __tablejump2__
 
-.text.apagar    0x0000000000000436        0xa
- .text.apagar   0x0000000000000436        0xa main.o
-                0x0000000000000436                apagar
+.text.apagar    0x000000000000042e        0xa
+ .text.apagar   0x000000000000042e        0xa main.o
+                0x000000000000042e                apagar
 
-.text.Subir_s   0x0000000000000440        0xa
- .text.Subir_s  0x0000000000000440        0xa main.o
-                0x0000000000000440                Subir_s
+.text.Subir_s   0x0000000000000438        0xa
+ .text.Subir_s  0x0000000000000438        0xa main.o
+                0x0000000000000438                Subir_s
 
-.text.Bajar     0x000000000000044a        0xa
- .text.Bajar    0x000000000000044a        0xa main.o
-                0x000000000000044a                Bajar
+.text.Bajar     0x0000000000000442        0xa
+ .text.Bajar    0x0000000000000442        0xa main.o
+                0x0000000000000442                Bajar
 
-.text.Subir     0x0000000000000454        0xa
- .text.Subir    0x0000000000000454        0xa main.o
-                0x0000000000000454                Subir
+.text.Subir     0x000000000000044c        0xa
+ .text.Subir    0x000000000000044c        0xa main.o
+                0x000000000000044c                Subir
 
 .text.Izquierda
-                0x000000000000045e        0xa
+                0x0000000000000456        0xa
  .text.Izquierda
-                0x000000000000045e        0xa main.o
-                0x000000000000045e                Izquierda
+                0x0000000000000456        0xa main.o
+                0x0000000000000456                Izquierda
 
-.text.Derecha   0x0000000000000468        0xa
- .text.Derecha  0x0000000000000468        0xa main.o
-                0x0000000000000468                Derecha
+.text.Derecha   0x0000000000000460        0xa
+ .text.Derecha  0x0000000000000460        0xa main.o
+                0x0000000000000460                Derecha
 
 .text.AbajoIzquierda
-                0x0000000000000472        0xa
+                0x000000000000046a        0xa
  .text.AbajoIzquierda
-                0x0000000000000472        0xa main.o
-                0x0000000000000472                AbajoIzquierda
+                0x000000000000046a        0xa main.o
+                0x000000000000046a                AbajoIzquierda
 
 .text.AbajoDerecha
-                0x000000000000047c        0xa
+                0x0000000000000474        0xa
  .text.AbajoDerecha
-                0x000000000000047c        0xa main.o
-                0x000000000000047c                AbajoDerecha
+                0x0000000000000474        0xa main.o
+                0x0000000000000474                AbajoDerecha
 
 .text.ArribaIzquierda
-                0x0000000000000486        0xa
+                0x000000000000047e        0xa
  .text.ArribaIzquierda
-                0x0000000000000486        0xa main.o
-                0x0000000000000486                ArribaIzquierda
+                0x000000000000047e        0xa main.o
+                0x000000000000047e                ArribaIzquierda
 
 .text.ArribaDerecha
-                0x0000000000000490        0xa
+                0x0000000000000488        0xa
  .text.ArribaDerecha
-                0x0000000000000490        0xa main.o
-                0x0000000000000490                ArribaDerecha
+                0x0000000000000488        0xa main.o
+                0x0000000000000488                ArribaDerecha
 
-.text           0x000000000000049a        0x4
- .text          0x000000000000049a        0x4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
-                0x000000000000049a                __vector_22
-                0x000000000000049a                __vector_1
-                0x000000000000049a                __vector_24
-                0x000000000000049a                __vector_12
-                0x000000000000049a                __bad_interrupt
-                0x000000000000049a                __vector_6
-                0x000000000000049a                __vector_3
-                0x000000000000049a                __vector_23
-                0x000000000000049a                __vector_25
-                0x000000000000049a                __vector_11
-                0x000000000000049a                __vector_17
-                0x000000000000049a                __vector_7
-                0x000000000000049a                __vector_5
-                0x000000000000049a                __vector_4
-                0x000000000000049a                __vector_9
-                0x000000000000049a                __vector_2
-                0x000000000000049a                __vector_21
-                0x000000000000049a                __vector_15
-                0x000000000000049a                __vector_8
-                0x000000000000049a                __vector_14
-                0x000000000000049a                __vector_10
-                0x000000000000049a                __vector_16
-                0x000000000000049a                __vector_20
+.text           0x0000000000000492        0x4
+ .text          0x0000000000000492        0x4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
+                0x0000000000000492                __vector_22
+                0x0000000000000492                __vector_1
+                0x0000000000000492                __vector_24
+                0x0000000000000492                __vector_12
+                0x0000000000000492                __bad_interrupt
+                0x0000000000000492                __vector_6
+                0x0000000000000492                __vector_3
+                0x0000000000000492                __vector_23
+                0x0000000000000492                __vector_25
+                0x0000000000000492                __vector_11
+                0x0000000000000492                __vector_17
+                0x0000000000000492                __vector_7
+                0x0000000000000492                __vector_5
+                0x0000000000000492                __vector_4
+                0x0000000000000492                __vector_9
+                0x0000000000000492                __vector_2
+                0x0000000000000492                __vector_21
+                0x0000000000000492                __vector_15
+                0x0000000000000492                __vector_8
+                0x0000000000000492                __vector_14
+                0x0000000000000492                __vector_10
+                0x0000000000000492                __vector_16
+                0x0000000000000492                __vector_20
 
-.text._Exit     0x000000000000049e        0x4
- .text._Exit    0x000000000000049e        0x4 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(_Exit.o)
-                0x000000000000049e                _Exit
+.text._Exit     0x0000000000000496        0x4
+ .text._Exit    0x0000000000000496        0x4 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(_Exit.o)
+                0x0000000000000496                _Exit
 
 .text.__dummy_fini
-                0x00000000000004a2        0x2
+                0x000000000000049a        0x2
  .text.__dummy_fini
-                0x00000000000004a2        0x2 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(exit.o)
-                0x00000000000004a2                _fini
+                0x000000000000049a        0x2 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(exit.o)
+                0x000000000000049a                _fini
 
 .text.__dummy_funcs_on_exit
-                0x00000000000004a4        0x2
+                0x000000000000049c        0x2
  .text.__dummy_funcs_on_exit
-                0x00000000000004a4        0x2 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(exit.o)
-                0x00000000000004a4                __funcs_on_exit
+                0x000000000000049c        0x2 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(exit.o)
+                0x000000000000049c                __funcs_on_exit
 
 .text.__dummy_simulator_exit
-                0x00000000000004a6        0x2
+                0x000000000000049e        0x2
  .text.__dummy_simulator_exit
-                0x00000000000004a6        0x2 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(exit.o)
-                0x00000000000004a6                __simulator_exit
+                0x000000000000049e        0x2 c:/program files/microchip/xc8/v2.36/avr/bin/../lib/gcc/avr/5.4.0/../../../../avr/lib/avr5/memx-const\libc.a(exit.o)
+                0x000000000000049e                __simulator_exit
