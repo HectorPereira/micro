@@ -29,8 +29,7 @@ volatile char    rxBuffer[RX_BUFFER_SIZE];
 volatile uint8_t rxReadPos  = 0;
 volatile uint8_t rxWritePos = 0;
 volatile uint8_t CONTADOR = 0; // La idea es usarlo para mover el puntero
-volatile uint8_t CONTADOR2 = 0; // La idea es usarlo para las pausas
-volatile bool chan = true; // La idea es usarlo para las figuras simples
+volatile const uint8_t radio = 10; // La idea es usarlo para las figuras simples
 
 void appendSerial(char c);
 void serialWrite(const char *c);
@@ -73,6 +72,15 @@ void peurbas(char c);
 void dibujar_triangulo(void);
 void dibujar_cuadrado(void);
 void dibujar_cruz(void);
+void generar_escalon(void);
+void Hacer_circulo(void);
+
+void generar_escalon1(void);
+void generar_escalon2(void);
+ 
+void generar_escalon3(void);
+void generar_escalon4(void);
+ 
 
 int main(void)
 {
@@ -81,7 +89,7 @@ int main(void)
 	UBRR0L = BRC;
 	
 	TCCR1A = 0x00;
-	TCCR1B |=  (1 << CS02) | (0 << CS01) | (1 << CS00); //Timer 64
+	TCCR1B |=  (0 << CS02) | (0 << CS01) | (1 << CS00); //Timer 64
 	TIMSK1 |=  (1 << TOIE1);
 	
 	// Habilitar transmisor
@@ -109,17 +117,69 @@ int main(void)
 	    char c = Chardos();
 		
 		if (c == '1'){
-			dibujar_cruz();
-		}
-		if (c == '2'){
-			dibujar_triangulo();
+			Hacer_circulo();
 		}
 		peurbas(c);
 		}
-		
-		
 
     }
+ 
+ 
+ void generar_escalon1(void){
+	 Izquierda();
+	 _delay_ms(10);
+	 Subir();
+	 _delay_ms(10);
+ }
+ 
+ void generar_escalon2(void){
+	  Izquierda();
+	  _delay_ms(200);
+	  Bajar();
+	  _delay_ms(100);
+ }
+  
+  void generar_escalon3(void){
+	  Derecha();
+	  _delay_ms(10);
+	  Bajar();
+	  _delay_ms(10);
+ }
+
+void generar_escalon4(void) {
+		Subir();
+		_delay_ms(400);		
+		Derecha();
+		_delay_ms(200);	
+}
+
+void generar_escalon5(void) {
+	Subir();
+	_delay_ms(200);
+	Derecha();
+	_delay_ms(400);
+}
+
+ void Hacer_circulo(void){
+	    uint8_t i;
+		
+		Subir_s();
+		_delay_ms(1000);
+		
+	     // Cuadrante 1 → Derecha + Subir
+		 cli();
+			     for (i = 0; i < 300; i++) {
+				     generar_escalon4();
+			     }
+				 for (i = 0; i < 300; i++) {
+					 generar_escalon5();
+				 }
+		sei();
+		 _delay_ms(1000);
+		apagar();
+		 
+ }
+ 
  
  void dibujar_cruz(void){
 	 centrar();
@@ -199,23 +259,22 @@ void centrar(void){
 	TCNT1L = 0xF7;
 	
 	while(CONTADOR < 6){
-	AbajoDerecha();	
+		AbajoDerecha();
 	}
 	apagar();
 }
 
 
 void apagar(void){
-chan = false;
+
 PORTD = (PORTD & 0b00000011) | 0b00001000;
 
 }
 
-
 void Subir_s(void)
 {
 PORTD = (PORTD & 0b00000011) | 0b00000100;
-chan = false;
+
 
 }
 
