@@ -198,7 +198,7 @@ Disassembly of section .text:
 Disassembly of section .text:
 
 00000bee <__bad_interrupt>:
- bee:	0c 94 00 00 	jmp	0	; 0x0 <__TEXT_REGION_ORIGIN__>
+ bee:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 Disassembly of section .text.UTOA:
 
@@ -1158,8 +1158,8 @@ Disassembly of section .text.rgb_read:
  694:	0e 94 f3 04 	call	0x9e6	; 0x9e6 <rgb_set>
  698:	80 e0       	ldi	r24, 0x00	; 0
  69a:	0e 94 22 05 	call	0xa44	; 0xa44 <adc_read>
- 69e:	90 93 01 03 	sts	0x0301, r25	; 0x800301 <adc_sample+0x1>
- 6a2:	80 93 00 03 	sts	0x0300, r24	; 0x800300 <adc_sample>
+ 69e:	90 93 01 03 	sts	0x0301, r25	; 0x800301 <_end+0x1>
+ 6a2:	80 93 00 03 	sts	0x0300, r24	; 0x800300 <_end>
  6a6:	be 01       	movw	r22, r28
  6a8:	6f 5f       	subi	r22, 0xFF	; 255
  6aa:	7f 4f       	sbci	r23, 0xFF	; 255
@@ -1171,8 +1171,8 @@ Disassembly of section .text.rgb_read:
  6b8:	0e 94 f3 04 	call	0x9e6	; 0x9e6 <rgb_set>
  6bc:	80 e0       	ldi	r24, 0x00	; 0
  6be:	0e 94 22 05 	call	0xa44	; 0xa44 <adc_read>
- 6c2:	90 93 03 03 	sts	0x0303, r25	; 0x800303 <adc_sample+0x3>
- 6c6:	80 93 02 03 	sts	0x0302, r24	; 0x800302 <adc_sample+0x2>
+ 6c2:	90 93 03 03 	sts	0x0303, r25	; 0x800303 <_end+0x3>
+ 6c6:	80 93 02 03 	sts	0x0302, r24	; 0x800302 <_end+0x2>
  6ca:	be 01       	movw	r22, r28
  6cc:	6f 5f       	subi	r22, 0xFF	; 255
  6ce:	7f 4f       	sbci	r23, 0xFF	; 255

@@ -270,25 +270,18 @@ void rgb_read(void){
 		adc_sample[0] = adc_read(0); // Rojo
 
 		UTOA(adc_sample[0], buffer);
-		//usart_write_str(buffer);
-		//usart_write_str(" <- Rojo");
 		break;
 		case 1:
 		rgb_set(0,1,0);
 		adc_sample[1] = adc_read(0); // Verde
 
 		UTOA(adc_sample[1], buffer);
-		//usart_write_str(buffer);
-		//usart_write_str(" <- Verde");
 		break;
 		case 2:
 		rgb_set(0,0,1);
 		adc_sample[2] = adc_read(0); // Azul
 
 		UTOA(adc_sample[2], buffer);
-		//usart_write_str(buffer);
-		//usart_write_str(" <- Azul");
-		//usart_write_str("\r\n");
 		
 		const char *color_name = identify_color(adc_sample[0], adc_sample[1], adc_sample[2]);
 		print_data(color_name);
