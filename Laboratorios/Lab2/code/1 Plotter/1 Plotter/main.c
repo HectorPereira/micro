@@ -10,6 +10,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <math.h>
 
 // Seccion para USART
 #define F_CPU 16000000UL    // Frecuencia del reloj del micro (16 MHz)
@@ -45,17 +46,6 @@ char Chardos(void);
 
 
 
-// Seccion para algoritmo de dibujar
-#define N 8
-
-
-uint8_t clamp8(int v) {
-	if (v < 0)   return 0;
-	if (v >= N)  return N - 1;
-	return (uint8_t)v;
-}
-
-
 void Subir(void);
 void Bajar(void);
 void Izquierda(void);
@@ -72,15 +62,8 @@ void peurbas(char c);
 void dibujar_triangulo(void);
 void dibujar_cuadrado(void);
 void dibujar_cruz(void);
-void generar_escalon(void);
+static inline void generar_escalon(uint16_t ang_deg, const uint16_t tR[91], const uint16_t tU[91]);
 void Hacer_circulo(void);
-
-void generar_escalon1(void);
-void generar_escalon2(void);
- 
-void generar_escalon3(void);
-void generar_escalon4(void);
- 
 
 int main(void)
 {
@@ -124,63 +107,100 @@ int main(void)
 
     }
  
- 
- void generar_escalon1(void){
-	 Izquierda();
-	 _delay_ms(10);
-	 Subir();
-	 _delay_ms(10);
- }
- 
- void generar_escalon2(void){
-	  Izquierda();
-	  _delay_ms(200);
-	  Bajar();
-	  _delay_ms(100);
- }
-  
-  void generar_escalon3(void){
-	  Derecha();
-	  _delay_ms(10);
-	  Bajar();
-	  _delay_ms(10);
- }
 
-void generar_escalon4(void) {
-		Subir();
-		_delay_ms(400);		
-		Derecha();
-		_delay_ms(200);	
+
+void delay_ms_timer1(float ms) {
+	for (uint8_t i = 0; i < ms; i++) {
+		_delay_ms(10);
+	}
 }
 
-void generar_escalon5(void) {
+
+void precompute_cuarto_circulo_arrays(uint16_t I_ms,uint16_t tR[91], uint16_t tU[91]) {
+	for (uint16_t ang = 0; ang <= 90; ++ang) {
+		float th = (float)ang * (float)M_PI / 180.0f;
+		float c = cosf(th);
+		float s = sinf(th);
+		if (c < 0) c = 0;
+		if (s < 0) s = 0;
+
+		tR[ang] = (uint16_t)lrintf(c * (float)I_ms);
+		tU[ang] = (uint16_t)lrintf(s * (float)I_ms);
+	}
+}
+
+// Usa directamente los valores del ARREGLO para el ángulo dado
+static inline void generar_escalon(uint16_t ang_deg,
+const uint16_t tR[91], const uint16_t tU[91]) {
+	if (ang_deg >= 90) return;   // salir en 90° o más
 	Subir();
-	_delay_ms(200);
+	delay_ms_timer1(tR[ang_deg]);
 	Derecha();
-	_delay_ms(400);
+	delay_ms_timer1(tU[ang_deg]);
 }
 
- void Hacer_circulo(void){
-	    uint8_t i;
-		
-		Subir_s();
-		_delay_ms(1000);
-		
-	     // Cuadrante 1 → Derecha + Subir
-		 cli();
-			     for (i = 0; i < 300; i++) {
-				     generar_escalon4();
-			     }
-				 for (i = 0; i < 300; i++) {
-					 generar_escalon5();
-				 }
-		sei();
-		 _delay_ms(1000);
-		apagar();
-		 
- }
- 
- 
+static inline void generar_escalon2(uint16_t ang_deg,
+const uint16_t tR[91], const uint16_t tU[91]) {
+	if (ang_deg >= 90) return;
+	Derecha();
+	delay_ms_timer1(tR[ang_deg]);
+	Bajar();
+	delay_ms_timer1(tU[ang_deg]);
+}
+
+static inline void generar_escalon3(uint16_t ang_deg,
+const uint16_t tR[91], const uint16_t tU[91]) {
+	if (ang_deg >= 90) return;
+	Bajar();
+	delay_ms_timer1(tR[ang_deg]);
+	Izquierda();
+	delay_ms_timer1(tU[ang_deg]);
+}
+
+static inline void generar_escalon4(uint16_t ang_deg,
+const uint16_t tR[91], const uint16_t tU[91]) {
+	if (ang_deg >= 90) return;
+	Izquierda();
+	delay_ms_timer1(tR[ang_deg]);
+	Subir();
+	delay_ms_timer1(tU[ang_deg]);
+}
+
+// Traza 1/4 de círculo (0..90°) con N pasos
+void Hacer_circulo(void) {
+	const uint16_t I_ms = 100;  // escala total por escalón (ajusta a tu plotter)
+	const uint16_t N     = 90;  // resolución: 1° por paso
+
+	uint16_t tR[91], tU[91];
+	precompute_cuarto_circulo_arrays(I_ms, tR, tU);
+	
+	delay_ms_timer1(100);
+	
+	Subir_s();
+
+	cli();
+	for (uint16_t ang = 0; ang <= N; ++ang) {
+		generar_escalon(ang, tR, tU);
+	}
+	apagar2();
+	for (uint16_t ang = 0; ang <= N; ++ang) {
+		generar_escalon2(ang, tR, tU);
+	}
+	apagar2();
+	for (uint16_t ang = 0; ang <= N; ++ang) {
+		generar_escalon3(ang, tR, tU);
+	}
+	apagar2();
+	for (uint16_t ang = 0; ang <= N; ++ang) {
+		generar_escalon4(ang, tR, tU);
+	}
+	sei();
+	
+
+	apagar();
+	delay_ms_timer1(100);
+	apagar();
+}
  void dibujar_cruz(void){
 	 centrar();
 	 
@@ -271,6 +291,11 @@ PORTD = (PORTD & 0b00000011) | 0b00001000;
 
 }
 
+void apagar2(void){
+
+	PORTD = (PORTD & 0b00001111) | 0b00000000;
+
+}
 void Subir_s(void)
 {
 PORTD = (PORTD & 0b00000011) | 0b00000100;
