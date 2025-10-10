@@ -15,9 +15,9 @@
 
 
 // USART
-#define TX_BUF_SZ 128
+#define TX_BUF_SZ 256
 #define TX_MASK   (TX_BUF_SZ - 1)
-#define RX_BUF_SZ 128
+#define RX_BUF_SZ 256
 #define RX_MASK   (RX_BUF_SZ - 1)
 #define BAUD_RATE 9600
 
@@ -208,6 +208,59 @@ const char* identify_color(uint16_t r, uint16_t g, uint16_t b) {
 	return best_name;
 }
 
+void print_data(const char *color_name) {
+	char buf[10];
+
+	// Find reference RGB values for that color
+	uint16_t ref_r = 0, ref_g = 0, ref_b = 0;
+	for (uint8_t i = 0; i < NUM_COLORS; i++) {
+		if (strcmp(color_name, color_refs[i].name) == 0) {
+			ref_r = color_refs[i].r;
+			ref_g = color_refs[i].g;
+			ref_b = color_refs[i].b;
+			break;
+		}
+	}
+
+	// Compute differences (signed)
+	int16_t dR = (int16_t)adc_sample[0] - ref_r;
+	int16_t dG = (int16_t)adc_sample[1] - ref_g;
+	int16_t dB = (int16_t)adc_sample[2] - ref_b;
+
+	// Print formatted line
+	usart_write_str("Fotocelda: ");
+	UTOA(adc_sample[0], buf); usart_write_str(buf);
+	usart_write_str(" ");
+	UTOA(adc_sample[1], buf); usart_write_str(buf);
+	usart_write_str(" ");
+	UTOA(adc_sample[2], buf); usart_write_str(buf);
+
+	usart_write_str("  Color detectado: ");
+	usart_write_str(color_name);
+
+	usart_write_str("  Valor establecido: [");
+	UTOA(ref_r, buf); usart_write_str(buf); usart_write_str(",");
+	UTOA(ref_g, buf); usart_write_str(buf); usart_write_str(",");
+	UTOA(ref_b, buf); usart_write_str(buf); usart_write_str("]");
+
+	usart_write_str("  Delta: [");
+
+	// --- Red delta ---
+	if (dR >= 0) usart_write_str("+");
+	UTOA((dR >= 0) ? dR : -dR, buf); usart_write_str(buf);
+	usart_write_str(",");
+
+	// --- Green delta ---
+	if (dG >= 0) usart_write_str("+");
+	UTOA((dG >= 0) ? dG : -dG, buf); usart_write_str(buf);
+	usart_write_str(",");
+
+	// --- Blue delta ---
+	if (dB >= 0) usart_write_str("+");
+	UTOA((dB >= 0) ? dB : -dB, buf); usart_write_str(buf);
+	usart_write_str("]\r\n");
+}
+
 
 void rgb_read(void){
 	char buffer[8];
@@ -238,9 +291,8 @@ void rgb_read(void){
 		//usart_write_str(" <- Azul");
 		//usart_write_str("\r\n");
 		
-		const char * color_name = identify_color(adc_sample[0], adc_sample[1], adc_sample[2]);
-		usart_write_str(color_name);
-		usart_write_str("\r\n");
+		const char *color_name = identify_color(adc_sample[0], adc_sample[1], adc_sample[2]);
+		print_data(color_name);
 		
 		if (strcmp(color_name, "ROJO") == 0) {
 			servo_set_angle(0);
@@ -279,7 +331,7 @@ int main(void) {
 	
 	while (1) {
 		rgb_read();
-		_delay_ms(10);
+		_delay_ms(50);
 
 	
 	}
