@@ -211,7 +211,7 @@ const char* identify_color(uint16_t r, uint16_t g, uint16_t b) {
 void print_data(const char *color_name) {
 	char buf[10];
 
-	// Find reference RGB values for that color
+	// Find by name
 	uint16_t ref_r = 0, ref_g = 0, ref_b = 0;
 	for (uint8_t i = 0; i < NUM_COLORS; i++) {
 		if (strcmp(color_name, color_refs[i].name) == 0) {
@@ -222,12 +222,12 @@ void print_data(const char *color_name) {
 		}
 	}
 
-	// Compute differences (signed)
+	// Delta
 	int16_t dR = (int16_t)adc_sample[0] - ref_r;
 	int16_t dG = (int16_t)adc_sample[1] - ref_g;
 	int16_t dB = (int16_t)adc_sample[2] - ref_b;
 
-	// Print formatted line
+	// Printing
 	usart_write_str("Fotocelda: ");
 	UTOA(adc_sample[0], buf); usart_write_str(buf);
 	usart_write_str(" ");
@@ -244,19 +244,18 @@ void print_data(const char *color_name) {
 	UTOA(ref_b, buf); usart_write_str(buf); usart_write_str("]");
 
 	usart_write_str("  Delta: [");
-
-	// --- Red delta ---
 	if (dR >= 0) usart_write_str("+");
+	else usart_write_str("-");
 	UTOA((dR >= 0) ? dR : -dR, buf); usart_write_str(buf);
 	usart_write_str(",");
 
-	// --- Green delta ---
 	if (dG >= 0) usart_write_str("+");
+	else usart_write_str("-");
 	UTOA((dG >= 0) ? dG : -dG, buf); usart_write_str(buf);
 	usart_write_str(",");
 
-	// --- Blue delta ---
 	if (dB >= 0) usart_write_str("+");
+	else usart_write_str("-");
 	UTOA((dB >= 0) ? dB : -dB, buf); usart_write_str(buf);
 	usart_write_str("]\r\n");
 }
@@ -268,7 +267,7 @@ void rgb_read(void){
 	switch(led_state){
 		case 0:
 		rgb_set(1,0,0);
-		adc_sample[0] = adc_read(0); // Red
+		adc_sample[0] = adc_read(0); // Rojo
 
 		UTOA(adc_sample[0], buffer);
 		//usart_write_str(buffer);
