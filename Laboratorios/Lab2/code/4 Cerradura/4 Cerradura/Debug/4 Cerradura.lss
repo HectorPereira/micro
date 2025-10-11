@@ -208,7 +208,7 @@ Disassembly of section .text:
 Disassembly of section .text:
 
 000011a4 <__bad_interrupt>:
-    11a4:	0c 94 00 00 	jmp	0	; 0x0 <__TEXT_REGION_ORIGIN__>
+    11a4:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 Disassembly of section .text.i2c_master_start:
 
@@ -1007,15 +1007,15 @@ Disassembly of section .text.main:
  370:	8f 7d       	andi	r24, 0xDF	; 223
  372:	85 b9       	out	0x05, r24	; 5
  374:	10 92 18 01 	sts	0x0118, r1	; 0x800118 <buzzer_on>
- 378:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 378:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <_edata>
  37c:	88 23       	and	r24, r24
  37e:	09 f4       	brne	.+2      	; 0x382 <main+0x15c>
  380:	63 c0       	rjmp	.+198    	; 0x448 <__EEPROM_REGION_LENGTH__+0x48>
  382:	0e 94 85 08 	call	0x110a	; 0x110a <millis_now>
- 386:	80 90 02 01 	lds	r8, 0x0102	; 0x800102 <__DATA_REGION_ORIGIN__+0x2>
- 38a:	90 90 03 01 	lds	r9, 0x0103	; 0x800103 <__DATA_REGION_ORIGIN__+0x3>
- 38e:	a0 90 04 01 	lds	r10, 0x0104	; 0x800104 <__DATA_REGION_ORIGIN__+0x4>
- 392:	b0 90 05 01 	lds	r11, 0x0105	; 0x800105 <__DATA_REGION_ORIGIN__+0x5>
+ 386:	80 90 02 01 	lds	r8, 0x0102	; 0x800102 <_edata+0x2>
+ 38a:	90 90 03 01 	lds	r9, 0x0103	; 0x800103 <_edata+0x3>
+ 38e:	a0 90 04 01 	lds	r10, 0x0104	; 0x800104 <_edata+0x4>
+ 392:	b0 90 05 01 	lds	r11, 0x0105	; 0x800105 <_edata+0x5>
  396:	9b 01       	movw	r18, r22
  398:	ac 01       	movw	r20, r24
  39a:	28 19       	sub	r18, r8
@@ -1023,7 +1023,7 @@ Disassembly of section .text.main:
  39e:	4a 09       	sbc	r20, r10
  3a0:	5b 09       	sbc	r21, r11
  3a2:	62 f0       	brmi	.+24     	; 0x3bc <main+0x196>
- 3a4:	10 92 00 01 	sts	0x0100, r1	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 3a4:	10 92 00 01 	sts	0x0100, r1	; 0x800100 <_edata>
  3a8:	85 b1       	in	r24, 0x05	; 5
  3aa:	8f 7d       	andi	r24, 0xDF	; 223
  3ac:	85 b9       	out	0x05, r24	; 5
@@ -1034,10 +1034,10 @@ Disassembly of section .text.main:
  3b6:	8d 7f       	andi	r24, 0xFD	; 253
  3b8:	85 b9       	out	0x05, r24	; 5
  3ba:	46 c0       	rjmp	.+140    	; 0x448 <__EEPROM_REGION_LENGTH__+0x48>
- 3bc:	80 90 06 01 	lds	r8, 0x0106	; 0x800106 <__DATA_REGION_ORIGIN__+0x6>
- 3c0:	90 90 07 01 	lds	r9, 0x0107	; 0x800107 <__DATA_REGION_ORIGIN__+0x7>
- 3c4:	a0 90 08 01 	lds	r10, 0x0108	; 0x800108 <__DATA_REGION_ORIGIN__+0x8>
- 3c8:	b0 90 09 01 	lds	r11, 0x0109	; 0x800109 <__DATA_REGION_ORIGIN__+0x9>
+ 3bc:	80 90 06 01 	lds	r8, 0x0106	; 0x800106 <_edata+0x6>
+ 3c0:	90 90 07 01 	lds	r9, 0x0107	; 0x800107 <_edata+0x7>
+ 3c4:	a0 90 08 01 	lds	r10, 0x0108	; 0x800108 <_edata+0x8>
+ 3c8:	b0 90 09 01 	lds	r11, 0x0109	; 0x800109 <_edata+0x9>
  3cc:	9b 01       	movw	r18, r22
  3ce:	ac 01       	movw	r20, r24
  3d0:	28 19       	sub	r18, r8
@@ -1839,7 +1839,7 @@ Disassembly of section .text.main:
  ab6:	f1 2c       	mov	r15, r1
  ab8:	10 e0       	ldi	r17, 0x00	; 0
  aba:	44 cc       	rjmp	.-1912   	; 0x344 <main+0x11e>
- abc:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ abc:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <_edata>
  ac0:	81 11       	cpse	r24, r1
  ac2:	40 cc       	rjmp	.-1920   	; 0x344 <main+0x11e>
  ac4:	ce 01       	movw	r24, r28

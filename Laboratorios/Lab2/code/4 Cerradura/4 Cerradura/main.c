@@ -325,6 +325,10 @@ int main(void){
 
 	uint8_t intentos_fallidos = 0;
 	
+	// "Me olvide de la contraseña jaja"
+	//eeprom_update_block((const void*)"1234", (void*)password_mem, 5); // EEPROM: "1234\0"
+	//memcpy(contra_guardada, "1234", 5);                               // RAM:    "1234\0"
+	
 	// --- UI state ---
 	ui_state_t ui = UI_MENU;
 
