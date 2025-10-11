@@ -67,9 +67,9 @@ twi_lcd_cmd(0x80);				//--- Row 1 Column 1 Address
 	
 
 // --- Buzzer ---
-#define BUZZER_PORT PORTD
-#define BUZZER_DDR  DDRD
-#define BUZZER_PIN  PD6
+#define BUZZER_PORT PORTB
+#define BUZZER_DDR  DDRB
+#define BUZZER_PIN  PB5
 uint8_t buzzer_state = 0;
 uint16_t buzzer_timer = 0;
 
@@ -87,27 +87,24 @@ uint16_t red_timer = 0;
 uint8_t green_state = 0;
 uint16_t green_timer = 0;
 
-
-
-
-uint8_t state = 0;
-uint8_t boton_presionado = 0;
-
-uint8_t debounce_count = 0;
-uint8_t debounce_flag = 0;
-
-char keypad[4][4] = {
+const char keypad[4][4] = {
 	{'1', '2', '3', 'A'},
 	{'4', '5', '6', 'B'},
 	{'7', '8', '9', 'C'},
 	{'*', '0', '#', 'D'}
 };
 
+uint8_t keypad_state = 0;
+uint8_t keypad_timer = 0;
+uint8_t keypad_debounce_flag = 0;
+char keypad_active_key = 0; 
+
+
 void timer0_init(void) {
-	TCCR0A = 0x00;
-	TCCR0B = (1 << CS02) | (1 << CS00);  
-	TCNT0 = 0;
-	TIMSK0 |= (1 << TOIE0);
+    TCCR0A = 0x00;
+    TCCR0B = (1 << CS01) | (1 << CS00); 
+    TCNT0 = 6;
+    TIMSK0 |= (1 << TOIE0);
 }
 
 void timer0_disable(void) {
@@ -127,8 +124,8 @@ char read_keypad(void) {
 
 		for (uint8_t col = 0; col < 4; col++) {
 			if (!(cols & (1 << col))) {   // Si está en 0 ? presionada
-				_delay_ms(20);            // debounce
-				while (!(PIND & (1 << col))); // espera liberación
+				keypad_disable();
+				timer0_init();
 				return keypad[row][col];
 			}
 		}
@@ -137,12 +134,10 @@ char read_keypad(void) {
 }
 
 void keypad_disable(void) {
-	PCIFR |= (1 << PCIF2);
 	PCICR &= ~(1 << PCIE2);
 }
 
 void keypad_enable(void){
-	PCIFR |= (1 << PCIF2);
 	PCICR  |= (1 << PCIE2);
 }
 
@@ -161,10 +156,12 @@ void keypad_init(void) {
 	PCMSK2 |= 0x0F;   // PD0–PD3
 }
 
+
 void leds_init(void) {
 	DDRB |= (1 << PB0) | (1 << PB1);   // Configure PB0 and PB1 as outputs
 	PORTB &= ~((1 << PB0) | (1 << PB1)); // Start with LEDs off
 }
+
 
 void leds_pattern(uint8_t mode) {
 	switch (mode) {
@@ -217,6 +214,7 @@ void leds_pattern(uint8_t mode) {
 	}
 }
 
+
 void beep(uint8_t beep_type){
 	switch (beep_type)
 	{
@@ -228,16 +226,32 @@ void beep(uint8_t beep_type){
 		break;
 		case 2: // alarm
 		break;
+		default:
+		break;
 		
 	}
 }
+
+void beep_task(){
+	
+}
+
 
 void beeper_init(){
 	BUZZER_DDR |= (1<<BUZZER_PIN);
 	BUZZER_PORT &= ~(1<<BUZZER_PIN);
 }
 
-
+void led_blink_task(void) {
+	if (green_timer == 0) {
+		green_timer = 2;          // 30 * 16ms ? 480ms
+		green_state ^= 1;	          // toggle
+		if (green_state)
+		RED_PORT |= (1 << RED_PORT);
+		else
+		RED_PORT &= ~(1 << RED_PORT);
+	}
+}
 
 
 int main(void) {
@@ -246,42 +260,42 @@ int main(void) {
 	twi_lcd_init();
 	keypad_init();
 	beeper_init();
+	timer0_init();
 	sei();
 	
-	char key;
+	/*
 	char buf[2];
-
 	while (1) {
-		key = read_keypad();
-		
-		if (key) {
-			buf[0] = key;
+		keypad_active_key = read_keypad();
+		if (keypad_active_key) {
+			buf[0] = keypad_active_key;
 			buf[1] = '\0';
+			keypad_active_key = 0;
 			lcd_write(buf);
+			beep(1);
+			leds_pattern(1);
 		}
-		
-		if (boton_presionado){
-			boton_presionado = 0;
-			timer0_init();
-			keypad_disable();
-		}
+	}
+	*/
+	
+	while (1){
+		led_blink_task();
 	}
 }
 
-// ---- Interrupción por cambio de pin ----
+
 ISR(PCINT2_vect) {
-	boton_presionado = 1;   // Marca el evento
-	beep(1);
-}
-
-ISR(TIMER0_OVF_vect) {
-	debounce_count++;
-
-	if (debounce_count >= 10) {
-		debounce_flag = 1;    
-		debounce_count = 0;   
-		
-		keypad_enable();
-		timer0_disable();
+	if (keypad_debounce_flag){
+		keypad_state = 1;   
+		timer0_init();
+		keypad_disable();
 	}
 }
+
+ISR(TIMER0_OVF_vect) { // 1ms 
+	TCNT0 = 6;
+
+	if (green_timer > 0) green_timer--;
+	if (red_timer > 0) red_timer--;
+}
+
