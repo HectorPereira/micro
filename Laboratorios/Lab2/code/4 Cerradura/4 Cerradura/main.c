@@ -53,6 +53,10 @@ B -> Cambiar C.
 #include "liquid_crystal_i2c.h"
 #include "liquid_crystal_i2c.c"
 
+#ifndef _BV
+#define _BV(b) (1U << (b))
+#endif
+
 #define DEBOUNCE_MS 30   // time for stable reading
 
 // --- EEPROM ---
@@ -65,16 +69,19 @@ uint8_t EEMEM password_mem[5];  // 4 dígitos + terminador '\0'
 uint8_t buzzer_state = 0;
 uint16_t buzzer_timer = 0;
 
+volatile uint8_t  buzzer_on = 0;
+volatile uint32_t buzzer_off_at = 0;
+
 // --- Red LED ---
-#define RED_PORT PORTB
-#define RED_DDR  DDRB
+#define RED_PORT PORTB0
+#define RED_DDR  PORTB0
 #define RED_PIN  PB0
 uint8_t red_state = 0;
 uint16_t red_timer = 0;
 
 // --- Green LED ---
-#define GREEN_PORT PORTB
-#define GREEN_DDR  DDRB
+#define GREEN_PORT PORTB1
+#define GREEN_DDR  PORTB1
 #define GREEN_PIN  PB1
 uint8_t green_state = 0;
 uint16_t green_timer = 0;
@@ -93,6 +100,7 @@ uint8_t keypad_timer = 0;
 uint8_t keypad_debounce_flag = 0;
 char keypad_active_key = 0;
 
+
 volatile uint32_t millis = 0;   // incremented every 1 ms in a timer ISR
 uint32_t millis_now(void) {
 	uint32_t m;
@@ -101,13 +109,62 @@ uint32_t millis_now(void) {
 	sei();
 	return m;
 }
-	
+
+
+
+static inline void buzzer_init(void) {
+	DDRB  |= _BV(PB5);   // PB5 como salida
+	PORTB &= ~_BV(PB5);  // buzzer apagado
+}
+
+static inline void buzzer_beep(uint32_t ms) {
+	PORTB |= _BV(PB5);                 // encender buzzer activo
+	buzzer_on = 1;
+	buzzer_off_at = millis_now() + ms; // programar apagado
+}
+
+static inline void buzzer_task(void) {
+	if (buzzer_on && (int32_t)(millis_now() - buzzer_off_at) >= 0) {
+		PORTB &= ~_BV(PB5);            // apagar buzzer
+		buzzer_on = 0;
+	}
+}
+
+
+
+
+
+static inline void leds_init(void) {
+	DDRB  |= _BV(RED_DDR) | _BV(GREEN_DDR);
+	// Estado por defecto: CERRADO ? rojo ON, verde OFF (asumiendo activo en alto)
+	PORTB |=  _BV(RED_PORT);
+	PORTB &= ~_BV(GREEN_PORT);
+}
+
+static inline void leds_set_abierto(uint8_t abierto) {
+	if (abierto) {
+		// ABIERTO: rojo OFF, verde ON
+		PORTB &= ~_BV(RED_PORT);
+		PORTB |=  _BV(GREEN_PORT);
+		} else {
+		// CERRADO: rojo ON, verde OFF
+		PORTB |=  _BV(RED_PORT);
+		PORTB &= ~_BV(GREEN_PORT);
+	}
+}
+
+
+
+
+
+
 void timer0_init_millis(void) {
 	TCCR0A = (1 << WGM01);
 	TCCR0B = (1 << CS01) | (1 << CS00); // prescaler 64
 	OCR0A = 249;
 	TIMSK0 = (1 << OCIE0A); // enable compare interrupt
 }
+
 
 char read_keypad(void) {
 	static char last_key = 0;
@@ -127,6 +184,15 @@ char read_keypad(void) {
 		for (col = 0; col < 4; col++) {
 			if (!(cols & (1 << col))) {
 				key = keypad[row][col];
+				if ((now - last_change_time) > DEBOUNCE_MS) {
+					if (key != stable_key) {
+						stable_key = key;
+						if (stable_key != 0) {
+							buzzer_beep(30);      // <--- BEEP de ~30 ms
+							return stable_key;    // stable press
+						}
+					}
+				}
 				goto done;
 			}
 		}
@@ -163,63 +229,234 @@ void keypad_init(void) {
 
 
 
-void guardar_password(void) {
-	char password[5] = "1234";
-	eeprom_update_block((const void*)password, (void*)password_mem, sizeof(password));
+static inline void guardar_password_eeprom(const char *pwd4) {
+	char tmp[5];
+	memcpy(tmp, pwd4, 4);
+	tmp[4] = '\0';
+	eeprom_update_block((const void*)tmp, (void*)password_mem, sizeof(tmp));
 }
 
+typedef enum { UI_MENU, UI_INGRESO, UI_CAMBIO_ACTUAL, UI_CAMBIO_NUEVA, UI_ABIERTO } ui_state_t;
 
 
 int main(void){
 	keypad_init();
+	buzzer_init();
 	timer0_init_millis();
+	leds_init();
+	leds_set_abierto(0);   
 	sei();
-	
+
 	LiquidCrystalDevice_t device = lq_init(0x27, 16, 2, LCD_5x8DOTS);
 	lq_turnOnBacklight(&device);
-	
+
+	// Bienvenida
 	char welcomeText[] = "Bienvenido!";
 	lq_print(&device, welcomeText);
-	
 	_delay_ms(1000);
 	lq_clear(&device);
-	
-	char password_leida[5];  // buffer en RAM
 
-	// Leer la contraseña almacenada en EEPROM
-	eeprom_read_block((void*)password_leida, (const void*)password_mem, sizeof(password_leida));
+	// Leer password guardada (si querés usarla después)
+	char contra_guardada[5];
+	eeprom_read_block((void*)contra_guardada, (const void*)password_mem, sizeof(contra_guardada));
 
-	// Mostrarla en el LCD
-	char eepromText[] = "EEPROM:";
-	
-	lq_setCursor(&device, 0, 0);
-	lq_print(&device, eepromText);
-	lq_setCursor(&device, 1, 0);
-	lq_print(&device, password_leida);
-	
-	_delay_ms(5000);
-	lq_clear(&device);
-	
-	lq_turnOnCursor(&device);
-	lq_turnOnBlink(&device);
-	
-	char ingresarContraTexto[] = "Ingresar contra:";
+	// Mostrar menú inicial
+	char ingresarContraTexto[] = "A-> Ingr. contra";
+	char cambiarContraTexto[]  = "B-> Camb. contra";
 	lq_print(&device, ingresarContraTexto);
-	lq_setCursor(&device, 1, 0); // move to next line
-	
-	char key;
-	char key_buffer[5] = {0};
-	uint8_t index = 0;
-	
+	lq_setCursor(&device, 1, 0);
+	lq_print(&device, cambiarContraTexto);
+
+	// --- UI state ---
+	ui_state_t ui = UI_MENU;
+
+	char entrada[5] = {0};    // buffer para ingreso (4 + '\0')
+	uint8_t idx = 0;
+
 	while (1) {
+		buzzer_task();
+		
+		
 		char key = read_keypad();
-		if (key) {
-			char str[2] = { key, '\0' };
-			lq_print(&device, str);
+		if (!key) continue;
+
+		switch (ui) {
+			case UI_MENU:
+			if (key == 'A') {
+				lq_clear(&device);
+				char titulo[] = "Contra:";
+				lq_setCursor(&device, 0, 0);
+				lq_print(&device, titulo);
+				lq_setCursor(&device, 1, 0);
+				idx = 0; entrada[0] = '\0';
+				ui = UI_INGRESO;
+				} else if (key == 'B') {
+				// (tu flujo de cambio ya implementado)
+				lq_clear(&device);
+				char titulo[] = "Actual:";
+				lq_setCursor(&device, 0, 0);
+				lq_print(&device, titulo);
+				lq_setCursor(&device, 1, 0);
+				idx = 0; entrada[0] = '\0';
+				ui = UI_CAMBIO_ACTUAL;
+			}
+			break;
+
+			case UI_INGRESO:
+			if (key == '#') {
+				// Cancelar y volver al menú
+				lq_clear(&device);
+				lq_print(&device, ingresarContraTexto);
+				lq_setCursor(&device, 1, 0);
+				lq_print(&device, cambiarContraTexto);
+				ui = UI_MENU;
+				break;
+			}
+
+			if (idx < 4) {
+				entrada[idx++] = key; entrada[idx] = '\0';
+				char star[2] = { '*', '\0' };
+				lq_print(&device, star);
+			}
+
+			if (idx == 4) {
+				if (memcmp(entrada, contra_guardada, 4) == 0) {
+					// ---- CORRECTA: abrir y esperar '#'
+					lq_clear(&device);
+					leds_set_abierto(1);
+					char abierto[] = "Abierto";
+					lq_setCursor(&device, 0, 0);
+					lq_print(&device, abierto);
+					// Aquí podrías activar un relé/solenoide, etc.
+					ui = UI_ABIERTO;
+					// No reseteamos idx/entrada todavía (no hace falta)
+					} else {
+					// ---- INCORRECTA: error y volver al menú
+					lq_clear(&device);
+					char err[] = "ERROR";
+					leds_set_abierto(0);
+					lq_setCursor(&device, 0, 0);
+					lq_print(&device, err);
+					_delay_ms(1000);
+
+					lq_clear(&device);
+					lq_print(&device, ingresarContraTexto);
+					lq_setCursor(&device, 1, 0);
+					lq_print(&device, cambiarContraTexto);
+					idx = 0; entrada[0] = '\0';
+					ui = UI_MENU;
+				}
+			}
+			break;
+
+			case UI_ABIERTO:
+			// Esperar al usuario para cerrar con '#'
+			if (key == '#') {
+				// Cerrar
+				lq_clear(&device);
+				char cerrado[] = "Cerrado";
+				leds_set_abierto(0);
+				lq_setCursor(&device, 0, 0);
+				lq_print(&device, cerrado);
+				// Aquí podrías desactivar el relé/solenoide
+				_delay_ms(700);
+
+				// Volver al menú
+				lq_clear(&device);
+				lq_print(&device, ingresarContraTexto);
+				lq_setCursor(&device, 1, 0);
+				lq_print(&device, cambiarContraTexto);
+				idx = 0; entrada[0] = '\0';
+				ui = UI_MENU;
+			}
+			break;
+
+			case UI_CAMBIO_ACTUAL:  // Verifica contraseña actual
+			if (key == '#') {
+				// Cancelar
+				lq_clear(&device);
+				lq_print(&device, ingresarContraTexto);
+				lq_setCursor(&device, 1, 0);
+				lq_print(&device, cambiarContraTexto);
+				ui = UI_MENU;
+				break;
+			}
+
+			if (idx < 4) {
+				entrada[idx++] = key; entrada[idx] = '\0';
+				char star[2] = { '*', '\0' };
+				lq_print(&device, star);
+			}
+
+			if (idx == 4) {
+				if (memcmp(entrada, contra_guardada, 4) == 0) {
+					// Correcta ? pedir nueva
+					lq_clear(&device);
+					char t2[] = "Nueva:";
+					lq_setCursor(&device, 0, 0);
+					lq_print(&device, t2);
+					lq_setCursor(&device, 1, 0);
+					idx = 0; entrada[0] = '\0';
+					ui = UI_CAMBIO_NUEVA;
+					} else {
+					lq_clear(&device);
+					char err[] = "ERROR";
+					lq_setCursor(&device, 0, 0);
+					lq_print(&device, err);
+					_delay_ms(1000);
+
+					// Volver al menú
+					lq_clear(&device);
+					lq_print(&device, ingresarContraTexto);
+					lq_setCursor(&device, 1, 0);
+					lq_print(&device, cambiarContraTexto);
+					idx = 0; entrada[0] = '\0';
+					ui = UI_MENU;
+				}
+			}
+			break;
+
+			case UI_CAMBIO_NUEVA:   // Captura nueva contraseña y guarda
+			if (key == '#') {
+				// Cancelar
+				lq_clear(&device);
+				lq_print(&device, ingresarContraTexto);
+				lq_setCursor(&device, 1, 0);
+				lq_print(&device, cambiarContraTexto);
+				ui = UI_MENU;
+				break;
+			}
+
+			if (idx < 4) {
+				entrada[idx++] = key; entrada[idx] = '\0';
+				char star[2] = { '*', '\0' };
+				lq_print(&device, star);
+			}
+
+			if (idx == 4) {
+				// Guardar en EEPROM y actualizar copia en RAM
+				guardar_password_eeprom(entrada);
+				memcpy(contra_guardada, entrada, 4);
+				contra_guardada[4] = '\0';
+
+				lq_clear(&device);
+				char ok[] = "OK";
+				lq_setCursor(&device, 0, 0);
+				lq_print(&device, ok);
+				_delay_ms(1000);
+
+				// Volver al menú
+				lq_clear(&device);
+				lq_print(&device, ingresarContraTexto);
+				lq_setCursor(&device, 1, 0);
+				lq_print(&device, cambiarContraTexto);
+				idx = 0; entrada[0] = '\0';
+				ui = UI_MENU;
+			}
+			break;
 		}
 	}
 }
-
 ISR(TIMER0_COMPA_vect) {
 	millis++; // 1 ms tick
 }
