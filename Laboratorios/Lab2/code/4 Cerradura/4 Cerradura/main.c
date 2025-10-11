@@ -57,14 +57,44 @@ twi_lcd_cmd(0x80);				//--- Row 1 Column 1 Address
 
 */
 
-#define PCF8574	0x27	
-
 #include <xc.h>
 #include <util/twi.h>
 #include <avr/interrupt.h>
+
+#define PCF8574	0x27
+
 #include "./twi_lcd.h"
+	
+
+// --- Buzzer ---
+#define BUZZER_PORT PORTD
+#define BUZZER_DDR  DDRD
+#define BUZZER_PIN  PD6
+uint8_t buzzer_state = 0;
+uint16_t buzzer_timer = 0;
+
+// --- Red LED ---
+#define RED_PORT PORTB
+#define RED_DDR  DDRB
+#define RED_PIN  PB0
+uint8_t red_state = 0;
+uint16_t red_timer = 0;
+
+// --- Green LED ---
+#define GREEN_PORT PORTB
+#define GREEN_DDR  DDRB
+#define GREEN_PIN  PB1
+uint8_t green_state = 0;
+uint16_t green_timer = 0;
 
 
+
+
+uint8_t state = 0;
+uint8_t boton_presionado = 0;
+
+uint8_t debounce_count = 0;
+uint8_t debounce_flag = 0;
 
 char keypad[4][4] = {
 	{'1', '2', '3', 'A'},
@@ -73,60 +103,185 @@ char keypad[4][4] = {
 	{'*', '0', '#', 'D'}
 };
 
+void timer0_init(void) {
+	TCCR0A = 0x00;
+	TCCR0B = (1 << CS02) | (1 << CS00);  
+	TCNT0 = 0;
+	TIMSK0 |= (1 << TOIE0);
+}
+
+void timer0_disable(void) {
+	TIMSK0 &= ~(1 << TOIE0);  // Clear overflow interrupt enable bit
+}
+
 
 
 char read_keypad(void) {
 	for (uint8_t row = 0; row < 4; row++) {
-		PORTD = ~(1 << row);  //Pone a 0 la fila individual
+		// Pone todas las filas (PD4–PD7) en 1 y solo la actual en 0
+		PORTD = (PORTD | 0xF0) & ~(1 << (row + 4));
 		_delay_us(5);
 
+		// Lee las columnas (PD0–PD3)
+		uint8_t cols = PIND & 0x0F;  // Solo bits 0–3
+
 		for (uint8_t col = 0; col < 4; col++) {
-			if (!(PINC & (1 << col))) {  // Lee columna de PORTC si esta en 0
+			if (!(cols & (1 << col))) {   // Si está en 0 ? presionada
+				_delay_ms(20);            // debounce
+				while (!(PIND & (1 << col))); // espera liberación
 				return keypad[row][col];
 			}
 		}
 	}
-	return 0;
+	return 0; // ninguna tecla
 }
 
-void lcd_write(const char *text){
-    twi_lcd_cmd(0x06);
-	twi_lcd_cmd(0x06);
-	twi_lcd_cmd(0x06);
-	twi_lcd_cmd(0x06);
-	twi_lcd_cmd(0x06);
-	twi_lcd_msg(text);
+void keypad_disable(void) {
+	PCIFR |= (1 << PCIF2);
+	PCICR &= ~(1 << PCIE2);
 }
 
-int main(void)
-{
+void keypad_enable(void){
+	PCIFR |= (1 << PCIF2);
+	PCICR  |= (1 << PCIE2);
+}
+
+
+void keypad_init(void) {
+	// --- Columnas (PD0–PD3): entradas con pull-up ---
+	DDRD  &= ~0x0F;   // entradas
+	PORTD |=  0x0F;   // pull-ups activadas
+
+	// --- Filas (PD4–PD7): salidas ---
+	DDRD  |=  0xF0;   // salidas
+	PORTD |=  0xF0;   // inicializadas en 1
+
+	// (opcional) interrupciones PCINT para columnas
+	keypad_enable();
+	PCMSK2 |= 0x0F;   // PD0–PD3
+}
+
+void leds_init(void) {
+	DDRB |= (1 << PB0) | (1 << PB1);   // Configure PB0 and PB1 as outputs
+	PORTB &= ~((1 << PB0) | (1 << PB1)); // Start with LEDs off
+}
+
+void leds_pattern(uint8_t mode) {
+	switch (mode) {
+		// Both blink together
+		case 0:
+		PORTB |= (1 << PB0) | (1 << PB1);
+		_delay_ms(200);
+		PORTB &= ~((1 << PB0) | (1 << PB1));
+		_delay_ms(200);
+		break;
+
+		// Alternate blinking
+		case 1:
+		PORTB |= (1 << PB0);
+		PORTB &= ~(1 << PB1);
+		_delay_ms(200);
+
+		PORTB |= (1 << PB1);
+		PORTB &= ~(1 << PB0);
+		_delay_ms(200);
+		break;
+
+		// Flash both LEDs twice quickly
+		case 2:
+		for (uint8_t i = 0; i < 2; i++) {
+			PORTB |= (1 << PB0) | (1 << PB1);
+			_delay_ms(100);
+			PORTB &= ~((1 << PB0) | (1 << PB1));
+			_delay_ms(100);
+		}
+		break;
+
+		// Turn both on steadily
+		case 3:
+		PORTB |= (1 << PB0) | (1 << PB1);
+		break;
+
+		// Turn both off
+		case 4:
+		PORTB &= ~((1 << PB0) | (1 << PB1));
+		break;
+
+		default:
+		// Invalid mode -> make both blink fast to indicate error
+		for (uint8_t i = 0; i < 3; i++) {
+			PORTB ^= (1 << PB0) | (1 << PB1);
+			_delay_ms(100);
+		}
+		break;
+	}
+}
+
+void beep(uint8_t beep_type){
+	switch (beep_type)
+	{
+		case 1: // key typing
+			BUZZER_PORT |= (1<<BUZZER_PIN);
+			_delay_ms(50);
+			BUZZER_PORT &= ~(1<<BUZZER_PIN);
+			
+		break;
+		case 2: // alarm
+		break;
+		
+	}
+}
+
+void beeper_init(){
+	BUZZER_DDR |= (1<<BUZZER_PIN);
+	BUZZER_PORT &= ~(1<<BUZZER_PIN);
+}
+
+
+
+
+int main(void) {
 	twi_init();
+	leds_init();
 	twi_lcd_init();
-	
-	DDRC |= (1<<PORTC0) | (1<<PORTC1);
-	PORTC |= (1<<PORTC0) | (1<<PORTC1);
+	keypad_init();
+	beeper_init();
+	sei();
 	
 	char key;
-    while(1)
-    {
-		lcd_write("Hello world!");
-		_delay_ms(50);
-		twi_lcd_clear();
-		
+	char buf[2];
+
+	while (1) {
 		key = read_keypad();
-		if (boton_presionado) {
-			
-			Escribir_LCD(key);
-			
-			_delay_ms(500);
-			
-			setearLCD(d);
+		
+		if (key) {
+			buf[0] = key;
+			buf[1] = '\0';
+			lcd_write(buf);
 		}
-    }
+		
+		if (boton_presionado){
+			boton_presionado = 0;
+			timer0_init();
+			keypad_disable();
+		}
+	}
 }
 
 // ---- Interrupción por cambio de pin ----
 ISR(PCINT2_vect) {
 	boton_presionado = 1;   // Marca el evento
+	beep(1);
 }
-	
+
+ISR(TIMER0_OVF_vect) {
+	debounce_count++;
+
+	if (debounce_count >= 10) {
+		debounce_flag = 1;    
+		debounce_count = 0;   
+		
+		keypad_enable();
+		timer0_disable();
+	}
+}

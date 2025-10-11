@@ -81,6 +81,15 @@ void twi_lcd_msg(const char *c)
 	twi_lcd_dwr(*c++);							//--- Send the String of Data
 }
 
+void lcd_write(const char *text){
+	twi_lcd_cmd(0x06);
+	twi_lcd_cmd(0x06);
+	twi_lcd_cmd(0x06);
+	twi_lcd_cmd(0x06);
+	twi_lcd_cmd(0x06);
+	twi_lcd_msg(text);
+}
+
 /* Function to Execute Clear LCD Command */
 void twi_lcd_clear()
 {
@@ -112,6 +121,6 @@ void twi_lcd_init()
 	twi_lcd_cmd(0x06);				//--- Auto increment Cursor
 	twi_lcd_cmd(0x06);				//--- Auto increment Cursor
 	twi_lcd_msg("Initializing...");	//--- String Send to LCD
-	_delay_ms(1000);				//--- 1s Delay
+	_delay_ms(250);					//--- 250ms Delay
 	twi_lcd_clear();				//--- Clear LCD
 }
