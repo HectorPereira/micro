@@ -57,13 +57,15 @@ twi_lcd_cmd(0x80);				//--- Row 1 Column 1 Address
 
 */
 
+#define F_CPU 16000000
 #include <xc.h>
 #include <util/twi.h>
 #include <avr/interrupt.h>
+#include "i2c_master.h"
+#include "i2c_master.c"
+#include "liquid_crystal_i2c.h"
+#include "liquid_crystal_i2c.c"
 
-#define PCF8574	0x27
-
-#include "./twi_lcd.h"
 	
 
 // --- Buzzer ---
@@ -99,203 +101,17 @@ uint8_t keypad_timer = 0;
 uint8_t keypad_debounce_flag = 0;
 char keypad_active_key = 0; 
 
-
-void timer0_init(void) {
-    TCCR0A = 0x00;
-    TCCR0B = (1 << CS01) | (1 << CS00); 
-    TCNT0 = 6;
-    TIMSK0 |= (1 << TOIE0);
-}
-
-void timer0_disable(void) {
-	TIMSK0 &= ~(1 << TOIE0);  // Clear overflow interrupt enable bit
-}
-
-
-
-char read_keypad(void) {
-	for (uint8_t row = 0; row < 4; row++) {
-		// Pone todas las filas (PD4–PD7) en 1 y solo la actual en 0
-		PORTD = (PORTD | 0xF0) & ~(1 << (row + 4));
-		_delay_us(5);
-
-		// Lee las columnas (PD0–PD3)
-		uint8_t cols = PIND & 0x0F;  // Solo bits 0–3
-
-		for (uint8_t col = 0; col < 4; col++) {
-			if (!(cols & (1 << col))) {   // Si está en 0 ? presionada
-				keypad_disable();
-				timer0_init();
-				return keypad[row][col];
-			}
-		}
-	}
-	return 0; // ninguna tecla
-}
-
-void keypad_disable(void) {
-	PCICR &= ~(1 << PCIE2);
-}
-
-void keypad_enable(void){
-	PCICR  |= (1 << PCIE2);
-}
-
-
-void keypad_init(void) {
-	// --- Columnas (PD0–PD3): entradas con pull-up ---
-	DDRD  &= ~0x0F;   // entradas
-	PORTD |=  0x0F;   // pull-ups activadas
-
-	// --- Filas (PD4–PD7): salidas ---
-	DDRD  |=  0xF0;   // salidas
-	PORTD |=  0xF0;   // inicializadas en 1
-
-	// (opcional) interrupciones PCINT para columnas
-	keypad_enable();
-	PCMSK2 |= 0x0F;   // PD0–PD3
-}
-
-
-void leds_init(void) {
-	DDRB |= (1 << PB0) | (1 << PB1);   // Configure PB0 and PB1 as outputs
-	PORTB &= ~((1 << PB0) | (1 << PB1)); // Start with LEDs off
-}
-
-
-void leds_pattern(uint8_t mode) {
-	switch (mode) {
-		// Both blink together
-		case 0:
-		PORTB |= (1 << PB0) | (1 << PB1);
-		_delay_ms(200);
-		PORTB &= ~((1 << PB0) | (1 << PB1));
-		_delay_ms(200);
-		break;
-
-		// Alternate blinking
-		case 1:
-		PORTB |= (1 << PB0);
-		PORTB &= ~(1 << PB1);
-		_delay_ms(200);
-
-		PORTB |= (1 << PB1);
-		PORTB &= ~(1 << PB0);
-		_delay_ms(200);
-		break;
-
-		// Flash both LEDs twice quickly
-		case 2:
-		for (uint8_t i = 0; i < 2; i++) {
-			PORTB |= (1 << PB0) | (1 << PB1);
-			_delay_ms(100);
-			PORTB &= ~((1 << PB0) | (1 << PB1));
-			_delay_ms(100);
-		}
-		break;
-
-		// Turn both on steadily
-		case 3:
-		PORTB |= (1 << PB0) | (1 << PB1);
-		break;
-
-		// Turn both off
-		case 4:
-		PORTB &= ~((1 << PB0) | (1 << PB1));
-		break;
-
-		default:
-		// Invalid mode -> make both blink fast to indicate error
-		for (uint8_t i = 0; i < 3; i++) {
-			PORTB ^= (1 << PB0) | (1 << PB1);
-			_delay_ms(100);
-		}
-		break;
-	}
-}
-
-
-void beep(uint8_t beep_type){
-	switch (beep_type)
-	{
-		case 1: // key typing
-			BUZZER_PORT |= (1<<BUZZER_PIN);
-			_delay_ms(50);
-			BUZZER_PORT &= ~(1<<BUZZER_PIN);
-			
-		break;
-		case 2: // alarm
-		break;
-		default:
-		break;
-		
-	}
-}
-
-void beep_task(){
+int main(void){
 	
-}
+	LiquidCrystalDevice_t device = lq_init(0x27, 16, 2, LCD_5x8DOTS); // intialize 4-lines display
 
-
-void beeper_init(){
-	BUZZER_DDR |= (1<<BUZZER_PIN);
-	BUZZER_PORT &= ~(1<<BUZZER_PIN);
-}
-
-void led_blink_task(void) {
-	if (green_timer == 0) {
-		green_timer = 2;          // 30 * 16ms ? 480ms
-		green_state ^= 1;	          // toggle
-		if (green_state)
-		RED_PORT |= (1 << RED_PORT);
-		else
-		RED_PORT &= ~(1 << RED_PORT);
-	}
-}
-
-
-int main(void) {
-	twi_init();
-	leds_init();
-	twi_lcd_init();
-	keypad_init();
-	beeper_init();
-	timer0_init();
-	sei();
+	lq_turnOnBacklight(&device); // simply turning on the backlight
+	lq_turnOnCursor(&device);
+	lq_turnOnBlink(&device);
 	
-	/*
-	char buf[2];
-	while (1) {
-		keypad_active_key = read_keypad();
-		if (keypad_active_key) {
-			buf[0] = keypad_active_key;
-			buf[1] = '\0';
-			keypad_active_key = 0;
-			lcd_write(buf);
-			beep(1);
-			leds_pattern(1);
-		}
-	}
-	*/
-	
-	while (1){
-		led_blink_task();
-	}
+	char text1[] = "Password:";
+	char text2[] = "How are you?";
+	lq_print(&device, text1);
+	lq_setCursor(&device, 1, 0); // moving cursor to the next line
+	lq_print(&device, text2);
 }
-
-
-ISR(PCINT2_vect) {
-	if (keypad_debounce_flag){
-		keypad_state = 1;   
-		timer0_init();
-		keypad_disable();
-	}
-}
-
-ISR(TIMER0_OVF_vect) { // 1ms 
-	TCNT0 = 6;
-
-	if (green_timer > 0) green_timer--;
-	if (red_timer > 0) red_timer--;
-}
-

@@ -16,11 +16,11 @@ main.d main.o: .././main.c \
  c:\program\ files\microchip\xc8\v2.36\avr\avr\include\avr\lock.h \
  c:\program\ files\microchip\xc8\v2.36\avr\avr\include\util\twi.h \
  c:\program\ files\microchip\xc8\v2.36\avr\avr\include\avr\interrupt.h \
- ../././twi_lcd.h \
+ .././i2c_master.h .././i2c_master.c .././liquid_crystal_i2c.h \
+ .././liquid_crystal_i2c.c \
  c:\program\ files\microchip\xc8\v2.36\avr\avr\include\util\delay.h \
  c:\program\ files\microchip\xc8\v2.36\avr\avr\include\util\delay_basic.h \
- c:\program\ files\microchip\xc8\v2.36\avr\avr\include\math.h \
- ../././twi.h ../././twi.c
+ c:\program\ files\microchip\xc8\v2.36\avr\avr\include\math.h
 
 c:\program\ files\microchip\xc8\v2.36\avr\lib\gcc\avr\5.4.0\include\xc.h:
 
@@ -56,14 +56,16 @@ c:\program\ files\microchip\xc8\v2.36\avr\avr\include\util\twi.h:
 
 c:\program\ files\microchip\xc8\v2.36\avr\avr\include\avr\interrupt.h:
 
-../././twi_lcd.h:
+.././i2c_master.h:
+
+.././i2c_master.c:
+
+.././liquid_crystal_i2c.h:
+
+.././liquid_crystal_i2c.c:
 
 c:\program\ files\microchip\xc8\v2.36\avr\avr\include\util\delay.h:
 
 c:\program\ files\microchip\xc8\v2.36\avr\avr\include\util\delay_basic.h:
 
 c:\program\ files\microchip\xc8\v2.36\avr\avr\include\math.h:
-
-../././twi.h:
-
-../././twi.c:
