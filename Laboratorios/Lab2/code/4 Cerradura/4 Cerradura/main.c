@@ -37,26 +37,6 @@ Requerimientos:
  */ 
 
 
-/*
-lcd = 0x04;						//--- EN = 1 for 25us initialize Sequence
-PCF8574_write(lcd);
-_delay_us(25);
-twi_lcd_cmd(0x03);				//--- Initialize Sequence
-twi_lcd_cmd(0x03);				//--- Initialize Sequence
-twi_lcd_cmd(0x03);				//--- Initialize Sequence
-twi_lcd_cmd(0x02);				//--- Return to Home
-twi_lcd_cmd(0x28);				//--- 4-Bit Mode 2 - Row Select
-twi_lcd_cmd(0x0F);				//--- Cursor on, Blinking on
-twi_lcd_cmd(0x01);				//--- Clear LCD
-twi_lcd_cmd(0x06);				//--- Auto increment Cursor
-twi_lcd_cmd(0x80);				//--- Row 1 Column 1 Address
-twi_lcd_msg("Initializing...");	//--- String Send to LCD
-_delay_ms(1000);				//--- 1s Delay
-twi_lcd_clear();				//--- Clear LCD
-twi_lcd_cmd(0x80);				//--- Row 1 Column 1 Address
-
-*/
-
 #define F_CPU 16000000
 #include <xc.h>
 #include <util/twi.h>
@@ -103,9 +83,9 @@ char keypad_active_key = 0;
 
 int main(void){
 	
-	LiquidCrystalDevice_t device = lq_init(0x27, 16, 2, LCD_5x8DOTS); // intialize 4-lines display
+	LiquidCrystalDevice_t device = lq_init(0x27, 16, 2, LCD_5x8DOTS); 
 
-	lq_turnOnBacklight(&device); // simply turning on the backlight
+	lq_turnOnBacklight(&device); 
 	lq_turnOnCursor(&device);
 	lq_turnOnBlink(&device);
 	
