@@ -19,6 +19,7 @@ void twi_init();
 void twi_repeated_start();
 void twi_write_cmd(unsigned char address);
 void twi_write_dwr(unsigned char val);
+void lcd_write(const char *text);
 void twi_stop();
 char twi_read_ack();
 char twi_read_nack();
