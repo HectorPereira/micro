@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <math.h>
+#include <avr/pgmspace.h>
 
 // Seccion para USART
 #define F_CPU 16000000UL    // Frecuencia del reloj del micro (16 MHz)
@@ -20,6 +21,20 @@
 #define RX_BUFFER_SIZE 128
 #define precarger 10000
 
+// Direcciones base
+#define SOLENOID_DOWN   1
+#define SOLENOID_UP     2
+#define DOWN            3
+#define UP              4
+#define RIGHT           5
+#define LEFT            6
+#define STOP            7
+
+// Diagonales 
+#define UP_RIGHT        8
+#define UP_LEFT         9
+#define DOWN_RIGHT      10
+#define DOWN_LEFT       11
 
 
 volatile char    serialBuffer[TX_BUFFER_SIZE];
@@ -45,7 +60,6 @@ char Chardos(void);
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
 
 
-
 void Subir(void);
 void Bajar(void);
 void Izquierda(void);
@@ -64,6 +78,92 @@ void dibujar_cuadrado(void);
 void dibujar_cruz(void);
 static inline void generar_escalon(uint16_t ang_deg, const uint16_t tR[91], const uint16_t tU[91]);
 void Hacer_circulo(void);
+void Hacer_circulo_lut(void);
+void ejecutar_circulo(const uint8_t *tabla, uint16_t size);
+	
+// Solo los comandos (combinaciones separadas por comas)
+const uint8_t CIRCLE_DATA[] = {
+	SOLENOID_DOWN,
+
+	// Quadrant 1: RIGHT & UP
+	UP, UP_RIGHT, UP, UP_RIGHT, UP, UP_RIGHT, UP, UP_RIGHT,
+	UP, UP_RIGHT, UP, UP_RIGHT, UP, UP_RIGHT, UP, UP_RIGHT,
+	UP, UP_RIGHT, UP, UP_RIGHT, UP, UP_RIGHT, UP, UP_RIGHT,
+	UP, UP_RIGHT, UP, UP_RIGHT, UP, UP_RIGHT, UP, UP_RIGHT,
+	RIGHT, UP_RIGHT, RIGHT, UP_RIGHT, RIGHT, UP_RIGHT,
+	RIGHT, UP_RIGHT, RIGHT, UP_RIGHT, RIGHT, UP_RIGHT,
+	RIGHT, UP_RIGHT, RIGHT, UP_RIGHT, RIGHT, UP_RIGHT,
+	RIGHT, UP_RIGHT, RIGHT, UP_RIGHT, RIGHT, UP_RIGHT,
+
+	// Quadrant 2: DOWN & RIGHT
+	RIGHT, DOWN_RIGHT, RIGHT, DOWN_RIGHT, RIGHT, DOWN_RIGHT,
+	RIGHT, DOWN_RIGHT, RIGHT, DOWN_RIGHT, RIGHT, DOWN_RIGHT,
+	RIGHT, DOWN_RIGHT, RIGHT, DOWN_RIGHT, RIGHT, DOWN_RIGHT,
+	RIGHT, DOWN_RIGHT, RIGHT, DOWN_RIGHT, RIGHT, DOWN_RIGHT,
+	DOWN, DOWN_RIGHT, DOWN, DOWN_RIGHT, DOWN, DOWN_RIGHT,
+	DOWN, DOWN_RIGHT, DOWN, DOWN_RIGHT, DOWN, DOWN_RIGHT,
+	DOWN, DOWN_RIGHT, DOWN, DOWN_RIGHT, DOWN, DOWN_RIGHT,
+	DOWN, DOWN_RIGHT, DOWN, DOWN_RIGHT, DOWN, DOWN_RIGHT,
+
+	// Quadrant 3: LEFT & DOWN
+	DOWN, DOWN_LEFT, DOWN, DOWN_LEFT, DOWN, DOWN_LEFT,
+	DOWN, DOWN_LEFT, DOWN, DOWN_LEFT, DOWN, DOWN_LEFT,
+	DOWN, DOWN_LEFT, DOWN, DOWN_LEFT, DOWN, DOWN_LEFT,
+	DOWN, DOWN_LEFT, DOWN, DOWN_LEFT, DOWN, DOWN_LEFT,
+	LEFT, DOWN_LEFT, LEFT, DOWN_LEFT, LEFT, DOWN_LEFT,
+	LEFT, DOWN_LEFT, LEFT, DOWN_LEFT, LEFT, DOWN_LEFT,
+	LEFT, DOWN_LEFT, LEFT, DOWN_LEFT, LEFT, DOWN_LEFT,
+	LEFT, DOWN_LEFT, LEFT, DOWN_LEFT, LEFT, DOWN_LEFT,
+
+	// Quadrant 4: UP & LEFT
+	LEFT, UP_LEFT, LEFT, UP_LEFT, LEFT, UP_LEFT,
+	LEFT, UP_LEFT, LEFT, UP_LEFT, LEFT, UP_LEFT,
+	LEFT, UP_LEFT, LEFT, UP_LEFT, LEFT, UP_LEFT,
+	LEFT, UP_LEFT, LEFT, UP_LEFT, LEFT, UP_LEFT,
+	UP, UP_LEFT, UP, UP_LEFT, UP, UP_LEFT,
+	UP, UP_LEFT, UP, UP_LEFT, UP, UP_LEFT,
+	UP, UP_LEFT, UP, UP_LEFT, UP, UP_LEFT,
+	UP, UP_LEFT, UP, UP_LEFT, UP, UP_LEFT,
+
+	SOLENOID_UP
+};
+
+
+const uint8_t CIRCLE_DATA_TIME[] PROGMEM = {
+	255,
+
+	// Quadrant 1
+	100,1,96,5,92,8,88,10,85,19,81,23,77,27,73,32,
+	68,36,64,40,60,45,55,50,50,54,46,59,41,65,35,70,
+	30,76,24,82,18,89,11,96,4,96,4,89,11,82,18,76,
+	24,70,30,65,35,59,41,54,46,50,50,45,55,40,60,36,
+	64,32,68,27,73,23,77,19,81,15,85,12,88,8,92,4,
+	96,100,
+
+	// Quadrant 2
+	100,4,96,8,92,12,88,15,85,19,81,23,77,27,73,32,
+	68,36,64,40,60,45,55,50,50,54,46,59,41,65,35,70,
+	30,76,24,82,18,89,11,96,4,96,4,89,11,82,18,76,
+	24,70,30,65,35,59,41,54,46,50,50,45,55,40,60,36,
+	64,32,68,27,73,23,77,19,81,15,85,12,88,8,92,4,
+	96,100,
+
+	// Quadrant 3
+	100,4,96,8,92,12,88,15,85,19,81,23,77,27,73,32,
+	68,36,64,40,60,45,55,50,50,54,46,59,41,65,35,70,
+	30,76,24,82,18,89,11,96,4,96,4,89,11,82,18,76,
+	24,70,30,65,35,59,41,54,46,50,50,45,55,40,60,36,
+	64,32,68,27,73,23,77,19,81,15,85,12,88,8,92,4,
+	96,100,
+
+	// Quadrant 4
+	100,4,96,8,92,12,88,15,85,19,81,23,77,27,73,32,
+	68,36,64,40,60,45,55,50,50,54,46,59,41,65,35,70,
+	30,76,24,82,18,89,11,96,4,96,4,89,11,82,18,76,
+	24,70,30,65,35,62,41,57,46,57,50,48,55,44,60,40,
+	64,36,68,30,73,26,79,23,85,18,87,20,90,10,100,150,
+	130,255,1
+};
 
 int main(void)
 {
@@ -71,12 +171,7 @@ int main(void)
 	UBRR0H = (BRC >> 8);
 	UBRR0L = BRC;
 	
-	TCCR1A = 0x00;
-	TCCR1B |=  (0 << CS02) | (0 << CS01) | (1 << CS00); //Timer 64
-	TIMSK1 |=  (1 << TOIE1);
-	
-	// Habilitar transmisor
-	
+	timer1_init_1ms();
 	
 	UCSR0B = (1 << TXEN0) | (1 << RXEN0) | (1 << RXCIE0);
 	
@@ -98,109 +193,122 @@ int main(void)
     while(1)
     {
 	    char c = Chardos();
-		
-		if (c == '1'){
-			Hacer_circulo();
-		}
-		peurbas(c);
-		}
+	    if (c != '\0') {
+		    serialWrite("Recibido: ");
+		    appendSerial(c);
+		    appendSerial('\n');
+	    }
+	    
+	    if (c == '1') {
+		    ejecutar_circulo_sinc(CIRCLE_DATA, CIRCLE_DATA_TIME, sizeof(CIRCLE_DATA));
+	    }
+	    else {
+		    peurbas(c);
+	    }
+    }
 
     }
  
+void timer1_init_1ms(void) {
+	// CTC: WGM12 = 1, WGM13:0 = 0100
+	TCCR1A = 0;
+	TCCR1B = 0;
+	TCCR1B |= (1 << WGM12);
 
+	// OCR1A = F_CPU / (prescaler * 1000) - 1
+	// Con prescaler 64 y F_CPU=16 MHz -> 16000000/64/1000 - 1 = 249
+	OCR1A = (uint16_t)(F_CPU / 64UL / 1000UL - 1);
 
-void delay_ms_timer1(float ms) {
-	for (uint8_t i = 0; i < ms; i++) {
-		_delay_ms(10);
+	// Arrancar con prescaler = 64 (CS11=1, CS10=1)
+	TCCR1B |= (1 << CS11) | (1 << CS10);
+
+	// Limpia cualquier bandera pendiente
+	TIFR1 = (1 << OCF1A);
+}
+
+static inline void delay_ms_timer1(uint16_t ms) {
+	while (ms--) {
+		// Reinicia conteo y bandera
+		TCNT1 = 0;
+		TIFR1 = (1 << OCF1A);
+		// Espera hasta que ocurra la comparación (1 ms)
+		while ((TIFR1 & (1 << OCF1A)) == 0) { /* espera */ }
 	}
 }
 
-
-void precompute_cuarto_circulo_arrays(uint16_t I_ms,uint16_t tR[91], uint16_t tU[91]) {
-	for (uint16_t ang = 0; ang <= 90; ++ang) {
-		float th = (float)ang * (float)M_PI / 180.0f;
+void precompute_semicirculo_arrays_90(uint16_t I_ms,
+uint16_t tR90[90], uint16_t tU90[90]) {
+	for (uint16_t i = 0; i < 90; ++i) {          // i => 0..89  (0°,2°,4°,...,178°)
+		uint16_t semi = i * 2;                   // ángulo en 0..178
+		uint16_t base = (semi <= 90) ? semi : (180 - semi); // 0..90 (simetría)
+		float th = (float)base * (float)M_PI / 180.0f;
 		float c = cosf(th);
 		float s = sinf(th);
-		if (c < 0) c = 0;
-		if (s < 0) s = 0;
-
-		tR[ang] = (uint16_t)lrintf(c * (float)I_ms);
-		tU[ang] = (uint16_t)lrintf(s * (float)I_ms);
+		if (c < 0) c = 0; else if (c > 1) c = 1;
+		if (s < 0) s = 0; else if (s > 1) s = 1;
+		tR90[i] = (uint16_t)lrintf(c * (float)I_ms);
+		tU90[i] = (uint16_t)lrintf(s * (float)I_ms);
 	}
 }
 
-// Usa directamente los valores del ARREGLO para el ángulo dado
-static inline void generar_escalon(uint16_t ang_deg,
-const uint16_t tR[91], const uint16_t tU[91]) {
-	if (ang_deg >= 90) return;   // salir en 90° o más
-	Subir();
-	delay_ms_timer1(tR[ang_deg]);
-	Derecha();
-	delay_ms_timer1(tU[ang_deg]);
-}
 
-static inline void generar_escalon2(uint16_t ang_deg,
-const uint16_t tR[91], const uint16_t tU[91]) {
-	if (ang_deg >= 90) return;
-	Derecha();
-	delay_ms_timer1(tR[ang_deg]);
-	Bajar();
-	delay_ms_timer1(tU[ang_deg]);
-}
-
-static inline void generar_escalon3(uint16_t ang_deg,
-const uint16_t tR[91], const uint16_t tU[91]) {
-	if (ang_deg >= 90) return;
-	Bajar();
-	delay_ms_timer1(tR[ang_deg]);
-	Izquierda();
-	delay_ms_timer1(tU[ang_deg]);
-}
-
-static inline void generar_escalon4(uint16_t ang_deg,
-const uint16_t tR[91], const uint16_t tU[91]) {
-	if (ang_deg >= 90) return;
-	Izquierda();
-	delay_ms_timer1(tR[ang_deg]);
-	Subir();
-	delay_ms_timer1(tU[ang_deg]);
-}
-
-// Traza 1/4 de círculo (0..90°) con N pasos
+// ---- Un solo bucle, 0.5° por paso (0..719). Sin otras funciones salvo precálculo y delay. ----
 void Hacer_circulo(void) {
-	const uint16_t I_ms = 100;  // escala total por escalón (ajusta a tu plotter)
-	const uint16_t N     = 90;  // resolución: 1° por paso
+	const uint16_t I_ms = 500;          // escala por escalón (ajusta a tu plotter)
+	uint16_t tR180[180], tU180[180];   // 180 valores decimales por semicírculo
 
-	uint16_t tR[91], tU[91];
-	precompute_cuarto_circulo_arrays(I_ms, tR, tU);
-	
-	delay_ms_timer1(100);
-	
+	precompute_semicirculo_arrays_90(I_ms, tR180, tU180);
+
 	Subir_s();
+	delay_ms_timer1(100);
 
 	cli();
-	for (uint16_t ang = 0; ang <= N; ++ang) {
-		generar_escalon(ang, tR, tU);
-	}
-	apagar2();
-	for (uint16_t ang = 0; ang <= N; ++ang) {
-		generar_escalon2(ang, tR, tU);
-	}
-	apagar2();
-	for (uint16_t ang = 0; ang <= N; ++ang) {
-		generar_escalon3(ang, tR, tU);
-	}
-	apagar2();
-	for (uint16_t ang = 0; ang <= N; ++ang) {
-		generar_escalon4(ang, tR, tU);
+	for (uint16_t ang_u = 0; ang_u < 720; ++ang_u) {   // 0..719 (cada unidad = 0.5°)
+		// Saltar bordes exactos de cuadrante: 90°, 180°, 270° -> 180, 360, 540 unidades
+		if (ang_u == 180 || ang_u == 360 || ang_u == 540) continue;
+
+		uint16_t q     = ang_u / 180;          // 0..3 cuadrante (180 unidades = 90°)
+		uint16_t local = ang_u % 180;          // 0..179 índice en tR180/tU180 (0.5°)
+
+		switch (q) {
+			case 0: // Q1: Subir -> Derecha
+			Subir();
+			delay_ms_timer1(tR180[local]);
+			Derecha();
+			delay_ms_timer1(tU180[local]);
+			break;
+
+			case 1: // Q2: Derecha -> Bajar
+			Derecha();
+			delay_ms_timer1(tR180[local]);
+			Bajar();
+			delay_ms_timer1(tU180[local]);
+			break;
+
+			case 2: // Q3: Bajar -> Izquierda
+			Bajar();
+			delay_ms_timer1(tR180[local]);
+			Izquierda();
+			delay_ms_timer1(tU180[local]);
+			break;
+
+			default: // Q4: Izquierda -> Subir
+			Izquierda();
+			delay_ms_timer1(tR180[local]);
+			Subir();
+			delay_ms_timer1(tU180[local]);
+			break;
+		}
 	}
 	sei();
-	
 
-	apagar();
 	delay_ms_timer1(100);
 	apagar();
 }
+
+
+
+
  void dibujar_cruz(void){
 	 centrar();
 	 
@@ -254,7 +362,47 @@ void Hacer_circulo(void) {
 	 
  }
 
- //Para hacer cada pixel
+
+void ejecutar_circulo_sinc(const uint8_t *tablaDir, const uint8_t *tablaTime, uint16_t size) {
+	uint8_t cmd;
+	uint8_t t;
+
+	_delay_ms(1000);  // Espera inicial
+
+	for (uint16_t i = 0; i < size; i++) {
+		cmd = pgm_read_byte(&tablaDir[i]);   // dirección
+		t   = pgm_read_byte(&tablaTime[i]);  // tiempo correspondiente
+
+		if (cmd == STOP)
+		break;
+
+		// Ejecutar la acción según comando
+		switch (cmd) {
+			case UP:            Subir(); break;
+			case DOWN:          Bajar(); break;
+			case LEFT:          Izquierda(); break;
+			case RIGHT:         Derecha(); break;
+
+			case UP_LEFT:       ArribaIzquierda(); break;
+			case UP_RIGHT:      ArribaDerecha(); break;
+			case DOWN_LEFT:     AbajoIzquierda(); break;
+			case DOWN_RIGHT:    AbajoDerecha(); break;
+
+			case SOLENOID_UP:   apagar(); break;
+			case SOLENOID_DOWN: Subir_s(); break;
+
+			default:            apagar(); break;
+		}
+
+		for (uint8_t j = 0; j < t; j++) {
+			_delay_ms(10);
+		}
+
+	}
+
+	_delay_ms(1000);  // Espera final
+	apagar();
+}
 
 void peurbas(char c){
 	switch (c) {
@@ -416,7 +564,6 @@ ISR(USART_RX_vect)
 		rxWritePos = 0;
 	}
 }
-
 
 
 
