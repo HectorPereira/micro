@@ -53,21 +53,55 @@ Requerimientos:
 #define _BV(b) (1U << (b))
 #endif
 
+uint16_t buzzer_on_at = 0;
+uint16_t buzzer_off_at = 0;
+
+uint32_t millis_counter = 0;
+
 inline void keypad_init(void);
 uint8_t keypad_scan(void);
 
+void buzzer_init(void);
+void buzzer_task(void);
+void buzzer_beep(uint16_t duration_ms);
+
+void timer0_init(void);
+uint32_t millis_now(void);
+
+inline void leds_init(void);
+inline void led_mode(uint8_t mode);
+
+
+
+// -----------------------------------------------------
+// MAIN
+// -----------------------------------------------------
+
+
+
+
 int main(void) {
 	keypad_init();
-	DDRB |= (1<<PORTB5);
-	
+	timer0_init();
+	buzzer_init();
+	sei();
 
 	while (1) {
+		buzzer_task();
+		
 		uint8_t key = keypad_scan();
 		if (key) {
-			PORTB ^= (1<<PORTB5);
 		} 
 	}
 }
+
+
+
+// -----------------------------------------------------
+// INITIALIZERS
+// -----------------------------------------------------
+
+
 
 inline void keypad_init(void){
 	DDRD = 0b11110000;
@@ -88,8 +122,8 @@ uint8_t keypad_scan(void) {
 			if (!(cols & (1 << col)) ) {
 				if ((prevKey == ((row * 4) + col + 1))) return 0;
 				
+				buzzer_beep(30);
 				prevKey = (row * 4) + col + 1;
-				_delay_ms(30);
 				return (row * 4) + col + 1;  
 			} 
 		}
@@ -97,6 +131,71 @@ uint8_t keypad_scan(void) {
 	prevKey = 0;
 	return 0; 
 }
+
+
+
+
+
+uint32_t millis_now(void) {
+	uint32_t m;
+	cli();     // disable interrupts
+	m = millis_counter;
+	sei();     // re-enable
+	return m;
+}
+
+
+void timer0_init(void){
+	TCCR0A = 0x00;
+	TCCR0B |= 0b011;
+	TIMSK0 |= (1<<TOIE0);
+}
+
+ISR(TIMER0_OVF_vect){
+	millis_counter++;
+}
+
+
+
+
+
+inline void buzzer_init(){
+	DDRB |= (1<<PORTB5);
+	PORTB &= ~(1<<PORTB5);
+}
+
+inline void buzzer_task(void){
+	if (millis_now() > buzzer_off_at){
+		PORTB &= ~(1<<PORTB5);
+	}
+}
+
+inline void buzzer_beep(uint16_t duration_ms){
+	PORTB |= (1<<PORTB5);
+	buzzer_on_at = millis_now();
+	buzzer_off_at = millis_now() + duration_ms;
+}
+
+
+
+
+
+inline void leds_init(void){
+	DDRB |= (1<<PORTB0) | (1<<PORTB1);
+	PORTB &= ~((1<<PORTB0) | (1<<PORTB1));
+}
+
+inline void led_mode(uint8_t mode){
+	if (mode == 0){
+		PORTB &= ~(1<<PORTB1);
+		PORTB |= (1<<PORTB0);
+	} else if (mode == 1){
+		PORTB &= ~(1<<PORTB0);
+		PORTB |= (1<<PORTB1);
+	}
+}
+
+
 
 
 
