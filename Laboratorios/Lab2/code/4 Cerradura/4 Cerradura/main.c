@@ -52,3 +52,52 @@ Requerimientos:
 #ifndef _BV
 #define _BV(b) (1U << (b))
 #endif
+
+inline void keypad_init(void);
+uint8_t keypad_scan(void);
+
+int main(void) {
+	keypad_init();
+	DDRB |= (1<<PORTB5);
+	
+
+	while (1) {
+		uint8_t key = keypad_scan();
+		if (key) {
+			PORTB ^= (1<<PORTB5);
+		} 
+	}
+}
+
+inline void keypad_init(void){
+	DDRD = 0b11110000;
+	PORTD = 0b00001111;
+}
+
+uint8_t keypad_scan(void) {
+	uint8_t row, col;
+	uint8_t cols;
+	static uint8_t prevKey;
+
+	for (row = 0; row < 4; row++) {
+		PORTD = (PORTD | 0xF0) & ~(1 << (row + 4));
+		_delay_us(5);  
+		cols = PIND & 0x0F;  
+
+		for (col = 0; col < 4; col++) {
+			if (!(cols & (1 << col)) ) {
+				if ((prevKey == ((row * 4) + col + 1))) return 0;
+				
+				prevKey = (row * 4) + col + 1;
+				_delay_ms(30);
+				return (row * 4) + col + 1;  
+			} 
+		}
+	}
+	prevKey = 0;
+	return 0; 
+}
+
+
+
+
