@@ -57,7 +57,7 @@ B -> Cambiar C.
 #define _BV(b) (1U << (b))
 #endif
 
-#define DEBOUNCE_MS 30   // time for stable reading
+#define DEBOUNCE_MS 30  
 
 #define ALARM_DURATION_MS 5000
 #define ALARM_TOGGLE_MS    200
@@ -78,8 +78,6 @@ uint8_t EEMEM password_mem[5];  // 4 dígitos + terminador '\0'
 #define BUZZER_PORT PORTB
 #define BUZZER_DDR  DDRB
 #define BUZZER_PIN  PB5
-uint8_t buzzer_state = 0;
-uint16_t buzzer_timer = 0;
 
 volatile uint8_t  buzzer_on = 0;
 volatile uint32_t buzzer_off_at = 0;
@@ -88,15 +86,11 @@ volatile uint32_t buzzer_off_at = 0;
 #define RED_PORT PORTB0
 #define RED_DDR  PORTB0
 #define RED_PIN  PB0
-uint8_t red_state = 0;
-uint16_t red_timer = 0;
 
 // --- Green LED ---
 #define GREEN_PORT PORTB1
 #define GREEN_DDR  PORTB1
 #define GREEN_PIN  PB1
-uint8_t green_state = 0;
-uint16_t green_timer = 0;
 
 const char keypad[4][4] = {
 	{'1', '2', '3', 'A'},
@@ -106,14 +100,11 @@ const char keypad[4][4] = {
 };
 
 
-
-uint8_t keypad_state = 0;
-uint8_t keypad_timer = 0;
 uint8_t keypad_debounce_flag = 0;
 char keypad_active_key = 0;
 
 
-volatile uint32_t millis = 0;   // incremented every 1 ms in a timer ISR
+uint32_t millis = 0;   // incremented every 1 ms in a timer ISR
 uint32_t millis_now(void) {
 	uint32_t m;
 	cli();
@@ -123,21 +114,20 @@ uint32_t millis_now(void) {
 }
 
 
-
-static inline void buzzer_init(void) {
-	DDRB  |= _BV(PB5);   // PB5 como salida
-	PORTB &= ~_BV(PB5);  // buzzer apagado
+void buzzer_init(void) {
+	BUZZER_DDR  |= _BV(BUZZER_PIN);   // PB5 como salida
+	BUZZER_PORT &= ~_BV(BUZZER_PIN);  // buzzer apagado
 }
 
-static inline void buzzer_beep(uint32_t ms) {
-	PORTB |= _BV(PB5);                 // encender buzzer activo
+void buzzer_beep(uint32_t ms) {
+	BUZZER_PORT |= _BV(BUZZER_PIN);                 // encender buzzer activo
 	buzzer_on = 1;
 	buzzer_off_at = millis_now() + ms; // programar apagado
 }
 
-static inline void buzzer_task(void) {
+void buzzer_task(void) {
 	if (buzzer_on && (int32_t)(millis_now() - buzzer_off_at) >= 0) {
-		PORTB &= ~_BV(PB5);            // apagar buzzer
+		BUZZER_PORT &= ~_BV(BUZZER_PIN);            // apagar buzzer
 		buzzer_on = 0;
 	}
 }
@@ -146,14 +136,13 @@ static inline void buzzer_task(void) {
 
 
 
-static inline void leds_init(void) {
+void leds_init(void) {
 	DDRB  |= _BV(RED_DDR) | _BV(GREEN_DDR);
-	// Estado por defecto: CERRADO ? rojo ON, verde OFF (asumiendo activo en alto)
 	PORTB |=  _BV(RED_PORT);
 	PORTB &= ~_BV(GREEN_PORT);
 }
 
-static inline void leds_set_abierto(uint8_t abierto) {
+void leds_set_abierto(uint8_t abierto) {
 	if (abierto) {
 		// ABIERTO: rojo OFF, verde ON
 		PORTB &= ~_BV(RED_PORT);
@@ -166,7 +155,7 @@ static inline void leds_set_abierto(uint8_t abierto) {
 }
 
 
-static inline void alarm_start(void) {
+void alarm_start(void) {
 	uint32_t now = millis_now();
 	alarm.active = 1;
 	alarm.phase = 0;
@@ -174,7 +163,7 @@ static inline void alarm_start(void) {
 	alarm.next_toggle = now; // primera conmutación inmediata
 }
 
-static inline void alarm_task(void) {
+void alarm_task(void) {
 	if (!alarm.active) return;
 
 	uint32_t now = millis_now();
@@ -203,13 +192,9 @@ static inline void alarm_task(void) {
 		alarm.phase ^= 1;
 
 		// beep cortito
-		buzzer_beep(100); // tu tarea buzzer_task() apagará a tiempo
+		buzzer_beep(100); // Buzzer task apaga
 	}
 }
-
-
-
-
 
 
 
@@ -235,7 +220,8 @@ char read_keypad(void) {
 	for (row = 0; row < 4; row++) {
 		PORTD = (PORTD | 0xF0) & ~(1 << (row + 4));
 		_delay_us(5);
-		cols = PIND & 0x0F;
+		cols = PIND & 0b00001111;
+		
 		for (col = 0; col < 4; col++) {
 			if (!(cols & (1 << col))) {
 				key = keypad[row][col];
@@ -243,7 +229,7 @@ char read_keypad(void) {
 					if (key != stable_key) {
 						stable_key = key;
 						if (stable_key != 0) {
-							buzzer_beep(30);      // <--- BEEP de ~30 ms
+							buzzer_beep(30);      
 							return stable_key;    // stable press
 						}
 					}
@@ -252,7 +238,7 @@ char read_keypad(void) {
 			}
 		}
 	}
-	done:                            // label must precede statements, not declarations
+	done:                            
 
 	now = millis_now();
 
@@ -275,16 +261,16 @@ char read_keypad(void) {
 }
 
 void keypad_init(void) {
-	DDRD  &= ~0x0F;   // entradas
-	PORTD |=  0x0F;   // pull-ups activadas
+	DDRD  &= ~0b00001111;   // entradas
+	PORTD |=  0b00001111;   // pull-ups 
 
-	DDRD  |=  0xF0;   // salidas
-	PORTD |=  0xF0;   // inicializadas en 1
+	DDRD  |=  0b11110000;   // salidas
+	PORTD |=  0b11110000;   // inicializadas en 1
 }
 
 
 
-static inline void guardar_password_eeprom(const char *pwd4) {
+void guardar_password_eeprom(const char *pwd4) {
 	char tmp[5];
 	memcpy(tmp, pwd4, 4);
 	tmp[4] = '\0';
@@ -312,7 +298,7 @@ int main(void){
 	_delay_ms(1000);
 	lq_clear(&device);
 
-	// Leer password guardada (si querés usarla después)
+	// Leer password guardada 
 	char contra_guardada[5];
 	eeprom_read_block((void*)contra_guardada, (const void*)password_mem, sizeof(contra_guardada));
 
@@ -332,13 +318,12 @@ int main(void){
 	// --- UI state ---
 	ui_state_t ui = UI_MENU;
 
-	char entrada[5] = {0};    // buffer para ingreso (4 + '\0')
+	char entrada[5] = {0};    
 	uint8_t idx = 0;
 
 	while (1) {
 		buzzer_task();
 		alarm_task(); 
-		
 		
 		char key = read_keypad();
 		if (!key) continue;
@@ -352,15 +337,16 @@ int main(void){
 				lq_print(&device, titulo);
 				lq_setCursor(&device, 1, 0);
 				idx = 0; entrada[0] = '\0';
+				
 				ui = UI_INGRESO;
 				} else if (key == 'B') {
-				// (tu flujo de cambio ya implementado)
 				lq_clear(&device);
 				char titulo[] = "Actual:";
 				lq_setCursor(&device, 0, 0);
 				lq_print(&device, titulo);
 				lq_setCursor(&device, 1, 0);
 				idx = 0; entrada[0] = '\0';
+				
 				ui = UI_CAMBIO_ACTUAL;
 			}
 			break;
@@ -369,9 +355,11 @@ int main(void){
 			if (key == '#') {
 				// Cancelar y volver al menú
 				lq_clear(&device);
+				
 				lq_print(&device, ingresarContraTexto);
 				lq_setCursor(&device, 1, 0);
 				lq_print(&device, cambiarContraTexto);
+				
 				ui = UI_MENU;
 				break;
 			}
@@ -384,19 +372,18 @@ int main(void){
 
 			if (idx == 4) {
 				if (memcmp(entrada, contra_guardada, 4) == 0) {
-					// ---- CORRECTA: abrir y esperar '#'
+					// CORRECTA: abrir y esperar '#'
 					intentos_fallidos = 0;          // reset de intentos
 					lq_clear(&device);
 					char abierto[] = "Abierto";
 					lq_setCursor(&device, 0, 0);
 					lq_print(&device, abierto);
 					leds_set_abierto(1);
+					
 					ui = UI_ABIERTO;
-					// No reseteamos idx/entrada todavía (no hace falta)
 					} else {
-					// ---- INCORRECTA: error y volver al menú
+					// INCORRECTA: error y volver al menú
 					intentos_fallidos++;
-
 					if (intentos_fallidos >= 3) {
 						// Disparar alarma 5s con parpadeo + beeps
 						lq_clear(&device);
@@ -405,6 +392,7 @@ int main(void){
 						lq_print(&device, alerta);
 
 						alarm_start();   // inicia la ventana de 5s
+						
 						ui = UI_ALARMA;
 
 						idx = 0; entrada[0] = '\0'; // limpiar buffer de ingreso
@@ -422,6 +410,7 @@ int main(void){
 						lq_print(&device, cambiarContraTexto);
 
 						idx = 0; entrada[0] = '\0';
+						
 						ui = UI_MENU;
 					}
 				}
@@ -429,7 +418,7 @@ int main(void){
 			break;
 
 			case UI_ABIERTO:
-			// Esperar al usuario para cerrar con '#'
+			// Esperar al usuario para cerrar con #
 			if (key == '#') {
 				// Cerrar
 				lq_clear(&device);
@@ -437,7 +426,7 @@ int main(void){
 				leds_set_abierto(0);
 				lq_setCursor(&device, 0, 0);
 				lq_print(&device, cerrado);
-				// Aquí podrías desactivar el relé/solenoide
+				
 				_delay_ms(700);
 
 				// Volver al menú
@@ -446,6 +435,7 @@ int main(void){
 				lq_setCursor(&device, 1, 0);
 				lq_print(&device, cambiarContraTexto);
 				idx = 0; entrada[0] = '\0';
+				
 				ui = UI_MENU;
 			}
 			break;
@@ -457,6 +447,7 @@ int main(void){
 				lq_print(&device, ingresarContraTexto);
 				lq_setCursor(&device, 1, 0);
 				lq_print(&device, cambiarContraTexto);
+				
 				ui = UI_MENU;
 				break;
 			}
@@ -469,7 +460,7 @@ int main(void){
 
 			if (idx == 4) {
 				if (memcmp(entrada, contra_guardada, 4) == 0) {
-					// Correcta ? pedir nueva
+					// Correcta -> pedir nueva
 					intentos_fallidos = 0;  
 					lq_clear(&device);
 					char t2[] = "Nueva:";
@@ -479,8 +470,8 @@ int main(void){
 					idx = 0; entrada[0] = '\0';
 					ui = UI_CAMBIO_NUEVA;
 					} else {
+						
 					intentos_fallidos++;
-
 					if (intentos_fallidos >= 3) {
 						// Disparar alarma 5s con parpadeo + beeps
 						lq_clear(&device);
@@ -489,9 +480,10 @@ int main(void){
 						lq_print(&device, alerta);
 
 						alarm_start();   // inicia la ventana de 5s
+						idx = 0; entrada[0] = '\0'; // limpiar buffer de ingreso
+						
 						ui = UI_ALARMA;
 
-						idx = 0; entrada[0] = '\0'; // limpiar buffer de ingreso
 						} else {
 						// Error normal (<3 intentos): mostrar y volver al menú
 						lq_clear(&device);
@@ -506,6 +498,7 @@ int main(void){
 						lq_print(&device, cambiarContraTexto);
 
 						idx = 0; entrada[0] = '\0';
+						
 						ui = UI_MENU;
 					}
 				}
@@ -519,6 +512,7 @@ int main(void){
 				lq_print(&device, ingresarContraTexto);
 				lq_setCursor(&device, 1, 0);
 				lq_print(&device, cambiarContraTexto);
+				
 				ui = UI_MENU;
 				break;
 			}
@@ -546,13 +540,12 @@ int main(void){
 				lq_print(&device, ingresarContraTexto);
 				lq_setCursor(&device, 1, 0);
 				lq_print(&device, cambiarContraTexto);
+				
 				idx = 0; entrada[0] = '\0';
 				ui = UI_MENU;
 			}
 			break;
 			case UI_ALARMA:
-			// Ignorar teclas; solo dejar que alarm_task() maneje tiempo/efectos
-			// Cuando termine, alarm_task() pondrá alarm.active = 0
 			if (!alarm.active) {
 				// Mostrar "Cerrado" breve y volver al menú
 				lq_clear(&device);
@@ -574,6 +567,7 @@ int main(void){
 		}
 	}
 }
+
 ISR(TIMER0_COMPA_vect) {
 	millis++; // 1 ms tick
 }
