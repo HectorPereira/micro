@@ -60,10 +60,23 @@ uint32_t led_on_at = 0;
 uint32_t led_off_at = 0;
 uint8_t led_state = 0;
 
+uint32_t keypad_on_at = 0;
+uint8_t keypad_enable = 1;
+
 uint32_t millis_counter = 0;
+
+const char keypad[4][4] = {
+	{'1', '2', '3', 'A'},
+	{'4', '5', '6', 'B'},
+	{'7', '8', '9', 'C'},
+	{'*', '0', '#', 'D'}
+};
 
 inline void keypad_init(void);
 uint8_t keypad_scan(void);
+inline void keypad_debounce_ms(uint16_t delay_ms);
+inline void keypad_task(void);
+
 
 void buzzer_init(void);
 void buzzer_task(void);
@@ -95,6 +108,7 @@ int main(void) {
 	while (1) {
 		buzzer_task();
 		led_task();
+		keypad_task();
 		
 		uint8_t key = keypad_scan();
 		if (key) {
@@ -129,15 +143,28 @@ uint8_t keypad_scan(void) {
 		for (col = 0; col < 4; col++) {
 			if (!(cols & (1 << col)) ) {
 				if ((prevKey == ((row * 4) + col + 1))) return 0;
+				if (!keypad_enable) return 0;
 				
 				buzzer_beep(30);
-				prevKey = (row * 4) + col + 1;
-				return (row * 4) + col + 1;  
+				keypad_debounce_ms(200);
+				prevKey = keypad[row][col];
+				return prevKey;  
 			} 
 		}
 	}
 	prevKey = 0;
 	return 0; 
+}
+
+inline void keypad_task(void){
+	if (!keypad_enable && (millis_now() > keypad_on_at)){
+		keypad_enable = 1;
+	}
+}
+
+inline void keypad_debounce_ms(uint16_t delay_ms){
+	keypad_enable = 0;
+	keypad_on_at = millis_now() + delay_ms;
 }
 
 
