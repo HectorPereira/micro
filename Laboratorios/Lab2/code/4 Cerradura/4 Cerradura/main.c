@@ -53,8 +53,12 @@ Requerimientos:
 #define _BV(b) (1U << (b))
 #endif
 
-uint16_t buzzer_on_at = 0;
-uint16_t buzzer_off_at = 0;
+uint32_t buzzer_on_at = 0;
+uint32_t buzzer_off_at = 0;
+
+uint32_t led_on_at = 0;
+uint32_t led_off_at = 0;
+uint8_t led_state = 0;
 
 uint32_t millis_counter = 0;
 
@@ -69,7 +73,8 @@ void timer0_init(void);
 uint32_t millis_now(void);
 
 inline void leds_init(void);
-inline void led_mode(uint8_t mode);
+inline void led_mode(uint8_t mode, uint16_t delay);
+inline void led_task(void);
 
 
 
@@ -84,13 +89,16 @@ int main(void) {
 	keypad_init();
 	timer0_init();
 	buzzer_init();
+	leds_init();
 	sei();
 
 	while (1) {
 		buzzer_task();
+		led_task();
 		
 		uint8_t key = keypad_scan();
 		if (key) {
+			led_mode(1, 200);
 		} 
 	}
 }
@@ -180,19 +188,45 @@ inline void buzzer_beep(uint16_t duration_ms){
 
 
 
-inline void leds_init(void){
-	DDRB |= (1<<PORTB0) | (1<<PORTB1);
-	PORTB &= ~((1<<PORTB0) | (1<<PORTB1));
+
+inline void led_red_on(){
+	PORTB &= ~(1<<PORTB1);
+	PORTB |= (1<<PORTB0);
+	led_state = 0;
 }
 
-inline void led_mode(uint8_t mode){
+inline void led_green_on(){
+	PORTB &= ~(1<<PORTB0);
+	PORTB |= (1<<PORTB1);
+	led_state = 1;
+}
+
+inline void leds_init(void){
+	DDRB |= (1<<PORTB0) | (1<<PORTB1);
+	PORTB &= ~(1<<PORTB0);
+	PORTB &= ~(1<<PORTB1);
+}
+
+inline void led_mode(uint8_t mode, uint16_t delay){
+	led_on_at = millis_now();
+	led_off_at = led_on_at + delay;
+	
 	if (mode == 0){
-		PORTB &= ~(1<<PORTB1);
-		PORTB |= (1<<PORTB0);
+		led_red_on();
+		
 	} else if (mode == 1){
-		PORTB &= ~(1<<PORTB0);
-		PORTB |= (1<<PORTB1);
+		led_green_on();
 	}
+}
+
+inline void led_task(void){
+		if (millis_now() > led_off_at){
+			if (led_state == 0){
+				led_green_on();
+			} else if (led_state == 1){
+				led_red_on();
+			}
+		}
 }
 
 
