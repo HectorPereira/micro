@@ -39,19 +39,19 @@ Requerimientos:
 
 
 #define F_CPU 16000000
+
 #include <xc.h>
 #include <util/twi.h>
 #include <avr/interrupt.h>
 #include <avr/eeprom.h>
 #include <string.h>
+#include <stdint.h>
+
 #include "i2c_master.h"
 #include "i2c_master.c"
 #include "liquid_crystal_i2c.h"
 #include "liquid_crystal_i2c.c"
 
-#ifndef _BV
-#define _BV(b) (1U << (b))
-#endif
 
 uint32_t buzzer_on_at = 0;
 uint32_t buzzer_off_at = 0;
@@ -65,6 +65,18 @@ uint32_t keypad_on_at = 0;
 uint8_t keypad_enable = 1;
 
 uint32_t millis_counter = 0;
+
+#define MAX_PASSWORD_LENGTH 6
+
+char storedPassword[MAX_PASSWORD_LENGTH + 1] = "123456";
+char typedPassword[MAX_PASSWORD_LENGTH + 1];
+
+uint8_t typedPassword_counter = 0;
+uint8_t storedPassword_length = 0;
+
+
+
+
 
 const char keypad[4][4] = {
 	{'1', '2', '3', 'A'},
@@ -89,6 +101,15 @@ inline void led_init(void);
 inline void led_mode(uint8_t mode, uint16_t delay);
 inline void led_task(void);
 
+inline void state_menu_UI(LiquidCrystalDevice_t device);
+inline void state_ingreso_UI(LiquidCrystalDevice_t device);
+inline void state_cambio_actual_UI(LiquidCrystalDevice_t device);
+inline void state_cambio_nueva_UI(LiquidCrystalDevice_t device);
+inline void state_abierto_UI(LiquidCrystalDevice_t device);
+
+
+
+
 
 
 // -----------------------------------------------------
@@ -104,23 +125,23 @@ int main(void) {
 	buzzer_init();
 	led_init();
 	sei();
-
+	
 	LiquidCrystalDevice_t device = lq_init(0x27, 16, 2, LCD_5x8DOTS);
+
 	lq_turnOnBacklight(&device);
 	char welcomeText[] = "Bienvenido!";
 	lq_print(&device, welcomeText);
 	
-	_delay_ms(500);
-	lq_clear(&device);
+	_delay_ms(1000);
 	
-	char integresarTexto[] = "A-> Ingr. contra";
-	char cambiarTexto[] = "B-> Camb. contra";
-	lq_print(&device, integresarTexto);
-	lq_setCursor(&device,1,0);
-	lq_print(&device, cambiarTexto);
-	
+	state_menu_UI(device);
 	ui_state_t ui_state = UI_MENU;
 	
+	storedPassword_length = strlen(storedPassword);
+	
+	typedPassword[0] = '\0';
+	typedPassword_counter = 0;
+
 	
 
 	while (1) {
@@ -137,32 +158,114 @@ int main(void) {
 			{
 				case UI_MENU:
 				if (key == 'A'){
-					lq_clear(&device);
-					char text[] = "Ingresar contra:";
-					lq_setCursor(&device,0,0);
-					lq_print(&device, text);
-					
+					state_ingreso_UI(device);
 					ui_state = UI_INGRESO;
 					
 				} else if (key == 'B'){
-					lq_clear(&device);
-					char text[] = "Contra actual:";
-					lq_setCursor(&device,0,0);
-					lq_print(&device, text);
-					
+					state_cambio_actual_UI(device);
 					ui_state = UI_CAMBIO_ACTUAL;
 					
 				}
 				break;
 				case UI_INGRESO:
+				if (key == '#'){ // Home button 
+					typedPassword[0] = '\0';
+					typedPassword_counter = 0;
+					state_menu_UI(device);
+					ui_state = UI_MENU;
+				} else if (key == 'D'){ // Send button
+					if (strcmp(storedPassword, typedPassword) != 0){
+						typedPassword[0] = '\0';
+						typedPassword_counter = 0;
+						
+						lq_clear(&device);
+						char text[] = "Incorrecto!";
+						lq_setCursor(&device,0,0);
+						lq_print(&device, text);
+						lq_setCursor(&device,1,0);
+						
+						_delay_ms(500);
+						
+
+						state_ingreso_UI(device);
+						ui_state = UI_INGRESO;
+					} else {
+						
+						typedPassword[0] = '\0';
+						typedPassword_counter = 0;
+						state_abierto_UI(device);
+						ui_state = UI_ABIERTO;
+					}
+				} else if (key == 'C'){
+					if (typedPassword_counter == 0) continue;
+					char text[] = " ";
+					lq_setCursor(&device,1, --typedPassword_counter);
+					lq_print(&device, text);
+					lq_setCursor(&device,1, typedPassword_counter);
+					typedPassword[typedPassword_counter] = '\0';
+				}
+				
+				else { // Any other key
+					if (typedPassword_counter >= MAX_PASSWORD_LENGTH) continue;
+					typedPassword[typedPassword_counter++] = key;
+					typedPassword[typedPassword_counter] = '\0';  
+					char star[] =  "*";
+					lq_print(&device, star);
+					
+				}
+				
 				break;
 				case UI_CAMBIO_ACTUAL:
+				if (key == '#'){ // Home button
+					state_menu_UI(device);
+					ui_state = UI_MENU;
+					
+				} else if (key == 'D'){ // Send button
+					state_cambio_nueva_UI(device);
+					ui_state = UI_CAMBIO_NUEVA;
+				} else {
+				char star[] =  "*";
+				lq_print(&device, star);
+				
+				}
 				break;
 				case UI_CAMBIO_NUEVA:
+				if (key == '#'){ // Home button
+					state_menu_UI(device);
+					ui_state = UI_MENU;
+					
+				} else if (key == 'D'){ // Send button
+					lq_clear(&device);
+					char text[] = "Contra cambiada!";
+					lq_setCursor(&device,0,0);
+					lq_print(&device, text);
+					lq_setCursor(&device,1,0);
+					
+					_delay_ms(500);
+					
+					state_menu_UI(device);
+					ui_state = UI_MENU;
+				} else {
+				char star[] =  "*";
+				lq_print(&device, star);
+					
+				}
 				break;
 				case UI_ALARMA:
 				break;
 				case UI_ABIERTO:
+				if (key == 'D'){ // Home button
+					
+					lq_clear(&device);
+					char text[] = "Cerrado!";
+					lq_setCursor(&device,0,0);
+					lq_print(&device, text);
+					lq_setCursor(&device,1,0);
+					
+					_delay_ms(500);
+					state_menu_UI(device);
+					ui_state = UI_MENU;
+				} 
 				break;
 			}
 		} 
@@ -174,6 +277,53 @@ int main(void) {
 // -----------------------------------------------------
 // INITIALIZERS
 // -----------------------------------------------------
+
+
+inline void state_menu_UI(LiquidCrystalDevice_t device ){
+	char integresarTexto[] = "A-> Ingr. contra";
+	char cambiarTexto[] = "B-> Camb. contra";
+	lq_clear(&device);
+	lq_setCursor(&device,0,0);
+	lq_print(&device, integresarTexto);
+	lq_setCursor(&device,1,0);
+	lq_print(&device, cambiarTexto);
+}
+
+inline void state_ingreso_UI(LiquidCrystalDevice_t device){
+	lq_clear(&device);
+	char text[] = "Ingresar contra:";
+	lq_setCursor(&device,0,0);
+	lq_print(&device, text);
+	lq_setCursor(&device,1,0);
+}
+
+inline void state_cambio_actual_UI(LiquidCrystalDevice_t device){
+	lq_clear(&device);
+	char text[] = "Contra actual:";
+	lq_setCursor(&device,0,0);
+	lq_print(&device, text);
+	lq_setCursor(&device,1,0);
+}
+
+inline void state_cambio_nueva_UI(LiquidCrystalDevice_t device){
+	lq_clear(&device);
+	char text[] = "Nueva contra:";
+	lq_setCursor(&device,0,0);
+	lq_print(&device, text);
+	lq_setCursor(&device,1,0);
+}
+
+inline void state_abierto_UI(LiquidCrystalDevice_t device){
+	lq_clear(&device);
+	char text[] = "Candado abierto";
+	lq_setCursor(&device,0,0);
+	lq_print(&device, text);
+	lq_setCursor(&device,1,0);
+}
+
+
+
+
 
 
 
