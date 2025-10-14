@@ -74,10 +74,6 @@ char typedPassword[MAX_PASSWORD_LENGTH + 1];
 uint8_t typedPassword_counter = 0;
 uint8_t storedPassword_length = 0;
 
-
-
-
-
 const char keypad[4][4] = {
 	{'1', '2', '3', 'A'},
 	{'4', '5', '6', 'B'},
@@ -100,14 +96,25 @@ uint32_t millis_now(void);
 inline void led_init(void);
 inline void led_mode(uint8_t mode, uint16_t delay);
 inline void led_task(void);
+inline void led_green_on(void);
+inline void led_red_on(void);
 
 inline void state_menu_UI(LiquidCrystalDevice_t device);
 inline void state_ingreso_UI(LiquidCrystalDevice_t device);
 inline void state_cambio_actual_UI(LiquidCrystalDevice_t device);
 inline void state_cambio_nueva_UI(LiquidCrystalDevice_t device);
 inline void state_abierto_UI(LiquidCrystalDevice_t device);
+inline void reset_typed_password(void);
 
-
+void save_typed_password(void) {
+	size_t len = strlen(typedPassword);
+	if (len < 4 || len > MAX_PASSWORD_LENGTH) {
+		// reject / beep / show error
+		return;
+	}
+	// Safe copy (includes the '\0')
+	memcpy(storedPassword, typedPassword, len + 1);
+}
 
 
 
@@ -138,10 +145,8 @@ int main(void) {
 	ui_state_t ui_state = UI_MENU;
 	
 	storedPassword_length = strlen(storedPassword);
-	
-	typedPassword[0] = '\0';
-	typedPassword_counter = 0;
 
+	reset_typed_password();
 	
 
 	while (1) {
@@ -152,7 +157,6 @@ int main(void) {
 		char key = keypad_scan();
 		if (key) {
 			buzzer_beep(20);
-			led_mode(1, 200);
 			
 			switch (ui_state)
 			{
@@ -169,14 +173,11 @@ int main(void) {
 				break;
 				case UI_INGRESO:
 				if (key == '#'){ // Home button 
-					typedPassword[0] = '\0';
-					typedPassword_counter = 0;
+					reset_typed_password();
 					state_menu_UI(device);
 					ui_state = UI_MENU;
 				} else if (key == 'D'){ // Send button
 					if (strcmp(storedPassword, typedPassword) != 0){
-						typedPassword[0] = '\0';
-						typedPassword_counter = 0;
 						
 						lq_clear(&device);
 						char text[] = "Incorrecto!";
@@ -186,16 +187,16 @@ int main(void) {
 						
 						_delay_ms(500);
 						
-
 						state_ingreso_UI(device);
 						ui_state = UI_INGRESO;
 					} else {
-						
-						typedPassword[0] = '\0';
-						typedPassword_counter = 0;
+						led_green_on();
 						state_abierto_UI(device);
 						ui_state = UI_ABIERTO;
 					}
+					reset_typed_password();
+					
+						
 				} else if (key == 'C'){
 					if (typedPassword_counter == 0) continue;
 					char text[] = " ";
@@ -217,24 +218,54 @@ int main(void) {
 				break;
 				case UI_CAMBIO_ACTUAL:
 				if (key == '#'){ // Home button
+					reset_typed_password();
 					state_menu_UI(device);
 					ui_state = UI_MENU;
-					
 				} else if (key == 'D'){ // Send button
-					state_cambio_nueva_UI(device);
-					ui_state = UI_CAMBIO_NUEVA;
-				} else {
-				char star[] =  "*";
-				lq_print(&device, star);
-				
+					if (strcmp(storedPassword, typedPassword) != 0){ 
+						// Password incorrect
+						lq_clear(&device);
+						char text[] = "Incorrecto!";
+						lq_setCursor(&device,0,0);
+						lq_print(&device, text);
+						lq_setCursor(&device,1,0);
+						
+						_delay_ms(500);
+						
+						state_cambio_actual_UI(device);
+						ui_state = UI_CAMBIO_ACTUAL;
+						} else {
+						// Password correct
+						state_cambio_nueva_UI(device);
+						ui_state = UI_CAMBIO_NUEVA;
+					}
+					reset_typed_password();
+				} else if (key == 'C'){ // Delete character
+					if (typedPassword_counter == 0) continue;
+					char text[] = " ";
+					lq_setCursor(&device,1, --typedPassword_counter);
+					lq_print(&device, text);
+					lq_setCursor(&device,1, typedPassword_counter);
+					typedPassword[typedPassword_counter] = '\0';
+				} else { // Any other key
+					if (typedPassword_counter >= MAX_PASSWORD_LENGTH) continue;
+					typedPassword[typedPassword_counter++] = key;
+					typedPassword[typedPassword_counter] = '\0';
+					char star[] =  "*";
+					lq_print(&device, star);
+					
 				}
 				break;
 				case UI_CAMBIO_NUEVA:
 				if (key == '#'){ // Home button
+					reset_typed_password();
 					state_menu_UI(device);
 					ui_state = UI_MENU;
-					
 				} else if (key == 'D'){ // Send button
+					if (strlen(typedPassword) < 4) continue;
+					strncpy(storedPassword, typedPassword, MAX_PASSWORD_LENGTH);
+					reset_typed_password();
+					// Password incorrect
 					lq_clear(&device);
 					char text[] = "Contra cambiada!";
 					lq_setCursor(&device,0,0);
@@ -245,13 +276,24 @@ int main(void) {
 					
 					state_menu_UI(device);
 					ui_state = UI_MENU;
-				} else {
-				char star[] =  "*";
-				lq_print(&device, star);
 					
+				} else if (key == 'C'){ // Delete character
+					if (typedPassword_counter == 0) continue;
+					char text[] = " ";
+					lq_setCursor(&device,1, --typedPassword_counter);
+					lq_print(&device, text);
+					lq_setCursor(&device,1, typedPassword_counter);
+					typedPassword[typedPassword_counter] = '\0';
+				} else { // Any other key
+					if (typedPassword_counter >= MAX_PASSWORD_LENGTH) continue;
+					typedPassword[typedPassword_counter++] = key;
+					typedPassword[typedPassword_counter] = '\0';
+					char star[] =  "*";
+					lq_print(&device, star);
 				}
 				break;
 				case UI_ALARMA:
+				
 				break;
 				case UI_ABIERTO:
 				if (key == 'D'){ // Home button
@@ -262,6 +304,7 @@ int main(void) {
 					lq_print(&device, text);
 					lq_setCursor(&device,1,0);
 					
+					led_red_on();
 					_delay_ms(500);
 					state_menu_UI(device);
 					ui_state = UI_MENU;
@@ -322,6 +365,13 @@ inline void state_abierto_UI(LiquidCrystalDevice_t device){
 }
 
 
+
+
+
+inline void reset_typed_password(void){
+	typedPassword[0] = '\0';
+	typedPassword_counter = 0;
+}
 
 
 
@@ -404,9 +454,25 @@ inline void buzzer_init(){
 	PORTB &= ~(1<<PORTB5);
 }
 
-inline void buzzer_task(void){
-	if (millis_now() > buzzer_off_at){
-		PORTB &= ~(1<<PORTB5);
+uint8_t buzzer_mode = 0;
+
+inline void buzzer_task(){
+	static uint8_t alarm_cycles = 3;
+	if (buzzer_mode == 0){
+		if (millis_now() > buzzer_off_at){
+			PORTB &= ~(1<<PORTB5);
+		}
+	} else if (buzzer_mode == 1){
+		if (millis_now() > buzzer_off_at){
+			PORTB ^= (1<<PORTB5);
+			if (!alarm_cycles) {
+				PORTB &= ~(1<<PORTB5);
+				alarm_cycles = 3;
+				return;
+			}
+			buzzer_off_at = millis_now() + 100;
+			alarm_cycles--;
+		}
 	}
 }
 
