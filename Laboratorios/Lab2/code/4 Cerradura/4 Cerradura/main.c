@@ -80,6 +80,8 @@ uint32_t millis_counter = 0;
 char storedPassword[MAX_PASSWORD_LENGTH + 1] = "123456";
 char typedPassword[MAX_PASSWORD_LENGTH + 1];
 
+char EEMEM ee_password[MAX_PASSWORD_LENGTH + 1];
+
 uint8_t typedPassword_counter = 0;
 uint8_t storedPassword_length = 0;
 
@@ -95,10 +97,12 @@ ISR(TIMER0_OVF_vect){
 }
 
 
- void keypad_init(void);
+
+
+void keypad_init(void);
 char keypad_scan(void);
- void keypad_debounce_ms(uint16_t delay_ms);
- void keypad_task(void);
+void keypad_debounce_ms(uint16_t delay_ms);
+void keypad_task(void);
 
 void buzzer_init(void);
 void buzzer_task(void);
@@ -110,20 +114,24 @@ void alarm_task(void);
 void timer0_init(void);
 uint32_t millis_now(void);
 
- void led_init(void);
- void led_mode(uint8_t mode, uint16_t delay);
- void led_task(void);
- void led_green_on(void);
- void led_red_on(void);
+void led_init(void);
+void led_mode(uint8_t mode, uint16_t delay);
+void led_task(void);
+void led_green_on(void);
+void led_red_on(void);
 
- void state_menu_UI(LiquidCrystalDevice_t device);
- void state_ingreso_UI(LiquidCrystalDevice_t device);
- void state_cambio_actual_UI(LiquidCrystalDevice_t device);
- void state_cambio_nueva_UI(LiquidCrystalDevice_t device);
- void state_abierto_UI(LiquidCrystalDevice_t device);
- void state_alarma_UI(LiquidCrystalDevice_t device);
- 
- void reset_typed_password(void);
+void state_menu_UI(LiquidCrystalDevice_t device);
+void state_ingreso_UI(LiquidCrystalDevice_t device);
+void state_cambio_actual_UI(LiquidCrystalDevice_t device);
+void state_cambio_nueva_UI(LiquidCrystalDevice_t device);
+void state_abierto_UI(LiquidCrystalDevice_t device);
+void state_alarma_UI(LiquidCrystalDevice_t device);
+
+void reset_typed_password(void);
+static inline void eeprom_save_password(const char *src);
+static inline void eeprom_load_password(char *dst);
+
+
 
 
 
@@ -294,7 +302,6 @@ int main(void) {
 					if (strlen(typedPassword) < 4) continue;
 					strncpy(storedPassword, typedPassword, MAX_PASSWORD_LENGTH);
 					reset_typed_password();
-					// Password incorrect
 					lq_clear(&device);
 					char text[] = "Contra cambiada!";
 					lq_setCursor(&device,0,0);
@@ -302,7 +309,6 @@ int main(void) {
 					lq_setCursor(&device,1,0);
 					
 					_delay_ms(500);
-					
 					state_menu_UI(device);
 					ui_state = UI_MENU;
 					
@@ -372,9 +378,28 @@ int main(void) {
 
 
 
-// -----------------------------------------------------
-// INITIALIZERS
-// -----------------------------------------------------
+static inline void eeprom_save_password(const char *src) {
+	char buf[MAX_PASSWORD_LENGTH + 1];
+	uint8_t i = 0;
+
+	// Copy up to 6 chars
+	for (; i < MAX_PASSWORD_LENGTH && src[i]; ++i) {
+		buf[i] = src[i];
+	}
+	// Terminate and zero-fill remainder
+	buf[i++] = '\0';
+	for (; i < MAX_PASSWORD_LENGTH + 1; ++i) buf[i] = '\0';
+
+	// Write 7 bytes to EEPROM
+	eeprom_update_block(buf, ee_password, MAX_PASSWORD_LENGTH + 1);
+}
+
+static inline void eeprom_load_password(char *dst) {
+	eeprom_read_block(dst, ee_password, MAX_PASSWORD_LENGTH + 1);
+	dst[MAX_PASSWORD_LENGTH] = '\0'; // belt-and-suspenders
+}
+
+
 
 
 void state_menu_UI(LiquidCrystalDevice_t device ){

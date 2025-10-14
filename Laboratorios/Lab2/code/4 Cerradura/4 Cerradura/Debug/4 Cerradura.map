@@ -395,9 +395,11 @@ END GROUP
                 [!provide]                        PROVIDE (__noinit_end, .)
                 0x0000000000800107                _end = .
 
-.eeprom         0x0000000000810000        0x0
+.eeprom         0x0000000000810000        0x7
  *(.eeprom*)
-                0x0000000000810000                __eeprom_end = .
+ .eeprom        0x0000000000810000        0x7 main.o
+                0x0000000000810000                ee_password
+                0x0000000000810007                __eeprom_end = .
 
 .fuse
  *(.fuse)
@@ -485,10 +487,10 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0x306f
+.debug_info     0x0000000000000000     0x308a
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000      0x5f4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
- .debug_info    0x00000000000005f4     0x2a7b main.o
+ .debug_info    0x00000000000005f4     0x2a96 main.o
 
 .debug_abbrev   0x0000000000000000      0x953
  *(.debug_abbrev)
@@ -546,9 +548,9 @@ LOAD data_init
  .note.gnu.avr.deviceinfo
                 0x0000000000000000       0x40 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
 
-.bss.prevKey.2553
+.bss.prevKey.2572
                 0x000000000080012a        0x1
- .bss.prevKey.2553
+ .bss.prevKey.2572
                 0x000000000080012a        0x1 main.o
 
 .bss.storedPassword_length
