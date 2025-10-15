@@ -128,10 +128,6 @@ void state_abierto_UI(LiquidCrystalDevice_t device);
 void state_alarma_UI(LiquidCrystalDevice_t device);
 
 void reset_typed_password(void);
-static inline void eeprom_save_password(const char *src);
-static inline void eeprom_load_password(char *dst);
-
-
 
 
 
@@ -332,6 +328,7 @@ int main(void) {
 					if (strcmp(storedPassword, typedPassword) != 0){
 						alarm_start(); //Pasworkd incorrect
 						reset_typed_password();
+						state_alarma_UI(device);
 						continue;
 						} else {
 						// Password correct
@@ -339,7 +336,7 @@ int main(void) {
 						reset_typed_password();
 						state_menu_UI(device);
 						ui_state = UI_MENU;
-					}
+						}
 					
 					} else if (key == 'C'){ // Delete character
 						if (typedPassword_counter == 0) continue;
@@ -378,26 +375,6 @@ int main(void) {
 
 
 
-static inline void eeprom_save_password(const char *src) {
-	char buf[MAX_PASSWORD_LENGTH + 1];
-	uint8_t i = 0;
-
-	// Copy up to 6 chars
-	for (; i < MAX_PASSWORD_LENGTH && src[i]; ++i) {
-		buf[i] = src[i];
-	}
-	// Terminate and zero-fill remainder
-	buf[i++] = '\0';
-	for (; i < MAX_PASSWORD_LENGTH + 1; ++i) buf[i] = '\0';
-
-	// Write 7 bytes to EEPROM
-	eeprom_update_block(buf, ee_password, MAX_PASSWORD_LENGTH + 1);
-}
-
-static inline void eeprom_load_password(char *dst) {
-	eeprom_read_block(dst, ee_password, MAX_PASSWORD_LENGTH + 1);
-	dst[MAX_PASSWORD_LENGTH] = '\0'; // belt-and-suspenders
-}
 
 
 

@@ -1,0 +1,503 @@
+
+Ev 16 - Watchdog Timer - Tarea Grupal.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .data         00000000  00800100  00800100  00000292  2**0
+                  ALLOC, LOAD, DATA
+  1 .text         000000c2  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .bss          00000001  00800100  00800100  00000292  2**0
+                  ALLOC
+  3 .comment      0000002f  00000000  00000000  00000292  2**0
+                  CONTENTS, READONLY
+  4 .stack.descriptors.hdr 0000000e  00000000  00000000  000002c1  2**0
+                  CONTENTS, READONLY
+  5 .debug_aranges 00000040  00000000  00000000  000002cf  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_info   00000c37  00000000  00000000  0000030f  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_abbrev 00000736  00000000  00000000  00000f46  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_line   00000351  00000000  00000000  0000167c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_frame  00000074  00000000  00000000  000019d0  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_str    00000208  00000000  00000000  00001a44  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_loc    000000eb  00000000  00000000  00001c4c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_ranges 00000030  00000000  00000000  00001d37  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 13 .text         00000004  000001f0  000001f0  00000284  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 14 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00001d68  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 15 .text.wdt_setup_1s_int 00000012  000001de  000001de  00000272  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 16 .text.sleep_for_seconds 0000003a  00000148  00000148  000001dc  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 17 .text.wait_ms_blocking 0000001c  000001ac  000001ac  00000240  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 18 .text.__vector_6 0000002a  00000182  00000182  00000216  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 19 .text.main    00000086  000000c2  000000c2  00000156  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 20 .text.__dummy_fini 00000002  000001f8  000001f8  0000028c  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 21 .text.__dummy_funcs_on_exit 00000002  000001fa  000001fa  0000028e  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 22 .text.__dummy_simulator_exit 00000002  000001fc  000001fc  00000290  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 23 .text.exit    00000016  000001c8  000001c8  0000025c  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 24 .text._Exit   00000004  000001f4  000001f4  00000288  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 37 00 	jmp	0x6e	; 0x6e <__ctors_end>
+   4:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+   8:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+   c:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  10:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  14:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  18:	0c 94 c1 00 	jmp	0x182	; 0x182 <__vector_6>
+  1c:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  20:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  24:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  28:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  2c:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  30:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  34:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  38:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  3c:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  40:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  44:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  48:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  4c:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  50:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  54:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  58:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  5c:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  60:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+  64:	0c 94 f8 00 	jmp	0x1f0	; 0x1f0 <__bad_interrupt>
+
+00000068 <.dinit>:
+  68:	01 00       	.word	0x0001	; ????
+  6a:	01 01       	movw	r0, r2
+  6c:	80 00       	.word	0x0080	; ????
+
+0000006e <__ctors_end>:
+  6e:	11 24       	eor	r1, r1
+  70:	1f be       	out	0x3f, r1	; 63
+  72:	cf ef       	ldi	r28, 0xFF	; 255
+  74:	d8 e0       	ldi	r29, 0x08	; 8
+  76:	de bf       	out	0x3e, r29	; 62
+  78:	cd bf       	out	0x3d, r28	; 61
+
+0000007a <__do_copy_data>:
+  7a:	e8 e6       	ldi	r30, 0x68	; 104
+  7c:	f0 e0       	ldi	r31, 0x00	; 0
+  7e:	40 e0       	ldi	r20, 0x00	; 0
+  80:	17 c0       	rjmp	.+46     	; 0xb0 <__do_clear_bss+0x8>
+  82:	b5 91       	lpm	r27, Z+
+  84:	a5 91       	lpm	r26, Z+
+  86:	35 91       	lpm	r19, Z+
+  88:	25 91       	lpm	r18, Z+
+  8a:	05 91       	lpm	r16, Z+
+  8c:	07 fd       	sbrc	r16, 7
+  8e:	0c c0       	rjmp	.+24     	; 0xa8 <__do_clear_bss>
+  90:	95 91       	lpm	r25, Z+
+  92:	85 91       	lpm	r24, Z+
+  94:	ef 01       	movw	r28, r30
+  96:	f9 2f       	mov	r31, r25
+  98:	e8 2f       	mov	r30, r24
+  9a:	05 90       	lpm	r0, Z+
+  9c:	0d 92       	st	X+, r0
+  9e:	a2 17       	cp	r26, r18
+  a0:	b3 07       	cpc	r27, r19
+  a2:	d9 f7       	brne	.-10     	; 0x9a <__do_copy_data+0x20>
+  a4:	fe 01       	movw	r30, r28
+  a6:	04 c0       	rjmp	.+8      	; 0xb0 <__do_clear_bss+0x8>
+
+000000a8 <__do_clear_bss>:
+  a8:	1d 92       	st	X+, r1
+  aa:	a2 17       	cp	r26, r18
+  ac:	b3 07       	cpc	r27, r19
+  ae:	e1 f7       	brne	.-8      	; 0xa8 <__do_clear_bss>
+  b0:	ed 36       	cpi	r30, 0x6D	; 109
+  b2:	f4 07       	cpc	r31, r20
+  b4:	31 f7       	brne	.-52     	; 0x82 <__do_copy_data+0x8>
+  b6:	0e 94 61 00 	call	0xc2	; 0xc2 <_etext>
+  ba:	0c 94 e4 00 	jmp	0x1c8	; 0x1c8 <exit>
+
+000000be <_exit>:
+  be:	f8 94       	cli
+
+000000c0 <__stop_program>:
+  c0:	ff cf       	rjmp	.-2      	; 0xc0 <__stop_program>
+
+Disassembly of section .text:
+
+000001f0 <__bad_interrupt>:
+ 1f0:	0c 94 00 00 	jmp	0	; 0x0 <__TEXT_REGION_ORIGIN__>
+
+Disassembly of section .text.wdt_setup_1s_int:
+
+000001de <wdt_setup_1s_int>:
+
+// ------------------ Watchdog tick (?1 s) ----------------------
+volatile uint8_t wdt_ticks;
+
+static void wdt_setup_1s_int(void) {
+    cli();
+ 1de:	f8 94       	cli
+    // Enter timed sequence
+    WDTCSR = _BV(WDCE) | _BV(WDE);
+ 1e0:	e0 e6       	ldi	r30, 0x60	; 96
+ 1e2:	f0 e0       	ldi	r31, 0x00	; 0
+ 1e4:	88 e1       	ldi	r24, 0x18	; 24
+ 1e6:	80 83       	st	Z, r24
+    // Set ~1s period (WDP2|WDP1), interrupt only (WDIE), no reset
+    WDTCSR = _BV(WDIE) | _BV(WDP2) | _BV(WDP1);  // ~1.0 s
+ 1e8:	86 e4       	ldi	r24, 0x46	; 70
+ 1ea:	80 83       	st	Z, r24
+    sei();
+ 1ec:	78 94       	sei
+ 1ee:	08 95       	ret
+
+Disassembly of section .text.sleep_for_seconds:
+
+00000148 <sleep_for_seconds>:
+    if (wdt_ticks < 255) wdt_ticks++; 
+}
+
+// Sleep for N seconds in the given sleep mode, using the 1 s WDT tick
+static void sleep_for_seconds(uint8_t seconds, uint8_t mode) {
+    wdt_ticks = 0;
+ 148:	10 92 00 01 	sts	0x0100, r1	; 0x800100 <__DATA_REGION_ORIGIN__>
+    set_sleep_mode(mode);
+ 14c:	93 b7       	in	r25, 0x33	; 51
+ 14e:	91 7f       	andi	r25, 0xF1	; 241
+ 150:	69 2b       	or	r22, r25
+ 152:	63 bf       	out	0x33, r22	; 51
+// ------------------ Power reduction helpers -------------------
+static inline void pr_enable_all(void)   { PRR = 0; }  // everything on
+static inline void pr_reduce_for_sleep(void) {
+    // Turn off modules you don’t need while sleeping to cut leakage.
+    // Keep ADC for ADC Noise Reduction; otherwise switch it off too.
+    PRR = _BV(PRTWI) | _BV(PRTIM1) | _BV(PRTIM0) | _BV(PRSPI) | _BV(PRUSART0);
+ 154:	9e ea       	ldi	r25, 0xAE	; 174
+ 156:	90 93 64 00 	sts	0x0064, r25	; 0x800064 <__TEXT_REGION_LENGTH__+0x7f8064>
+ 15a:	0c c0       	rjmp	.+24     	; 0x174 <sleep_for_seconds+0x2c>
+    wdt_ticks = 0;
+    set_sleep_mode(mode);
+    pr_reduce_for_sleep();
+
+    while (wdt_ticks < seconds) {
+        sleep_enable();
+ 15c:	93 b7       	in	r25, 0x33	; 51
+ 15e:	91 60       	ori	r25, 0x01	; 1
+ 160:	93 bf       	out	0x33, r25	; 51
+        // On many AVRs this lowers current further during sleep:
+        #ifdef sleep_bod_disable
+        sleep_bod_disable();
+ 162:	95 b7       	in	r25, 0x35	; 53
+ 164:	90 66       	ori	r25, 0x60	; 96
+ 166:	95 bf       	out	0x35, r25	; 53
+ 168:	9f 7d       	andi	r25, 0xDF	; 223
+ 16a:	95 bf       	out	0x35, r25	; 53
+        #endif
+        sleep_cpu();            // Sleep until WDT interrupt
+ 16c:	88 95       	sleep
+        sleep_disable();        // Always disable after waking
+ 16e:	93 b7       	in	r25, 0x33	; 51
+ 170:	9e 7f       	andi	r25, 0xFE	; 254
+ 172:	93 bf       	out	0x33, r25	; 51
+static void sleep_for_seconds(uint8_t seconds, uint8_t mode) {
+    wdt_ticks = 0;
+    set_sleep_mode(mode);
+    pr_reduce_for_sleep();
+
+    while (wdt_ticks < seconds) {
+ 174:	90 91 00 01 	lds	r25, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 178:	98 17       	cp	r25, r24
+ 17a:	80 f3       	brcs	.-32     	; 0x15c <sleep_for_seconds+0x14>
+}
+static inline void leds_on(void)  { PORTC |=  0b00111111; }
+static inline void leds_off(void) { PORTC &= ~0b00111111; }
+
+// ------------------ Power reduction helpers -------------------
+static inline void pr_enable_all(void)   { PRR = 0; }  // everything on
+ 17c:	10 92 64 00 	sts	0x0064, r1	; 0x800064 <__TEXT_REGION_LENGTH__+0x7f8064>
+ 180:	08 95       	ret
+
+Disassembly of section .text.wait_ms_blocking:
+
+000001ac <wait_ms_blocking>:
+    pr_enable_all();
+}
+
+// Simple blocking wait (busy) for exact 5s when awake
+static void wait_ms_blocking(uint16_t ms) {
+    while (ms--) _delay_ms(1);
+ 1ac:	07 c0       	rjmp	.+14     	; 0x1bc <wait_ms_blocking+0x10>
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+ 1ae:	8f e9       	ldi	r24, 0x9F	; 159
+ 1b0:	9f e0       	ldi	r25, 0x0F	; 15
+ 1b2:	01 97       	sbiw	r24, 0x01	; 1
+ 1b4:	f1 f7       	brne	.-4      	; 0x1b2 <wait_ms_blocking+0x6>
+ 1b6:	00 c0       	rjmp	.+0      	; 0x1b8 <wait_ms_blocking+0xc>
+ 1b8:	00 00       	nop
+ 1ba:	c9 01       	movw	r24, r18
+ 1bc:	9c 01       	movw	r18, r24
+ 1be:	21 50       	subi	r18, 0x01	; 1
+ 1c0:	31 09       	sbc	r19, r1
+ 1c2:	89 2b       	or	r24, r25
+ 1c4:	a1 f7       	brne	.-24     	; 0x1ae <wait_ms_blocking+0x2>
+}
+ 1c6:	08 95       	ret
+
+Disassembly of section .text.__vector_6:
+
+00000182 <__vector_6>:
+    // Set ~1s period (WDP2|WDP1), interrupt only (WDIE), no reset
+    WDTCSR = _BV(WDIE) | _BV(WDP2) | _BV(WDP1);  // ~1.0 s
+    sei();
+}
+
+ISR(WDT_vect) { 
+ 182:	1f 92       	push	r1
+ 184:	0f 92       	push	r0
+ 186:	0f b6       	in	r0, 0x3f	; 63
+ 188:	0f 92       	push	r0
+ 18a:	11 24       	eor	r1, r1
+ 18c:	8f 93       	push	r24
+    if (wdt_ticks < 255) wdt_ticks++; 
+ 18e:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 192:	8f 3f       	cpi	r24, 0xFF	; 255
+ 194:	29 f0       	breq	.+10     	; 0x1a0 <__vector_6+0x1e>
+ 196:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 19a:	8f 5f       	subi	r24, 0xFF	; 255
+ 19c:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
+}
+ 1a0:	8f 91       	pop	r24
+ 1a2:	0f 90       	pop	r0
+ 1a4:	0f be       	out	0x3f, r0	; 63
+ 1a6:	0f 90       	pop	r0
+ 1a8:	1f 90       	pop	r1
+ 1aa:	18 95       	reti
+
+Disassembly of section .text.main:
+
+000000c2 <main>:
+#define _BV(b) (1U<<(b))
+#endif
+
+// ------------------ LEDs on PORTC (PC0..PC5) ------------------
+static inline void leds_init(void) {
+    DDRC  |= 0b00111111;   // PC0..PC5 outputs
+  c2:	87 b1       	in	r24, 0x07	; 7
+  c4:	8f 63       	ori	r24, 0x3F	; 63
+  c6:	87 b9       	out	0x07, r24	; 7
+    PORTC &= ~0b00111111;  // start OFF (low)
+  c8:	88 b1       	in	r24, 0x08	; 8
+  ca:	80 7c       	andi	r24, 0xC0	; 192
+  cc:	88 b9       	out	0x08, r24	; 8
+}
+static inline void leds_on(void)  { PORTC |=  0b00111111; }
+static inline void leds_off(void) { PORTC &= ~0b00111111; }
+
+// ------------------ Power reduction helpers -------------------
+static inline void pr_enable_all(void)   { PRR = 0; }  // everything on
+  ce:	10 92 64 00 	sts	0x0064, r1	; 0x800064 <__TEXT_REGION_LENGTH__+0x7f8064>
+
+// ------------------ Main ------------------
+int main(void) {
+    leds_init();
+    pr_enable_all();
+    wdt_setup_1s_int();  // we’ll use WDT both for sleeps and as a heartbeat wake
+  d2:	0e 94 ef 00 	call	0x1de	; 0x1de <wdt_setup_1s_int>
+// ------------------ LEDs on PORTC (PC0..PC5) ------------------
+static inline void leds_init(void) {
+    DDRC  |= 0b00111111;   // PC0..PC5 outputs
+    PORTC &= ~0b00111111;  // start OFF (low)
+}
+static inline void leds_on(void)  { PORTC |=  0b00111111; }
+  d6:	88 b1       	in	r24, 0x08	; 8
+  d8:	8f 63       	ori	r24, 0x3F	; 63
+  da:	88 b9       	out	0x08, r24	; 8
+    leds_init();
+    pr_enable_all();
+    wdt_setup_1s_int();  // we’ll use WDT both for sleeps and as a heartbeat wake
+
+    // 1) Awake: ON 5s, OFF 5s
+    leds_on();  wait_ms_blocking(5000);
+  dc:	88 e8       	ldi	r24, 0x88	; 136
+  de:	93 e1       	ldi	r25, 0x13	; 19
+  e0:	0e 94 d6 00 	call	0x1ac	; 0x1ac <wait_ms_blocking>
+static inline void leds_init(void) {
+    DDRC  |= 0b00111111;   // PC0..PC5 outputs
+    PORTC &= ~0b00111111;  // start OFF (low)
+}
+static inline void leds_on(void)  { PORTC |=  0b00111111; }
+static inline void leds_off(void) { PORTC &= ~0b00111111; }
+  e4:	88 b1       	in	r24, 0x08	; 8
+  e6:	80 7c       	andi	r24, 0xC0	; 192
+  e8:	88 b9       	out	0x08, r24	; 8
+    pr_enable_all();
+    wdt_setup_1s_int();  // we’ll use WDT both for sleeps and as a heartbeat wake
+
+    // 1) Awake: ON 5s, OFF 5s
+    leds_on();  wait_ms_blocking(5000);
+    leds_off(); wait_ms_blocking(5000);
+  ea:	88 e8       	ldi	r24, 0x88	; 136
+  ec:	93 e1       	ldi	r25, 0x13	; 19
+  ee:	0e 94 d6 00 	call	0x1ac	; 0x1ac <wait_ms_blocking>
+// ------------------ LEDs on PORTC (PC0..PC5) ------------------
+static inline void leds_init(void) {
+    DDRC  |= 0b00111111;   // PC0..PC5 outputs
+    PORTC &= ~0b00111111;  // start OFF (low)
+}
+static inline void leds_on(void)  { PORTC |=  0b00111111; }
+  f2:	88 b1       	in	r24, 0x08	; 8
+  f4:	8f 63       	ori	r24, 0x3F	; 63
+  f6:	88 b9       	out	0x08, r24	; 8
+    // 1) Awake: ON 5s, OFF 5s
+    leds_on();  wait_ms_blocking(5000);
+    leds_off(); wait_ms_blocking(5000);
+
+    // 2) ON 5s, OFF, ADC Noise Reduction sleep 5s
+    leds_on();  wait_ms_blocking(5000);
+  f8:	88 e8       	ldi	r24, 0x88	; 136
+  fa:	93 e1       	ldi	r25, 0x13	; 19
+  fc:	0e 94 d6 00 	call	0x1ac	; 0x1ac <wait_ms_blocking>
+static inline void leds_init(void) {
+    DDRC  |= 0b00111111;   // PC0..PC5 outputs
+    PORTC &= ~0b00111111;  // start OFF (low)
+}
+static inline void leds_on(void)  { PORTC |=  0b00111111; }
+static inline void leds_off(void) { PORTC &= ~0b00111111; }
+ 100:	88 b1       	in	r24, 0x08	; 8
+ 102:	80 7c       	andi	r24, 0xC0	; 192
+ 104:	88 b9       	out	0x08, r24	; 8
+    leds_off(); wait_ms_blocking(5000);
+
+    // 2) ON 5s, OFF, ADC Noise Reduction sleep 5s
+    leds_on();  wait_ms_blocking(5000);
+    leds_off();
+    sleep_for_seconds(5, SLEEP_MODE_ADC);
+ 106:	62 e0       	ldi	r22, 0x02	; 2
+ 108:	85 e0       	ldi	r24, 0x05	; 5
+ 10a:	0e 94 a4 00 	call	0x148	; 0x148 <sleep_for_seconds>
+// ------------------ LEDs on PORTC (PC0..PC5) ------------------
+static inline void leds_init(void) {
+    DDRC  |= 0b00111111;   // PC0..PC5 outputs
+    PORTC &= ~0b00111111;  // start OFF (low)
+}
+static inline void leds_on(void)  { PORTC |=  0b00111111; }
+ 10e:	88 b1       	in	r24, 0x08	; 8
+ 110:	8f 63       	ori	r24, 0x3F	; 63
+ 112:	88 b9       	out	0x08, r24	; 8
+    leds_on();  wait_ms_blocking(5000);
+    leds_off();
+    sleep_for_seconds(5, SLEEP_MODE_ADC);
+
+    // 3) ON 5s, OFF, Power-save sleep 5s
+    leds_on();  wait_ms_blocking(5000);
+ 114:	88 e8       	ldi	r24, 0x88	; 136
+ 116:	93 e1       	ldi	r25, 0x13	; 19
+ 118:	0e 94 d6 00 	call	0x1ac	; 0x1ac <wait_ms_blocking>
+static inline void leds_init(void) {
+    DDRC  |= 0b00111111;   // PC0..PC5 outputs
+    PORTC &= ~0b00111111;  // start OFF (low)
+}
+static inline void leds_on(void)  { PORTC |=  0b00111111; }
+static inline void leds_off(void) { PORTC &= ~0b00111111; }
+ 11c:	88 b1       	in	r24, 0x08	; 8
+ 11e:	80 7c       	andi	r24, 0xC0	; 192
+ 120:	88 b9       	out	0x08, r24	; 8
+    sleep_for_seconds(5, SLEEP_MODE_ADC);
+
+    // 3) ON 5s, OFF, Power-save sleep 5s
+    leds_on();  wait_ms_blocking(5000);
+    leds_off();
+    sleep_for_seconds(5, SLEEP_MODE_PWR_SAVE);
+ 122:	66 e0       	ldi	r22, 0x06	; 6
+ 124:	85 e0       	ldi	r24, 0x05	; 5
+ 126:	0e 94 a4 00 	call	0x148	; 0x148 <sleep_for_seconds>
+// ------------------ LEDs on PORTC (PC0..PC5) ------------------
+static inline void leds_init(void) {
+    DDRC  |= 0b00111111;   // PC0..PC5 outputs
+    PORTC &= ~0b00111111;  // start OFF (low)
+}
+static inline void leds_on(void)  { PORTC |=  0b00111111; }
+ 12a:	88 b1       	in	r24, 0x08	; 8
+ 12c:	8f 63       	ori	r24, 0x3F	; 63
+ 12e:	88 b9       	out	0x08, r24	; 8
+    leds_on();  wait_ms_blocking(5000);
+    leds_off();
+    sleep_for_seconds(5, SLEEP_MODE_PWR_SAVE);
+
+    // 4) ON 5s, OFF, Power-down sleep 5s
+    leds_on();  wait_ms_blocking(5000);
+ 130:	88 e8       	ldi	r24, 0x88	; 136
+ 132:	93 e1       	ldi	r25, 0x13	; 19
+ 134:	0e 94 d6 00 	call	0x1ac	; 0x1ac <wait_ms_blocking>
+static inline void leds_init(void) {
+    DDRC  |= 0b00111111;   // PC0..PC5 outputs
+    PORTC &= ~0b00111111;  // start OFF (low)
+}
+static inline void leds_on(void)  { PORTC |=  0b00111111; }
+static inline void leds_off(void) { PORTC &= ~0b00111111; }
+ 138:	88 b1       	in	r24, 0x08	; 8
+ 13a:	80 7c       	andi	r24, 0xC0	; 192
+ 13c:	88 b9       	out	0x08, r24	; 8
+    sleep_for_seconds(5, SLEEP_MODE_PWR_SAVE);
+
+    // 4) ON 5s, OFF, Power-down sleep 5s
+    leds_on();  wait_ms_blocking(5000);
+    leds_off();
+    sleep_for_seconds(5, SLEEP_MODE_PWR_DOWN);
+ 13e:	64 e0       	ldi	r22, 0x04	; 4
+ 140:	85 e0       	ldi	r24, 0x05	; 5
+ 142:	0e 94 a4 00 	call	0x148	; 0x148 <sleep_for_seconds>
+ 146:	ff cf       	rjmp	.-2      	; 0x146 <main+0x84>
+
+Disassembly of section .text.__dummy_fini:
+
+000001f8 <_fini>:
+ 1f8:	08 95       	ret
+
+Disassembly of section .text.__dummy_funcs_on_exit:
+
+000001fa <__funcs_on_exit>:
+ 1fa:	08 95       	ret
+
+Disassembly of section .text.__dummy_simulator_exit:
+
+000001fc <__simulator_exit>:
+ 1fc:	08 95       	ret
+
+Disassembly of section .text.exit:
+
+000001c8 <exit>:
+ 1c8:	ec 01       	movw	r28, r24
+ 1ca:	0e 94 fd 00 	call	0x1fa	; 0x1fa <__funcs_on_exit>
+ 1ce:	0e 94 fc 00 	call	0x1f8	; 0x1f8 <_fini>
+ 1d2:	ce 01       	movw	r24, r28
+ 1d4:	0e 94 fe 00 	call	0x1fc	; 0x1fc <__simulator_exit>
+ 1d8:	ce 01       	movw	r24, r28
+ 1da:	0e 94 fa 00 	call	0x1f4	; 0x1f4 <_Exit>
+
+Disassembly of section .text._Exit:
+
+000001f4 <_Exit>:
+ 1f4:	0e 94 5f 00 	call	0xbe	; 0xbe <_exit>

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?> 
 <project>                                  
-  <executable name="4 Cerradura.elf">                 
+  <executable name="Ev 16 - Watchdog Timer - Tarea Grupal.elf">                 
     <memory name="program">              
       <units>bytes</units>                 
       <length>32768</length>                 
-      <used>5109</used>                     
-      <free>27659</free>                     
+      <used>510</used>                     
+      <free>32258</free>                     
     </memory>                              
     <memory name="data">                 
       <units>bytes</units>                 
       <length>2048</length>                 
-      <used>50</used>                     
-      <free>1998</free>                     
+      <used>1</used>                     
+      <free>2047</free>                     
     </memory>                              
   </executable>                            
 </project>                                 
