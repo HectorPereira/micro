@@ -78,7 +78,7 @@ Proceso de Funcionamiento
 // ------------------------------------------------------------------
 
 
-// Color mapping
+// Mapeado de colores
 typedef struct {
 	const char *name;
 	uint16_t r, g, b;
@@ -120,7 +120,9 @@ uint8_t usart_rx_available(void) {
 	return (uint8_t)((rx_head - rx_tail) & RX_MASK);
 }
 
-void UTOA(uint16_t value, char *buffer) { // <- String stored in buffer
+
+// Convierte un valor entero sin signo en un string
+void UTOA(uint16_t value, char *buffer) { 
 	char temp[6];
 	int i = 0, j = 0;
 
@@ -141,6 +143,8 @@ void UTOA(uint16_t value, char *buffer) { // <- String stored in buffer
 	buffer[j] = '\0';
 }
 
+// Envia un bit a la tira de LEDs
+// Usa asm volatile para tener un control preciso en los tiempos
 void send_bit(uint8_t bitVal){
 	if(bitVal){
 		PORTD |=  (1<<LED_PIN);
@@ -165,8 +169,10 @@ void send_bit(uint8_t bitVal){
 	}
 }
 
+// Envia un Byte a la tira de leds
+// Utiliza cli y sei para un timing preciso
 void send_byte(uint8_t byte) {
-	cli();  // disable interrupts for precise timing
+	cli();  
 	for (uint8_t i = 0; i < 8; i++) {
 		send_bit(byte & 0x80);  // send most significant bit first
 		byte <<= 1;             // shift next bit into MSB position
@@ -187,13 +193,13 @@ void usart_init(void) {
 	UBRR0H = ubrr >> 8;
 	UBRR0L = ubrr;
 	UCSR0A = 0;
-	UCSR0B = (1 << TXEN0) | (1 << RXEN0) | (1 << RXCIE0);   // <- RX interrupt
+	UCSR0B = (1 << TXEN0) | (1 << RXEN0) | (1 << RXCIE0);   // RX interrupt
 	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);               // 8N1
 }
 
 void adc_init(void) {
-	ADMUX  = (1 << REFS0);                        // AVcc ref, ADC0 input
-	ADCSRA = (1 << ADEN)                          // Enable ADC
+	ADMUX  = (1 << REFS0);                        
+	ADCSRA = (1 << ADEN)                          
 	| (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Prescaler 128
 }
 
@@ -210,27 +216,29 @@ void servo_init(void) {
 
 	ICR1 = 39999;   
 }
-
-void ws2812_init(void) {
+ 
+void ws2812_init(void) { // tira de leds
 	LED_DDR |= (1 << LED_PIN);
 }
 // ------------------------------------------------------------------
 // UTILITY
 // ------------------------------------------------------------------
 
+// Enviar pixel 
 void ws2812_send_pixel(uint8_t r, uint8_t g, uint8_t b) {
 	send_byte(g);
 	send_byte(b);
 	send_byte(r);
 }
 
-
 void ws2812_show(void) {
-	_delay_us(60);  // Reset/latch time
+	_delay_us(60);  // Tiempo de reset
 }
 
+
+// Encender n leds del mismo color
 void ws2812_fill(uint8_t r, uint8_t g, uint8_t b, uint16_t n) {
-	cli(); // Disable interrupts for precise timing
+	cli(); 
 	for (uint16_t i = 0; i < n; i++) {
 		ws2812_send_pixel(r, g, b);
 	}
@@ -238,7 +246,7 @@ void ws2812_fill(uint8_t r, uint8_t g, uint8_t b, uint16_t n) {
 	ws2812_show();
 }
 
-
+// Mostrar colores especificos utilizando un switch
 void led_strip_set_color(uint8_t color_id) {
 	uint8_t r = 0, g = 0, b = 0;
 
@@ -281,11 +289,13 @@ void led_strip_set_color(uint8_t color_id) {
 	ws2812_fill(r, g, b, 50);
 }
 
+// Establecer angulo en el servomotor
 void servo_set_angle(uint8_t angle) {
 	uint16_t pulse = 1000 + ((uint32_t)angle * 4000) / 180;
 	OCR1A = pulse;
 }
 
+// Escribir un byte al buffer de envio de USART
 uint8_t usart_write_try(uint8_t b) {
 	uint8_t next = (uint8_t)((tx_head + 1) & TX_MASK);
 	if (next == tx_tail) return 0;               // full
@@ -295,12 +305,14 @@ uint8_t usart_write_try(uint8_t b) {
 	return 1;
 }
 
+// Escribir un string entero al buffer de envío de USART
 uint16_t usart_write_str(const char *s) {
 	uint16_t n = 0;
 	while (*s && usart_write_try((uint8_t)*s++)) n++;
 	return n;
 }
 
+// Leer byte del buffer de recepcion de usart
 uint8_t usart_read_try(uint8_t *b) {
 	if (rx_head == rx_tail) return 0;                 // empty
 	*b = rx_buf[rx_tail];
@@ -308,7 +320,7 @@ uint8_t usart_read_try(uint8_t *b) {
 	return 1;
 }
 
-// Stores string in 'dest'
+// Leer string del buffer de recepcion
 uint8_t usart_read_str(char *dest, uint8_t max_len) {
 	uint8_t count = 0;
 	while (usart_rx_available() && count < (max_len - 1)) {
@@ -324,19 +336,23 @@ uint8_t usart_read_str(char *dest, uint8_t max_len) {
 	return count;
 }
 
-
+// Leer adc
 uint16_t adc_read(uint8_t channel) {
-	ADMUX = (ADMUX & 0xF0) | (channel & 0x0F);  // Select ADC channel 0–7
-	ADCSRA |= (1 << ADSC);                      // Start conversion
+	ADMUX = (ADMUX & 0xF0) | (channel & 0x0F);  
+	ADCSRA |= (1 << ADSC);                     
 	while (ADCSRA & (1 << ADSC));               // Wait for conversion to finish
-	return ADC;                                 // Return 10-bit result
+	return ADC;                                 
 }
 
+// Establecer color del led rgb (iluminador)
 void rgb_set(uint8_t r, uint8_t g, uint8_t b) {
 	PORTB = (PORTB & ~((1 << RED)|(1 << GREEN)|(1 << BLUE))) |
 	((r<<RED) | (g<<GREEN) | (b<<BLUE));
 }
 
+// Identificar color a partir de valores rgb.
+// Tomando cada valor calibrado como un vector, se determina la distancia
+// cartesiana del vector leido por el sensor.
 const char* identify_color(uint16_t r, uint16_t g, uint16_t b) {
 	uint32_t best_dist = 0xFFFFFFFF;
 	const char *best_name = "UNKNOWN";
@@ -355,6 +371,7 @@ const char* identify_color(uint16_t r, uint16_t g, uint16_t b) {
 	return best_name;
 }
 
+// Imprimir datos parseados por usart
 void print_data(const char *color_name) {
 	char buf[10];
 
@@ -473,7 +490,7 @@ void rgb_read(void){
 // MAIN
 // ------------------------------------------------------------------
 
-
+// programa principal
 int main(void) {
 	ws2812_init();
 	usart_init();
@@ -496,7 +513,7 @@ int main(void) {
 // ------------------------------------------------------------------
 
 
-
+// Interrupcion de registro en enviado libre
 ISR(USART_UDRE_vect) {
 	if (tx_head == tx_tail) {
 		UCSR0B &= (uint8_t)~(1<<UDRIE0);
@@ -506,6 +523,7 @@ ISR(USART_UDRE_vect) {
 	tx_tail = (uint8_t)((tx_tail + 1) & TX_MASK);
 }
 
+// Interrupcion de byte recibido.
 ISR(USART_RX_vect) {
 	uint8_t d = UDR0;
 	uint8_t next = (uint8_t)((rx_head + 1) & RX_MASK);
