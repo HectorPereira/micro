@@ -357,12 +357,16 @@ const char* identify_color(uint16_t r, uint16_t g, uint16_t b) {
 	uint32_t best_dist = 0xFFFFFFFF;
 	const char *best_name = "UNKNOWN";
 
+	
 	for (uint8_t i = 0; i < NUM_COLORS; i++) {
+		// Diferencia  =  medido - calibrado
 		int32_t dr = (int32_t)r - color_refs[i].r;
 		int32_t dg = (int32_t)g - color_refs[i].g;
 		int32_t db = (int32_t)b - color_refs[i].b;
 		uint32_t dist = dr*dr + dg*dg + db*db;
-
+		// Cuadrado de distancia cartesiana
+		
+		// Encontrar la menor distancia
 		if (dist < best_dist) {
 			best_dist = dist;
 			best_name = color_refs[i].name;
