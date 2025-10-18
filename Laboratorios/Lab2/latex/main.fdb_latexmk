@@ -1,17 +1,17 @@
 # Fdb version 4
-["bibtex main"] 1760810802.53682 "main.aux" "main.bbl" "main" 1760810805.08735 0
+["bibtex main"] 1760821755.34408 "main.aux" "main.bbl" "main" 1760822239.27007 0
   "./5_referencias.bib" 1760550866 3026 a3804cfbf68fd461e46149d30a965da8 ""
   "C:/Users/hecto/AppData/Local/Programs/MiKTeX/bibtex/bst/ieeetran/IEEEtran.bst" 1440622569 57748 7c8250ecf02814ce6ddc0cdbb63df1dd ""
-  "main.aux" 1760810804 8918 dbdbbb339f799445cc46cf66865c1ca5 "pdflatex"
+  "main.aux" 1760822238 9406 d2d67025a9d8eab59c4ecd9942ec2ead "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1760810802.82077 "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" "main.pdf" "main" 1760810805.08799 0
+["pdflatex"] 1760822236.93037 "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" "main.pdf" "main" 1760822239.27069 0
   "0_introduccion.tex" 1760810780 2501 8efb83de72a84d19bcc60b3fe79fa09e ""
   "1_marco_teorico.tex" 1760809139 1965 77d0c3098f8665eefcafb714dac52794 ""
-  "2_metodologia.tex" 1760809468 2444 2455d84badf374622c25afdb9d2b6b5c ""
-  "3_resultados.tex" 1760810799 20131 faba2c585508d4d1eea2156dbadeaed0 ""
+  "2_metodologia.tex" 1760822236 14068 a5f3281b50ecca9e39c6337be888799a ""
+  "3_resultados.tex" 1760820106 9966 cfdf6b940831fbc045c03fb2d2b45a3a ""
   "4_conclusiones.tex" 1760808656 1419 940955c28d2cabbf7b768b2f5c6116d6 ""
   "6_anexos.tex" 1760810473 17997 a27e6da85d823ab1bdff22f0b2aa102b ""
   "C:/Users/hecto/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1760550035 82507 a9eef8696c92627b87e9975edea03b2a ""
@@ -152,10 +152,11 @@
   "C:/Users/hecto/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/hecto/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1729265222 55384 b454dec21c2d9f45ec0b793f0995b992 ""
   "anexos/cerradura/DiagramaFlujo.png" 1760577668 135661 33799ff9390f636122e22e23015a3045 ""
+  "anexos/colores/EvidenciaFuncionamiento.jpg" 1760819068 215710 3aeab09ac7b239331d08b32dc7fd73b7 ""
   "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" 1760577296 1958 aced8ca767d0094b8f2f09eae0e4a5a6 ""
-  "main.aux" 1760810804 8918 dbdbbb339f799445cc46cf66865c1ca5 "pdflatex"
-  "main.bbl" 1760810802 3832 928adcd7c96e0a44a38f88086e863a09 "bibtex main"
-  "main.out" 1760810804 6138 d38c221c040472261feac068e458963f "pdflatex"
+  "main.aux" 1760822238 9406 d2d67025a9d8eab59c4ecd9942ec2ead "pdflatex"
+  "main.bbl" 1760821755 3832 928adcd7c96e0a44a38f88086e863a09 "bibtex main"
+  "main.out" 1760822238 5826 231f2d3a2ecdd26e47f387c2635b9b27 "pdflatex"
   "main.tex" 1760577296 1958 aced8ca767d0094b8f2f09eae0e4a5a6 ""
   (generated)
   "main.aux"

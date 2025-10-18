@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2025.8.12)  18 OCT 2025 15:06
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2025.8.12)  18 OCT 2025 18:17
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -604,7 +604,7 @@ Underfull \hbox (badness 1371) in paragraph at lines 14--15
 []\OT1/ptm/m/n/10 Software: Mi-cro-chip Stu-dio, Pro-teus / Pic-Sim-Lab,
  []
 
-) (3_resultados.tex
+
 
 
 
@@ -612,22 +612,42 @@ Underfull \hbox (badness 1371) in paragraph at lines 14--15
 
 
 ]
-LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 188.
+LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 70.
  (C:\Users\hecto\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 )
 
+LaTeX Warning: Reference `midi-to-arduino' on page 2 undefined on input line 72.
 
 
-[2]) (4_conclusiones.tex
+
+
+Underfull \hbox (badness 2088) in paragraph at lines 85--86
+[]\OT1/ptm/m/n/10 Finalmente, a es-te sis-te-ma se in-te-gra fun-cio-na-li-dad
+ []
+
+
+
+[2]
+
+) (3_resultados.tex
+<anexos/colores/EvidenciaFuncionamiento.jpg, id=183, 519.1395pt x 572.73975pt>
+File: anexos/colores/EvidenciaFuncionamiento.jpg Graphic file (type jpg)
+<use anexos/colores/EvidenciaFuncionamiento.jpg>
+Package pdftex.def Info: anexos/colores/EvidenciaFuncionamiento.jpg  used on input line 43.
+(pdftex.def)             Requested size: 219.8163pt x 242.51538pt.
+
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 
+[3]) (4_conclusiones.tex
 LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 9.
-(C:\Users\hecto\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1ptm.fd
+ (C:\Users\hecto\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-)) (main.bbl
+)
+
+) (main.bbl
 Underfull \hbox (badness 3612) in paragraph at lines 26--29
 \OT1/ptm/m/n/8 Avai-la-ble: []$https : / / ww1 . microchip . com / downloads / en / DeviceDoc /
  []
@@ -652,21 +672,15 @@ Underfull \hbox (badness 3019) in paragraph at lines 88--92
 \OT1/ptm/m/n/8 bo-ra-to-rio de mi-cro-con-tro-la-do-res (tec.micro),'' []$https : / / github . com /
  []
 
-
-
-[3]) (6_anexos.tex
+) (6_anexos.tex
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on input line 9.
+
+
+[4 <./anexos/colores/EvidenciaFuncionamiento.jpg>]
 LaTeX Font Info:    Font shape `OT1/pcr/m/it' in size <8> not available
 (Font)              Font shape `OT1/pcr/m/sl' tried instead on input line 36.
 
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-
-[4]
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \vbox (badness 1616) has occurred while \output is active []
 
 
 
@@ -680,25 +694,29 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 [6]
-Underfull \vbox (badness 2096) has occurred while \output is active []
 
 
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 
 [7]
-<anexos/cerradura/DiagramaFlujo.png, id=707, 1802.735pt x 984.67876pt>
+
+<anexos/cerradura/DiagramaFlujo.png, id=614, 1802.735pt x 984.67876pt>
 File: anexos/cerradura/DiagramaFlujo.png Graphic file (type png)
 <use anexos/cerradura/DiagramaFlujo.png>
 Package pdftex.def Info: anexos/cerradura/DiagramaFlujo.png  used on input line 531.
 (pdftex.def)             Requested size: 219.8163pt x 120.06451pt.
 
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 
-[8 <./anexos/cerradura/DiagramaFlujo.png>]
+[8]
 
-)
+
+
+[9 <./anexos/cerradura/DiagramaFlujo.png>])
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -712,7 +730,11 @@ Before submitting the final camera ready copy, remember to:
 
 
 
-[9] (main.aux
+
+
+[10
+
+] (main.aux
 LaTeX Info: Redefining \. on input line 11.
 LaTeX Info: Redefining \% on input line 11.
 )
@@ -720,21 +742,25 @@ LaTeX Info: Redefining \% on input line 11.
 LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-07-20>
  ***********
+
+
+LaTeX Warning: There were undefined references.
+
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: D38C221C040472261FEAC068E458963F;6138.
+(rerunfilecheck)             Checksum: 231F2D3A2ECDD26E47F387C2635B9B27;5826.
  ) 
 Here is how much of TeX's memory you used:
- 20785 strings out of 468134
- 384425 string characters out of 5430740
- 1756214 words of memory out of 5000000
- 48445 multiletter control sequences out of 15000+600000
- 668708 words of font info for 133 fonts, out of 8000000 for 9000
+ 20805 strings out of 468134
+ 384976 string characters out of 5430740
+ 1791214 words of memory out of 5000000
+ 48461 multiletter control sequences out of 15000+600000
+ 673742 words of font info for 138 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,11n,80p,771b,2634s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,11n,80p,790b,2634s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrb8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrr8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrro8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmbi8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (9 pages, 345183 bytes).
+Output written on main.pdf (10 pages, 572242 bytes).
 PDF statistics:
- 1094 PDF objects out of 1200 (max. 8388607)
+ 1095 PDF objects out of 1200 (max. 8388607)
  709 named destinations out of 1000 (max. 500000)
- 326 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 323 words of extra memory for PDF output out of 10000 (max. 10000000)
 

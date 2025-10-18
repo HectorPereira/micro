@@ -3,7 +3,7 @@
 
 \subsection{Resultados por módulo}
 
-\subsubsection{Plotter}
+\subsubsection{\textbf{Plotter}}---
 % Explicá cómo se verificó el movimiento (por ejemplo, ejecución de trayectorias simples o figuras predefinidas).
 
 % Mostrá fotos o diagramas de movimiento, si tenés.
@@ -14,16 +14,49 @@
 
 % El plotter ejecutó correctamente trayectorias lineales y circulares generadas desde un script en Python. Se comprobó que, al reducir la tasa de envío por USART, la respuesta del sistema fue más fluida y sin interrupciones perceptibles.
 
-\subsubsection{Colores}
+\subsubsection{\textbf{Colores}}---
 % Mostrá la tabla o los valores obtenidos por el LDR para cada color calibrado.
+
+\begin{table}[H]
+\centering
+\caption{Valores de referencia RGB para cada color calibrado.}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Color} & \textbf{R} & \textbf{G} & \textbf{B} \\
+\midrule
+Morado      & 216 & 157 & 274 \\
+Rojo        & 206 & 149 & 262 \\
+Amarillo    & 196 &  99 & 105 \\
+Verde       & 272 & 192 & 152 \\
+Azul Claro  & 151 & 153 & 122 \\
+Violeta     & 253 & 275 & 338 \\
+Blanco      & 110 &  93 &  91 \\
+\bottomrule
+\end{tabular}
+\label{tab:color_ref}
+\end{table}
 
 % Incluí una figura de la tira LED mostrando el color detectado o el ángulo del servo.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\columnwidth]{anexos/colores/EvidenciaFuncionamiento.jpg}
+    \caption{Identificación de color efectiva. Fuente: elaboración própia}
+    \label{fig:color_evidencia}
+\end{figure}
+
+
 % Mencioná el comportamiento: estabilidad, sensibilidad a la luz ambiente, etc.
 
-% 💬 Ejemplo:
+% Estabilidad frente a consumo
+Utilizando una fuente externa el sistema es considerablemente estable
+Como el servomotor posee un pico de consumo en momentos de arranque, si este es alimentado solamente con el voltaje del Arduino, algunos colores se volvían inestables y creaba fallas en la medición, haciendo un ciclo de retroalimentación.
 
-% El sistema logró identificar correctamente los colores básicos (rojo, verde, azul, amarillo, violeta y blanco). Los valores de tensión medidos variaron entre 0,4 V y 3,2 V según la intensidad reflejada. Se observó que la calibración inicial mejora la repetibilidad, reduciendo errores al repetir la medición sobre el mismo color.
+% Estabilidad a luz ambiental
+Otra consideración fue que el sistema también es dependiente en cierta medida a la cantidad de luz ambiental del lugar en el que se encuentre. La misma tira de LEDs al iluminarse a veces causaba falsas medidas, se solventó esto bloqueando la luz de la tira hacia el sensor.
+
+% Delay frente a USART
+También, al implementar la impresión de datos a través de USART, se observó una ralentización considerable del funcionamiento del programa debido al tiempo que le tomaba enviarse a los datos para cada ciclo. Al quitar esta funcionalidad el sistema lograba un aumento significativo en su velocidad de operación.
 
 % ----------------------------------------- RAMBLINGS
 
@@ -83,48 +116,9 @@
 % Color indicado por angulo en servomotor
 % Color indica
 
-El proceso de reconocimiento de colores se fundamenta en la descomposición de cada color en sus componentes primarias dentro del modelo RGB (\textit{Red}, \textit{Green}, \textit{Blue}). Un color puede representarse como la combinación ponderada de estas tres intensidades, lo que permite su descripción en un espacio tridimensional.  
-
-\vspace{1em}
-
-Sin embargo, el sensor fotoresistivo (LDR, \textit{Light Dependent Resistor}) utilizado en el sistema no distingue de forma individual las componentes cromáticas del espectro visible; únicamente mide la intensidad total de luz reflejada sobre su superficie. Si la iluminación se realiza con luz blanca, el sensor solo entrega una lectura proporcional a la cantidad total de luz reflejada, sin discriminar su composición espectral. Este fenómeno equivale a una percepción en escala de grises, dificultando la identificación precisa de colores.
-
-\vspace{1em}
-
-Para resolver esta limitación, se empleó un diodo emisor de luz RGB como fuente de iluminación controlada. Al iluminar secuencialmente la superficie con luz roja, verde y azul, el sistema obtiene tres mediciones independientes mediante el LDR. Dichos valores, convertidos por el módulo ADC (\textit{Analog-to-Digital Converter}) del microcontrolador ATmega328P, representan las coordenadas $(R, G, B)$ de un punto dentro de un espacio de color tridimensional.
-
-\vspace{1em}
-
-Dado que tanto la respuesta espectral del LDR como la emisión de los LED presentan variaciones no lineales, los valores obtenidos no son directamente proporcionales a las componentes RGB teóricas. No obstante, el sistema logra resultados estables mediante un proceso de calibración inicial, donde se iluminan sucesivamente los colores de referencia (rojo, verde, azul claro, violeta, morado, amarillo y blanco) y se almacenan sus valores de conversión analógica-digital.
-
-\vspace{1em}
-
-Cada color de referencia calibrado se modela como un vector fijo en dicho espacio. Para identificar un color, se calcula la distancia euclidiana entre el vector de medición y cada uno de los vectores de referencia almacenados:
-
-\begin{equation}\label{eq:distancia_color}
-D = \sqrt{(R_m - R_i)^2 + (G_m - G_i)^2 + (B_m - B_i)^2}
-\end{equation}
-
-donde $(R_m, G_m, B_m)$ representan los valores medidos por el sensor y $(R_i, G_i, B_i)$ corresponden a los valores calibrados de cada color de la hoja de referencia. El color identificado será aquel cuya distancia $D$ sea mínima.
 
 
-
-\vspace{1em}
-
-El circuito se implementó mediante un divisor resistivo conectado a una de las entradas analógicas del microcontrolador. El color identificado se replica visualmente en la tira de LED WS2812, y el servomotor se posiciona en el ángulo correspondiente al color detectado dentro de la hoja de referencia, integrando así un sistema de selección e identificación de color completamente automatizado.
-
-
-
-
-
-
-
-
-
-
-
-
-\subsubsection{Piano}
+\subsubsection{\textbf{Piano}}---
 
 % Mostrá capturas de los menús USART, las canciones reproducidas o las frecuencias generadas.
 
@@ -173,34 +167,9 @@ El circuito se implementó mediante un divisor resistivo conectado a una de las 
 % Piano fisico
 
 
-El sonido es una onda mecánica que se propaga a través de un medio elástico, producto de variaciones periódicas de presión. Estas ondas pueden clasificarse según su forma en senoidales, cuadradas, triangulares o diente de sierra, dependiendo del patrón temporal de oscilación. En los sistemas digitales, las señales más sencillas de generar son las ondas cuadradas, donde el voltaje alterna entre dos niveles definidos, representando los estados lógicos alto y bajo del microcontrolador.
-
-\vspace{1em}
-
-Para producir sonido de manera electrónica, se emplean dispositivos piezoeléctricos denominados \textit{buzzers}. Estos transductores convierten la energía eléctrica en vibraciones mecánicas audibles. Cuando el microcontrolador aplica una señal cuadrada a la entrada del buzzer, el material piezoeléctrico se deforma y contrae periódicamente, generando un sonido cuya frecuencia está directamente relacionada con la frecuencia de la señal de entrada.
-
-\vspace{1em}
-
-En el microcontrolador ATmega328P, esta señal se genera mediante el uso de los temporizadores internos (\textit{timers}), configurados para producir una onda cuadrada en un pin de salida. Al modificar la frecuencia de conmutación, es posible variar el tono percibido, ya que la frecuencia del sonido determina su altura musical. De esta manera, cada nota puede asociarse a una frecuencia específica según la escala temperada. Por ejemplo, la nota \textit{La4} corresponde a una frecuencia de 440\,Hz, mientras que \textit{Do4} equivale aproximadamente a 262\,Hz.
-
-\vspace{1em}
-
-Una nota musical puede representarse computacionalmente mediante dos parámetros fundamentales: la frecuencia de oscilación, la duración temporal durante la cual se mantiene activa y la duración inactiva o en silencio. Cuando el buzzer emite una secuencia ordenada de notas, cada una con su tiempo de activación y silencio, se obtiene una melodía. En términos programáticos, una melodía se define como un conjunto de estructuras de datos que contienen pares \texttt{(frecuencia, tiempo\_on, tiempo\_off)}, los cuales son procesados secuencialmente para generar la música deseada.
-
-\vspace{1em}
-
-La reproducción simultánea de varios instrumentos en un entorno digital requiere el manejo de múltiples secuencias de notas en paralelo. Para lograrlo sin recurrir al uso de ciclos de espera activos (\textit{polling}), se utilizan interrupciones asociadas a los temporizadores. De este modo, el microcontrolador puede controlar la duración y el inicio de cada nota de forma independiente y precisa, optimizando el uso del procesador y permitiendo la ejecución de tareas concurrentes, como la lectura de entradas o la comunicación serial, mientras la música continúa sonando de manera autónoma.
-
-\vspace{1em}
-
-En síntesis, el sistema desarrollado utiliza un buzzer piezoeléctrico controlado por los temporizadores del ATmega328P para reproducir notas musicales definidas por su frecuencia y duración. A través de la programación de secuencias almacenadas en memoria, es posible interpretar melodías completas y gestionar la reproducción de distintas canciones sin intervención del usuario durante la ejecución.
 
 
-
-
-
-
-\subsubsection{Cerradura}
+\subsubsection{\textbf{Cerradura}}---
 
 % Mostrá el flujo de la interfaz (mensajes en LCD, ingreso de contraseña, cambio de clave, activación de alarma).
 
@@ -269,47 +238,7 @@ En síntesis, el sistema desarrollado utiliza un buzzer piezoeléctrico controla
 % Listo.
 
 
-El sistema de cerradura electrónica desarrollado tiene como objetivo controlar el acceso mediante una contraseña numérica almacenada en memoria no volátil. Inicialmente, el dispositivo se encuentra en estado de \textit{candado cerrado}. Cuando el usuario ingresa la contraseña correcta, el sistema cambia al estado de \textit{candado abierto}, permitiendo el acceso. En caso de introducir una contraseña incorrecta tres veces consecutivas, se activa una alarma acústica a través de un buzzer, indicando un intento de acceso no autorizado.
 
-El sistema también permite modificar la contraseña almacenada. Para ello, el usuario debe ingresar primero la contraseña actual y, tras su validación, definir una nueva contraseña de entre cuatro y seis dígitos. Esta nueva clave se almacena permanentemente en la memoria EEPROM del microcontrolador, garantizando su persistencia incluso después de un apagado o reinicio del sistema.
-
-\vspace{1em}
-
-\paragraph*{Interfaz de usuario e interacción}
-
-La cerradura dispone de una interfaz de usuario compuesta por una pantalla LCD de 16x2, un teclado matricial 4x4 y tres indicadores luminosos (LED verde, LED rojo y alarma sonora). En este contexto, la interfaz constituye el medio de comunicación entre el usuario y el sistema, mostrando mensajes informativos y recibiendo acciones por medio del teclado. Cada interacción del usuario genera una respuesta visual o acústica distinta, representando así un flujo de diálogo entre ambos.
-
-El sistema se diseñó siguiendo una lógica de \textit{máquina de estados finitos}, en la que cada modo de operación (menú principal, ingreso de contraseña, cambio de clave, acceso autorizado, alarma, etc.) representa un estado. Las transiciones entre estados se producen en función de las acciones del usuario y las condiciones del sistema. Este enfoque facilita la gestión de comportamientos complejos, simplifica el control del flujo de ejecución y mejora la legibilidad del código.
-
-\vspace{1em}
-
-\paragraph*{Teclado matricial y detección de teclas}
-
-El ingreso de datos se realiza mediante un teclado matricial 4x4 que combina filas y columnas, optimizando el uso de pines del microcontrolador. Las filas se configuran como salidas y las columnas como entradas con resistencias de \textit{pull-up} activadas. El proceso de lectura consiste en activar una fila a nivel bajo (0) mientras las demás permanecen en alto (1); si alguna tecla de esa fila se encuentra presionada, la columna correspondiente cambia a nivel bajo, permitiendo identificar la intersección entre fila y columna.  
-
-Cada tecla se asocia a un carácter según su posición dentro de la matriz, lo que permite retornar el valor numérico o simbólico correspondiente. Para evitar falsas detecciones debido al rebote mecánico de los contactos, se aplica una rutina de \textit{debouncing} por software basada en pequeños retardos temporizados.
-
-\vspace{1em}
-
-\paragraph*{Gestión temporal y concurrencia de tareas}
-
-Durante el funcionamiento, el sistema debe ejecutar múltiples tareas de forma paralela: reproducción de sonidos, manejo de alarmas, parpadeo de LEDs, lectura del teclado y actualización de la pantalla LCD. Sin embargo, el ATmega328P dispone de un número limitado de temporizadores, por lo que no es posible asignar un temporizador independiente a cada tarea.
-
-Para resolver esta limitación, se implementó un esquema de ejecución basado en un \textit{planificador de tareas} o \textit{task scheduler} de propósito general. Se utiliza un solo temporizador configurado para generar interrupciones periódicas, incrementando un contador global de 32 bits que actúa como referencia temporal (en milisegundos). Cada tarea compara el tiempo actual con el instante programado de su próxima ejecución, y si se cumple el intervalo, se ejecuta la acción correspondiente. De este modo, múltiples eventos temporizados pueden coexistir sin emplear retardos bloqueantes ni técnicas de \textit{polling}.
-
-\vspace{1em}
-
-\paragraph*{Almacenamiento persistente de la contraseña}
-
-Para asegurar que la contraseña permanezca almacenada tras un apagado, se utiliza la memoria EEPROM interna del ATmega328P. Esta memoria no volátil permite conservar los datos durante décadas sin alimentación eléctrica, aunque posee un número limitado de ciclos de escritura (aproximadamente $10^5$ operaciones por celda). Por ello, el sistema únicamente escribe en EEPROM cuando el usuario confirma un cambio de contraseña, minimizando el desgaste de la memoria.
-
-La lectura y escritura se realizan mediante las funciones de la biblioteca estándar \texttt{avr/eeprom.h}, que permiten transferir cadenas de caracteres directamente desde y hacia direcciones específicas de la EEPROM. Así, el sistema recupera la contraseña almacenada al inicio del programa y la compara con la ingresada por el usuario durante la operación normal.
-
-\vspace{1em}
-
-\paragraph*{Resumen de funcionamiento}
-
-En conjunto, la cerradura electrónica combina la interacción mediante teclado y pantalla LCD, la gestión de tareas en tiempo real y el almacenamiento persistente de datos, logrando un sistema confiable y autónomo. El uso de una máquina de estados y un planificador temporal basado en un único temporizador permite controlar de manera eficiente múltiples procesos simultáneos sin bloquear la ejecución principal del programa.
 
 
 
