@@ -21,6 +21,11 @@
 \providecommand{\BIBdecl}{\relax}
 \BIBdecl
 
+\bibitem{arduino_midi_converter}
+{ShivamJoker}, ``Midi to arduino converter,''
+  \url{https://arduinomidi.netlify.app/}, 2024, herramienta en línea para
+  convertir archivos MIDI a código Arduino.
+
 \bibitem{atmega328p_datasheet}
 \BIBentryALTinterwordspacing
 {Microchip Technology Inc.} Atmega328p datasheet. [Online]. Available:

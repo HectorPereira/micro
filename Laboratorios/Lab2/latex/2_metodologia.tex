@@ -69,7 +69,7 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
     \paragraph*{\textbf{Reproducir música}}---
     Una nota musical puede representarse computacionalmente mediante tres parámetros fundamentales: la frecuencia de oscilación, la duración temporal durante la cual se mantiene activa y la duración inactiva o en silencio. Cuando el buzzer emite una secuencia ordenada de notas, cada una con su frecuencia, tiempo de activación, y silencio, se obtiene una melodía. En términos programáticos, una melodía se define como un conjunto de estructuras de datos que contienen pares \texttt{(frecuencia, tiempo\_on, tiempo\_off)}, los cuales son procesados secuencialmente para generar la música deseada.
     
-    Para crear pistas de canciones se utilizó la herramienta de código abierto \ref{midi-to-arduino}, la cual permite convertir pistas MIDI al formato anteriormente mencionado, y almacenarlas dentro de la memoria del microcontrolador.
+    Para crear pistas de canciones se utilizó la herramienta \textit{MIDI to Arduino Converter}~\cite{arduino_midi_converter}, la cual permite convertir pistas MIDI al formato anteriormente mencionado, y almacenarlas dentro de la memoria del microcontrolador.
 
     \vspace{1em}
 
@@ -92,14 +92,22 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
     \vspace{1em}
 
 \subsubsection{\textbf{Cerradura}}
+    \paragraph*{\textbf{Funcionamiento general}}---
     El sistema de cerradura electrónica desarrollado tiene como objetivo controlar el acceso mediante una contraseña numérica almacenada en memoria no volátil. Inicialmente, el dispositivo se encuentra en estado de \textit{candado cerrado}. Cuando el usuario ingresa la contraseña correcta, el sistema cambia al estado de \textit{candado abierto}, permitiendo el acceso. En caso de introducir una contraseña incorrecta tres veces consecutivas, se activa una alarma acústica a través de un buzzer, indicando un intento de acceso no autorizado.
 
     \vspace{1em}
 
     El sistema también permite modificar la contraseña almacenada. Para ello, el usuario debe ingresar primero la contraseña actual y, tras su validación, definir una nueva contraseña de entre cuatro y seis dígitos. Esta nueva clave se almacena permanentemente en la memoria EEPROM del microcontrolador, garantizando su persistencia incluso después de un apagado o reinicio del sistema.
 
-    \vspace{1em}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\columnwidth]{anexos/cerradura/DiagramaFlujo.png}
+        \caption{Diagrama de flujo de programa de cerradura. Fuente: elaboración própia}
+        \label{fig:lcd_ui}
+    \end{figure}
 
+    \vspace{1em}
+    \paragraph*{\textbf{Interfaz de usuario}}---
     La cerradura dispone de una interfaz de usuario compuesta por una pantalla LCD de 16x2, un teclado matricial 4x4 y tres indicadores luminosos (LED verde, LED rojo y alarma sonora). En este contexto, la interfaz constituye el medio de comunicación entre el usuario y el sistema, mostrando mensajes informativos y recibiendo acciones por medio del teclado. Cada interacción del usuario genera una respuesta visual o acústica distinta, representando así un flujo de diálogo entre ambos.
 
     \vspace{1em}
@@ -107,7 +115,7 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
     El sistema se diseñó siguiendo una lógica de \textit{máquina de estados finitos}, en la que cada modo de operación (menú principal, ingreso de contraseña, cambio de clave, acceso autorizado, alarma, etc.) representa un estado. Las transiciones entre estados se producen en función de las acciones del usuario y las condiciones del sistema. Este enfoque facilita la gestión de comportamientos complejos, simplifica el control del flujo de ejecución y mejora la legibilidad del código.
 
     \vspace{1em}
-
+    \paragraph*{\textbf{Teclado matricial}}---
     El ingreso de datos se realiza mediante un teclado matricial 4x4 que combina filas y columnas, optimizando el uso de pines del microcontrolador. Las filas se configuran como salidas y las columnas como entradas con resistencias de \textit{pull-up} activadas. El proceso de lectura consiste en activar una fila a nivel bajo (0) mientras las demás permanecen en alto (1); si alguna tecla de esa fila se encuentra presionada, la columna correspondiente cambia a nivel bajo, permitiendo identificar la intersección entre fila y columna.  
 
     \vspace{1em}
@@ -116,7 +124,7 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
 
     \vspace{1em}
 
-    
+    \paragraph*{\textbf{Planificador de tareas}}---
     Durante el funcionamiento, el sistema debe ejecutar múltiples tareas de forma paralela: reproducción de sonidos, manejo de alarmas, parpadeo de LEDs, lectura del teclado y actualización de la pantalla LCD. Sin embargo, el ATmega328P dispone de un número limitado de temporizadores, por lo que no es posible asignar un temporizador independiente a cada tarea.
 
     \vspace{1em}
