@@ -36,7 +36,7 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
 
     \vspace{1em}
     
-    Para resolver esta limitación, se empleó un diodo emisor de luz RGB como fuente de iluminación controlada. Al iluminar secuencialmente la superficie con luz roja, verde y azul, el sistema obtiene tres mediciones independientes mediante el LDR. Dichos valores, convertidos por el módulo ADC (\textit{Analog-to-Digital Converter}) del microcontrolador ATmega328P, representan las coordenadas $(R, G, B)$ de un punto dentro de un espacio de color tridimensional (Véase código fuente en anexo \ref{anexos:lectura_colores}).
+    Para resolver esta limitación, se empleó un diodo emisor de luz RGB como fuente de iluminación controlada. Al iluminar secuencialmente la superficie con luz roja, verde y azul, el sistema obtiene tres mediciones independientes mediante el LDR. Dichos valores, convertidos por el módulo ADC (\textit{Analog-to-Digital Converter}) del microcontrolador ATmega328P, representan las coordenadas $(R, G, B)$ de un punto dentro de un espacio de color tridimensional (Véase anexo~\ref{anexos:lectura_colores}).
 
     \vspace{1em}
 
@@ -51,7 +51,7 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
     D = \sqrt{(R_m - R_i)^2 + (G_m - G_i)^2 + (B_m - B_i)^2}
     \end{equation}
 
-    donde $(R_m, G_m, B_m)$ representan los valores medidos por el sensor y $(R_i, G_i, B_i)$ corresponden a los valores calibrados de cada color de la hoja de referencia. El color identificado será aquel cuya distancia $D$ sea mínima (Véase código fuente en anexo \ref{anexo:reconocimiento_colores}).
+    donde $(R_m, G_m, B_m)$ representan los valores medidos por el sensor y $(R_i, G_i, B_i)$ corresponden a los valores calibrados de cada color de la hoja de referencia. El color identificado será aquel cuya distancia $D$ sea mínima (Véase anexo~\ref{anexo:reconocimiento_colores}).
 
     \paragraph*{\textbf{Servomotor y tira LED}}---
     El servomotor se controla mediante el \textit{Timer1} configurado en modo \textit{Fast PWM} a 50\,Hz, generando pulsos de entre 1 y 2\,ms para posicionar el eje según el color identificado. Cada ángulo se calcula a partir del valor del registro \texttt{OCR1A}, que define el tiempo en alto del ciclo PWM (Véase anexo~\ref{anexo:servomotor}).
@@ -63,7 +63,7 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
     \vspace{1em}
 
     \paragraph*{\textbf{USART}}---
-   A través de USART se comunican los valores del sensor y el color detectado hacia una interfaz serial. Se utiliza un buffer circular para transmisión continua sin bloqueo, y la función auxiliar \texttt{UTOA} convierte los datos numéricos del ADC en texto ASCII antes de su envío. De esta forma, el sistema comunica en tiempo real los valores $(R, G, B)$ medidos, el color identificado y el ángulo del servomotor, facilitando el monitoreo y la calibración del sistema.
+   A través de USART se comunican los valores del sensor y el color detectado hacia una interfaz serial. Se utiliza un buffer circular para transmisión continua sin bloqueo, y la función auxiliar \texttt{UTOA} convierte los datos numéricos del ADC en texto ASCII antes de su envío. De esta forma, el sistema comunica en tiempo real los valores $(R, G, B)$ medidos, el color identificado y el ángulo del servomotor, facilitando el monitoreo y la calibración del sistema (Véase anexo~\ref{anexo:USART}).
 
     \vspace{1em}
     
@@ -79,7 +79,47 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
 
     \vspace{1em}
 
-    En el microcontrolador ATmega328P, esta señal se genera mediante el uso de los temporizadores internos (\textit{timers}), configurados para producir una onda cuadrada en un pin de salida. Al modificar la frecuencia de conmutación, es posible variar el tono percibido, ya que la frecuencia del sonido determina su altura musical. De esta manera, cada nota puede asociarse a una frecuencia específica según la escala. Por ejemplo, la nota \textit{La4} corresponde a una frecuencia de 440\,Hz, mientras que \textit{Do4} equivale aproximadamente a 262\,Hz.
+    En el microcontrolador ATmega328P, esta señal se genera mediante el uso de los temporizadores internos (\textit{timers}), configurados para producir una onda cuadrada en un pin de salida. Al modificar la frecuencia de conmutación, es posible variar el tono percibido, ya que la frecuencia del sonido determina su altura musical. De esta manera, cada nota puede asociarse a una frecuencia específica según la escala. Por ejemplo, la nota \textit{La4} corresponde a una frecuencia de 440\,Hz, mientras que \textit{Do4} equivale aproximadamente a 262\,Hz (véase anexo~\ref{anexo:notas_musicales}).
+
+    % #define G4 392	
+    % #define Fb4 370	
+    % #define E4 330	
+    % #define D4 294	
+
+    \vspace{1em}
+
+    \paragraph*{\textbf{Generación de frecuencias}}---
+    Para reproducir una nota musical, el microcontrolador debe generar una señal cuadrada con una frecuencia específica, determinada por el valor de comparación del temporizador. En el ATmega328P, dicha frecuencia depende de la relación entre la frecuencia del reloj del sistema (\texttt{F\_CPU}), el valor de comparación \texttt{OCRx}, y el prescaler aplicado al temporizador. Este último actúa como un divisor de frecuencia, reduciendo la velocidad a la que el contador incrementa. 
+
+    Elegir el prescaler adecuado resulta fundamental para asegurar que el valor de \texttt{OCRx} se mantenga dentro del rango permitido por el temporizador (por ejemplo, 8 bits en el Timer0). Si la frecuencia deseada es alta, se requiere un prescaler pequeño para mantener precisión; si es baja, un prescaler grande evita desbordamientos y permite generar tonos audibles. 
+
+    En la práctica, el programa selecciona dinámicamente el prescaler que produce un valor de \texttt{OCR0A} válido para la nota solicitada (véase anexo~\ref{anexo:piano_prescaler}). De esta forma, es posible generar un amplio rango de frecuencias musicales con un solo temporizador, manteniendo una relación estable entre tono y duración.
+
+    % void playFrequencyA(uint16_t freq) {
+    % 	if (!freq) return;  
+
+    % 	DDRD |= (1 << PORTD6);
+        
+    % 	// Elegir prescaler adecuado para esa frecuencia
+
+    % 	uint8_t presc_bits = 0;     
+    % 	uint16_t ocr = 0;
+
+    % 	const uint16_t presc_list[] = {8, 64, 256, 1024};
+    % 	const uint8_t  bits_list[]  = {0b010, 0b011, 0b100, 0b101};
+
+    % 	for (uint8_t i = 0; i < 4; i++) {
+    % 		ocr = (F_CPU / (2UL * presc_list[i] * freq)) - 1;
+    % 		if (ocr <= 255) {
+    % 			presc_bits = bits_list[i];
+    % 			break;
+    % 		}
+    % 	}
+
+    % 	TCCR0A = (1 << COM0A0) | (1 << WGM01);
+    % 	TCCR0B = presc_bits;          
+    % 	OCR0A  = (uint8_t)ocr;        
+    % }
 
     \vspace{1em}
 
@@ -92,15 +132,18 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
 
     La reproducción simultánea de varios instrumentos en un entorno digital requiere el manejo de múltiples secuencias de notas en paralelo. Para lograrlo sin recurrir al uso de ciclos de espera activos (\textit{polling}), se utilizan interrupciones asociadas a los temporizadores. De este modo, el microcontrolador puede controlar la duración y el inicio de cada nota de forma independiente y precisa, optimizando el uso del procesador y permitiendo la ejecución de tareas concurrentes, como la lectura de entradas o la comunicación serial, mientras la música continúa sonando de manera autónoma.
 
+    % Ejemplo de pista guardada e interrupciones
+
     \vspace{1em}
 
-    \paragraph*{\textbf{Modo piano}}---
+    \paragraph*{\textbf{Modos de funcionamiento y USART}}---
     Para implementar el modo piano se decidió utilizar 8 pulsadores correspondientes a las 8 principales notas musicales. Cada uno de los pulsadores fue conectado a un pin del puerto D del microcontrolador, configurando los pines como entradas y pull-ups internas. Utilizando interrupciones externas por cambio de pin (\texttt{PCINT}) y lógica programática para debouncing, se implementó la funcionalidad de que mientras el pulsador está presionado, la nota sigue sonando.
 
     \vspace{1em}
 
     Finalmente, a este sistema se integra funcionalidad USART para mostrar un menú al usuario por consola y permitir comandar el funcionamiento del sistema de manera sencilla. El usuario es presentado con 3 opciones: [1]: Reproducir canción 1, [2]: Reproducir cancion 2, [P]: Cambiar a modo piano. Mediante variables de control se deshabilita la funcionalidad de piano durante la reproducción de canciones, y vice versa, al cambiar al modo piano se detiene y reinician las pistas que se estaban reproduciendo.
 
+    % Ejemplo de pista guardada e interrupciones
 
     \vspace{1em}
 

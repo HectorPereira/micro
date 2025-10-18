@@ -2,10 +2,11 @@
 
 \subsection{Fragmentos de codigo}
 
-\subsubsection{Plotter}---
+\subsubsection{\textbf{Plotter}}---
 
-\subsubsection{Colores}---
+\subsubsection{\textbf{Colores}}---
 
+\paragraph{Librerías utilziadas}---\\
 \begin{lstlisting}[language=C, caption={Librerias utilizadas}]
 #define F_CPU 16000000UL
 
@@ -15,24 +16,7 @@
 #include <string.h>
 \end{lstlisting}
 
-\begin{lstlisting}[language=C, caption={Mapeado de colores}]
-typedef struct {
-	const char *name;
-	uint16_t r, g, b;
-} ColorRef;
-
-const ColorRef color_refs[] = {
-	{"MORADO",    216, 157, 274},
-	{"ROJO",       206, 149, 262},
-	{"AMARILLO",    196, 99, 105},
-	{"VERDE",     272, 192, 152},
-	{"AZUL CLARO", 151, 153, 122},
-	{"VIOLETA",    253, 275, 338},
-	{"BLANCO",    110, 93, 91},
-};
-\end{lstlisting}
-
-\label{anexos:lectura_colores}
+\paragraph{Lectura de colores}\label{anexos:lectura_colores}---\\
 \begin{lstlisting}[language=C, caption={Lectura de colores}]
 
 uint8_t led_state = 0;
@@ -75,6 +59,7 @@ void rgb_read(void){
 \end{lstlisting}
 
 
+\paragraph{Convertidor a string}\label{anexo:UTOA}---\\
 \begin{lstlisting}[language=C, caption={Convertidor de unsigned integer a string}]
 // Convierte un valor entero sin signo en un string
 void UTOA(uint16_t value, char *buffer) { 
@@ -99,79 +84,8 @@ void UTOA(uint16_t value, char *buffer) {
 }
 \end{lstlisting}
 
-\begin{lstlisting}[language=C, caption={Enviado de datos a tira LED}]
-void send_bit(uint8_t bitVal){
-	if(bitVal){
-		PORTD |=  (1<<LED_PIN);
-		asm volatile (
-		"nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"
-		"nop\n\t""nop\n\t""nop\n\t""nop\n\t");
-		
-		PORTD &= ~(1<<LED_PIN);
-		
-		asm volatile (
-		"nop\n\t""nop\n\t""nop\n\t""nop\n\t");
-		
-		} else {
-		PORTD |=  (1<<LED_PIN);
-		asm volatile (
-		"nop\n\t""nop\n\t""nop\n\t");
-		
-		PORTD &= ~(1<<LED_PIN);
-		asm volatile (
-		"nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"
-		"nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
-	}
-}
 
-// Envia un Byte a la tira de leds
-// Utiliza cli y sei para un timing preciso
-void send_byte(uint8_t byte) {
-	cli();  
-	for (uint8_t i = 0; i < 8; i++) {
-		send_bit(byte & 0x80);  // send most significant bit first
-		byte <<= 1;             // shift next bit into MSB position
-	}
-	sei();  // re-enable interrupts
-}
-\end{lstlisting}
-
-\begin{lstlisting}[language=C, caption={Inicializadores}]
-void usart_init(void) {
-	const uint16_t ubrr = (16000000UL / (16UL * BAUD_RATE)) - 1;
-	UBRR0H = ubrr >> 8;
-	UBRR0L = ubrr;
-	UCSR0A = 0;
-	UCSR0B = (1 << TXEN0) | (1 << RXEN0) | (1 << RXCIE0);   // RX interrupt
-	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);               // 8N1
-}
-
-void adc_init(void) {
-	ADMUX  = (1 << REFS0);                        
-	ADCSRA = (1 << ADEN)                          
-	| (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Prescaler 128
-}
-
-void rgb_init(void){
-	DDRB |= (1<<RED) | (1<<GREEN) | (1<<BLUE);
-}
-
-
-void servo_init(void) {
-	SERVO_DDR |= (1 << SERVO_PORT); 
-
-	TCCR1A = (1 << COM1A1) | (1 << WGM11);
-	TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS11); // 8
-
-	ICR1 = 39999;   
-}
- 
-void ws2812_init(void) { // tira de leds
-	LED_DDR |= (1 << LED_PIN);
-}
-\end{lstlisting}
-
-\label{anexo:tira_led}
+\paragraph{Manejo de tira led WS2812}\label{anexo:tira_led}---\\
 \begin{lstlisting}[language=C, caption={Manejo de tira led WS2812}]
 void send_bit(uint8_t bitVal){
 	if(bitVal){
@@ -270,7 +184,7 @@ void led_strip_set_color(uint8_t color_id) {
                            
 \end{lstlisting}
 
-\label{anexo:servomotor}
+\paragraph{Movimiento de servomotor}\label{anexo:servomotor}---\\
 \begin{lstlisting}[language=C, caption={Movimiento de servomotor}]
 // Establecer angulo en el servomotor
 void servo_set_angle(uint8_t angle) {
@@ -279,8 +193,28 @@ void servo_set_angle(uint8_t angle) {
 }
 \end{lstlisting}
 
-\label{anexo:reconocimiento_colores}
+
+
+\paragraph{Reconocimiento de colores}\label{anexo:reconocimiento_colores}---\\
 \begin{lstlisting}[language=C, caption={Reconocimiento de colores}]
+
+// Mapeado de colores RGB
+typedef struct {
+	const char *name;
+	uint16_t r, g, b;
+} ColorRef;
+
+const ColorRef color_refs[] = {
+	{"MORADO",    216, 157, 274},
+	{"ROJO",       206, 149, 262},
+	{"AMARILLO",    196, 99, 105},
+	{"VERDE",     272, 192, 152},
+	{"AZUL CLARO", 151, 153, 122},
+	{"VIOLETA",    253, 275, 338},
+	{"BLANCO",    110, 93, 91},
+};
+
+
 // Identificar color a partir de valores rgb.
 const char* identify_color(
 		uint16_t r, 
@@ -305,9 +239,63 @@ const char* identify_color(
 }
 \end{lstlisting}
 
+\paragraph{Comunicación por USART}\label{anexo:USART}---\\
+\begin{lstlisting}[language=C, caption={Comunicación por USART}]
+// Imprimir datos parseados por usart
+void print_data(const char *color_name) {
+	char buf[10];
 
+	// Find by name
+	uint16_t ref_r = 0, ref_g = 0, ref_b = 0;
+	for (uint8_t i = 0; i < NUM_COLORS; i++) {
+		if (strcmp(color_name, color_refs[i].name) == 0) {
+			ref_r = color_refs[i].r;
+			ref_g = color_refs[i].g;
+			ref_b = color_refs[i].b;
+			break;
+		}
+	}
 
+	// Delta
+	int16_t dR = (int16_t)adc_sample[0] - ref_r;
+	int16_t dG = (int16_t)adc_sample[1] - ref_g;
+	int16_t dB = (int16_t)adc_sample[2] - ref_b;
 
+	// Printing
+	usart_write_str("Fotocelda: ");
+	UTOA(adc_sample[0], buf); usart_write_str(buf);
+	usart_write_str(" ");
+	UTOA(adc_sample[1], buf); usart_write_str(buf);
+	usart_write_str(" ");
+	UTOA(adc_sample[2], buf); usart_write_str(buf);
+
+	usart_write_str("  Color detectado: ");
+	usart_write_str(color_name);
+
+	usart_write_str("  Valor establecido: [");
+	UTOA(ref_r, buf); usart_write_str(buf); usart_write_str(",");
+	UTOA(ref_g, buf); usart_write_str(buf); usart_write_str(",");
+	UTOA(ref_b, buf); usart_write_str(buf); usart_write_str("]");
+
+	usart_write_str("  Delta: [");
+	if (dR >= 0) usart_write_str("+");
+	else usart_write_str("-");
+	UTOA((dR >= 0) ? dR : -dR, buf); usart_write_str(buf);
+	usart_write_str(",");
+
+	if (dG >= 0) usart_write_str("+");
+	else usart_write_str("-");
+	UTOA((dG >= 0) ? dG : -dG, buf); usart_write_str(buf);
+	usart_write_str(",");
+
+	if (dB >= 0) usart_write_str("+");
+	else usart_write_str("-");
+	UTOA((dB >= 0) ? dB : -dB, buf); usart_write_str(buf);
+	usart_write_str("]\r\n");
+}
+\end{lstlisting}
+
+\paragraph{Bucle principal}---\\
 \begin{lstlisting}[language=C, caption={Bucle principal}]
 // programa principal
 int main(void) {
@@ -327,7 +315,8 @@ int main(void) {
 }
 \end{lstlisting}
 
-\subsubsection{Piano}---
+
+\subsubsection{\textbf{Piano}}---
 
 
 USART con buffers
@@ -598,7 +587,7 @@ int main(void) {
 }
 \end{lstlisting}
 
-\subsubsection{Cerradura}---
+\subsubsection{\textbf{Cerradura}}---
 
 
 
