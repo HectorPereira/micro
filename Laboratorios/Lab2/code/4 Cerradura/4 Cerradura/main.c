@@ -1,39 +1,39 @@
 /*
 Funcionalidades detalladas:
 
-1. Bienvenida y Menú Interactivo:
+1. Bienvenida y MenÃº Interactivo:
 	-	Al encender el sistema, la pantalla LCD muestra un mensaje de
-		bienvenida e instrucciones para ingresar la contraseña.
-	-	El menú también da la opción de cambiar la contraseña si el
+		bienvenida e instrucciones para ingresar la contraseÃ±a.
+	-	El menÃº tambiÃ©n da la opciÃ³n de cambiar la contraseÃ±a si el
 		usuario lo desea.
 
-2. Ingreso de Contraseña:
-	-	El usuario ingresa la contraseña mediante el teclado matricial.
-	-	La contraseña es comparada con la almacenada en la EEPROM.
+2. Ingreso de ContraseÃ±a:
+	-	El usuario ingresa la contraseÃ±a mediante el teclado matricial.
+	-	La contraseÃ±a es comparada con la almacenada en la EEPROM.
 	-	Si es correcta, se enciende el LED verde.
-	-	Si es incorrecta, se enciende el LED rojo. Después de 3 intentos
+	-	Si es incorrecta, se enciende el LED rojo. DespuÃ©s de 3 intentos
 		fallidos, se activa la alarma (buzzer).
 
 3. Almacenamiento en EEPROM:
-	-	La contraseña se guarda en la EEPROM para que esté disponible
-		después de un reinicio o apagado del sistema.
-	-	El microcontrolador puede leer la contraseña desde la EEPROM y
+	-	La contraseÃ±a se guarda en la EEPROM para que estÃ© disponible
+		despuÃ©s de un reinicio o apagado del sistema.
+	-	El microcontrolador puede leer la contraseÃ±a desde la EEPROM y
 		comparar los valores con lo que el usuario ingresa.
 
-4. Cambio de Contraseña:
-	-	El sistema permite al usuario cambiar la contraseña ingresando
-		primero la contraseña actual.
-	-	Luego, el usuario puede elegir una nueva contraseña de entre 4 y
-		6 dígitos, que será almacenada en la EEPROM.
+4. Cambio de ContraseÃ±a:
+	-	El sistema permite al usuario cambiar la contraseÃ±a ingresando
+		primero la contraseÃ±a actual.
+	-	Luego, el usuario puede elegir una nueva contraseÃ±a de entre 4 y
+		6 dÃ­gitos, que serÃ¡ almacenada en la EEPROM.
 		
 Requerimientos:
 	-	Microcontrolador: ATmega328P
 	-	Teclado Matricial: 4x4 (16 teclas)
 	-	Pantalla LCD: 16x2 o similar
-	-	LED Verde: Indica éxito (contraseña correcta)
-	-	LED Rojo: Indica error (contraseña incorrecta)
+	-	LED Verde: Indica Ã©xito (contraseÃ±a correcta)
+	-	LED Rojo: Indica error (contraseÃ±a incorrecta)
 	-	Alarma: Buzzer o LED de advertencia
-	-	EEPROM: Almacena la contraseña de manera persistente
+	-	EEPROM: Almacena la contraseÃ±a de manera persistente
 	
  */ 
 
@@ -97,7 +97,12 @@ ISR(TIMER0_OVF_vect){
 }
 
 
+#define EEPROM_MAGIC 0x42
+uint8_t EEMEM ee_magic;                         // init marker
+extern char EEMEM ee_password[MAX_PASSWORD_LENGTH + 1]; // you already have this
 
+void eeprom_load_password(void);
+void eeprom_save_password(const char *pwd);
 
 void keypad_init(void);
 char keypad_scan(void);
@@ -146,6 +151,8 @@ int main(void) {
 	led_init();
 	sei();
 	
+	eeprom_load_password();
+	
 	LiquidCrystalDevice_t device = lq_init(0x27, 16, 2, LCD_5x8DOTS);
 
 	lq_turnOnBacklight(&device);
@@ -158,9 +165,11 @@ int main(void) {
 	ui_state_t ui_state = UI_MENU;
 	
 	storedPassword_length = strlen(storedPassword);
+	
 
 	reset_typed_password();
 	uint8_t intentos = MAX_INTENTOS;
+	
 
 	while (1) {
 		buzzer_task();
@@ -175,7 +184,6 @@ int main(void) {
 			switch (ui_state)
 			{
 				case UI_MENU:
-				intentos = MAX_INTENTOS;
 				if (key == 'A'){
 					state_ingreso_UI(device);
 					ui_state = UI_INGRESO;
@@ -214,6 +222,7 @@ int main(void) {
 						state_ingreso_UI(device);
 						ui_state = UI_INGRESO;
 					} else {
+						intentos = MAX_INTENTOS;
 						reset_typed_password();
 						led_green_on();
 						state_abierto_UI(device);
@@ -296,14 +305,20 @@ int main(void) {
 					ui_state = UI_MENU;
 				} else if (key == 'D'){ // Send button
 					if (strlen(typedPassword) < 4) continue;
+
 					strncpy(storedPassword, typedPassword, MAX_PASSWORD_LENGTH);
+					storedPassword[MAX_PASSWORD_LENGTH] = '\0';
+					storedPassword_length = strlen(storedPassword);
+
+					eeprom_save_password(storedPassword);  // <<< persist change
+
 					reset_typed_password();
 					lq_clear(&device);
 					char text[] = "Contra cambiada!";
 					lq_setCursor(&device,0,0);
 					lq_print(&device, text);
 					lq_setCursor(&device,1,0);
-					
+
 					_delay_ms(500);
 					state_menu_UI(device);
 					ui_state = UI_MENU;
@@ -332,6 +347,7 @@ int main(void) {
 						continue;
 						} else {
 						// Password correct
+						intentos = MAX_INTENTOS;
 						alarm_until = millis_now();
 						reset_typed_password();
 						state_menu_UI(device);
@@ -428,6 +444,33 @@ void state_alarma_UI(LiquidCrystalDevice_t device){
 	lq_print(&device, text);
 	lq_setCursor(&device,1,0);
 }
+
+
+
+
+void eeprom_load_password(void) {
+	uint8_t magic = eeprom_read_byte(&ee_magic);
+	if (magic == EEPROM_MAGIC) {
+		eeprom_read_block(storedPassword, ee_password, MAX_PASSWORD_LENGTH + 1);
+		storedPassword[MAX_PASSWORD_LENGTH] = '\0';
+		} else {
+		// First boot or erased EEPROM: write current RAM default to EEPROM
+		// (storedPassword is "123456" from your initializer)
+		eeprom_update_block(storedPassword, ee_password, MAX_PASSWORD_LENGTH + 1);
+		eeprom_update_byte(&ee_magic, EEPROM_MAGIC);
+	}
+	storedPassword_length = strlen(storedPassword);
+}
+
+void eeprom_save_password(const char *pwd) {
+	// Write safely (NUL-terminated and wear-friendly)
+	char temp[MAX_PASSWORD_LENGTH + 1];
+	strncpy(temp, pwd, MAX_PASSWORD_LENGTH);
+	temp[MAX_PASSWORD_LENGTH] = '\0';
+	eeprom_update_block(temp, ee_password, MAX_PASSWORD_LENGTH + 1);
+	eeprom_update_byte(&ee_magic, EEPROM_MAGIC);
+}
+
 
 
 
