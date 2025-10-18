@@ -1693,26 +1693,26 @@ void usart_init_9600(void) {
 	UCSR0C = _BV(UCSZ01) | _BV(UCSZ00);               // 8N1
 }
 
-
+// Escribir byte al buffer
 uint8_t usart_write_try(uint8_t b) {
 	uint8_t next = (uint8_t)((tx_head + 1) & TX_MASK);
-	if (next == tx_tail) return 0;               // full
+	if (next == tx_tail) return 0;               // buffer lleno
 	tx_buf[tx_head] = b;
 	tx_head = next;
 	UCSR0B |= _BV(UDRIE0);                       // kick the ISR
 	return 1;
 }
 
-// Non-blocking: queues as many chars as fit, returns how many were queued.
+// Escribir string al buffer
 uint16_t usart_write_str(const char *s) {
 	uint16_t n = 0;
 	while (*s && usart_write_try((uint8_t)*s++)) n++;
 	return n;
 }
 
-
+// Leer byte del buffer de recepcion
 uint8_t usart_read_try(uint8_t *b) {
-	if (rx_head == rx_tail) return 0;                 // empty
+	if (rx_head == rx_tail) return 0;                
 	*b = rx_buf[rx_tail];
 	rx_tail = (uint8_t)((rx_tail + 1) & RX_MASK);
 	return 1;
@@ -1727,6 +1727,7 @@ void timer1_init(void) {
 	TIMSK1 |= (1 << TOIE1);
 }
 
+// Botones del piano con sus interrupciones
 void init_piano_buttons(void) {
 	DDRC &= ~((1 << PORTC0) | (1 << PORTC1) | (1 << PORTC2) |
 	(1 << PORTC3) | (1 << PORTC4) | (1 << PORTC5)); 
@@ -1751,10 +1752,13 @@ void init_piano_buttons(void) {
 
 
 // Playing frequencies --------------------------
+// Reproducir frecuencia en buzzer 1
 void playFrequencyA(uint16_t freq) {
 	if (!freq) return;  
 
 	DDRD |= (1 << PORTD6);
+	
+	// Elegir prescaler adecuado para esa frecuencia
 
 	uint8_t presc_bits = 0;     
 	uint16_t ocr = 0;
@@ -1775,6 +1779,7 @@ void playFrequencyA(uint16_t freq) {
 	OCR0A  = (uint8_t)ocr;        
 }
 
+// Reproducir frecuencia en buzzer 2
 void playFrequencyB(uint16_t freq) {
 	if (!freq) return;
 
@@ -1799,6 +1804,7 @@ void playFrequencyB(uint16_t freq) {
 	OCR2A  = (uint8_t)ocr;
 }
 
+// Dejar de reproducir frencuencia buzzer 1
 void stopFrequencyA(void) {
 	TCCR0A = 0;
 	TCCR0B = 0;
@@ -1806,6 +1812,7 @@ void stopFrequencyA(void) {
 	PORTD &= ~(1 << PORTD6);
 }
 
+// Dejar de reproducir frencuencia buzzer 2
 void stopFrequencyB(void) {
 	TCCR2A = 0;
 	TCCR2B = 0;
@@ -1816,6 +1823,7 @@ void stopFrequencyB(void) {
 
 
 // Tracks --------------------------------------
+// Reproducir melodia o track en buzzer 1
 void playTrackA(void) {
 	int values[3];
 	if (song == 0){
@@ -1832,7 +1840,7 @@ void playTrackA(void) {
 	enableCountAon = 1;         
 }
 
-
+// Reproducir melodia o track en buzzer 2
 void playTrackB(void) {
 	int values[3];
 	read_midi_event(midiB, indexB++, values);
@@ -1847,12 +1855,14 @@ void playTrackB(void) {
 
 // Buttons -------------------------------------
 
+// Debouncing de botones
 void startDebounceTimer(void) {
 	debounce_ms = 0;
 	debounce_active = 1;
 	PCICR &= ~((1 << PCIE1) | (1 << PCIE2));
 }
 
+// Ccambio de estado de boton
 void handleButtonChange(uint8_t PORT) {
 	uint8_t current, changed, mask, pressed, released;
 
@@ -1890,6 +1900,7 @@ void handleButtonChange(uint8_t PORT) {
 
 
 // USART -------------------------------------
+// Manejo de cambio de estados de usart
 void handleUSART(uint8_t character){
 	if (character == '1'){
 		mode = 1;
@@ -1979,9 +1990,11 @@ void handleUSART(uint8_t character){
 // MAIN LOOP
 // ------------------------------------------------------------------
 
+// Esqueletors
 void piano_mode(void);
 void song_mode(void);
 
+// Programa principal
 int main(void) {
 	timer1_init();
 	usart_init_9600();
@@ -2012,11 +2025,13 @@ int main(void) {
 // STATES
 // ------------------------------------------------------------------
 
+// Pq si
 void piano_mode(void){
 	return;
 }
 
 
+// Modo cancioncita
 void song_mode(void){
 	
 	// Track A

@@ -35,68 +35,55 @@ Requerimientos:
 	-	Alarma: Buzzer o LED de advertencia
 	-	EEPROM: Almacena la contraseña de manera persistente
 	
-A -> Ingresar C. 
-B -> Cambiar C.
-
-
  */ 
 
 
 #define F_CPU 16000000
+
 #include <xc.h>
 #include <util/twi.h>
 #include <avr/interrupt.h>
 #include <avr/eeprom.h>
 #include <string.h>
+#include <stdint.h>
+
 #include "i2c_master.h"
 #include "i2c_master.c"
 #include "liquid_crystal_i2c.h"
 #include "liquid_crystal_i2c.c"
 
-#ifndef _BV
-#define _BV(b) (1U << (b))
-#endif
+#define ALARM_DURATION_MS 10000
+#define ALARM_TOGGLE_MS 200
+#define MAX_INTENTOS 3
 
-#define DEBOUNCE_MS 30   // time for stable reading
 
-#define ALARM_DURATION_MS 5000
-#define ALARM_TOGGLE_MS    200
+uint32_t buzzer_on_at = 0;
+uint32_t buzzer_off_at = 0;
 
-typedef struct {
-	uint8_t  active;
-	uint8_t  phase;
-	uint32_t until;
-	uint32_t next_toggle;
-} alarm_t;
+uint8_t alarm_active = 0;
+uint32_t alarm_until = 0;
+uint8_t alarm_phase = 0;
+uint32_t alarm_next_toggle = 0;
 
-static alarm_t alarm = {0};
+uint32_t led_on_at = 0;
+uint32_t led_off_at = 0;
+uint8_t led_state = 0;
+uint8_t led_toggle_enable = 0;
 
-// --- EEPROM ---
-uint8_t EEMEM password_mem[5];  // 4 dígitos + terminador '\0'
+uint32_t keypad_on_at = 0;
+uint8_t keypad_enable = 1;
 
-// --- Buzzer ---
-#define BUZZER_PORT PORTB
-#define BUZZER_DDR  DDRB
-#define BUZZER_PIN  PB5
-uint8_t buzzer_state = 0;
-uint16_t buzzer_timer = 0;
+uint32_t millis_counter = 0;
 
-volatile uint8_t  buzzer_on = 0;
-volatile uint32_t buzzer_off_at = 0;
+#define MAX_PASSWORD_LENGTH 6
 
-// --- Red LED ---
-#define RED_PORT PORTB0
-#define RED_DDR  PORTB0
-#define RED_PIN  PB0
-uint8_t red_state = 0;
-uint16_t red_timer = 0;
+char storedPassword[MAX_PASSWORD_LENGTH + 1] = "123456";
+char typedPassword[MAX_PASSWORD_LENGTH + 1];
 
-// --- Green LED ---
-#define GREEN_PORT PORTB1
-#define GREEN_DDR  PORTB1
-#define GREEN_PIN  PB1
-uint8_t green_state = 0;
-uint16_t green_timer = 0;
+char EEMEM ee_password[MAX_PASSWORD_LENGTH + 1];
+
+uint8_t typedPassword_counter = 0;
+uint8_t storedPassword_length = 0;
 
 const char keypad[4][4] = {
 	{'1', '2', '3', 'A'},
@@ -105,475 +92,532 @@ const char keypad[4][4] = {
 	{'*', '0', '#', 'D'}
 };
 
-
-
-uint8_t keypad_state = 0;
-uint8_t keypad_timer = 0;
-uint8_t keypad_debounce_flag = 0;
-char keypad_active_key = 0;
-
-
-volatile uint32_t millis = 0;   // incremented every 1 ms in a timer ISR
-uint32_t millis_now(void) {
-	uint32_t m;
-	cli();
-	m = millis;
-	sei();
-	return m;
-}
-
-
-
-static inline void buzzer_init(void) {
-	DDRB  |= _BV(PB5);   // PB5 como salida
-	PORTB &= ~_BV(PB5);  // buzzer apagado
-}
-
-static inline void buzzer_beep(uint32_t ms) {
-	PORTB |= _BV(PB5);                 // encender buzzer activo
-	buzzer_on = 1;
-	buzzer_off_at = millis_now() + ms; // programar apagado
-}
-
-static inline void buzzer_task(void) {
-	if (buzzer_on && (int32_t)(millis_now() - buzzer_off_at) >= 0) {
-		PORTB &= ~_BV(PB5);            // apagar buzzer
-		buzzer_on = 0;
-	}
+ISR(TIMER0_OVF_vect){
+	millis_counter++;
 }
 
 
 
 
+void keypad_init(void);
+char keypad_scan(void);
+void keypad_debounce_ms(uint16_t delay_ms);
+void keypad_task(void);
 
-static inline void leds_init(void) {
-	DDRB  |= _BV(RED_DDR) | _BV(GREEN_DDR);
-	// Estado por defecto: CERRADO ? rojo ON, verde OFF (asumiendo activo en alto)
-	PORTB |=  _BV(RED_PORT);
-	PORTB &= ~_BV(GREEN_PORT);
-}
+void buzzer_init(void);
+void buzzer_task(void);
+void buzzer_beep(uint16_t duration_ms);
 
-static inline void leds_set_abierto(uint8_t abierto) {
-	if (abierto) {
-		// ABIERTO: rojo OFF, verde ON
-		PORTB &= ~_BV(RED_PORT);
-		PORTB |=  _BV(GREEN_PORT);
-		} else {
-		// CERRADO: rojo ON, verde OFF
-		PORTB |=  _BV(RED_PORT);
-		PORTB &= ~_BV(GREEN_PORT);
-	}
-}
+void alarm_start(void);
+void alarm_task(void);
 
+void timer0_init(void);
+uint32_t millis_now(void);
 
-static inline void alarm_start(void) {
-	uint32_t now = millis_now();
-	alarm.active = 1;
-	alarm.phase = 0;
-	alarm.until = now + ALARM_DURATION_MS;
-	alarm.next_toggle = now; // primera conmutación inmediata
-}
+void led_init(void);
+void led_mode(uint8_t mode, uint16_t delay);
+void led_task(void);
+void led_green_on(void);
+void led_red_on(void);
 
-static inline void alarm_task(void) {
-	if (!alarm.active) return;
+void state_menu_UI(LiquidCrystalDevice_t device);
+void state_ingreso_UI(LiquidCrystalDevice_t device);
+void state_cambio_actual_UI(LiquidCrystalDevice_t device);
+void state_cambio_nueva_UI(LiquidCrystalDevice_t device);
+void state_abierto_UI(LiquidCrystalDevice_t device);
+void state_alarma_UI(LiquidCrystalDevice_t device);
 
-	uint32_t now = millis_now();
-
-	// Fin de alarma
-	if ((int32_t)(now - alarm.until) >= 0) {
-		alarm.active = 0;
-		PORTB &= ~_BV(PB5);   // buzzer OFF
-		leds_set_abierto(0);  // volver a "CERRADO": rojo ON, verde OFF
-		return;
-	}
-
-	// Parpadeo + beep intermitente
-	if ((int32_t)(now - alarm.next_toggle) >= 0) {
-		alarm.next_toggle = now + ALARM_TOGGLE_MS;
-
-		if (alarm.phase) {
-			// rojo ON, verde OFF
-			PORTB |=  _BV(RED_PORT);
-			PORTB &= ~_BV(GREEN_PORT);
-			} else {
-			// rojo OFF, verde ON
-			PORTB &= ~_BV(RED_PORT);
-			PORTB |=  _BV(GREEN_PORT);
-		}
-		alarm.phase ^= 1;
-
-		// beep cortito
-		buzzer_beep(100); // tu tarea buzzer_task() apagará a tiempo
-	}
-}
+void reset_typed_password(void);
 
 
 
 
-
-
-
-void timer0_init_millis(void) {
-	TCCR0A = (1 << WGM01);
-	TCCR0B = (1 << CS01) | (1 << CS00); // prescaler 64
-	OCR0A = 249;
-	TIMSK0 = (1 << OCIE0A); // enable compare interrupt
-}
-
-
-char read_keypad(void) {
-	static char last_key = 0;
-	static char stable_key = 0;
-	static uint32_t last_change_time = 0;
-
-	char key = 0;                 // move declaration here
-	uint32_t now;                 // also declare now here
-	uint8_t row, col;
-	uint8_t cols;
-
-	// --- Scan the matrix ---
-	for (row = 0; row < 4; row++) {
-		PORTD = (PORTD | 0xF0) & ~(1 << (row + 4));
-		_delay_us(5);
-		cols = PIND & 0x0F;
-		for (col = 0; col < 4; col++) {
-			if (!(cols & (1 << col))) {
-				key = keypad[row][col];
-				if ((now - last_change_time) > DEBOUNCE_MS) {
-					if (key != stable_key) {
-						stable_key = key;
-						if (stable_key != 0) {
-							buzzer_beep(30);      // <--- BEEP de ~30 ms
-							return stable_key;    // stable press
-						}
-					}
-				}
-				goto done;
-			}
-		}
-	}
-	done:                            // label must precede statements, not declarations
-
-	now = millis_now();
-
-	// --- Debounce logic ---
-	if (key != last_key) {
-		last_key = key;
-		last_change_time = now;
-	}
-
-	if ((now - last_change_time) > DEBOUNCE_MS) {
-		if (key != stable_key) {
-			stable_key = key;
-			if (stable_key != 0) {
-				return stable_key; // stable press
-			}
-		}
-	}
-
-	return 0;
-}
-
-void keypad_init(void) {
-	DDRD  &= ~0x0F;   // entradas
-	PORTD |=  0x0F;   // pull-ups activadas
-
-	DDRD  |=  0xF0;   // salidas
-	PORTD |=  0xF0;   // inicializadas en 1
-}
-
-
-
-static inline void guardar_password_eeprom(const char *pwd4) {
-	char tmp[5];
-	memcpy(tmp, pwd4, 4);
-	tmp[4] = '\0';
-	eeprom_update_block((const void*)tmp, (void*)password_mem, sizeof(tmp));
-}
+// -----------------------------------------------------
+// MAIN
+// -----------------------------------------------------
 
 typedef enum { UI_MENU, UI_INGRESO, UI_CAMBIO_ACTUAL, UI_CAMBIO_NUEVA, UI_ABIERTO, UI_ALARMA } ui_state_t;
 
 
-
-int main(void){
+int main(void) {
 	keypad_init();
+	timer0_init();
 	buzzer_init();
-	timer0_init_millis();
-	leds_init();
-	leds_set_abierto(0);   
+	led_init();
 	sei();
-
+	
 	LiquidCrystalDevice_t device = lq_init(0x27, 16, 2, LCD_5x8DOTS);
-	lq_turnOnBacklight(&device);
 
-	// Bienvenida
+	lq_turnOnBacklight(&device);
 	char welcomeText[] = "Bienvenido!";
 	lq_print(&device, welcomeText);
+	
 	_delay_ms(1000);
-	lq_clear(&device);
-
-	// Leer password guardada (si querés usarla después)
-	char contra_guardada[5];
-	eeprom_read_block((void*)contra_guardada, (const void*)password_mem, sizeof(contra_guardada));
-
-	// Mostrar menú inicial
-	char ingresarContraTexto[] = "A-> Ingr. contra";
-	char cambiarContraTexto[]  = "B-> Camb. contra";
-	lq_print(&device, ingresarContraTexto);
-	lq_setCursor(&device, 1, 0);
-	lq_print(&device, cambiarContraTexto);
-
-	uint8_t intentos_fallidos = 0;
 	
-	// "Me olvide de la contraseña jaja"
-	//eeprom_update_block((const void*)"1234", (void*)password_mem, 5); // EEPROM: "1234\0"
-	//memcpy(contra_guardada, "1234", 5);                               // RAM:    "1234\0"
+	state_menu_UI(device);
+	ui_state_t ui_state = UI_MENU;
 	
-	// --- UI state ---
-	ui_state_t ui = UI_MENU;
+	storedPassword_length = strlen(storedPassword);
 
-	char entrada[5] = {0};    // buffer para ingreso (4 + '\0')
-	uint8_t idx = 0;
+	reset_typed_password();
+	uint8_t intentos = MAX_INTENTOS;
 
 	while (1) {
 		buzzer_task();
-		alarm_task(); 
+		led_task();
+		keypad_task();
+		alarm_task();
 		
-		
-		char key = read_keypad();
-		if (!key) continue;
-
-		switch (ui) {
-			case UI_MENU:
-			if (key == 'A') {
-				lq_clear(&device);
-				char titulo[] = "Contra:";
-				lq_setCursor(&device, 0, 0);
-				lq_print(&device, titulo);
-				lq_setCursor(&device, 1, 0);
-				idx = 0; entrada[0] = '\0';
-				ui = UI_INGRESO;
-				} else if (key == 'B') {
-				// (tu flujo de cambio ya implementado)
-				lq_clear(&device);
-				char titulo[] = "Actual:";
-				lq_setCursor(&device, 0, 0);
-				lq_print(&device, titulo);
-				lq_setCursor(&device, 1, 0);
-				idx = 0; entrada[0] = '\0';
-				ui = UI_CAMBIO_ACTUAL;
-			}
-			break;
-
-			case UI_INGRESO:
-			if (key == '#') {
-				// Cancelar y volver al menú
-				lq_clear(&device);
-				lq_print(&device, ingresarContraTexto);
-				lq_setCursor(&device, 1, 0);
-				lq_print(&device, cambiarContraTexto);
-				ui = UI_MENU;
-				break;
-			}
-
-			if (idx < 4) {
-				entrada[idx++] = key; entrada[idx] = '\0';
-				char star[2] = { '*', '\0' };
-				lq_print(&device, star);
-			}
-
-			if (idx == 4) {
-				if (memcmp(entrada, contra_guardada, 4) == 0) {
-					// ---- CORRECTA: abrir y esperar '#'
-					intentos_fallidos = 0;          // reset de intentos
-					lq_clear(&device);
-					char abierto[] = "Abierto";
-					lq_setCursor(&device, 0, 0);
-					lq_print(&device, abierto);
-					leds_set_abierto(1);
-					ui = UI_ABIERTO;
-					// No reseteamos idx/entrada todavía (no hace falta)
-					} else {
-					// ---- INCORRECTA: error y volver al menú
-					intentos_fallidos++;
-
-					if (intentos_fallidos >= 3) {
-						// Disparar alarma 5s con parpadeo + beeps
-						lq_clear(&device);
-						char alerta[] = "ALERTA!";
-						lq_setCursor(&device, 0, 0);
-						lq_print(&device, alerta);
-
-						alarm_start();   // inicia la ventana de 5s
-						ui = UI_ALARMA;
-
-						idx = 0; entrada[0] = '\0'; // limpiar buffer de ingreso
-						} else {
-						// Error normal (<3 intentos): mostrar y volver al menú
-						lq_clear(&device);
-						char err[] = "ERROR";
-						lq_setCursor(&device, 0, 0);
-						lq_print(&device, err);
-						_delay_ms(1000);
-
-						lq_clear(&device);
-						lq_print(&device, ingresarContraTexto);
-						lq_setCursor(&device, 1, 0);
-						lq_print(&device, cambiarContraTexto);
-
-						idx = 0; entrada[0] = '\0';
-						ui = UI_MENU;
-					}
+		char key = keypad_scan();
+		if (key) {
+			buzzer_beep(20);
+			
+			switch (ui_state)
+			{
+				case UI_MENU:
+				intentos = MAX_INTENTOS;
+				if (key == 'A'){
+					state_ingreso_UI(device);
+					ui_state = UI_INGRESO;
+					
+				} else if (key == 'B'){
+					state_cambio_actual_UI(device);
+					ui_state = UI_CAMBIO_ACTUAL;
+					
 				}
-			}
-			break;
-
-			case UI_ABIERTO:
-			// Esperar al usuario para cerrar con '#'
-			if (key == '#') {
-				// Cerrar
-				lq_clear(&device);
-				char cerrado[] = "Cerrado";
-				leds_set_abierto(0);
-				lq_setCursor(&device, 0, 0);
-				lq_print(&device, cerrado);
-				// Aquí podrías desactivar el relé/solenoide
-				_delay_ms(700);
-
-				// Volver al menú
-				lq_clear(&device);
-				lq_print(&device, ingresarContraTexto);
-				lq_setCursor(&device, 1, 0);
-				lq_print(&device, cambiarContraTexto);
-				idx = 0; entrada[0] = '\0';
-				ui = UI_MENU;
-			}
-			break;
-
-			case UI_CAMBIO_ACTUAL:  // Verifica contraseña actual
-			if (key == '#') {
-				// Cancelar
-				lq_clear(&device);
-				lq_print(&device, ingresarContraTexto);
-				lq_setCursor(&device, 1, 0);
-				lq_print(&device, cambiarContraTexto);
-				ui = UI_MENU;
 				break;
-			}
-
-			if (idx < 4) {
-				entrada[idx++] = key; entrada[idx] = '\0';
-				char star[2] = { '*', '\0' };
-				lq_print(&device, star);
-			}
-
-			if (idx == 4) {
-				if (memcmp(entrada, contra_guardada, 4) == 0) {
-					// Correcta ? pedir nueva
-					intentos_fallidos = 0;  
-					lq_clear(&device);
-					char t2[] = "Nueva:";
-					lq_setCursor(&device, 0, 0);
-					lq_print(&device, t2);
-					lq_setCursor(&device, 1, 0);
-					idx = 0; entrada[0] = '\0';
-					ui = UI_CAMBIO_NUEVA;
+				case UI_INGRESO:
+				if (key == '#'){ // Home button 
+					reset_typed_password();
+					state_menu_UI(device);
+					ui_state = UI_MENU;
+				} else if (key == 'D'){ // Send button
+					if (strcmp(storedPassword, typedPassword) != 0){
+						if (--intentos == 0){
+							state_alarma_UI(device);
+							alarm_start();
+							
+							ui_state = UI_ALARMA;
+							reset_typed_password();
+							
+							continue;
+						}
+						lq_clear(&device);
+						char text[] = "Incorrecto!";
+						lq_setCursor(&device,0,0);
+						lq_print(&device, text);
+						lq_setCursor(&device,1,0);
+						
+						_delay_ms(500);
+					
+						reset_typed_password();
+						state_ingreso_UI(device);
+						ui_state = UI_INGRESO;
 					} else {
-					intentos_fallidos++;
-
-					if (intentos_fallidos >= 3) {
-						// Disparar alarma 5s con parpadeo + beeps
-						lq_clear(&device);
-						char alerta[] = "ALERTA!";
-						lq_setCursor(&device, 0, 0);
-						lq_print(&device, alerta);
-
-						alarm_start();   // inicia la ventana de 5s
-						ui = UI_ALARMA;
-
-						idx = 0; entrada[0] = '\0'; // limpiar buffer de ingreso
-						} else {
-						// Error normal (<3 intentos): mostrar y volver al menú
-						lq_clear(&device);
-						char err[] = "ERROR";
-						lq_setCursor(&device, 0, 0);
-						lq_print(&device, err);
-						_delay_ms(1000);
-
-						lq_clear(&device);
-						lq_print(&device, ingresarContraTexto);
-						lq_setCursor(&device, 1, 0);
-						lq_print(&device, cambiarContraTexto);
-
-						idx = 0; entrada[0] = '\0';
-						ui = UI_MENU;
+						reset_typed_password();
+						led_green_on();
+						state_abierto_UI(device);
+						ui_state = UI_ABIERTO;
 					}
+					
+						
+				} else if (key == 'C'){
+					if (typedPassword_counter == 0) continue;
+					char text[] = " ";
+					lq_setCursor(&device,1, --typedPassword_counter);
+					lq_print(&device, text);
+					lq_setCursor(&device,1, typedPassword_counter);
+					typedPassword[typedPassword_counter] = '\0';
 				}
-			}
-			break;
-
-			case UI_CAMBIO_NUEVA:   // Captura nueva contraseña y guarda
-			if (key == '#') {
-				// Cancelar
-				lq_clear(&device);
-				lq_print(&device, ingresarContraTexto);
-				lq_setCursor(&device, 1, 0);
-				lq_print(&device, cambiarContraTexto);
-				ui = UI_MENU;
+				
+				else { // Any other key
+					if (typedPassword_counter >= MAX_PASSWORD_LENGTH) continue;
+					typedPassword[typedPassword_counter++] = key;
+					typedPassword[typedPassword_counter] = '\0';  
+					char star[] =  "*";
+					lq_print(&device, star);
+					
+				}
+				
+				break;
+				case UI_CAMBIO_ACTUAL:
+				if (key == '#'){ // Home button
+					reset_typed_password();
+					state_menu_UI(device);
+					ui_state = UI_MENU;
+				} else if (key == 'D'){ // Send button
+					if (strcmp(storedPassword, typedPassword) != 0){ 
+						// Password incorrect
+						if (--intentos == 0){
+							state_alarma_UI(device);
+							alarm_start();
+							ui_state = UI_ALARMA;
+							reset_typed_password();
+							continue;
+						}
+						lq_clear(&device);
+						char text[] = "Incorrecto!";
+						lq_setCursor(&device,0,0);
+						lq_print(&device, text);
+						lq_setCursor(&device,1,0);
+						
+						_delay_ms(500);
+						
+						reset_typed_password();
+						state_cambio_actual_UI(device);
+						ui_state = UI_CAMBIO_ACTUAL;
+						} else {
+						
+						// Password correct
+						reset_typed_password();
+						state_cambio_nueva_UI(device);
+						ui_state = UI_CAMBIO_NUEVA;
+					}
+				} else if (key == 'C'){ // Delete character
+					if (typedPassword_counter == 0) continue;
+					char text[] = " ";
+					lq_setCursor(&device,1, --typedPassword_counter);
+					lq_print(&device, text);
+					lq_setCursor(&device,1, typedPassword_counter);
+					typedPassword[typedPassword_counter] = '\0';
+				} else { // Any other key
+					if (typedPassword_counter >= MAX_PASSWORD_LENGTH) continue;
+					typedPassword[typedPassword_counter++] = key;
+					typedPassword[typedPassword_counter] = '\0';
+					char star[] =  "*";
+					lq_print(&device, star);
+					
+				}
+				break;
+				case UI_CAMBIO_NUEVA:
+				if (key == '#'){ // Home button
+					reset_typed_password();
+					state_menu_UI(device);
+					ui_state = UI_MENU;
+				} else if (key == 'D'){ // Send button
+					if (strlen(typedPassword) < 4) continue;
+					strncpy(storedPassword, typedPassword, MAX_PASSWORD_LENGTH);
+					reset_typed_password();
+					lq_clear(&device);
+					char text[] = "Contra cambiada!";
+					lq_setCursor(&device,0,0);
+					lq_print(&device, text);
+					lq_setCursor(&device,1,0);
+					
+					_delay_ms(500);
+					state_menu_UI(device);
+					ui_state = UI_MENU;
+					
+				} else if (key == 'C'){ // Delete character
+					if (typedPassword_counter == 0) continue;
+					char text[] = " ";
+					lq_setCursor(&device,1, --typedPassword_counter);
+					lq_print(&device, text);
+					lq_setCursor(&device,1, typedPassword_counter);
+					typedPassword[typedPassword_counter] = '\0';
+				} else { // Any other key
+					if (typedPassword_counter >= MAX_PASSWORD_LENGTH) continue;
+					typedPassword[typedPassword_counter++] = key;
+					typedPassword[typedPassword_counter] = '\0';
+					char star[] =  "*";
+					lq_print(&device, star);
+				}
+				break;
+				case UI_ALARMA:
+				if (key == 'D'){ // Send button
+					if (strcmp(storedPassword, typedPassword) != 0){
+						alarm_start(); //Pasworkd incorrect
+						reset_typed_password();
+						state_alarma_UI(device);
+						continue;
+						} else {
+						// Password correct
+						alarm_until = millis_now();
+						reset_typed_password();
+						state_menu_UI(device);
+						ui_state = UI_MENU;
+						}
+					
+					} else if (key == 'C'){ // Delete character
+						if (typedPassword_counter == 0) continue;
+						char text[] = " ";
+						lq_setCursor(&device,1, --typedPassword_counter);
+						lq_print(&device, text);
+						lq_setCursor(&device,1, typedPassword_counter);
+						typedPassword[typedPassword_counter] = '\0';
+					} else { // Any other key
+						if (typedPassword_counter >= MAX_PASSWORD_LENGTH) continue;
+						typedPassword[typedPassword_counter++] = key;
+						typedPassword[typedPassword_counter] = '\0';
+						char star[] =  "*";
+						lq_print(&device, star);
+					}
+				break;
+				case UI_ABIERTO:
+				if (key == 'D'){ // Home button
+					
+					lq_clear(&device);
+					char text[] = "Cerrado!";
+					lq_setCursor(&device,0,0);
+					lq_print(&device, text);
+					lq_setCursor(&device,1,0);
+					
+					led_red_on();
+					_delay_ms(500);
+					state_menu_UI(device);
+					ui_state = UI_MENU;
+				} 
 				break;
 			}
-
-			if (idx < 4) {
-				entrada[idx++] = key; entrada[idx] = '\0';
-				char star[2] = { '*', '\0' };
-				lq_print(&device, star);
-			}
-
-			if (idx == 4) {
-				// Guardar en EEPROM y actualizar copia en RAM
-				guardar_password_eeprom(entrada);
-				memcpy(contra_guardada, entrada, 4);
-				contra_guardada[4] = '\0';
-
-				lq_clear(&device);
-				char ok[] = "OK";
-				lq_setCursor(&device, 0, 0);
-				lq_print(&device, ok);
-				_delay_ms(1000);
-
-				// Volver al menú
-				lq_clear(&device);
-				lq_print(&device, ingresarContraTexto);
-				lq_setCursor(&device, 1, 0);
-				lq_print(&device, cambiarContraTexto);
-				idx = 0; entrada[0] = '\0';
-				ui = UI_MENU;
-			}
-			break;
-			case UI_ALARMA:
-			// Ignorar teclas; solo dejar que alarm_task() maneje tiempo/efectos
-			// Cuando termine, alarm_task() pondrá alarm.active = 0
-			if (!alarm.active) {
-				// Mostrar "Cerrado" breve y volver al menú
-				lq_clear(&device);
-				char cerrado[] = "Cerrado";
-				lq_setCursor(&device, 0, 0);
-				lq_print(&device, cerrado);
-				_delay_ms(700);
-
-				lq_clear(&device);
-				lq_print(&device, ingresarContraTexto);
-				lq_setCursor(&device, 1, 0);
-				lq_print(&device, cambiarContraTexto);
-
-				intentos_fallidos = 0;   // reset contador tras la alarma
-				idx = 0; entrada[0] = '\0';
-				ui = UI_MENU;
-			}
-			break;
-		}
+		} 
 	}
 }
-ISR(TIMER0_COMPA_vect) {
-	millis++; // 1 ms tick
+
+
+
+
+
+
+
+void state_menu_UI(LiquidCrystalDevice_t device ){
+	char integresarTexto[] = "A-> Ingr. contra";
+	char cambiarTexto[] = "B-> Camb. contra";
+	lq_clear(&device);
+	lq_setCursor(&device,0,0);
+	lq_print(&device, integresarTexto);
+	lq_setCursor(&device,1,0);
+	lq_print(&device, cambiarTexto);
 }
+
+void state_ingreso_UI(LiquidCrystalDevice_t device){
+	lq_clear(&device);
+	char text[] = "Ingresar contra:";
+	lq_setCursor(&device,0,0);
+	lq_print(&device, text);
+	lq_setCursor(&device,1,0);
+}
+
+void state_cambio_actual_UI(LiquidCrystalDevice_t device){
+	lq_clear(&device);
+	char text[] = "Contra actual:";
+	lq_setCursor(&device,0,0);
+	lq_print(&device, text);
+	lq_setCursor(&device,1,0);
+}
+
+void state_cambio_nueva_UI(LiquidCrystalDevice_t device){
+	lq_clear(&device);
+	char text[] = "Nueva contra:";
+	lq_setCursor(&device,0,0);
+	lq_print(&device, text);
+	lq_setCursor(&device,1,0);
+}
+
+void state_abierto_UI(LiquidCrystalDevice_t device){
+	lq_clear(&device);
+	char text[] = "Candado abierto";
+	lq_setCursor(&device,0,0);
+	lq_print(&device, text);
+	lq_setCursor(&device,1,0);
+}
+
+void state_alarma_UI(LiquidCrystalDevice_t device){
+	lq_clear(&device);
+	char text[] = "!!!!!ALERTA!!!!!";
+	lq_setCursor(&device,0,0);
+	lq_print(&device, text);
+	lq_setCursor(&device,1,0);
+}
+
+
+
+
+
+ void reset_typed_password(void){
+	typedPassword[0] = '\0';
+	typedPassword_counter = 0;
+}
+
+
+
+
+
+ void keypad_init(void){
+	DDRD = 0b11110000;
+	PORTD = 0b00001111;
+}
+
+char keypad_scan(void) {
+	if (!keypad_enable) return 0;
+	
+	uint8_t row, col;
+	uint8_t cols;
+	static uint8_t prevKey; // store for later
+
+	for (row = 0; row < 4; row++) {
+		PORTD = (PORTD | 0xF0) & ~(1 << (row + 4));
+		_delay_us(5);  
+		cols = PIND & 0x0F;  
+
+		for (col = 0; col < 4; col++) {
+			if (!(cols & (1 << col)) ) {
+				if ((prevKey == keypad[row][col])) return 0;
+				
+				keypad_debounce_ms(200);
+				prevKey = keypad[row][col];
+				return keypad[row][col];  
+			} 
+		}
+	}
+	prevKey = 0;
+	return 0; 
+}
+
+ void keypad_task(void){
+	if (!keypad_enable && (millis_now() > keypad_on_at)){
+		keypad_enable = 1;
+	}
+}
+
+ void keypad_debounce_ms(uint16_t delay_ms){
+	keypad_enable = 0;
+	keypad_on_at = millis_now() + delay_ms;
+}
+
+
+
+
+
+
+
+uint32_t millis_now(void) {
+	uint32_t m;
+	cli();     // disable interrupts
+	m = millis_counter;
+	sei();     // re-enable
+	return m;
+}
+
+
+void timer0_init(void){
+	TCCR0A = 0x00;
+	TCCR0B |= 0b011;
+	TIMSK0 |= (1<<TOIE0);
+}
+
+
+
+
+
+
+
+ void buzzer_init(){
+	DDRB |= (1<<PORTB5);
+	PORTB &= ~(1<<PORTB5);
+}
+
+
+ void buzzer_task(){
+	if (millis_now() > buzzer_off_at){
+		PORTB &= ~(1<<PORTB5);
+	}
+}
+
+ void buzzer_beep(uint16_t duration_ms){
+	PORTB |= (1<<PORTB5);
+	buzzer_on_at = millis_now();
+	buzzer_off_at = millis_now() + duration_ms;
+}
+
+
+
+
+ void alarm_start(void) {
+	uint32_t now = millis_now();
+	alarm_active = 1;
+	alarm_phase = 0;
+	alarm_until = now + ALARM_DURATION_MS;
+	alarm_next_toggle = now; 
+}
+
+ void alarm_task(void){
+	if (!alarm_active) return;
+	uint32_t now = millis_now();
+	
+	if (now > alarm_until){
+		alarm_active = 0;
+		PORTB &= ~(1<<PORTB5);
+		led_red_on();
+		return;
+	}
+	
+	if (now > alarm_next_toggle){
+		alarm_next_toggle = now + ALARM_TOGGLE_MS;
+		if (alarm_phase){
+			led_red_on();
+		} else {
+			led_green_on();
+		}
+		alarm_phase ^= 1;
+		
+		buzzer_beep(100);
+	}
+	
+	
+}
+
+
+
+
+
+ void led_red_on(){ // Enciende rojo
+	PORTB &= ~(1<<PORTB1);
+	PORTB |= (1<<PORTB0);
+	led_state = 0;
+}
+
+ void led_green_on(){  // Enciende verde
+	PORTB &= ~(1<<PORTB0);
+	PORTB |= (1<<PORTB1);
+	led_state = 1;
+}
+
+ void led_init(void){ // Inicia rojo prendido
+	DDRB |= (1<<PORTB0) | (1<<PORTB1);
+	PORTB |= (1<<PORTB0);
+	PORTB &= ~(1<<PORTB1);
+}
+
+ void led_mode(uint8_t mode, uint16_t delay){
+	led_on_at = millis_now();
+	led_off_at = led_on_at + delay;
+	led_toggle_enable = 1;
+	
+	if (mode == 0){
+		led_red_on();
+		
+	} else if (mode == 1){
+		led_green_on();
+	}
+}
+
+void led_task(void){
+	if (!led_toggle_enable) return;
+	
+	if (millis_now() > led_off_at){
+		if (led_state == 0){
+			led_green_on();
+			} else if (led_state == 1){
+			led_red_on();
+		}
+		led_toggle_enable = 0;
+	}
+}
+
+
+
+
+
+
+
+
