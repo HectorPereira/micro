@@ -1,13 +1,13 @@
 /*
 Problema B
-	Sistema de Selección de Colores con ATmega328P, Fotocelda, Tira de
+	Sistema de Selecciï¿½n de Colores con ATmega328P, Fotocelda, Tira de
 	LEDs WS2812 y Servomotor
 
-Descripción General del Proyecto
+Descripciï¿½n General del Proyecto
 	El sistema consiste en un selector de colores basado en un microcontrolador
 	ATmega328P, una fotocelda, una tira de LEDs WS2812 y un servomotor. La
 	idea principal es detectar el color presente en una hoja de referencia utilizando
-	la fotocelda, posicionar un servomotor en un ángulo determinado en función del
+	la fotocelda, posicionar un servomotor en un ï¿½ngulo determinado en funciï¿½n del
 	color identificado y mostrar dicho color en la tira de LEDs WS2812.
 
 Componentes Utilizados
@@ -15,23 +15,23 @@ Componentes Utilizados
 	- Fotocelda (Sensor de Luz)
 	- Tira de LEDs WS2812
 	- Servomotor
-	- Comunicación Serial
+	- Comunicaciï¿½n Serial
 
-Comunicación Serial
+Comunicaciï¿½n Serial
 	- Valor de la fotocelda
 	- Color detectado
 	- Valor del color establecido
 	- Diferencia entre valor establecido y valor de lectura
 
 Proceso de Funcionamiento
-	El microcontrolador se encargará de leer los valores de la fotocelda (sensor de
+	El microcontrolador se encargarï¿½ de leer los valores de la fotocelda (sensor de
 	luz), realizar el procesamiento para identificar el color, controlar el servomotor
-	para moverlo al ángulo correspondiente al color detectado y encender la tira de
+	para moverlo al ï¿½ngulo correspondiente al color detectado y encender la tira de
 	LEDs WS2812 mostrando el mismo color identificado.
-	Este sistema se configurará para detectar un número limitado de colores (los
-	presentes en la hoja de referencia). Cada color tendrá un valor ADC
+	Este sistema se configurarï¿½ para detectar un nï¿½mero limitado de colores (los
+	presentes en la hoja de referencia). Cada color tendrï¿½ un valor ADC
 	(Analog-to-Digital Conversion) preestablecido para asegurar la correcta
-	identificación y su representación precisa en la tira de LEDs.
+	identificaciï¿½n y su representaciï¿½n precisa en la tira de LEDs.
 
  */ 
 
@@ -305,7 +305,7 @@ uint8_t usart_write_try(uint8_t b) {
 	return 1;
 }
 
-// Escribir un string entero al buffer de envío de USART
+// Escribir un string entero al buffer de envï¿½o de USART
 uint16_t usart_write_str(const char *s) {
 	uint16_t n = 0;
 	while (*s && usart_write_try((uint8_t)*s++)) n++;
@@ -506,8 +506,6 @@ int main(void) {
 	while (1) {
 		rgb_read();
 		_delay_ms(50);
-
-	
 	}
 }
 

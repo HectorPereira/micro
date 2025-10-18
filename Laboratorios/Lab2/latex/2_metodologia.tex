@@ -22,6 +22,12 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
     \vspace{1em}
     
 \subsubsection{\textbf{Colores}}
+    \paragraph*{\textbf{Idea general}}---
+    El circuito se implementó mediante un divisor resistivo conectado a una de las entradas analógicas del microcontrolador. El color identificado se replica visualmente en la tira de LED WS2812, y el servomotor se posiciona en el ángulo correspondiente (predefinido) al color detectado dentro de la hoja de referencia, integrando así un sistema de selección e identificación de color completamente automatizado.
+
+    \vspace{1em}
+
+    \paragraph*{\textbf{Descomposición de colores}}---
     El proceso de reconocimiento de colores se fundamenta en la descomposición de cada color en sus componentes primarias dentro del modelo RGB (\textit{Red}, \textit{Green}, \textit{Blue}). Un color puede representarse como la combinación ponderada de estas tres intensidades, lo que permite su descripción en un espacio tridimensional.  
 
     \vspace{1em}
@@ -29,11 +35,12 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
     Sin embargo, el sensor fotoresistivo (LDR, \textit{Light Dependent Resistor}) utilizado en el sistema no distingue de forma individual las componentes cromáticas del espectro visible; únicamente mide la intensidad total de luz reflejada sobre su superficie. Si la iluminación se realiza con luz blanca, el sensor solo entrega una lectura proporcional a la cantidad total de luz reflejada, sin discriminar su composición espectral. Este fenómeno equivale a una percepción en escala de grises, dificultando la identificación precisa de colores.
 
     \vspace{1em}
-
-    Para resolver esta limitación, se empleó un diodo emisor de luz RGB como fuente de iluminación controlada. Al iluminar secuencialmente la superficie con luz roja, verde y azul, el sistema obtiene tres mediciones independientes mediante el LDR. Dichos valores, convertidos por el módulo ADC (\textit{Analog-to-Digital Converter}) del microcontrolador ATmega328P, representan las coordenadas $(R, G, B)$ de un punto dentro de un espacio de color tridimensional.
+    
+    Para resolver esta limitación, se empleó un diodo emisor de luz RGB como fuente de iluminación controlada. Al iluminar secuencialmente la superficie con luz roja, verde y azul, el sistema obtiene tres mediciones independientes mediante el LDR. Dichos valores, convertidos por el módulo ADC (\textit{Analog-to-Digital Converter}) del microcontrolador ATmega328P, representan las coordenadas $(R, G, B)$ de un punto dentro de un espacio de color tridimensional (Véase código fuente en anexo \ref{anexos:lectura_colores}).
 
     \vspace{1em}
 
+    \paragraph*{\textbf{Calibración y reconocimiento}}---
     Dado que tanto la respuesta espectral del LDR como la emisión de los LED presentan variaciones no lineales, los valores obtenidos no son directamente proporcionales a las componentes RGB teóricas. No obstante, se implementa un proceso de calibración inicial para contrarrestar estos efectos, donde se miden manualmente los colores de referencia (rojo, verde, azul claro, violeta, morado, amarillo y blanco) y se almacenan sus valores de respeusta RGB de conversión analógica-digital.
 
     \vspace{1em}
@@ -44,13 +51,23 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
     D = \sqrt{(R_m - R_i)^2 + (G_m - G_i)^2 + (B_m - B_i)^2}
     \end{equation}
 
-    donde $(R_m, G_m, B_m)$ representan los valores medidos por el sensor y $(R_i, G_i, B_i)$ corresponden a los valores calibrados de cada color de la hoja de referencia. El color identificado será aquel cuya distancia $D$ sea mínima.
+    donde $(R_m, G_m, B_m)$ representan los valores medidos por el sensor y $(R_i, G_i, B_i)$ corresponden a los valores calibrados de cada color de la hoja de referencia. El color identificado será aquel cuya distancia $D$ sea mínima (Véase código fuente en anexo \ref{anexo:reconocimiento_colores}).
+
+    \paragraph*{\textbf{Servomotor y tira LED}}---
+    El servomotor se controla mediante el \textit{Timer1} configurado en modo \textit{Fast PWM} a 50\,Hz, generando pulsos de entre 1 y 2\,ms para posicionar el eje según el color identificado. Cada ángulo se calcula a partir del valor del registro \texttt{OCR1A}, que define el tiempo en alto del ciclo PWM (Véase anexo~\ref{anexo:servomotor}).
 
     \vspace{1em}
 
-    El circuito se implementó mediante un divisor resistivo conectado a una de las entradas analógicas del microcontrolador. El color identificado se replica visualmente en la tira de LED WS2812, y el servomotor se posiciona en el ángulo correspondiente (predefinido) al color detectado dentro de la hoja de referencia, integrando así un sistema de selección e identificación de color completamente automatizado.
+    La visualización del color se realiza con una tira de LED WS2812, donde cada diodo recibe datos digitales codificados en tres bytes (RGB). Para cumplir con los tiempos estrictos del protocolo, se emplearon instrucciones \texttt{asm volatile} que garantizan una sincronización precisa en la transmisión de pulsos. Así, al identificar un color, el sistema replica su tonalidad en la tira LED y mueve el servomotor al ángulo correspondiente, integrando una respuesta visual y mecánica simultánea (Véase anexo~\ref{anexo:tira_led}).
 
     \vspace{1em}
+
+    \paragraph*{\textbf{USART}}---
+   A través de USART se comunican los valores del sensor y el color detectado hacia una interfaz serial. Se utiliza un buffer circular para transmisión continua sin bloqueo, y la función auxiliar \texttt{UTOA} convierte los datos numéricos del ADC en texto ASCII antes de su envío. De esta forma, el sistema comunica en tiempo real los valores $(R, G, B)$ medidos, el color identificado y el ángulo del servomotor, facilitando el monitoreo y la calibración del sistema.
+
+    \vspace{1em}
+    
+
 
 \subsubsection{\textbf{Piano}}
     \paragraph*{\textbf{Notas musicales}}---
@@ -133,6 +150,7 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
 
     \vspace{1em}
 
+    \paragraph*{\textbf{Almacenamiento en EEPROM}}---
     Para asegurar que la contraseña permanezca almacenada tras un apagado, se utiliza la memoria EEPROM interna del ATmega328P. Esta memoria no volátil permite conservar los datos durante décadas sin alimentación eléctrica, aunque posee un número limitado de ciclos de escritura (aproximadamente $10^5$ operaciones por celda). Por ello, el sistema únicamente escribe en EEPROM cuando el usuario confirma un cambio de contraseña, minimizando el desgaste de la memoria.
 
     \vspace{1em}
@@ -141,5 +159,5 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
 
     \vspace{1em}
 
-    En conjunto, la cerradura electrónica combina la interacción mediante teclado y pantalla LCD, la gestión de tareas en tiempo real y el almacenamiento persistente de datos, logrando un sistema confiable y autónomo. El uso de una máquina de estados y un planificador temporal basado en un único temporizador permite controlar de manera eficiente múltiples procesos simultáneos sin bloquear la ejecución principal del programa.
+    En conjunto, la cerradura electrónica combina la interacción mediante teclado y pantalla LCD, la gestión de tareas en tiempo real y el almacenamiento persistente de datos en memoria no volátil EEPROM. El uso de una máquina de estados y un planificador temporal basado en un único temporizador permite controlar de manera eficiente múltiples procesos simultáneos sin bloquear la ejecución principal del programa.
 

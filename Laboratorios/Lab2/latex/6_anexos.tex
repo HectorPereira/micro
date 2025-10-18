@@ -32,6 +32,49 @@ const ColorRef color_refs[] = {
 };
 \end{lstlisting}
 
+\label{anexos:lectura_colores}
+\begin{lstlisting}[language=C, caption={Lectura de colores}]
+
+uint8_t led_state = 0;
+uint16_t adc_sample[] = {0,0,0};
+
+// Leer adc
+uint16_t adc_read(uint8_t channel) {
+	ADMUX = (ADMUX & 0xF0) | (channel & 0x0F);  
+	ADCSRA |= (1 << ADSC);
+	while (ADCSRA & (1 << ADSC));
+	return ADC;
+}
+
+// Establecer color del led rgb (iluminador)
+void rgb_set(uint8_t r, uint8_t g, uint8_t b) {
+	PORTB = (PORTB & ~((1 << RED)|(1 << GREEN)|(1 << BLUE))) |
+	((r<<RED) | (g<<GREEN) | (b<<BLUE));
+}
+
+// Ciclo de medicion RGB
+void rgb_read(void){
+		
+	switch(led_state){
+		case 0:
+		rgb_set(1,0,0);
+		adc_sample[0] = adc_read(0); // Rojo
+		break;
+
+		case 1:
+		rgb_set(0,1,0);
+		adc_sample[1] = adc_read(0); // Verde
+		break;
+
+		case 2:
+		rgb_set(0,0,1);
+		adc_sample[2] = adc_read(0); // Azul
+		break;
+	}
+}
+\end{lstlisting}
+
+
 \begin{lstlisting}[language=C, caption={Convertidor de unsigned integer a string}]
 // Convierte un valor entero sin signo en un string
 void UTOA(uint16_t value, char *buffer) { 
@@ -128,7 +171,43 @@ void ws2812_init(void) { // tira de leds
 }
 \end{lstlisting}
 
-\begin{lstlisting}[language=C, caption={Funciones de utilidad}]
+\label{anexo:tira_led}
+\begin{lstlisting}[language=C, caption={Manejo de tira led WS2812}]
+void send_bit(uint8_t bitVal){
+	if(bitVal){
+		PORTD |=  (1<<LED_PIN);
+		asm volatile (
+		"nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"
+		"nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+		
+		PORTD &= ~(1<<LED_PIN);
+		
+		asm volatile (
+		"nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+		
+		} else {
+		PORTD |=  (1<<LED_PIN);
+		asm volatile (
+		"nop\n\t""nop\n\t""nop\n\t");
+		
+		PORTD &= ~(1<<LED_PIN);
+		asm volatile (
+		"nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"
+		"nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+	}
+}
+
+// Envia un Byte a la tira de leds
+// Utiliza cli y sei para un timing preciso
+void send_byte(uint8_t byte) {
+	cli();  
+	for (uint8_t i = 0; i < 8; i++) {
+		send_bit(byte & 0x80);  // Enviar msb primero
+		byte <<= 1;             
+	}
+	sei();  
+}
+
 void ws2812_send_pixel(uint8_t r, uint8_t g, uint8_t b) {
 	// Cambiar orden dependiendo de formato de tira led o matriz
 	send_byte(g);
@@ -188,31 +267,26 @@ void led_strip_set_color(uint8_t color_id) {
 
 	ws2812_fill(r, g, b, 50);
 }
+                           
+\end{lstlisting}
 
+\label{anexo:servomotor}
+\begin{lstlisting}[language=C, caption={Movimiento de servomotor}]
 // Establecer angulo en el servomotor
 void servo_set_angle(uint8_t angle) {
 	uint16_t pulse = 1000 + ((uint32_t)angle * 4000) / 180;
 	OCR1A = pulse;
 }
+\end{lstlisting}
 
-// Leer adc
-uint16_t adc_read(uint8_t channel) {
-	ADMUX = (ADMUX & 0xF0) | (channel & 0x0F);  
-	ADCSRA |= (1 << ADSC);                     
-	while (ADCSRA & (1 << ADSC));               // Wait for conversion to finish
-	return ADC;                                 
-}
-
-// Establecer color del led rgb (iluminador)
-void rgb_set(uint8_t r, uint8_t g, uint8_t b) {
-	PORTB = (PORTB & ~((1 << RED)|(1 << GREEN)|(1 << BLUE))) |
-	((r<<RED) | (g<<GREEN) | (b<<BLUE));
-}
-
+\label{anexo:reconocimiento_colores}
+\begin{lstlisting}[language=C, caption={Reconocimiento de colores}]
 // Identificar color a partir de valores rgb.
-// Tomando cada valor calibrado como un vector, se determina la distancia
-// cartesiana del vector leido por el sensor.
-const char* identify_color(uint16_t r, uint16_t g, uint16_t b) {
+const char* identify_color(
+		uint16_t r, 
+		uint16_t g, 
+		uint16_t b
+	) {
 	uint32_t best_dist = 0xFFFFFFFF;
 	const char *best_name = "UNKNOWN";
 
@@ -230,6 +304,8 @@ const char* identify_color(uint16_t r, uint16_t g, uint16_t b) {
 	return best_name;
 }
 \end{lstlisting}
+
+
 
 
 \begin{lstlisting}[language=C, caption={Bucle principal}]
