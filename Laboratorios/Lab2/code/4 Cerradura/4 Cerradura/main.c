@@ -73,14 +73,17 @@ uint8_t led_toggle_enable = 0;
 uint32_t keypad_on_at = 0;
 uint8_t keypad_enable = 1;
 
-uint32_t millis_counter = 0;
+uint32_t millis_counter = 0;	
 
 #define MAX_PASSWORD_LENGTH 6
+#define EEPROM_MAGIC 0x42
+
+uint8_t EEMEM ee_magic;                
+char EEMEM ee_password[MAX_PASSWORD_LENGTH + 1];
 
 char storedPassword[MAX_PASSWORD_LENGTH + 1] = "123456";
 char typedPassword[MAX_PASSWORD_LENGTH + 1];
 
-char EEMEM ee_password[MAX_PASSWORD_LENGTH + 1];
 
 uint8_t typedPassword_counter = 0;
 uint8_t storedPassword_length = 0;
@@ -97,9 +100,7 @@ ISR(TIMER0_OVF_vect){
 }
 
 
-#define EEPROM_MAGIC 0x42
-uint8_t EEMEM ee_magic;                         // init marker
-extern char EEMEM ee_password[MAX_PASSWORD_LENGTH + 1]; // you already have this
+
 
 void eeprom_load_password(void);
 void eeprom_save_password(const char *pwd);
@@ -449,28 +450,23 @@ void state_alarma_UI(LiquidCrystalDevice_t device){
 
 
 void eeprom_load_password(void) {
-	uint8_t magic = eeprom_read_byte(&ee_magic);
-	if (magic == EEPROM_MAGIC) {
-		eeprom_read_block(storedPassword, ee_password, MAX_PASSWORD_LENGTH + 1);
-		storedPassword[MAX_PASSWORD_LENGTH] = '\0';
-		} else {
-		// First boot or erased EEPROM: write current RAM default to EEPROM
-		// (storedPassword is "123456" from your initializer)
-		eeprom_update_block(storedPassword, ee_password, MAX_PASSWORD_LENGTH + 1);
+	if (eeprom_read_byte(&ee_magic) != EEPROM_MAGIC) {
+		// First time use: store default password
+		eeprom_update_block(storedPassword, ee_password, sizeof(storedPassword));
 		eeprom_update_byte(&ee_magic, EEPROM_MAGIC);
+		} else {
+		// Load existing password
+		eeprom_read_block(storedPassword, ee_password, sizeof(storedPassword));
 	}
-	storedPassword_length = strlen(storedPassword);
 }
 
 void eeprom_save_password(const char *pwd) {
-	// Write safely (NUL-terminated and wear-friendly)
-	char temp[MAX_PASSWORD_LENGTH + 1];
-	strncpy(temp, pwd, MAX_PASSWORD_LENGTH);
-	temp[MAX_PASSWORD_LENGTH] = '\0';
-	eeprom_update_block(temp, ee_password, MAX_PASSWORD_LENGTH + 1);
-	eeprom_update_byte(&ee_magic, EEPROM_MAGIC);
+	// Save new password (safe copy + ensure null terminator)
+	char buf[MAX_PASSWORD_LENGTH + 1];
+	strncpy(buf, pwd, MAX_PASSWORD_LENGTH);
+	buf[MAX_PASSWORD_LENGTH] = '\0';
+	eeprom_update_block(buf, ee_password, sizeof(buf));
 }
-
 
 
 

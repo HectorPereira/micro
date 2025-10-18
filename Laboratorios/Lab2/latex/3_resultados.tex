@@ -15,6 +15,10 @@ Para resolver esta limitación, se empleó un diodo emisor de luz RGB como fuent
 
 \vspace{1em}
 
+Dado que tanto la respuesta espectral del LDR como la emisión de los LED presentan variaciones no lineales, los valores obtenidos no son directamente proporcionales a las componentes RGB teóricas. No obstante, el sistema logra resultados estables mediante un proceso de calibración inicial, donde se iluminan sucesivamente los colores de referencia (rojo, verde, azul claro, violeta, morado, amarillo y blanco) y se almacenan sus valores de conversión analógica-digital.
+
+\vspace{1em}
+
 Cada color de referencia calibrado se modela como un vector fijo en dicho espacio. Para identificar un color, se calcula la distancia euclidiana entre el vector de medición y cada uno de los vectores de referencia almacenados:
 
 \begin{equation}\label{eq:distancia_color}
@@ -23,71 +27,68 @@ D = \sqrt{(R_m - R_i)^2 + (G_m - G_i)^2 + (B_m - B_i)^2}
 
 donde $(R_m, G_m, B_m)$ representan los valores medidos por el sensor y $(R_i, G_i, B_i)$ corresponden a los valores calibrados de cada color de la hoja de referencia. El color identificado será aquel cuya distancia $D$ sea mínima.
 
-\vspace{1em}
 
-Dado que tanto la respuesta espectral del LDR como la emisión de los LED presentan variaciones no lineales, los valores obtenidos no son directamente proporcionales a las componentes RGB teóricas. No obstante, el sistema logra resultados estables mediante un proceso de calibración inicial, donde se iluminan sucesivamente los colores de referencia (rojo, verde, azul claro, violeta, morado, amarillo y blanco) y se almacenan sus valores de conversión analógica-digital.
 
 \vspace{1em}
 
 El circuito se implementó mediante un divisor resistivo conectado a una de las entradas analógicas del microcontrolador. El color identificado se replica visualmente en la tira de LED WS2812, y el servomotor se posiciona en el ángulo correspondiente al color detectado dentro de la hoja de referencia, integrando así un sistema de selección e identificación de color completamente automatizado.
 
-\vspace{1em}
 
-Reconocer colores
-Como se reconoce un color
-Un color se puede descomoner en otros colores
-Colores primarios
-Colores CYMK
-Colores RGB
-Un LDR no puede medir componentes
-Un LDR solo mide luz reflejada
-Si iluminamos con luz blanca el LDR mide la cantidad de luz blanca que rebota
-Seria como tener vision en blanco y negro
-Algunos colores serian dificiles de identificar
+% Reconocer colores
+% Como se reconoce un color
+% Un color se puede descomoner en otros colores
+% Colores primarios
+% Colores CYMK
+% Colores RGB
+% Un LDR no puede medir componentes
+% Un LDR solo mide luz reflejada
+% Si iluminamos con luz blanca el LDR mide la cantidad de luz blanca que rebota
+% Seria como tener vision en blanco y negro
+% Algunos colores serian dificiles de identificar
 
-Si iluminamos con otro color el LDR ve la cantidad de luz que refleja de ese color
-Si iluminamos con rojo, luego verde, y luego azul el LDR puede identificar 
-colores con 3 grados de libertad como el ojo humano.
+% Si iluminamos con otro color el LDR ve la cantidad de luz que refleja de ese color
+% Si iluminamos con rojo, luego verde, y luego azul el LDR puede identificar 
+% colores con 3 grados de libertad como el ojo humano.
 
-Se utiliza un led RGB para iluminar con estos colores
+% Se utiliza un led RGB para iluminar con estos colores
 
-El LDR no responde la misma manera a todos los tipos de luz. 
-Los valores medidos no se van a correlacionar de manera directa
-Con las componentes tradicionales de cada color.
-Ademas de que existen variaciones de emision de luz entre los mismos colores del led
+% El LDR no responde la misma manera a todos los tipos de luz. 
+% Los valores medidos no se van a correlacionar de manera directa
+% Con las componentes tradicionales de cada color.
+% Ademas de que existen variaciones de emision de luz entre los mismos colores del led
 
-Sin embargo es suficiente si lo calibramos antes
+% Sin embargo es suficiente si lo calibramos antes
 
-Utilizando un divisor de voltaje se conecta el ldr a un pin analogico del arduino
+% Utilizando un divisor de voltaje se conecta el ldr a un pin analogico del arduino
 
-Se ilumina con rojo verde y azul para cada color y se recopilan los valores medidos por el ADC
+% Se ilumina con rojo verde y azul para cada color y se recopilan los valores medidos por el ADC
 
-Se mapean los 6 colores de la hoja para tomar como referencias.
+% Se mapean los 6 colores de la hoja para tomar como referencias.
 
-Para determinar el color el cual el LDR esta apuntando
-se calcula cual es el valor más próximo tomando
-en cuenta los 3 componentes como ejes de libertad
-realizando un calculo de distancia cartesiana.
-A2 + B2 + C2 = D2
+% Para determinar el color el cual el LDR esta apuntando
+% se calcula cual es el valor más próximo tomando
+% en cuenta los 3 componentes como ejes de libertad
+% realizando un calculo de distancia cartesiana.
+% A2 + B2 + C2 = D2
 
-En este caso rojo verde y azul representan un eje en un espacio tridimensional. 
-Los colores calibrados representan vectores. Y el vector de medición se 
-mueve a lo largo de todo este espacio adquiriendo diferentes valores rgb.
+% En este caso rojo verde y azul representan un eje en un espacio tridimensional. 
+% Los colores calibrados representan vectores. Y el vector de medición se 
+% mueve a lo largo de todo este espacio adquiriendo diferentes valores rgb.
 
-De manera ciclica se mide la distancia del vector medicion con respecto 
-al resto de vectores mapeados para identificar cual es el vector que 
-mas se aproxima al vector medición
+% De manera ciclica se mide la distancia del vector medicion con respecto 
+% al resto de vectores mapeados para identificar cual es el vector que 
+% mas se aproxima al vector medición
 
-Problemas
-Como medir colores con presicion
-Como reconocer colores precalibrados
-Como controlar un servomotor
-Como controlar una tira LED
+% Problemas
+% Como medir colores con presicion
+% Como reconocer colores precalibrados
+% Como controlar un servomotor
+% Como controlar una tira LED
 
-Funcionaldiades
-Salida de info por USART
-Color indicado por angulo en servomotor
-Color indica
+% Funcionaldiades
+% Salida de info por USART
+% Color indicado por angulo en servomotor
+% Color indica
 
 
 
@@ -146,7 +147,7 @@ void UTOA(uint16_t value, char *buffer) {
 }
 \end{lstlisting}
 
-\begin{lstlisting}[language=C, caption={Enviado de datos a tira LED`'}]
+\begin{lstlisting}[language=C, caption={Enviado de datos a tira LED}]
 void send_bit(uint8_t bitVal){
 	if(bitVal){
 		PORTD |=  (1<<LED_PIN);
@@ -355,7 +356,7 @@ int main(void) {
 
 \subsection{Piano}
 
-El sonido es una onda mecánica que se propaga a través de un medio elástico, producto de variaciones periódicas de presión. Estas ondas pueden clasificarse según su forma en senoides, cuadradas, triangulares o diente de sierra, dependiendo del patrón temporal de oscilación. En los sistemas digitales, las señales más sencillas de generar son las ondas cuadradas, donde el voltaje alterna entre dos niveles definidos, representando los estados lógicos alto y bajo del microcontrolador.
+El sonido es una onda mecánica que se propaga a través de un medio elástico, producto de variaciones periódicas de presión. Estas ondas pueden clasificarse según su forma en senoidales, cuadradas, triangulares o diente de sierra, dependiendo del patrón temporal de oscilación. En los sistemas digitales, las señales más sencillas de generar son las ondas cuadradas, donde el voltaje alterna entre dos niveles definidos, representando los estados lógicos alto y bajo del microcontrolador.
 
 \vspace{1em}
 
@@ -367,7 +368,7 @@ En el microcontrolador ATmega328P, esta señal se genera mediante el uso de los 
 
 \vspace{1em}
 
-Una nota musical puede representarse computacionalmente mediante dos parámetros fundamentales: la frecuencia de oscilación y la duración temporal durante la cual se mantiene activa. Cuando el buzzer emite una secuencia ordenada de notas, cada una con su tiempo de activación y silencio, se obtiene una melodía. En términos programáticos, una melodía se define como un conjunto de estructuras de datos que contienen pares \texttt{(frecuencia, tiempo\_on, tiempo\_off)}, los cuales son procesados secuencialmente para generar la música deseada.
+Una nota musical puede representarse computacionalmente mediante dos parámetros fundamentales: la frecuencia de oscilación, la duración temporal durante la cual se mantiene activa y la duración inactiva o en silencio. Cuando el buzzer emite una secuencia ordenada de notas, cada una con su tiempo de activación y silencio, se obtiene una melodía. En términos programáticos, una melodía se define como un conjunto de estructuras de datos que contienen pares \texttt{(frecuencia, tiempo\_on, tiempo\_off)}, los cuales son procesados secuencialmente para generar la música deseada.
 
 \vspace{1em}
 
@@ -378,42 +379,40 @@ La reproducción simultánea de varios instrumentos en un entorno digital requie
 En síntesis, el sistema desarrollado utiliza un buzzer piezoeléctrico controlado por los temporizadores del ATmega328P para reproducir notas musicales definidas por su frecuencia y duración. A través de la programación de secuencias almacenadas en memoria, es posible interpretar melodías completas y gestionar la reproducción de distintas canciones sin intervención del usuario durante la ejecución.
 
 
-\vspace{1em}
 
+% Sonido
+% Que es el sonido
+% Ondas
+% Difrentes tipos de ondas
+% Como hacemos sonido
+% Buzzer
+% Onda cuadrada
+% Como funciona el buzzer
+% Piezo
+% Como lo hacemos sonar con el atmega
+% Variacion de frecuencia
+% Como hacemos otro sonido
+% Cambiamos la frencuencia
+% Como hacemos musica
+% Teoria musical basica
+% Mapeo de notas
+% Una nota es una frecuencia
+% Una frecuencia durante un tiempo es una nota
+% Como guardamos musica
+% Nota musical: frencuencia, tiempo encendido, tiempo apagado
+% Secuencia de notas musicales --- musica
+% La musica se compone de varios instrumentos en paralelo
+% Como reproducimos varios instrumentos
+% Evitar polling --- Utilizar timers
 
-Sonido
-Que es el sonido
-Ondas
-Difrentes tipos de ondas
-Como hacemos sonido
-Buzzer
-Onda cuadrada
-Como funciona el buzzer
-Piezo
-Como lo hacemos sonar con el atmega
-Variacion de frecuencia
-Como hacemos otro sonido
-Cambiamos la frencuencia
-Como hacemos musica
-Teoria musical basica
-Mapeo de notas
-Una nota es una frecuencia
-Una frecuencia durante un tiempo es una nota
-Como guardamos musica
-Nota musical: frencuencia, tiempo encendido, tiempo apagado
-Secuencia de notas musicales --- musica
-La musica se compone de varios instrumentos en paralelo
-Como reproducimos varios instrumentos
-Evitar polling --- Utilizar timers
+% Problemas
+% Como reproducir sonido
+% Como representar una nota musical
+% Como reproducir pistas en paralelo
 
-Problemas
-Como reproducir sonido
-Como representar una nota musical
-Como reproducir pistas en paralelo
-
-Funcionalidades
-Control por USART
-Piano fisico
+% Funcionalidades
+% Control por USART
+% Piano fisico
 
 
 USART con buffers
@@ -724,61 +723,59 @@ La lectura y escritura se realizan mediante las funciones de la biblioteca está
 En conjunto, la cerradura electrónica combina la interacción mediante teclado y pantalla LCD, la gestión de tareas en tiempo real y el almacenamiento persistente de datos, logrando un sistema confiable y autónomo. El uso de una máquina de estados y un planificador temporal basado en un único temporizador permite controlar de manera eficiente múltiples procesos simultáneos sin bloquear la ejecución principal del programa.
 
 
-\vspace{1em}
+% Cerradura
+% Que tiene que hacer
+% Candado cerrado
+% Contraseña correcta
+% Candado abierto
+% Sino 3 veces alarma
 
-Cerradura
-Que tiene que hacer
-Candado cerrado
-Contraseña correcta
-Candado abierto
-Sino 3 veces alarma
+% Cambiar contraseña
+% Contra actual
+% Contra nueva
+% Guaradado
 
-Cambiar contraseña
-Contra actual
-Contra nueva
-Guaradado
+% Contraseñas tienen que ser entre 4 y 6 digitos
 
-Contraseñas tienen que ser entre 4 y 6 digitos
+% Problema
+% Una interfaz de usuario
+% Que es una interfaz
+% Entradas y salidas
+% El usuario hace algo y la interfaz muestra algo
+% Es la parte del programa o sistema que se encarga
+% de hablar con el usuario.
+% Diferentes acciones muestran o hacen diferentes cosas
+% Maquina de estados --- Transiciones de estado.
+% Problema: Reproducir sonidos, hacer debouncing, manejar alarmas, pantalla LCD. 
+% No existen suficientes timers
+% Solucion: tareas o tasks
+% Utilizar un contador de tiempo interno de 32 bits
+% junto con un solo timer para manejar tareas en paralelo
 
-Problema
-Una interfaz de usuario
-Que es una interfaz
-Entradas y salidas
-El usuario hace algo y la interfaz muestra algo
-Es la parte del programa o sistema que se encarga
-de hablar con el usuario.
-Diferentes acciones muestran o hacen diferentes cosas
-Maquina de estados --- Transiciones de estado.
-Problema: Reproducir sonidos, hacer debouncing, manejar alarmas, pantalla LCD. 
-No existen suficientes timers
-Solucion: tareas o tasks
-Utilizar un contador de tiempo interno de 32 bits
-junto con un solo timer para manejar tareas en paralelo
+% La tarea se ejecuta rapidamente en el main y compara el timepo que paso con 
+% el tiempo especificado para una acción especifica.
 
-La tarea se ejecuta rapidamente en el main y compara el timepo que paso con 
-el tiempo especificado para una acción especifica.
+% Un solo timer. Muchos delays sin polling.
 
-Un solo timer. Muchos delays sin polling.
+% Otro problema
+% Contraseña debe ser guardada aunque el sistema esté apagado
+% Solucion EEPROM
+% Funcionamiento de la eeprom
+% limitaciones de escritura de EEPROM
+% Como leer
+% Como escribir
 
-Otro problema
-Contraseña debe ser guardada aunque el sistema esté apagado
-Solucion EEPROM
-Funcionamiento de la eeprom
-limitaciones de escritura de EEPROM
-Como leer
-Como escribir
-
-Otro problema
-Teclado matricial
-Usa menos pines, uno por fila uno por columna
-Como identificar botones presionados
-Respuesta multiplexado
-Filas funcionan como salidas
-Columnas funcionan como entradas (pullup interno)
-Al solamente apagar una fila a la vez (0) 
-va a hacer que el pin de esa columna se vuelva 0
-Funcion retorna el caracter que representa esa fila y columna
-Listo.
+% Otro problema
+% Teclado matricial
+% Usa menos pines, uno por fila uno por columna
+% Como identificar botones presionados
+% Respuesta multiplexado
+% Filas funcionan como salidas
+% Columnas funcionan como entradas (pullup interno)
+% Al solamente apagar una fila a la vez (0) 
+% va a hacer que el pin de esa columna se vuelva 0
+% Funcion retorna el caracter que representa esa fila y columna
+% Listo.
 
 
 
@@ -912,6 +909,47 @@ Tarea de alarma
 	}
 }
 \end{lstlisting}
+
+Escritura y lectura de EEPROM
+\begin{lstlisting}[language=C, caption={Escritura y lectura de EEPROM}]
+#include <avr/eeprom.h>
+
+#define MAX_PASSWORD_LENGTH 6
+
+#define EEPROM_MAGIC 0x42
+uint8_t EEMEM ee_magic;                         // init marker
+
+char storedPassword[MAX_PASSWORD_LENGTH + 1] = "123456";
+char typedPassword[MAX_PASSWORD_LENGTH + 1];
+
+char EEMEM ee_password[MAX_PASSWORD_LENGTH + 1];
+
+void eeprom_load_password(void) {
+	uint8_t magic = eeprom_read_byte(&ee_magic);
+	if (magic == EEPROM_MAGIC) {
+		eeprom_read_block(storedPassword, 
+						  ee_password, 
+						  MAX_PASSWORD_LENGTH + 1);
+
+		storedPassword[MAX_PASSWORD_LENGTH] = '\0';
+		} else {
+
+		eeprom_update_block(storedPassword, ee_password, MAX_PASSWORD_LENGTH + 1);
+		eeprom_update_byte(&ee_magic, EEPROM_MAGIC);
+	}
+	storedPassword_length = strlen(storedPassword);
+}
+
+void eeprom_save_password(const char *pwd) {
+	
+	char temp[MAX_PASSWORD_LENGTH + 1];
+	strncpy(temp, pwd, MAX_PASSWORD_LENGTH);
+	temp[MAX_PASSWORD_LENGTH] = '\0';
+	eeprom_update_block(temp, ee_password, MAX_PASSWORD_LENGTH + 1);
+	eeprom_update_byte(&ee_magic, EEPROM_MAGIC);
+}
+\end{lstlisting}
+
 
 Logica de estados
 \begin{lstlisting}[language=C, caption={Logica de estados}]
