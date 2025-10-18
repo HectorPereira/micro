@@ -451,17 +451,14 @@ void state_alarma_UI(LiquidCrystalDevice_t device){
 
 void eeprom_load_password(void) {
 	if (eeprom_read_byte(&ee_magic) != EEPROM_MAGIC) {
-		// First time use: store default password
 		eeprom_update_block(storedPassword, ee_password, sizeof(storedPassword));
 		eeprom_update_byte(&ee_magic, EEPROM_MAGIC);
 		} else {
-		// Load existing password
 		eeprom_read_block(storedPassword, ee_password, sizeof(storedPassword));
 	}
 }
 
 void eeprom_save_password(const char *pwd) {
-	// Save new password (safe copy + ensure null terminator)
 	char buf[MAX_PASSWORD_LENGTH + 1];
 	strncpy(buf, pwd, MAX_PASSWORD_LENGTH);
 	buf[MAX_PASSWORD_LENGTH] = '\0';
