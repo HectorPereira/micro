@@ -1,1 +1,48 @@
 \section{Metodología}
+
+\subsection{Materiales y Herramientas}
+
+\begin{itemize}
+    \item Microcontrolador ATmega328P (Arduino Uno)
+    \item Sensor LDR y LED RGB
+    \item Servomotor SG90
+    \item Teclado matricial 4x4
+    \item Pantalla LCD 16x2 con interfaz I2C
+    \item Buzzer piezoeléctrico
+    \item Tira LED WS2812
+    \item Resistencias, cables, protoboard
+    \item Software: Microchip Studio, Proteus / PicSimLab, Python (para generación de secuencias del plotter)
+\end{itemize}
+
+\subsection{Procedimiento general}
+
+    % Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Piano y Cerradura).
+
+    % Cada grupo trabajó en su módulo correspondiente, implementando tanto el hardware como el firmware.
+
+    % Luego se integraron y probaron todos los módulos en una misma placa Arduino Uno.
+
+\subsection{Procedimiento específico por módulo}
+
+\subsubsection{Colores}
+    % Se armó un circuito con un LED RGB y un LDR formando un divisor de tensión. El microcontrolador iluminó secuencialmente el objeto con rojo, verde y azul, midiendo los valores con el ADC. Los datos se enviaron por USART y se procesaron para identificar el color más cercano.
+
+    % Se calibraron los valores mediante una rutina inicial y se replicó el color detectado en la tira WS2812 y en el ángulo del servo.
+
+\subsubsection{Piano}
+    % Se programó el buzzer para emitir ondas cuadradas controladas por los timers. Se implementó un sistema de reproducción de melodías con interrupciones y buffers USART. También se desarrolló un “modo piano” con botones físicos.
+
+\subsubsection{Cerradura}
+    % Se integró el teclado matricial, el LCD y los LEDs indicadores. Se programó una máquina de estados para manejar los distintos modos (ingreso, cambio de contraseña, alarma, etc.). La contraseña se almacenó en EEPROM.
+
+    % Además, se diseñó un sistema de tareas basado en un contador de milisegundos para coordinar acciones sin usar retardos bloqueantes.
+
+\subsection{Pruebas y validación}
+
+% Explicá cómo verificaste el funcionamiento:
+
+    % Se midieron las respuestas de cada módulo individualmente.
+
+    % Se probó la correcta lectura del sensor de color, la sincronización de melodías y la respuesta del teclado.
+    
+    % Se documentaron los errores o limitaciones observadas (por ejemplo, lentitud por USART o fallos de reinicio en simulación).
