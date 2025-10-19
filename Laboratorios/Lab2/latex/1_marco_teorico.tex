@@ -4,18 +4,44 @@
 
 Un sensor de luz o \textit{Light Dependent Resistor} (LDR) es un dispositivo fotoresistivo cuya resistencia eléctrica disminuye cuando aumenta la intensidad luminosa incidente. Este comportamiento se debe a que la radiación electromagnética libera portadores de carga en el material semiconductor —generalmente sulfuro de cadmio— reduciendo su resistividad~\cite{sedra_smith_microelectronics_2021}. De este modo, el LDR convierte la variación de luz en una señal eléctrica analógica que puede ser interpretada por el convertidor analógico–digital (ADC) del microcontrolador.
 
-\vspace{1em}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\linewidth]{anexos/colores/fotorresistencia_arduino.png}
+    \caption{Esquema de conexión del sensor LDR en un divisor resistivo cuya salida se dirige al canal ADC del microcontrolador ATmega328P. Fuente: \url{https://paraarduino.com/sensores/fotorresistencias/valor-maximo-de-una-fotorresistencia/}.}
+    \label{fig:ldr_circuito}
+\end{figure}
+
 
 En el caso del ATmega328P, el ADC posee una resolución de 10 bits, lo que permite representar las señales analógicas dentro de un rango discreto de 0 a 1023, donde los valores extremos corresponden a la tensión mínima y máxima de referencia~\cite{atmega328p_datasheet}. Estos niveles cuantificados pueden relacionarse con la intensidad relativa de los componentes del modelo aditivo de color \textbf{RGB} (\textit{Red, Green, Blue}), el cual describe los colores como combinaciones de tres luces primarias. En dicho modelo, cada componente adopta un valor dentro de una escala de 0 a 255, rango que se utiliza en la representación digital del color en dispositivos emisores de luz, como pantallas o tiras de LEDs~\cite{mazidi_avr_2014}.
 
-\vspace{1em}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\linewidth]{anexos/colores/a-RGB-Color-Space-7-b-YCbCr-Color-Space-8.png}
+    \caption{Representación tridimensional del modelo de color RGB, donde cada eje corresponde a una de las componentes primarias \textit{(Red, Green, Blue)} y su combinación genera el espacio de colores aditivos. 
+    Fuente: \url{https://www.researchgate.net/figure/a-RGB-Color-Space-7-b-YCbCr-Color-Space-8_fig1_298734907}.}
+    \label{fig:rgb_model}
+\end{figure}
+
 
 Dado que la respuesta espectral del LDR no es lineal ni uniforme frente a distintas longitudes de onda, la interpretación cromática requiere un proceso de calibración que establezca correspondencias entre los valores eléctricos medidos y los tonos del espacio RGB. Este principio permite compensar las variaciones inherentes del sensor y asegurar una medición coherente en condiciones de iluminación variables.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{anexos/colores/Resistance-vs-illumination-curve-LDRs-are-light-dependent-devices-whose-resistance.png}
+    \caption{Curva típica de resistencia frente a la iluminación en un sensor LDR. 
+    Se observa el comportamiento no lineal del dispositivo, cuya resistencia disminuye de forma exponencial al aumentar la intensidad luminosa. 
+    Fuente: \url{https://www.researchgate.net/figure/Resistance-vs-illumination-curve-LDRs-are-light-dependent-devices-whose-resistance_fig3_318029856}.}
+    \label{fig:ldr_curve}
+\end{figure}
+
+
+
 
 
 \subsection{Señales PWM y control de servomotores}
 
 El \textit{Pulse Width Modulation} (PWM) o modulación por ancho de pulso es una técnica utilizada en sistemas embebidos para generar señales de control analógicas a partir de salidas digitales~\cite{mazidi_avr_2014}. Consiste en emitir una señal periódica de frecuencia constante cuyo ciclo de trabajo (\textit{duty cycle}) varía en función de la magnitud deseada. Este ciclo se define como la relación entre el tiempo en nivel alto ($t_{on}$) y el periodo total ($T$):
+
 
 \[
 D = \frac{t_{on}}{T} \times 100~(\%)
@@ -23,7 +49,17 @@ D = \frac{t_{on}}{T} \times 100~(\%)
 
 En los servomotores de tipo \textit{hobby}, el control de posición se basa en la variación del ancho del pulso dentro de un periodo fijo de aproximadamente \SI{20}{\milli\second}, correspondiente a una frecuencia de \SI{50}{\hertz}~\cite{angeles_robotics_2018}. Pulsos de alrededor de \SI{1}{\milli\second} y \SI{2}{\milli\second} suelen representar los límites de desplazamiento angular del eje (por ejemplo, 0° y 180°). Así, la posición del servo se determina proporcionalmente al tiempo que la señal permanece en nivel alto.
 
-\vspace{1em}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{anexos/colores/a1TD5.png}
+    \caption{Señal PWM utilizada para el control de un servomotor de tipo \textit{hobby}. 
+    La variación del ancho de pulso dentro de un periodo fijo de \SI{20}{\milli\second} determina la posición angular del eje, 
+    donde pulsos de aproximadamente \SI{1}{\milli\second}, \SI{1.5}{\milli\second} y \SI{2}{\milli\second} corresponden a 0°, 90° y 180°, respectivamente. 
+    Fuente: \url{https://electronics.stackexchange.com/questions/346603/driving-servo-motor-with-pwm-signal}.}
+    \label{fig:pwm_servo}
+\end{figure}
+
 
 En el microcontrolador ATmega328P, la generación de señales PWM se realiza mediante los temporizadores de hardware (\textit{Timer/Counter})~\cite{atmega328p_datasheet}. Estos permiten obtener pulsos de duración precisa sin requerir intervención constante del procesador, lo que garantiza estabilidad temporal, repetitividad y eficiencia computacional. Al delegar la modulación al hardware, el microcontrolador puede atender otras tareas concurrentes sin afectar la calidad de la señal de control.
 
@@ -34,11 +70,27 @@ En el microcontrolador ATmega328P, la generación de señales PWM se realiza med
 
 El sonido es una onda mecánica periódica cuya frecuencia determina la percepción del tono musical. En términos físicos, la frecuencia ($f$), medida en hertzios (Hz), representa el número de oscilaciones por segundo, mientras que su inverso define el periodo ($T = 1/f$)~\cite{sedra_smith_microelectronics_2021}. En los sistemas electrónicos, este principio se aplica mediante la generación de señales eléctricas alternantes que hacen vibrar un transductor, como un buzzer piezoeléctrico, produciendo así ondas sonoras audibles.
 
-\vspace{1em}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{anexos/piano/piezo-buzzer-buyapica__32185.jpg}
+    \caption{Buzzer piezoeléctrico modelo PS1240, utilizado como transductor acústico para la generación de sonido mediante señales cuadradas. 
+    Su funcionamiento se basa en la vibración mecánica del material piezoeléctrico al aplicarse una señal alternante. 
+    Fuente: \url{https://www.pishop.us/product/piezo-buzzer-ps1240/?srsltid=AfmBOooScrJtJiyvIt6zUSB8B502aj-LKG3PUMQqgUtYcYVKXt_-yDs2}.}
+    \label{fig:buzzer_ps1240}
+\end{figure}
+
 
 En los microcontroladores, la síntesis de sonido se logra a través de la modulación temporal de señales digitales, comúnmente en forma de ondas cuadradas. La frecuencia de conmutación de estas ondas determina el tono percibido, mientras que su duración controla la extensión temporal de la nota~\cite{mazidi_avr_2014}. De esta manera, es posible representar una escala musical a partir de un conjunto discreto de frecuencias asociadas a las notas estándar.
 
-\vspace{1em}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\linewidth]{anexos/piano/20240827145846060.png}
+    \caption{Onda cuadrada periódica empleada para la generación de tonos audibles en un buzzer piezoeléctrico. 
+    Se indican el periodo ($T$) y la frecuencia ($f = 1/T$), parámetros fundamentales que determinan el tono y la duración de la nota reproducida. 
+    Fuente: \url{https://www.allelcoelec.com/blog/non-sinusoidal-waveforms-square,rectangular-and-pulsed-waveforms.html}.}
+    \label{fig:onda_cuadrada}
+\end{figure}
+
 
 En el ámbito de la música digital, el formato \textbf{MIDI} (\textit{Musical Instrument Digital Interface}) constituye un estándar ampliamente utilizado para describir eventos musicales mediante códigos numéricos~\cite{midi_specification_1996}. Cada evento MIDI contiene información como la nota a ejecutar, su duración, intensidad y canal asignado. Aunque no transmite sonido directamente, este formato permite definir secuencias musicales que pueden ser interpretadas por distintos dispositivos electrónicos, incluidos los microcontroladores, mediante la generación de las frecuencias correspondientes.
 
@@ -52,6 +104,7 @@ La reproducción de melodías digitales se basa, por tanto, en la secuenciación
 
 En los sistemas embebidos, la \textbf{interfaz de usuario} (\textit{User Interface}, UI) se define como el conjunto de componentes físicos y lógicos que facilitan la comunicación entre el usuario y el dispositivo. Su función principal es transformar las acciones del operador en respuestas visuales o auditivas que reflejen el estado interno del sistema, permitiendo un control intuitivo y seguro del mismo~\cite{williams_make_avr_2014}.
 
+
 \vspace{1em}
 
 Este intercambio bidireccional se logra a través de distintos medios de entrada y salida. Los periféricos de entrada —como teclados, pulsadores o sensores— registran las acciones del usuario, mientras que los de salida —como pantallas, indicadores luminosos o buzzers— proporcionan \textit{feedback} sobre el resultado de dichas acciones. En conjunto, estos elementos conforman un canal de comunicación que mejora la interacción y la comprensión del funcionamiento del sistema~\cite{mazidi_avr_2014}.
@@ -61,17 +114,35 @@ Este intercambio bidireccional se logra a través de distintos medios de entrada
 Para organizar la lógica de funcionamiento, los sistemas embebidos suelen emplear una \textbf{máquina de estados finitos} (FSM, por sus siglas en inglés). Este modelo conceptual divide la operación del programa en un conjunto finito de estados definidos, entre los cuales se producen transiciones en respuesta a eventos determinados~\cite{labrosse_embedded_2013}. Dicho enfoque favorece la modularidad, la claridad del código y la predictibilidad del comportamiento, cualidades esenciales en el diseño de interfaces de usuario para entornos con recursos limitados.
 
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{anexos/cerradura/state-diagram-circuit-1.jpg}
+    \caption{Ejemplo de diagrama de una máquina de estados finitos (FSM), donde cada nodo representa un estado lógico del sistema y las transiciones se activan por eventos o condiciones externas. 
+    Este enfoque permite modelar el comportamiento secuencial y predecible de una interfaz de usuario embebida. 
+    Fuente: \url{https://www.allaboutcircuits.com/textbook/digital/chpt-11/finite-state-machines/}.}
+    \label{fig:fsm_diagrama}
+\end{figure}
+
 
 
 \subsection{Almacenamiento no volátil y EEPROM}
 
 La \textbf{EEPROM} (\textit{Electrically Erasable Programmable Read-Only Memory}) es un tipo de memoria no volátil que permite conservar la información almacenada incluso después de interrumpir la alimentación del sistema~\cite{mazidi_avr_2014}. A diferencia de la memoria RAM, que se borra al apagar el dispositivo, la EEPROM mantiene los datos de forma permanente hasta que son modificados explícitamente por el programa, lo que la hace ideal para guardar configuraciones o valores críticos de usuario.
 
+
 \vspace{1em}
 
 En el microcontrolador ATmega328P, este tipo de memoria tiene una capacidad de \SI{1}{\kilo\byte} organizada en celdas de 8 bits, cada una de las cuales puede ser escrita y borrada eléctricamente un número limitado de veces —del orden de $10^5$ ciclos— según las especificaciones del fabricante~\cite{atmega328p_datasheet}. Debido a esta limitación, es recomendable minimizar las operaciones de escritura para evitar el desgaste prematuro de las celdas y asegurar la longevidad del dispositivo.
 
-\vspace{1em}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{anexos/piano/2_8bitAVRinstructionSet.jpg}
+    \caption{Estructura jerárquica de memoria del microcontrolador ATmega328P, que incluye los espacios de memoria \textit{Flash}, \textit{SRAM} y \textit{EEPROM}. 
+    Cada uno cumple una función específica: la memoria \textit{Flash} almacena el programa, la \textit{SRAM} gestiona las variables temporales en ejecución y la \textit{EEPROM} conserva datos no volátiles. 
+    Fuente: \url{https://www.arxterra.com/3-addressing-modes/}.}
+    \label{fig:memoria_atmega328p}
+\end{figure}
+
 
 La EEPROM se utiliza comúnmente en sistemas embebidos para conservar información que debe persistir entre encendidos, como parámetros de calibración, configuraciones del sistema o datos de usuario. Su manejo puede realizarse mediante instrucciones específicas del microcontrolador o por medio de librerías de más alto nivel que abstraen las operaciones de lectura y escritura, garantizando un acceso controlado y confiable a la memoria no volátil~\cite{avr_libc_manual_2_2_0}.
 
