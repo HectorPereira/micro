@@ -1,0 +1,50 @@
+# -----------------------------
+# Archivos auxiliares de LaTeX
+# -----------------------------
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.idx
+*.ilg
+*.ind
+*.lof
+*.log
+*.lot
+*.lox
+*.nav
+*.out
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+*.xdy
+*.xdv
+*.xml
+*.run.xml
+
+# Archivos temporales o de sincronización
+*.tmp
+*.bak
+*.swp
+*~
+*.DS_Store
+Thumbs.db
+
+# -----------------------------
+# Archivos de salida
+# -----------------------------
+*.pdf
+*.dvi
+*.ps
+
+
+# -----------------------------
+# Carpetas auxiliares de compilación
+# -----------------------------
+latexmk/
+_build/
+dist/
+output/
