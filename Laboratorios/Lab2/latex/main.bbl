@@ -21,16 +21,56 @@
 \providecommand{\BIBdecl}{\relax}
 \BIBdecl
 
-\bibitem{arduino_midi_converter}
-{ShivamJoker}, ``Midi to arduino converter,''
-  \url{https://arduinomidi.netlify.app/}, 2024, herramienta en línea para
-  convertir archivos MIDI a código Arduino.
+\bibitem{sedra_smith_microelectronics_2021}
+A.~S. Sedra and K.~C. Smith, \emph{Microelectronic Circuits}, 8th~ed.\hskip 1em
+  plus 0.5em minus 0.4em\relax Oxford University Press, 2021, conceptos de
+  fotoconductividad y respuesta espectral en materiales semiconductores.
 
 \bibitem{atmega328p_datasheet}
 \BIBentryALTinterwordspacing
 {Microchip Technology Inc.} Atmega328p datasheet. [Online]. Available:
   \url{https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf}
 \BIBentrySTDinterwordspacing
+
+\bibitem{mazidi_avr_2014}
+M.~A. Mazidi, S.~Naimi, and S.~Naimi, \emph{The AVR Microcontroller and
+  Embedded Systems: Using Assembly and C}.\hskip 1em plus 0.5em minus
+  0.4em\relax Pearson Education, 2014, referencia clásica sobre arquitectura
+  AVR, ADC, PWM y EEPROM.
+
+\bibitem{angeles_robotics_2018}
+J.~Angeles, \emph{Fundamentals of Robotic Mechanical Systems: Theory, Methods,
+  and Algorithms}, 5th~ed.\hskip 1em plus 0.5em minus 0.4em\relax Springer,
+  2018, referencias sobre control por PWM y cinemática de actuadores.
+
+\bibitem{midi_specification_1996}
+{International MIDI Association}, \emph{MIDI 1.0 Detailed Specification}, IMA,
+  1996, documento técnico que define la codificación de eventos musicales en
+  el formato MIDI.
+
+\bibitem{williams_make_avr_2014}
+E.~Williams, \emph{Make: AVR Programming: Learning to Write Software for
+  Hardware}.\hskip 1em plus 0.5em minus 0.4em\relax O’Reilly Media, 2014,
+  guía práctica de programación en C para microcontroladores AVR.
+
+\bibitem{labrosse_embedded_2013}
+J.~J. Labrosse, \emph{Embedded Systems Building Blocks: Complete and
+  Ready-to-Use Modules in C}.\hskip 1em plus 0.5em minus 0.4em\relax CRC Press,
+  2013, base teórica sobre máquinas de estados finitos y multitarea
+  cooperativa en sistemas embebidos.
+
+\bibitem{avr_libc_manual_2_2_0}
+\BIBentryALTinterwordspacing
+{AVR Libc Development Team}, \emph{AVR Libc User Manual, Version 2.2.0},
+  Savannah GNU Project, 2024, documentación oficial de la biblioteca estándar
+  de C para AVR. [Online]. Available:
+  \url{https://www.nongnu.org/avr-libc/user-manual/index.html}
+\BIBentrySTDinterwordspacing
+
+\bibitem{arduino_midi_converter}
+{ShivamJoker}, ``Midi to arduino converter,''
+  \url{https://arduinomidi.netlify.app/}, 2024, herramienta en línea para
+  convertir archivos MIDI a código Arduino.
 
 \bibitem{arduino_uno_pinout}
 \BIBentryALTinterwordspacing

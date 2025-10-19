@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2025.8.12)  19 OCT 2025 01:50
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2025.8.12)  19 OCT 2025 02:06
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -498,10 +498,10 @@ File: lstmisc.sty 2024/09/23 1.10c (Carsten Heinz)
 File: l3backend-pdftex.def 2025-06-09 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count354
 ) (main.aux
-LaTeX Info: Redefining \. on input line 11.
-LaTeX Info: Redefining \% on input line 11.
+LaTeX Info: Redefining \. on input line 19.
+LaTeX Info: Redefining \% on input line 19.
 Package babel Info: 'spanish' activates 'spanish' shorthands.
-(babel)             Reported on input line 11.
+(babel)             Reported on input line 19.
 )
 \openout1 = `main.aux'.
 
@@ -610,18 +610,18 @@ File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 
 
 ]
-
-
-Underfull \hbox (badness 3872) in paragraph at lines 66--67
+Underfull \hbox (badness 3872) in paragraph at lines 68--69
 []\OT1/ptm/m/n/10 La \OT1/ptm/b/n/10 EE-PROM \OT1/ptm/m/n/10 (\OT1/ptm/m/it/10 Elec-tri-cally Era-sa-ble Pro-gram-ma-ble
  []
 
-LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 80.
+
+
+LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 83.
 (C:\Users\hecto\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
-)
+)) (2_metodologia.tex
 
-[2]) (2_metodologia.tex
+[2]
 Underfull \hbox (badness 1371) in paragraph at lines 14--15
 []\OT1/ptm/m/n/10 Software: Mi-cro-chip Stu-dio, Pro-teus / Pic-Sim-Lab,
  []
@@ -640,7 +640,7 @@ Underfull \hbox (badness 2088) in paragraph at lines 116--117
 
 
 [4]
-<anexos/cerradura/DiagramaFlujo.png, id=218, 1802.735pt x 984.67876pt>
+<anexos/cerradura/DiagramaFlujo.png, id=244, 1802.735pt x 984.67876pt>
 File: anexos/cerradura/DiagramaFlujo.png Graphic file (type png)
 <use anexos/cerradura/DiagramaFlujo.png>
 Package pdftex.def Info: anexos/cerradura/DiagramaFlujo.png  used on input line 134.
@@ -653,7 +653,7 @@ Underfull \vbox (badness 3780) has occurred while \output is active []
 
 
 [5 <./anexos/cerradura/DiagramaFlujo.png>]
-<anexos/colores/EvidenciaFuncionamiento.jpg, id=238, 519.1395pt x 572.73975pt>
+<anexos/colores/EvidenciaFuncionamiento.jpg, id=264, 519.1395pt x 572.73975pt>
 File: anexos/colores/EvidenciaFuncionamiento.jpg Graphic file (type jpg)
 <use anexos/colores/EvidenciaFuncionamiento.jpg>
 Package pdftex.def Info: anexos/colores/EvidenciaFuncionamiento.jpg  used on input line 43.
@@ -671,19 +671,19 @@ Underfull \hbox (badness 10000) in paragraph at lines 31--34
  []
 
 
-Overfull \hbox (29.87581pt too wide) in paragraph at lines 49--55
+
+[6 <./anexos/colores/EvidenciaFuncionamiento.jpg>]
+Overfull \hbox (29.87581pt too wide) in paragraph at lines 89--95
 \OT1/ptm/m/n/8 learn-[]how-[]an-[]8x8-[]led-[]display-[]works-[]and-[]how-[]to-[]control-[]it-[]using-[]an-[]arduino/$[] 
  []
 
 
-
-[6 <./anexos/colores/EvidenciaFuncionamiento.jpg>]
-Underfull \hbox (badness 1810) in paragraph at lines 93--97
+Underfull \hbox (badness 1810) in paragraph at lines 133--137
 []\OT1/ptm/m/n/8 Laboratorio de Mi-cro-con-tro-la-do-res, UTEC, ``Re-po-si-to-rio de la-
  []
 
 
-Underfull \hbox (badness 3019) in paragraph at lines 93--97
+Underfull \hbox (badness 3019) in paragraph at lines 133--137
 \OT1/ptm/m/n/8 bo-ra-to-rio de mi-cro-con-tro-la-do-res (tec.micro),'' []$https : / / github . com /
  []
 
@@ -715,6 +715,11 @@ Underfull \hbox (badness 10000) in paragraph at lines 88--89
 
 
 [7]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+
+
 Underfull \hbox (badness 10000) in paragraph at lines 187--188
 
  []
@@ -723,11 +728,6 @@ Underfull \hbox (badness 10000) in paragraph at lines 187--188
 Underfull \hbox (badness 10000) in paragraph at lines 198--199
 
  []
-
-
-Underfull \vbox (badness 7814) has occurred while \output is active []
-
-
 
 
 Underfull \hbox (badness 10000) in paragraph at lines 242--243
@@ -742,6 +742,11 @@ Underfull \hbox (badness 10000) in paragraph at lines 298--299
  []
 
 
+Underfull \vbox (badness 1466) has occurred while \output is active []
+
+
+
+
 Underfull \hbox (badness 10000) in paragraph at lines 321--322
 
  []
@@ -752,21 +757,14 @@ Underfull \hbox (badness 10000) in paragraph at lines 330--331
  []
 
 
-
-
 Underfull \hbox (badness 10000) in paragraph at lines 339--340
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 377--378
 
  []
 
 
 
 [9]
-Underfull \hbox (badness 10000) in paragraph at lines 445--446
+Underfull \hbox (badness 10000) in paragraph at lines 377--378
 
  []
 
@@ -776,7 +774,9 @@ Underfull \vbox (badness 1466) has occurred while \output is active []
 
 
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \hbox (badness 10000) in paragraph at lines 445--446
+
+ []
 
 
 
@@ -784,6 +784,11 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 Underfull \hbox (badness 10000) in paragraph at lines 530--531
 
  []
+
+
+Underfull \vbox (badness 1466) has occurred while \output is active []
+
+
 
 
 Underfull \hbox (badness 10000) in paragraph at lines 566--567
@@ -796,26 +801,21 @@ Underfull \hbox (badness 10000) in paragraph at lines 582--583
  []
 
 
-
-
 Underfull \hbox (badness 10000) in paragraph at lines 602--603
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 639--640
 
  []
 
 
 
 [11]
-Underfull \hbox (badness 10000) in paragraph at lines 678--679
+Underfull \hbox (badness 10000) in paragraph at lines 639--640
 
  []
 
 
-Underfull \vbox (badness 1466) has occurred while \output is active []
+Underfull \hbox (badness 10000) in paragraph at lines 678--679
+
+ []
 
 
 
@@ -839,8 +839,8 @@ Before submitting the final camera ready copy, remember to:
 
 
 [12] (main.aux
-LaTeX Info: Redefining \. on input line 11.
-LaTeX Info: Redefining \% on input line 11.
+LaTeX Info: Redefining \. on input line 19.
+LaTeX Info: Redefining \% on input line 19.
 )
  ***********
 LaTeX2e <2025-06-01> patch level 1
@@ -850,17 +850,17 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: E545F04CD2DCEB9E76097AF4B50E1D14;5827.
  ) 
 Here is how much of TeX's memory you used:
- 20824 strings out of 468134
- 385636 string characters out of 5430740
- 1763214 words of memory out of 5000000
- 48429 multiletter control sequences out of 15000+600000
- 673742 words of font info for 138 fonts, out of 8000000 for 9000
+ 20845 strings out of 468134
+ 386096 string characters out of 5430740
+ 1692214 words of memory out of 5000000
+ 48442 multiletter control sequences out of 15000+600000
+ 674878 words of font info for 139 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,11n,80p,831b,2636s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,11n,80p,882b,2636s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrb8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrr8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrro8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmbi8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (12 pages, 608126 bytes).
+Output written on main.pdf (12 pages, 614891 bytes).
 PDF statistics:
- 1178 PDF objects out of 1200 (max. 8388607)
- 760 named destinations out of 1000 (max. 500000)
+ 1205 PDF objects out of 1440 (max. 8388607)
+ 767 named destinations out of 1000 (max. 500000)
  323 words of extra memory for PDF output out of 10000 (max. 10000000)
 
