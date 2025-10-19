@@ -17,8 +17,8 @@
 \subsubsection{\textbf{Colores}}---
     \paragraph*{\textbf{Calibración y reconocimiento}}---
 
-    % Utilizando una fuente externa el sistema es considerablemente estable.
-    % Como el servomotor posee un pico de consumo en momentos de arranque, si este es alimentado solamente con el voltaje del Arduino, algunos colores se volvían inestables y creaba fallas en la medición, haciendo un ciclo de retroalimentación.
+    Durante el proceso de calibración se determinó que la estabilidad del sistema dependía en gran medida de la fuente de alimentación utilizada. Cuando el servomotor era alimentado únicamente desde el regulador de \SI{5}{\volt} del propio Arduino, se observaban fluctuaciones de tensión en los momentos de arranque debido a los picos de corriente característicos del motor. Esto provocaba lecturas erróneas del sensor LDR y una respuesta inestable en la identificación del color, generando un bucle de retroalimentación entre la medición y el movimiento del servo. La situación se resolvió alimentando el servomotor desde una fuente externa regulada, lo que permitió aislar las variaciones de corriente y obtener una lectura más consistente de los valores de referencia.
+
     
     \begin{table}[H]
     \centering
@@ -43,30 +43,29 @@
 
     \paragraph*{\textbf{Servomotor y tira LED}}---
 
-    % Otra consideración fue que el sistema también es dependiente en cierta medida a la cantidad de luz ambiental del lugar en el que se encuentre. La misma tira de LEDs al iluminarse a veces causaba falsas medidas, se solventó esto bloqueando la luz de la tira hacia el sensor.
-        
+    Además, se observó que la cantidad de luz ambiental influía directamente en la precisión de la lectura del sensor. La misma tira de LEDs WS2812 utilizada para la representación del color introducía una leve interferencia óptica sobre la LDR cuando se encontraba demasiado cerca, provocando pequeñas desviaciones en las mediciones. Para mitigar este efecto, se implementó un apantallamiento parcial que bloqueó la incidencia directa de la luz de la tira sobre el sensor, manteniendo al mismo tiempo una iluminación uniforme sobre la superficie de calibración. Con estas modificaciones, el sistema logró una detección estable y una correspondencia confiable entre los valores ADC medidos y los colores calibrados.
+            
     \begin{figure}[H]
         \centering
         \includegraphics[width=0.9\columnwidth]{anexos/colores/EvidenciaFuncionamiento.jpg}
-        \caption{Identificación de color efectiva. Fuente: elaboración própia}
+        \caption{Identificación de color efectiva. Fuente: elaboración propia}
         \label{fig:color_evidencia}
     \end{figure}
 
     \paragraph*{\textbf{USART}}---
 
-    % También, al implementar la impresión de datos a través de USART, se observó una ralentización considerable del funcionamiento del programa debido al tiempo que le tomaba enviarse a los datos para cada ciclo. El delay tenía que ser agreado manualmente para cada ciclo del programa ya que ejecutar a una velocidad mayor generaba un overflow en el buffer de transmision de datos. 
+    Finalmente, durante la implementación de la comunicación serial mediante USART se detectó una ralentización perceptible en el ciclo principal del programa. Esto se debía al tiempo requerido para transmitir cada paquete de datos hacia la terminal, especialmente cuando se imprimían valores en cada iteración del bucle. Para evitar sobrecargas en el búfer de transmisión (\textit{overflow}) y asegurar una comunicación confiable, fue necesario introducir retardos (\texttt{delay}) calibrados entre envíos sucesivos, limitando así la frecuencia de actualización sin comprometer la precisión del monitoreo. La Figura~\ref{fig:usart_terminal} muestra la salida obtenida en la terminal serial, donde se visualizan el valor analógico medido, el color identificado, el valor de referencia y la desviación asociada.
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{anexos/colores/terminal.jpg}
+        \caption{Identificación de color efectiva mediante comunicación serial a través de la terminal. 
+        Se observa la lectura del valor ADC, el color detectado, el valor establecido y la desviación del mismo. 
+        Fuente: elaboración propia.}
+        \label{fig:usart_terminal}
+    \end{figure}
 
-    % Foto de salidas USART
 
-
-
-% Mencioná el comportamiento: estabilidad, sensibilidad a la luz ambiente, etc.
-
-
-% Estabilidad a luz ambiental
-
-
-% Delay frente a USART
 
 
 % ----------------------------------------- RAMBLINGS
