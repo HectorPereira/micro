@@ -1,26 +1,25 @@
-\section{Conlusiones}
+\section{Conclusiones}
 
-\subsection{Plotter}
 \subsection{Colores}
 
-\begin{itemize}
-\item La comunicación por USART fue una limitación para la velocidad del sistema. Podría mejorarse reduciendo la cantidad de datos enviados o usando interrupciones para hacerlo más fluido.
-\item Sería útil agregar un modo de calibración donde el usuario pueda registrar los valores de referencia de cada color, adaptando el sistema a distintas condiciones de luz.
-\item Se podría usar un servomotor de 360° para aprovechar todos los colores disponibles en la rueda.
-\end{itemize}
+El desarrollo del sistema de detección de colores permitió comprender en profundidad el funcionamiento del conversor analógico–digital (ADC) del microcontrolador y su aplicación en la lectura de un sensor LDR. Además, se logró implementar con éxito la comunicación con la tira de LEDs WS2812 y el control de un servomotor mediante señales PWM, integrando varios periféricos de manera coordinada.  
+
+\vspace{1em}
+
+Entre las posibles mejoras, se destaca la necesidad de optimizar la comunicación por USART, la cual limitó la velocidad de respuesta del sistema. También sería conveniente incorporar un modo de calibración que permita al usuario registrar valores de referencia personalizados para cada color, adaptando el sistema a diferentes condiciones de iluminación. Finalmente, el uso de un servomotor de 360° posibilitaría cubrir un rango mayor de colores en la rueda.
 
 \subsection{Piano}
 
-\begin{itemize}
-\item Sería interesante agregar más canciones al repertorio.
-\item Se podría mejorar la coordinación entre las pistas, ya que con el tiempo tienden a desfasarse un poco.
-\item También sería bueno incluir más notas en el teclado para ampliar el rango musical.
-\end{itemize}
+Este módulo permitió afianzar el manejo de interrupciones, temporizadores y la generación de señales de distinta frecuencia mediante la modulación por ancho de pulso. A partir de ello, se consiguió la reproducción tanto de notas individuales como de melodías almacenadas en memoria.  
+
+\vspace{1em}
+
+Como mejoras futuras, se propone ampliar el repertorio de canciones predefinidas y aumentar la cantidad de notas disponibles en el teclado, extendiendo el rango tonal del instrumento. Asimismo, podría trabajarse en la sincronización de las pistas para reducir el leve desfase que aparece durante la reproducción prolongada.
 
 \subsection{Cerradura}
 
-\begin{itemize}
-\item Agregar un botón para ver la contraseña escrita antes de confirmar ayudaría al usuario sin afectar la seguridad.
-\item Implementar un solenoide real permitiría que el sistema abra y cierre físicamente el cerrojo.
-\item En la simulación de PicSimLab el reinicio no siempre funciona correctamente. A veces es necesario usar el botón “DEBUG” o reiniciar el programa. Sin embargo, en el dispositivo real el sistema funciona correctamente.
-\end{itemize}
+El desarrollo de la cerradura electrónica permitió integrar múltiples conceptos del curso: el uso de la memoria EEPROM para el almacenamiento persistente de contraseñas, la lectura de teclados matriciales con técnicas de \textit{debouncing}, la creación de máquinas de estados y la gestión de tareas temporizadas mediante un solo temporizador.  
+
+\vspace{1em}
+
+Como mejoras, se plantea incorporar un botón que permita visualizar temporalmente la contraseña antes de confirmar, mejorando la experiencia del usuario sin comprometer la seguridad. Además, la inclusión de un solenoide o mecanismo físico real de bloqueo daría una respuesta tangible al proceso de autenticación, completando el sistema de manera práctica.

@@ -1,18 +1,18 @@
 # Fdb version 4
-["bibtex main"] 1760898369.14101 "main.aux" "main.bbl" "main" 1760898390.8509 0
+["bibtex main"] 1760900034.00194 "main.aux" "main.bbl" "main" 1760900037.69916 0
   "./5_referencias.bib" 1760850028 5980 9a74f72c3ad2ac47286a24b65d882d49 ""
   "C:/Users/hecto/AppData/Local/Programs/MiKTeX/bibtex/bst/ieeetran/IEEEtran.bst" 1440622569 57748 7c8250ecf02814ce6ddc0cdbb63df1dd ""
-  "main.aux" 1760898389 26229 7d0b3c67b06fcc51b59aad688f39aaff "pdflatex"
+  "main.aux" 1760900036 26106 95321243d3e3acb0b9ca4ca96d5fd0c8 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1760898387.86255 "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" "main.pdf" "main" 1760898390.85158 0
+["pdflatex"] 1760900034.32526 "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" "main.pdf" "main" 1760900037.69988 0
   "0_introduccion.tex" 1760850831 2490 5e39eba3310b1d196bf57bb6934f38a0 ""
   "1_marco_teorico.tex" 1760853943 14952 ba5e87d98a833c1602e44a6b58fa6793 ""
   "2_metodologia.tex" 1760834940 18093 44accc825079d0d112b7b1c982539ab2 ""
-  "3_resultados.tex" 1760898387 13987 e9773d8dfcb8cce0b3038988b190c16c ""
-  "4_conclusiones.tex" 1760808656 1419 940955c28d2cabbf7b768b2f5c6116d6 ""
+  "3_resultados.tex" 1760899850 14156 49d27988ce832d75ae95ab2717714a3c ""
+  "4_conclusiones.tex" 1760900030 2377 3d6dfa2f367b14e829220164ceae047b ""
   "6_anexos.tex" 1760833325 18104 549f83b26e882a619786978f2ee4a66a ""
   "C:/Users/hecto/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1760853866 82507 a9eef8696c92627b87e9975edea03b2a ""
   "C:/Users/hecto/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1755027854 13257295 6220036096196477d82c74b95064958e ""
@@ -172,9 +172,9 @@
   "anexos/piano/simulacion.png" 1760896000 64604 ec43cb25ed360e2b5f26cb0175da44db ""
   "anexos/piano/terminal.jpg" 1760890999 146903 58dcf49510b4dea719c0e84c1189bb6c ""
   "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" 1760854229 1990 913d7414aa62560cd61e8ce366a0d764 ""
-  "main.aux" 1760898389 26229 7d0b3c67b06fcc51b59aad688f39aaff "pdflatex"
-  "main.bbl" 1760898369 5981 f4db9430ddfeb305679ef28f111ae3ac "bibtex main"
-  "main.out" 1760898389 5362 ab529cc3e371559c6b051e35bc1c7fe9 "pdflatex"
+  "main.aux" 1760900036 26106 95321243d3e3acb0b9ca4ca96d5fd0c8 "pdflatex"
+  "main.bbl" 1760900034 5981 f4db9430ddfeb305679ef28f111ae3ac "bibtex main"
+  "main.out" 1760900036 5274 eac1bc2e2d2cbf53c0439a5bdc1ec581 "pdflatex"
   "main.tex" 1760854229 1990 913d7414aa62560cd61e8ce366a0d764 ""
   (generated)
   "main.aux"

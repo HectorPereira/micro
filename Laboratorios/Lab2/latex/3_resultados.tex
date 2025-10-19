@@ -111,11 +111,11 @@ En esta sección se presentan los resultados obtenidos durante la implementació
     \paragraph*{\textbf{Reproducción de música}}---
 
     El sistema reprodujo correctamente las melodías preprogramadas, manteniendo el ritmo y la secuencia esperada de las notas. 
-    No se detectaron desfasajes entre tonos ni interrupciones durante la ejecución, lo que confirmó la estabilidad temporal del módulo. Las canciones fueron reproducidas con continuidad y volumen uniforme, evidenciando un control adecuado sobre la temporización y la generación de frecuencias.
+    Se detectaron leves desfasajes entre las pistas durante la ejecución, lo cuales se volvían más aparentes conforme avanzaba la reproducción. Para melodias con una sola pista no se detectaron desviaciones con las originales, lo que confirmó la estabilidad temporal del módulo. Las canciones fueron reproducidas con continuidad y volumen uniforme, evidenciando un control adecuado sobre la temporización y la generación de frecuencias.
 
     \paragraph*{\textbf{Modos de funcionamiento y comunicación USART}}---
 
-    Durante la verificación de los modos de operación, se comprobó que el sistema respondía correctamente tanto en el modo \textbf{piano} (manual) como en el modo \textbf{automático} (canciones). La interfaz serial \textbf{USART} permitió alternar entre los modos de forma confiable, así como iniciar y detener la reproducción desde la terminal. La comunicación se mantuvo estable a 9600~bps, sin pérdida de datos ni interferencia con la reproducción del sonido. El menú mostrado en la terminal facilitó el control y la supervisión del sistema durante las pruebas.
+    Durante la verificación de los modos de operación, se comprobó que el sistema respondía correctamente tanto en el modo \textbf{manual} (piano) como en el modo \textbf{automático} (canciones). La interfaz serial \textbf{USART} permitió alternar entre los modos de forma confiable, así como iniciar y detener la reproducción desde la terminal. La comunicación se mantuvo estable a 9600~bps, sin pérdida de datos ni interferencia con la reproducción del sonido. El menú mostrado en la terminal facilitó el control y la supervisión del sistema durante las pruebas.
 
     \begin{figure}[H]
         \centering
@@ -154,7 +154,7 @@ En esta sección se presentan los resultados obtenidos durante la implementació
 
     \paragraph*{\textbf{Interfaz de usuario}}---
 
-    En las pruebas de la interfaz LCD se confirmó que los mensajes se mostraban correctamente en cada etapa del proceso: inicio del sistema, solicitud de contraseña, acceso concedido o denegado y aviso de alarma. Tras tres intentos fallidos consecutivos, se activó la alarma sonora y el LED rojo, mientras que el LED verde indicó exitosamente la apertura del sistema cuando la contraseña era correcta. La interacción visual y auditiva resultó clara y permitió identificar el estado del sistema en todo momento.
+    En las pruebas de la interfaz LCD se confirmó que los mensajes se mostraban correctamente en cada etapa del proceso: inicio del sistema, solicitud de contraseña, acceso concedido o denegado y aviso de alarma. Tras tres intentos fallidos consecutivos, se activó la alarma sonora y el LED rojo de manera intermitente, mientras que el LED verde indicó exitosamente la apertura del sistema cuando la contraseña era correcta. La interacción visual y auditiva resultó clara y permitió identificar el estado del sistema en todo momento.
 
     \begin{figure}[H]
         \centering
