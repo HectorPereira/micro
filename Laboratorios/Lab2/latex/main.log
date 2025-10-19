@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2025.8.12)  19 OCT 2025 14:55
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2025.8.12)  19 OCT 2025 15:26
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -710,72 +710,72 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 
 [6 <./anexos/cerradura/DiagramaFlujo.png>]) (3_resultados.tex
 
-<anexos/colores/EvidenciaFuncionamiento.jpg, id=301, 519.1395pt x 572.73975pt>
+<anexos/colores/simulacion.png, id=301, 748.29562pt x 518.6878pt>
+File: anexos/colores/simulacion.png Graphic file (type png)
+<use anexos/colores/simulacion.png>
+Package pdftex.def Info: anexos/colores/simulacion.png  used on input line 25.
+(pdftex.def)             Requested size: 219.8163pt x 152.36258pt.
+
+
+[7 <./anexos/colores/simulacion.png>]
+<anexos/colores/EvidenciaFuncionamiento.jpg, id=315, 519.1395pt x 572.73975pt>
 File: anexos/colores/EvidenciaFuncionamiento.jpg Graphic file (type jpg)
 <use anexos/colores/EvidenciaFuncionamiento.jpg>
-Package pdftex.def Info: anexos/colores/EvidenciaFuncionamiento.jpg  used on input line 50.
+Package pdftex.def Info: anexos/colores/EvidenciaFuncionamiento.jpg  used on input line 65.
 (pdftex.def)             Requested size: 219.8163pt x 242.51538pt.
+<anexos/colores/terminal.jpg, id=317, 526.3665pt x 386.6445pt>
+File: anexos/colores/terminal.jpg Graphic file (type jpg)
+<use anexos/colores/terminal.jpg>
+Package pdftex.def Info: anexos/colores/terminal.jpg  used on input line 76.
+(pdftex.def)             Requested size: 219.8163pt x 161.46332pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 
-[7]
-<anexos/colores/terminal.jpg, id=314, 526.3665pt x 386.6445pt>
-File: anexos/colores/terminal.jpg Graphic file (type jpg)
-<use anexos/colores/terminal.jpg>
-Package pdftex.def Info: anexos/colores/terminal.jpg  used on input line 61.
-(pdftex.def)             Requested size: 219.8163pt x 161.46332pt.
-
-
-<anexos/colores/simulacion.png, id=315, 748.29562pt x 518.6878pt>
-File: anexos/colores/simulacion.png Graphic file (type png)
-<use anexos/colores/simulacion.png>
-Package pdftex.def Info: anexos/colores/simulacion.png  used on input line 75.
-(pdftex.def)             Requested size: 219.8163pt x 152.36258pt.
-<anexos/piano/circuito.jpg, id=316, 727.21687pt x 748.29562pt>
+<anexos/piano/simulacion.png, id=318, 944.02687pt x 563.10374pt>
+File: anexos/piano/simulacion.png Graphic file (type png)
+<use anexos/piano/simulacion.png>
+Package pdftex.def Info: anexos/piano/simulacion.png  used on input line 92.
+(pdftex.def)             Requested size: 219.8163pt x 131.11789pt.
+<anexos/piano/circuito.jpg, id=319, 727.21687pt x 748.29562pt>
 File: anexos/piano/circuito.jpg Graphic file (type jpg)
 <use anexos/piano/circuito.jpg>
-Package pdftex.def Info: anexos/piano/circuito.jpg  used on input line 88.
+Package pdftex.def Info: anexos/piano/circuito.jpg  used on input line 105.
 (pdftex.def)             Requested size: 219.8163pt x 226.18028pt.
 
 
-[8 <./anexos/colores/EvidenciaFuncionamiento.jpg> <./anexos/colores/terminal.jpg> <./anexos/colores/simulacion.png> <./anexos/piano/circuito.jpg>]
-<anexos/piano/terminal.jpg, id=329, 706.13812pt x 679.78969pt>
+[8 <./anexos/colores/EvidenciaFuncionamiento.jpg> <./anexos/colores/terminal.jpg> <./anexos/piano/simulacion.png>]
+<anexos/piano/terminal.jpg, id=332, 706.13812pt x 679.78969pt>
 File: anexos/piano/terminal.jpg Graphic file (type jpg)
 <use anexos/piano/terminal.jpg>
-Package pdftex.def Info: anexos/piano/terminal.jpg  used on input line 100.
+Package pdftex.def Info: anexos/piano/terminal.jpg  used on input line 122.
 (pdftex.def)             Requested size: 219.8163pt x 211.6143pt.
-<anexos/piano/simulacion.png, id=330, 944.02687pt x 563.10374pt>
-File: anexos/piano/simulacion.png Graphic file (type png)
-<use anexos/piano/simulacion.png>
-Package pdftex.def Info: anexos/piano/simulacion.png  used on input line 116.
-(pdftex.def)             Requested size: 219.8163pt x 131.11789pt.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 
-<anexos/cerradura/circuito.jpg, id=331, 671.50874pt x 787.44188pt>
+<anexos/cerradura/simulacion.png, id=333, 691.08188pt x 506.6428pt>
+File: anexos/cerradura/simulacion.png Graphic file (type png)
+<use anexos/cerradura/simulacion.png>
+Package pdftex.def Info: anexos/cerradura/simulacion.png  used on input line 143.
+(pdftex.def)             Requested size: 219.8163pt x 161.1472pt.
+
+
+[9 <./anexos/piano/circuito.jpg> <./anexos/piano/terminal.jpg> <./anexos/cerradura/simulacion.png>]
+<anexos/cerradura/circuito.jpg, id=345, 671.50874pt x 787.44188pt>
 File: anexos/cerradura/circuito.jpg Graphic file (type jpg)
 <use anexos/cerradura/circuito.jpg>
-Package pdftex.def Info: anexos/cerradura/circuito.jpg  used on input line 135.
+Package pdftex.def Info: anexos/cerradura/circuito.jpg  used on input line 161.
 (pdftex.def)             Requested size: 219.8163pt x 257.76595pt.
 
 
-[9 <./anexos/piano/terminal.jpg> <./anexos/piano/simulacion.png> <./anexos/cerradura/circuito.jpg>]
-<anexos/cerradura/simulacion.png, id=348, 691.08188pt x 506.6428pt>
-File: anexos/cerradura/simulacion.png Graphic file (type png)
-<use anexos/cerradura/simulacion.png>
-Package pdftex.def Info: anexos/cerradura/simulacion.png  used on input line 154.
-(pdftex.def)             Requested size: 219.8163pt x 161.1472pt.
-) (4_conclusiones.tex
+) (4_conclusiones.tex) (main.bbl
 
-) (main.bbl) (6_anexos.tex
+[10 <./anexos/cerradura/circuito.jpg>]) (6_anexos.tex
 ** WARNING: Ignoring useless \section in Appendix (line 1).
 
-
-[10 <./anexos/cerradura/simulacion.png>]
 Underfull \hbox (badness 10000) in paragraph at lines 9--10
 
  []
@@ -789,11 +789,11 @@ Underfull \hbox (badness 10000) in paragraph at lines 19--20
 LaTeX Font Info:    Font shape `OT1/pcr/m/it' in size <8> not available
 (Font)              Font shape `OT1/pcr/m/sl' tried instead on input line 25.
 
+
+
 Underfull \hbox (badness 10000) in paragraph at lines 62--63
 
  []
-
-
 
 
 Underfull \hbox (badness 10000) in paragraph at lines 88--89
@@ -801,11 +801,13 @@ Underfull \hbox (badness 10000) in paragraph at lines 88--89
  []
 
 
-Underfull \vbox (badness 1466) has occurred while \output is active []
-
-
 
 [11]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+
+
 Underfull \hbox (badness 10000) in paragraph at lines 187--188
 
  []
@@ -816,14 +818,9 @@ Underfull \hbox (badness 10000) in paragraph at lines 198--199
  []
 
 
-
-
 Underfull \hbox (badness 10000) in paragraph at lines 242--243
 
  []
-
-
-Underfull \vbox (badness 1466) has occurred while \output is active []
 
 
 
@@ -831,6 +828,8 @@ Underfull \vbox (badness 1466) has occurred while \output is active []
 Underfull \hbox (badness 10000) in paragraph at lines 298--299
 
  []
+
+
 
 
 Underfull \hbox (badness 10000) in paragraph at lines 321--322
@@ -849,15 +848,8 @@ Underfull \hbox (badness 10000) in paragraph at lines 339--340
 
 
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 377--378
-
- []
-
-
-
 [13]
-Underfull \hbox (badness 10000) in paragraph at lines 445--446
+Underfull \hbox (badness 10000) in paragraph at lines 377--378
 
  []
 
@@ -867,7 +859,12 @@ Underfull \vbox (badness 1466) has occurred while \output is active []
 
 
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \hbox (badness 10000) in paragraph at lines 445--446
+
+ []
+
+
+Underfull \vbox (badness 1466) has occurred while \output is active []
 
 
 
@@ -875,6 +872,11 @@ Underfull \vbox (badness 10000) has occurred while \output is active []
 Underfull \hbox (badness 10000) in paragraph at lines 530--531
 
  []
+
+
+Underfull \vbox (badness 1466) has occurred while \output is active []
+
+
 
 
 Underfull \hbox (badness 10000) in paragraph at lines 566--567
@@ -887,30 +889,28 @@ Underfull \hbox (badness 10000) in paragraph at lines 582--583
  []
 
 
-
-
 Underfull \hbox (badness 10000) in paragraph at lines 602--603
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 639--640
 
  []
 
 
 
 [15]
+Underfull \hbox (badness 10000) in paragraph at lines 639--640
+
+ []
+
+
 Underfull \hbox (badness 10000) in paragraph at lines 678--679
 
  []
 
 
+
+
 Underfull \hbox (badness 10000) in paragraph at lines 720--721
 
  []
-
-
 
 )
 
@@ -938,15 +938,15 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: AB529CC3E371559C6B051E35BC1C7FE9;5362.
  ) 
 Here is how much of TeX's memory you used:
- 21020 strings out of 468134
- 392368 string characters out of 5430740
- 1788499 words of memory out of 5000000
- 48583 multiletter control sequences out of 15000+600000
+ 21021 strings out of 468134
+ 392383 string characters out of 5430740
+ 1695499 words of memory out of 5000000
+ 48584 multiletter control sequences out of 15000+600000
  674878 words of font info for 139 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  75i,11n,80p,962b,2636s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrb8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrr8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrro8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmbi8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (16 pages, 1911048 bytes).
+Output written on main.pdf (16 pages, 1914724 bytes).
 PDF statistics:
  1304 PDF objects out of 1440 (max. 8388607)
  797 named destinations out of 1000 (max. 500000)

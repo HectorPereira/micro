@@ -1,17 +1,17 @@
 # Fdb version 4
-["bibtex main"] 1760894136.47807 "main.aux" "main.bbl" "main" 1760896552.67876 0
+["bibtex main"] 1760898369.14101 "main.aux" "main.bbl" "main" 1760898390.8509 0
   "./5_referencias.bib" 1760850028 5980 9a74f72c3ad2ac47286a24b65d882d49 ""
   "C:/Users/hecto/AppData/Local/Programs/MiKTeX/bibtex/bst/ieeetran/IEEEtran.bst" 1440622569 57748 7c8250ecf02814ce6ddc0cdbb63df1dd ""
-  "main.aux" 1760896551 26229 15e19d6b890ca8c16a887cdec7609fdb "pdflatex"
+  "main.aux" 1760898389 26229 7d0b3c67b06fcc51b59aad688f39aaff "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1760896549.79493 "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" "main.pdf" "main" 1760896552.6795 0
+["pdflatex"] 1760898387.86255 "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" "main.pdf" "main" 1760898390.85158 0
   "0_introduccion.tex" 1760850831 2490 5e39eba3310b1d196bf57bb6934f38a0 ""
   "1_marco_teorico.tex" 1760853943 14952 ba5e87d98a833c1602e44a6b58fa6793 ""
   "2_metodologia.tex" 1760834940 18093 44accc825079d0d112b7b1c982539ab2 ""
-  "3_resultados.tex" 1760896549 11830 0153ca3634a3d5288d80bab2bac1eb93 ""
+  "3_resultados.tex" 1760898387 13987 e9773d8dfcb8cce0b3038988b190c16c ""
   "4_conclusiones.tex" 1760808656 1419 940955c28d2cabbf7b768b2f5c6116d6 ""
   "6_anexos.tex" 1760833325 18104 549f83b26e882a619786978f2ee4a66a ""
   "C:/Users/hecto/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1760853866 82507 a9eef8696c92627b87e9975edea03b2a ""
@@ -172,9 +172,9 @@
   "anexos/piano/simulacion.png" 1760896000 64604 ec43cb25ed360e2b5f26cb0175da44db ""
   "anexos/piano/terminal.jpg" 1760890999 146903 58dcf49510b4dea719c0e84c1189bb6c ""
   "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" 1760854229 1990 913d7414aa62560cd61e8ce366a0d764 ""
-  "main.aux" 1760896551 26229 15e19d6b890ca8c16a887cdec7609fdb "pdflatex"
-  "main.bbl" 1760894136 5981 f4db9430ddfeb305679ef28f111ae3ac "bibtex main"
-  "main.out" 1760896551 5362 ab529cc3e371559c6b051e35bc1c7fe9 "pdflatex"
+  "main.aux" 1760898389 26229 7d0b3c67b06fcc51b59aad688f39aaff "pdflatex"
+  "main.bbl" 1760898369 5981 f4db9430ddfeb305679ef28f111ae3ac "bibtex main"
+  "main.out" 1760898389 5362 ab529cc3e371559c6b051e35bc1c7fe9 "pdflatex"
   "main.tex" 1760854229 1990 913d7414aa62560cd61e8ce366a0d764 ""
   (generated)
   "main.aux"

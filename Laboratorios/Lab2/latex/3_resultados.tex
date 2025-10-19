@@ -1,5 +1,5 @@
 \section{Resultados}
-En esta sección se presentan los resultados obtenidos durante la implementación y prueba de los distintos módulos desarrollados: el sistema de reconocimiento de colores, el piano electrónico, la cerradura con contraseña y el control del plotter. Exceptuando el plotter, cada módulo fue verificado individualmente en simulación y en montaje físico, registrando su funcionamiento y las principales observaciones.
+En esta sección se presentan los resultados obtenidos durante la implementación y prueba de los distintos módulos desarrollados: el sistema de reconocimiento de colores, el piano electrónico, la cerradura con contraseña y el control del plotter. Exceptuando este último, cada módulo fue verificado individualmente en simulación y en montaje físico, registrando su funcionamiento y las principales observaciones.
 
 \subsection{Resultados por módulo}
 
@@ -15,7 +15,22 @@ En esta sección se presentan los resultados obtenidos durante la implementació
 % El plotter ejecutó correctamente trayectorias lineales y circulares generadas desde un script en Python. Se comprobó que, al reducir la tasa de envío por USART, la respuesta del sistema fue más fluida y sin interrupciones perceptibles.
 
 \subsubsection{\textbf{Colores}}---
-    \paragraph*{\textbf{Calibración y reconocimiento}}---
+
+    \paragraph*{\textbf{Simulación}}---
+
+    La simulación en Proteus permitió verificar el funcionamiento lógico del sistema antes de su implementación física. En el entorno virtual, se replicó el comportamiento del LDR mediante una fuente de voltaje variable que simulaba distintos niveles de iluminación. Al variar dicho valor, se observaron cambios coherentes en la salida del ADC, en la posición del servomotor y en el color representado por la tira de LEDs. Esto confirmó la correcta interacción entre los módulos de lectura, procesamiento y visualización del sistema. La simulación también permitió ajustar los tiempos de respuesta y verificar la estabilidad del ciclo de lectura sin la influencia de ruido externo.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{anexos/colores/simulacion.png}
+        \caption{Simulación en Proteus del sistema de detección de color. 
+        Se observa la variación de la señal del LDR y la correspondiente respuesta del servomotor y de la tira LED. 
+        Fuente: elaboración propia.}
+        \label{fig:color_simulacion}
+    \end{figure}
+
+
+    \paragraph*{\textbf{Servomotor y calibración}}---
 
     Durante el proceso de calibración se determinó que la estabilidad del sistema dependía en gran medida de la fuente de alimentación utilizada. Cuando el servomotor era alimentado únicamente desde el regulador de \SI{5}{\volt} del propio Arduino, se observaban fluctuaciones de tensión en los momentos de arranque debido a los picos de corriente característicos del motor. Esto provocaba lecturas erróneas del sensor LDR y una respuesta inestable en la identificación del color, generando un bucle de retroalimentación entre la medición y el movimiento del servo. La situación se resolvió alimentando el servomotor desde una fuente externa regulada, lo que permitió aislar las variaciones de corriente y obtener una lectura más consistente de los valores de referencia.
 
@@ -41,7 +56,7 @@ En esta sección se presentan los resultados obtenidos durante la implementació
 
 
 
-    \paragraph*{\textbf{Servomotor y tira LED}}---
+    \paragraph*{\textbf{Reconocimiento decolores y manejo de la tira LED}}---
 
     Además, se observó que la cantidad de luz ambiental influía directamente en la precisión de la lectura del sensor. La misma tira de LEDs WS2812 utilizada para la representación del color introducía una leve interferencia óptica sobre la LDR cuando se encontraba demasiado cerca, provocando pequeñas desviaciones en las mediciones. Para mitigar este efecto, se implementó un apantallamiento parcial que bloqueó la incidencia directa de la luz de la tira sobre el sensor, manteniendo al mismo tiempo una iluminación uniforme sobre la superficie de calibración. Con estas modificaciones, el sistema logró una detección estable y una correspondencia confiable entre los valores ADC medidos y los colores calibrados.
             
@@ -52,7 +67,7 @@ En esta sección se presentan los resultados obtenidos durante la implementació
         \label{fig:color_evidencia}
     \end{figure}
 
-    \paragraph*{\textbf{USART}}---
+    \paragraph*{\textbf{Comunicación USART}}---
 
     Finalmente, durante la implementación de la comunicación serial mediante USART se detectó una ralentización perceptible en el ciclo principal del programa. Esto se debía al tiempo requerido para transmitir cada paquete de datos hacia la terminal, especialmente cuando se imprimían valores en cada iteración del bucle. Para evitar sobrecargas en el búfer de transmisión (\textit{overflow}) y asegurar una comunicación confiable, fue necesario introducir retardos (\texttt{delay}) calibrados entre envíos sucesivos, limitando así la frecuencia de actualización sin comprometer la precisión del monitoreo. La Figura~\ref{fig:usart_terminal} muestra la salida obtenida en la terminal serial, donde se visualizan el valor analógico medido, el color identificado, el valor de referencia y la desviación asociada.
     
@@ -66,50 +81,11 @@ En esta sección se presentan los resultados obtenidos durante la implementació
     \end{figure}
 
 
-    \paragraph*{\textbf{Simulación}}---
-
-    La simulación en Proteus permitió verificar el funcionamiento lógico del sistema antes de su implementación física. En el entorno virtual, se replicó el comportamiento del LDR mediante una fuente de voltaje variable que simulaba distintos niveles de iluminación. Al variar dicho valor, se observaron cambios coherentes en la salida del ADC, en la posición del servomotor y en el color representado por la tira de LEDs. Esto confirmó la correcta interacción entre los módulos de lectura, procesamiento y visualización del sistema. La simulación también permitió ajustar los tiempos de respuesta y verificar la estabilidad del ciclo de lectura sin la influencia de ruido externo.
-
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=0.9\linewidth]{anexos/colores/simulacion.png}
-        \caption{Simulación en Proteus del sistema de detección de color. 
-        Se observa la variación de la señal del LDR y la correspondiente respuesta del servomotor y de la tira LED. 
-        Fuente: elaboración propia.}
-        \label{fig:color_simulacion}
-    \end{figure}
-
 \subsubsection{\textbf{Piano}}---
-    \paragraph*{\textbf{Generación de frecuencias}}---
-    
-    % Foto del circuito armado
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=0.9\linewidth]{anexos/piano/circuito.jpg}
-        \caption{Montaje del circuito correspondiente al módulo \textit{Piano}, compuesto por el microcontrolador ATmega328P, el buzzer piezoeléctrico, los pulsadores de entrada y los componentes de conexión. 
-        Fuente: elaboración propia.}
-        \label{fig:piano_circuito}
-    \end{figure}
-    
-    \paragraph*{\textbf{Reproducir música}}---
 
-    \paragraph*{\textbf{Modos de funcionamiento y USART}}---
-    
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=0.9\linewidth]{anexos/piano/terminal.jpg}
-        \caption{Interfaz de comunicación serial (\textit{USART}) mostrando el menú de control del módulo \textit{Piano}. 
-        Desde la terminal, el usuario puede seleccionar entre el modo manual por pulsadores o la reproducción automática de melodías predefinidas. 
-        Fuente: elaboración propia.}
-        \label{fig:piano_usart_menu}
-    \end{figure}
-    
     \paragraph*{\textbf{Simulación}}---
 
-    La simulación del sistema de piano electrónico se realizó en el entorno \textbf{Proteus}, verificando el correcto funcionamiento de la generación de tonos, las interrupciones y la respuesta de los pulsadores. Durante las pruebas se observó que el sistema reproducía adecuadamente las diferentes notas musicales al accionar cada tecla, así como las melodías preprogramadas controladas mediante comandos USART.
-
-    Para obtener un comportamiento más fiel al hardware real, se optó por utilizar el microcontrolador \textbf{ATmega328P} de manera independiente en lugar del módulo \textit{Arduino Uno} provisto por la librería de Proteus, ya que este último presentaba inconvenientes en la detección de interrupciones por cambio de pin (\texttt{PCINT}). 
-    Con el modelo del microcontrolador configurado directamente, las interrupciones se gestionaron correctamente y la simulación mostró una respuesta precisa tanto en el modo manual como en la reproducción automática.
+    La simulación en \textbf{Proteus} permitió verificar el funcionamiento general del sistema de piano electrónico antes del montaje físico. Se observó que al accionar los pulsadores se generaban las notas esperadas y que las interrupciones por cambio de pin respondían de forma estable, reproduciendo correctamente los tonos tanto en modo manual como en modo automático. El uso del microcontrolador \textbf{ATmega328P} de forma independiente, en lugar del módulo \textit{Arduino Uno}, corrigió los problemas iniciales con las interrupciones \texttt{PCINT}, logrando una respuesta fluida en la reproducción de las melodías.
 
     \begin{figure}[H]
         \centering
@@ -120,7 +96,37 @@ En esta sección se presentan los resultados obtenidos durante la implementació
         \label{fig:piano_simulacion}
     \end{figure}
 
+    \paragraph*{\textbf{Generación de frecuencias}}---
 
+    Durante las pruebas físicas, el sistema generó correctamente las frecuencias correspondientes a cada nota musical. Las señales cuadradas producidas fueron estables y sin distorsiones audibles, manteniendo una relación precisa entre la frecuencia programada y el tono percibido. El buzzer respondió con buena fidelidad en todo el rango de notas implementado, sin interferencias ni retardos perceptibles al presionar las teclas.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{anexos/piano/circuito.jpg}
+        \caption{Montaje del circuito correspondiente al módulo \textit{Piano}, compuesto por el microcontrolador ATmega328P, el buzzer piezoeléctrico, los pulsadores de entrada y los componentes de conexión. 
+        Fuente: elaboración propia.}
+        \label{fig:piano_circuito}
+    \end{figure}
+
+    \paragraph*{\textbf{Reproducción de música}}---
+
+    El sistema reprodujo correctamente las melodías preprogramadas, manteniendo el ritmo y la secuencia esperada de las notas. 
+    No se detectaron desfasajes entre tonos ni interrupciones durante la ejecución, lo que confirmó la estabilidad temporal del módulo. Las canciones fueron reproducidas con continuidad y volumen uniforme, evidenciando un control adecuado sobre la temporización y la generación de frecuencias.
+
+    \paragraph*{\textbf{Modos de funcionamiento y comunicación USART}}---
+
+    Durante la verificación de los modos de operación, se comprobó que el sistema respondía correctamente tanto en el modo \textbf{piano} (manual) como en el modo \textbf{automático} (canciones). La interfaz serial \textbf{USART} permitió alternar entre los modos de forma confiable, así como iniciar y detener la reproducción desde la terminal. La comunicación se mantuvo estable a 9600~bps, sin pérdida de datos ni interferencia con la reproducción del sonido. El menú mostrado en la terminal facilitó el control y la supervisión del sistema durante las pruebas.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{anexos/piano/terminal.jpg}
+        \caption{Interfaz de comunicación serial (\textit{USART}) mostrando el menú de control del módulo \textit{Piano}. 
+        Desde la terminal, el usuario puede seleccionar entre el modo manual por pulsadores o la reproducción automática de melodías predefinidas. 
+        Fuente: elaboración propia.}
+        \label{fig:piano_usart_menu}
+    \end{figure}
+
+        
 
 
 
@@ -128,26 +134,9 @@ En esta sección se presentan los resultados obtenidos durante la implementació
 
 \subsubsection{\textbf{Cerradura}}---
 
-    \paragraph*{\textbf{Teclado matricial}}---
-    \paragraph*{\textbf{Interfaz de usuario}}---
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=0.9\linewidth]{anexos/cerradura/circuito.jpg}
-        \caption{Montaje del circuito correspondiente al sistema de cerradura electrónica. 
-        Se observa la conexión del teclado matricial 4x4, la pantalla LCD 16x2 con interfaz I2C, 
-        los indicadores luminosos (LED rojo y verde), el buzzer de alarma y el microcontrolador ATmega328P. 
-        Fuente: elaboración propia.}
-        \label{fig:cerradura_circuito}
-    \end{figure}
+\paragraph*{\textbf{Simulación}}---
 
-    \paragraph*{\textbf{Planificador de tareas}}---
-    \paragraph*{\textbf{Almacenamiento en EEPROM}}---
-    \paragraph*{\textbf{Simulación}}---
-
-    Durante la etapa de simulación se presentaron algunas limitaciones al intentar reproducir el comportamiento del sistema en Proteus. En particular, la pantalla LCD con interfaz I2C no respondió correctamente a las señales generadas por el microcontrolador, impidiendo observar la interacción esperada con el usuario. 
-    Para solventar esta dificultad, se empleó el entorno \textbf{PicSimLab}, donde el sistema logró ejecutarse con normalidad y se verificó la funcionalidad general del teclado matricial, la pantalla LCD, los indicadores LED y el buzzer.
-
-    Durante las pruebas en PicSimLab se comprobó que la lectura del teclado y la navegación entre estados de la máquina de interfaz funcionaban de manera estable. Sin embargo, para evaluar el almacenamiento en memoria EEPROM fue necesario reiniciar la simulación mediante el botón \textit{DEBUG}, ya que el botón de \textit{reset} causaba la desactivación parcial del teclado. Este inconveniente no se presentó en la implementación física, donde el sistema operó correctamente, conservando la contraseña y recuperándola tras cada reinicio.
+    La simulación del sistema se realizó inicialmente en \textbf{Proteus}, aunque se presentaron dificultades con la visualización en la pantalla LCD con interfaz I2C, la cual no respondió de forma adecuada a las señales del microcontrolador. Posteriormente, el circuito fue probado en \textbf{PicSimLab}, donde el sistema funcionó correctamente y permitió validar el funcionamiento del teclado matricial, la pantalla LCD, los LEDs indicadores y el buzzer. Durante las pruebas, el ingreso y verificación de contraseñas se comportaron de manera estable, y se observó la transición entre estados de bloqueo, desbloqueo y alarma. El almacenamiento en memoria EEPROM también pudo verificarse, conservando los datos tras los reinicios del sistema.
 
     \begin{figure}[H]
         \centering
@@ -159,18 +148,34 @@ En esta sección se presentan los resultados obtenidos durante la implementació
         \label{fig:cerradura_simulacion}
     \end{figure}
 
+    \paragraph*{\textbf{Teclado matricial}}---
+
+    Durante la verificación del teclado matricial 4x4, se comprobó una lectura estable y sin errores de rebote, incluso con pulsaciones rápidas o repetitivas. El ingreso de la contraseña fue detectado con precisión, y el sistema respondió inmediatamente al comparar los dígitos con la clave almacenada. El comportamiento fue consistente tanto en simulación como en la prueba física, sin registros de lecturas duplicadas o fallas de detección.
+
+    \paragraph*{\textbf{Interfaz de usuario}}---
+
+    En las pruebas de la interfaz LCD se confirmó que los mensajes se mostraban correctamente en cada etapa del proceso: inicio del sistema, solicitud de contraseña, acceso concedido o denegado y aviso de alarma. Tras tres intentos fallidos consecutivos, se activó la alarma sonora y el LED rojo, mientras que el LED verde indicó exitosamente la apertura del sistema cuando la contraseña era correcta. La interacción visual y auditiva resultó clara y permitió identificar el estado del sistema en todo momento.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{anexos/cerradura/circuito.jpg}
+        \caption{Montaje del circuito correspondiente al sistema de cerradura electrónica. 
+        Se observa la conexión del teclado matricial 4x4, la pantalla LCD 16x2 con interfaz I2C, 
+        los indicadores luminosos (LED rojo y verde), el buzzer de alarma y el microcontrolador ATmega328P. 
+        Fuente: elaboración propia.}
+        \label{fig:cerradura_circuito}
+    \end{figure}
+
+    \paragraph*{\textbf{Planificador de tareas}}---
+
+    Durante las pruebas se verificó que el planificador de tareas permitió ejecutar de forma fluida las distintas funciones del sistema sin bloqueos perceptibles. El escaneo del teclado, la actualización del LCD, la supervisión de la alarma y el control de los LEDs se realizaron de manera sincronizada y estable, manteniendo una respuesta inmediata a las acciones del usuario. No se registraron conflictos temporales ni retrasos en la ejecución de las tareas programadas.
+
+    \paragraph*{\textbf{Almacenamiento en EEPROM}}---
+
+    El sistema demostró un funcionamiento confiable del almacenamiento no volátil. La contraseña permaneció guardada tras múltiples reinicios, confirmando la correcta escritura y lectura en la memoria \textbf{EEPROM}. Durante las pruebas, se modificó la contraseña en varias ocasiones y los nuevos valores se conservaron correctamente, mostrando la robustez del procedimiento de guardado. En conjunto, el módulo cumplió con los objetivos previstos, garantizando una gestión segura y persistente de la información del usuario.
+
         
 
 
 
 
-
-% \subsection{Evidencias gráficas y mediciones}
-% Capturas del LCD, fotos del montaje, gráficos de lectura ADC, diagramas de flujo, etc.
-
-% Si mediste tiempos, tensiones o corrientes, ponelos en tabla o gráfico simple.
-
-% \subsection{Comentario general}
-% Un breve cierre que enlace con la sección de conclusiones:
-
-	% En general, todos los módulos cumplieron los objetivos planteados. Se lograron lecturas estables, respuestas correctas y sincronización entre las distintas tareas, demostrando la integración de hardware y software en un entorno embebido con recursos limitados.
