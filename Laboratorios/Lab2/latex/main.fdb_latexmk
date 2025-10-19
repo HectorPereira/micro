@@ -1,17 +1,17 @@
 # Fdb version 4
-["bibtex main"] 1760891690.82536 "main.aux" "main.bbl" "main" 1760891693.69995 0
+["bibtex main"] 1760893502.09818 "main.aux" "main.bbl" "main" 1760893532.97349 0
   "./5_referencias.bib" 1760850028 5980 9a74f72c3ad2ac47286a24b65d882d49 ""
   "C:/Users/hecto/AppData/Local/Programs/MiKTeX/bibtex/bst/ieeetran/IEEEtran.bst" 1440622569 57748 7c8250ecf02814ce6ddc0cdbb63df1dd ""
-  "main.aux" 1760891692 22411 3ca186de30139de903244019e9de642f "pdflatex"
+  "main.aux" 1760893532 24238 0402ae0c0407b397c3257c59c6236b29 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1760891691.11563 "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" "main.pdf" "main" 1760891693.7006 0
+["pdflatex"] 1760893530.18568 "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" "main.pdf" "main" 1760893532.97424 0
   "0_introduccion.tex" 1760850831 2490 5e39eba3310b1d196bf57bb6934f38a0 ""
   "1_marco_teorico.tex" 1760853943 14952 ba5e87d98a833c1602e44a6b58fa6793 ""
   "2_metodologia.tex" 1760834940 18093 44accc825079d0d112b7b1c982539ab2 ""
-  "3_resultados.tex" 1760891687 12152 5fc291e47cbd7b4a6ff9dda2c75c2e54 ""
+  "3_resultados.tex" 1760893529 8815 cf3f70025cdf2169b2b451ebca505d73 ""
   "4_conclusiones.tex" 1760808656 1419 940955c28d2cabbf7b768b2f5c6116d6 ""
   "6_anexos.tex" 1760833325 18104 549f83b26e882a619786978f2ee4a66a ""
   "C:/Users/hecto/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1760853866 82507 a9eef8696c92627b87e9975edea03b2a ""
@@ -155,6 +155,7 @@
   "C:/Users/hecto/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1729265222 55384 b454dec21c2d9f45ec0b793f0995b992 ""
   "C:/Users/hecto/AppData/Local/Programs/MiKTeX/tex/latex/xurl/xurl.sty" 1641733940 4675 e4b8c405820368c2dfb03526e16d725a ""
   "anexos/cerradura/DiagramaFlujo.png" 1760577668 135661 33799ff9390f636122e22e23015a3045 ""
+  "anexos/cerradura/circuito.jpg" 1760890970 178824 cf4ac268586d1b2104715b4f0813f504 ""
   "anexos/cerradura/state-diagram-circuit-1.jpg" 1760853216 11156 30bd43b66cd388760d622f17ebb3d612 ""
   "anexos/colores/EvidenciaFuncionamiento.jpg" 1760819068 215710 3aeab09ac7b239331d08b32dc7fd73b7 ""
   "anexos/colores/Resistance-vs-illumination-curve-LDRs-are-light-dependent-devices-whose-resistance.png" 1760852148 7803 c9613ee3eef2413e04c21a5ef9c3ecc1 ""
@@ -164,11 +165,13 @@
   "anexos/colores/terminal.jpg" 1760890935 215114 502a7706c9540123918127171690da1c ""
   "anexos/piano/20240827145846060.png" 1760852689 6779 daee7b7115a9bceeff96356ffa359b09 ""
   "anexos/piano/2_8bitAVRinstructionSet.jpg" 1760853499 71472 5e16e2e47121064b2d40a8399e5a9e04 ""
+  "anexos/piano/circuito.jpg" 1760890984 151212 f9cfed9108b5a58dfd0a8ea62ae6cd2a ""
   "anexos/piano/piezo-buzzer-buyapica__32185.jpg" 1760852568 82252 c55f1595f636879e30c98abafdbc5cdf ""
+  "anexos/piano/terminal.jpg" 1760890999 146903 58dcf49510b4dea719c0e84c1189bb6c ""
   "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" 1760854229 1990 913d7414aa62560cd61e8ce366a0d764 ""
-  "main.aux" 1760891692 22411 3ca186de30139de903244019e9de642f "pdflatex"
-  "main.bbl" 1760891691 5981 f4db9430ddfeb305679ef28f111ae3ac "bibtex main"
-  "main.out" 1760891692 5743 4b0ff0cd49701b6da1b316e1738b20d9 "pdflatex"
+  "main.aux" 1760893532 24238 0402ae0c0407b397c3257c59c6236b29 "pdflatex"
+  "main.bbl" 1760893502 5981 f4db9430ddfeb305679ef28f111ae3ac "bibtex main"
+  "main.out" 1760893532 5362 289052cfc202682cf8e1a6a901cb4015 "pdflatex"
   "main.tex" 1760854229 1990 913d7414aa62560cd61e8ce366a0d764 ""
   (generated)
   "main.aux"

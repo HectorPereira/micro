@@ -1,5 +1,5 @@
 \section{Resultados}
-% En esta sección se presentan los resultados obtenidos durante la implementación y prueba de los distintos módulos desarrollados: el sistema de reconocimiento de colores, el piano electrónico, la cerradura con contraseña y el control del plotter. Cada módulo fue verificado individualmente en simulación y en montaje físico, registrando su funcionamiento y las principales observaciones.
+En esta sección se presentan los resultados obtenidos durante la implementación y prueba de los distintos módulos desarrollados: el sistema de reconocimiento de colores, el piano electrónico, la cerradura con contraseña y el control del plotter. Exceptuando el plotter, cada módulo fue verificado individualmente en simulación y en montaje físico, registrando su funcionamiento y las principales observaciones.
 
 \subsection{Resultados por módulo}
 
@@ -65,73 +65,31 @@
         \label{fig:usart_terminal}
     \end{figure}
 
-
-
-
-% ----------------------------------------- RAMBLINGS
-
-% Reconocer colores
-% Como se reconoce un color
-% Un color se puede descomoner en otros colores
-% Colores primarios
-% Colores CYMK
-% Colores RGB
-% Un LDR no puede medir componentes
-% Un LDR solo mide luz reflejada
-% Si iluminamos con luz blanca el LDR mide la cantidad de luz blanca que rebota
-% Seria como tener vision en blanco y negro
-% Algunos colores serian dificiles de identificar
-
-% Si iluminamos con otro color el LDR ve la cantidad de luz que refleja de ese color
-% Si iluminamos con rojo, luego verde, y luego azul el LDR puede identificar 
-% colores con 3 grados de libertad como el ojo humano.
-
-% Se utiliza un led RGB para iluminar con estos colores
-
-% El LDR no responde la misma manera a todos los tipos de luz. 
-% Los valores medidos no se van a correlacionar de manera directa
-% Con las componentes tradicionales de cada color.
-% Ademas de que existen variaciones de emision de luz entre los mismos colores del led
-
-% Sin embargo es suficiente si lo calibramos antes
-
-% Utilizando un divisor de voltaje se conecta el ldr a un pin analogico del arduino
-
-% Se ilumina con rojo verde y azul para cada color y se recopilan los valores medidos por el ADC
-
-% Se mapean los 6 colores de la hoja para tomar como referencias.
-
-% Para determinar el color el cual el LDR esta apuntando
-% se calcula cual es el valor más próximo tomando
-% en cuenta los 3 componentes como ejes de libertad
-% realizando un calculo de distancia cartesiana.
-% A2 + B2 + C2 = D2
-
-% En este caso rojo verde y azul representan un eje en un espacio tridimensional. 
-% Los colores calibrados representan vectores. Y el vector de medición se 
-% mueve a lo largo de todo este espacio adquiriendo diferentes valores rgb.
-
-% De manera ciclica se mide la distancia del vector medicion con respecto 
-% al resto de vectores mapeados para identificar cual es el vector que 
-% mas se aproxima al vector medición
-
-% Problemas
-% Como medir colores con presicion
-% Como reconocer colores precalibrados
-% Como controlar un servomotor
-% Como controlar una tira LED
-
-% Funcionaldiades
-% Salida de info por USART
-% Color indicado por angulo en servomotor
-% Color indica
-
-
-
 \subsubsection{\textbf{Piano}}---
     \paragraph*{\textbf{Generación de frecuencias}}---
+    
+    % Foto del circuito armado
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{anexos/piano/circuito.jpg}
+        \caption{Montaje del circuito correspondiente al módulo \textit{Piano}, compuesto por el microcontrolador ATmega328P, el buzzer piezoeléctrico, los pulsadores de entrada y los componentes de conexión. 
+        Fuente: elaboración propia.}
+        \label{fig:piano_circuito}
+    \end{figure}
+    
     \paragraph*{\textbf{Reproducir música}}---
+
     \paragraph*{\textbf{Modos de funcionamiento y USART}}---
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{anexos/piano/terminal.jpg}
+        \caption{Interfaz de comunicación serial (\textit{USART}) mostrando el menú de control del módulo \textit{Piano}. 
+        Desde la terminal, el usuario puede seleccionar entre el modo manual por pulsadores o la reproducción automática de melodías predefinidas. 
+        Fuente: elaboración propia.}
+        \label{fig:piano_usart_menu}
+    \end{figure}
+
 
 % Mostrá capturas de los menús USART, las canciones reproducidas o las frecuencias generadas.
 
@@ -143,41 +101,6 @@
 
 % El piano electrónico logró reproducir correctamente las melodías “Cha-La Head-Cha-La” y “Still Alive”. Cada nota se generó a partir del temporizador 0 configurado en modo CTC. La reproducción simultánea de pistas A y B mostró un leve desfase tras varios segundos de ejecución, atribuible a pequeñas diferencias en el conteo de interrupciones.
 
-% ---------------------------- RAMBLINGS
-
-% Sonido
-% Que es el sonido
-% Ondas
-% Difrentes tipos de ondas
-% Como hacemos sonido
-% Buzzer
-% Onda cuadrada
-% Como funciona el buzzer
-% Piezo
-% Como lo hacemos sonar con el atmega
-% Variacion de frecuencia
-% Como hacemos otro sonido
-% Cambiamos la frencuencia
-% Como hacemos musica
-% Teoria musical basica
-% Mapeo de notas
-% Una nota es una frecuencia
-% Una frecuencia durante un tiempo es una nota
-% Como guardamos musica
-% Nota musical: frencuencia, tiempo encendido, tiempo apagado
-% Secuencia de notas musicales --- musica
-% La musica se compone de varios instrumentos en paralelo
-% Como reproducimos varios instrumentos
-% Evitar polling --- Utilizar timers
-
-% Problemas
-% Como reproducir sonido
-% Como representar una nota musical
-% Como reproducir pistas en paralelo
-
-% Funcionalidades
-% Control por USART
-% Piano fisico
 
 
 
@@ -185,6 +108,16 @@
 \subsubsection{\textbf{Cerradura}}---
     \paragraph*{\textbf{Teclado matricial}}---
     \paragraph*{\textbf{Interfaz de usuario}}---
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{anexos/cerradura/circuito.jpg}
+        \caption{Montaje del circuito correspondiente al sistema de cerradura electrónica. 
+        Se observa la conexión del teclado matricial 4x4, la pantalla LCD 16x2 con interfaz I2C, 
+        los indicadores luminosos (LED rojo y verde), el buzzer de alarma y el microcontrolador ATmega328P. 
+        Fuente: elaboración propia.}
+        \label{fig:cerradura_circuito}
+    \end{figure}
+
     \paragraph*{\textbf{Planificador de tareas}}---
     \paragraph*{\textbf{Almacenamiento en EEPROM}}---
 
@@ -200,78 +133,14 @@
 
 % El sistema respondió correctamente al ingreso de contraseñas válidas e inválidas. Tras tres intentos fallidos, se activó la alarma visual y sonora. El cambio de contraseña fue exitoso y persistió tras apagar el microcontrolador, confirmando la correcta escritura en EEPROM. En PicSimLab, el teclado dejó de responder tras reiniciar, pero en el hardware físico el funcionamiento fue estable.
 
-% -------------------------- RAMBLINGS
-
-% Cerradura
-% Que tiene que hacer
-% Candado cerrado
-% Contraseña correcta
-% Candado abierto
-% Sino 3 veces alarma
-
-% Cambiar contraseña
-% Contra actual
-% Contra nueva
-% Guaradado
-
-% Contraseñas tienen que ser entre 4 y 6 digitos
-
-% Problema
-% Una interfaz de usuario
-% Que es una interfaz
-% Entradas y salidas
-% El usuario hace algo y la interfaz muestra algo
-% Es la parte del programa o sistema que se encarga
-% de hablar con el usuario.
-% Diferentes acciones muestran o hacen diferentes cosas
-% Maquina de estados --- Transiciones de estado.
-% Problema: Reproducir sonidos, hacer debouncing, manejar alarmas, pantalla LCD. 
-% No existen suficientes timers
-% Solucion: tareas o tasks
-% Utilizar un contador de tiempo interno de 32 bits
-% junto con un solo timer para manejar tareas en paralelo
-
-% La tarea se ejecuta rapidamente en el main y compara el timepo que paso con 
-% el tiempo especificado para una acción especifica.
-
-% Un solo timer. Muchos delays sin polling.
-
-% Otro problema
-% Contraseña debe ser guardada aunque el sistema esté apagado
-% Solucion EEPROM
-% Funcionamiento de la eeprom
-% limitaciones de escritura de EEPROM
-% Como leer
-% Como escribir
-
-% Otro problema
-% Teclado matricial
-% Usa menos pines, uno por fila uno por columna
-% Como identificar botones presionados
-% Respuesta multiplexado
-% Filas funcionan como salidas
-% Columnas funcionan como entradas (pullup interno)
-% Al solamente apagar una fila a la vez (0) 
-% va a hacer que el pin de esa columna se vuelva 0
-% Funcion retorna el caracter que representa esa fila y columna
-% Listo.
 
 
-
-
-
-
-
-
-
-
-
-\subsection{Evidencias gráficas y mediciones}
+% \subsection{Evidencias gráficas y mediciones}
 % Capturas del LCD, fotos del montaje, gráficos de lectura ADC, diagramas de flujo, etc.
 
 % Si mediste tiempos, tensiones o corrientes, ponelos en tabla o gráfico simple.
 
-\subsection{Comentario general}
+% \subsection{Comentario general}
 % Un breve cierre que enlace con la sección de conclusiones:
 
 	% En general, todos los módulos cumplieron los objetivos planteados. Se lograron lecturas estables, respuestas correctas y sincronización entre las distintas tareas, demostrando la integración de hardware y software en un entorno embebido con recursos limitados.
