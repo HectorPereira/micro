@@ -5,9 +5,34 @@ En esta sección se presentan los resultados obtenidos durante la implementació
 
 \subsubsection{\textbf{Plotter}}---
 % Explicá cómo se verificó el movimiento (por ejemplo, ejecución de trayectorias simples o figuras predefinidas).
+\paragraph*{\textbf{USART}}
+
+Para configurar USART se uso una configuracion de buffer circular tanto para la recepcion como para el envio de datos al atmega(Vease ~\ref{anexo:Configuracion de USART}).
+El menu de opciones para dibujar figuras es el que se puede ver en la figura \ref{}.
+
+ \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{.jpg}
+        \caption{Menu de seleccion de figura.}
+        \label{fig:u}
+    \end{figure}
+
+\paragraph*{\textbf{Declaracion de variables globales}}
+
+Para controlar el movimiento del \textit{plotter} de manera adecuada, es necesario considerar que las señales de activación de los motores se determinan según la tabla \ref{}.
+Con el fin de simplificar el código y su implementación, se emplearon variables globales, presentadas en la tabla \ref{}, las cuales representan los diferentes estados de dirección y control.
+Para garantizar un desplazamiento correcto, cada vez que una de estas variables se asigna a los pines de salida del puerto \texttt{D}, se aplica una operación lógica \texttt{AND}.
+Esto permite aislar los bits correspondientes al movimiento del eje, evitando interferir con las señales destinadas al accionamiento del pistón que eleva o desciende el lápiz, responsable de establecer o interrumpir el contacto con la hoja.
+Se puede ver en anexo \ref{}.
+
+Para simplemente controlar el selenoide a gusto, en la etapa de pruebas, tambien se implemento un modo de movimiento libre.
+Donde el mismo usuario es el que elige como mover el lapiz en todo momento. Vease anexo \ref{}.
+
+
+
+
 
 % Mostrá fotos o diagramas de movimiento, si tenés.
-
 % Comentá observaciones: velocidad, precisión, limitaciones por USART.
 
 % 💬 Ejemplo:

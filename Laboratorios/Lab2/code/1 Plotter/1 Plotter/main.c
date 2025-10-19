@@ -51,19 +51,7 @@
 #define DOWNRIGHT      10
 #define DOWNLEFT       11
 
-#define SD      1
-#define SU      2
-#define D       3
-#define U       4
-#define R       5
-#define L       6
-#define S       7
 
-// Diagonales
-#define UR      8
-#define UL      9
-#define DR     10
-#define DL     11
 
 
 volatile char    serialBuffer[TX_BUFFER_SIZE];

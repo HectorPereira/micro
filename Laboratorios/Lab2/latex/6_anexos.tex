@@ -3,7 +3,181 @@
 \subsection{Fragmentos de codigo}
 
 \subsubsection{\textbf{Plotter}}---
+\paragraph{Configuracion de USART}---\\
+\begin{lstlisting}[language=C, caption={Configuracion de USART}]
+#define F_CPU 16000000UL    // Frecuencia del reloj del micro (16 MHz)
+#define BAUD 9600           // Velocidad de transmisión (baudios)
+#define BRC ((F_CPU / 16 / BAUD) - 1)   // Valor para UBRR
+#define TX_BUFFER_SIZE 128
+#define RX_BUFFER_SIZE 128  void appendSerial(char c)
+{
+	serialBuffer[serialWritePos] = c;
+	serialWritePos++;
 
+	if (serialWritePos >= TX_BUFFER_SIZE) {
+		serialWritePos = 0;   // wrap-around
+	}
+}
+void serialWrite(const char *s){
+	for (uint8_t i = 0; i < (uint8_t)strlen(s); i++){
+		serialBuffer[serialWritePos] = s[i];
+		serialWritePos = (serialWritePos + 1) % TX_BUFFER_SIZE;
+	}
+	UCSR0B |= (1 << UDRIE0);   // habilita ISR UDRE
+}
+ISR(USART_UDRE_vect){
+	if (serialReadPos != serialWritePos){
+		UDR0 = serialBuffer[serialReadPos];
+		serialReadPos = (serialReadPos + 1) % TX_BUFFER_SIZE;
+		} else {
+		UCSR0B &= ~(1 << UDRIE0);  // nada más que enviar
+	}
+}
+char peekChar(void)
+{
+	char ret = '\0';
+
+	if (rxReadPos != rxWritePos)
+	{
+		ret = rxBuffer[rxReadPos];
+	}
+
+	return ret;
+}
+char Chardos(void)
+{
+	char ret = '\0';
+
+	if (rxReadPos != rxWritePos)
+	{
+		ret = rxBuffer[rxReadPos];
+
+		rxReadPos++;
+
+		if (rxReadPos >= RX_BUFFER_SIZE)
+		{
+			rxReadPos = 0;
+		}
+	}
+
+	return ret;
+}
+ISR(USART_RX_vect)
+{
+	rxBuffer[rxWritePos] = UDR0;
+
+	rxWritePos++;
+
+	if (rxWritePos >= RX_BUFFER_SIZE)
+	{
+		rxWritePos = 0;
+	}
+}
+
+
+\end{lstlisting}
+
+
+
+\paragraph{Variables globales - PORTD}---\\
+\begin{lstlisting}[language=C, caption={Variables globales}]
+// Direcciones base
+#define SOLENOIDDOWN   1
+#define SOLENOIDUP     2
+#define DOWN            3
+#define UP              4
+#define RIGHT           5
+#define LEFT            6
+#define STOP            7
+
+// Diagonales
+#define UPRIGHT        8
+#define UPLEFT         9
+#define DOWNRIGHT      10
+#define DOWNLEFT       11
+
+void apagar(void){
+
+PORTD = (PORTD & 0b00000011) | 0b00001000;
+
+}
+
+void apagar2(void){
+
+	PORTD = (PORTD & 0b00001111) | 0b00000000;
+
+}
+void Subir_s(void)
+{
+PORTD = (PORTD & 0b00000011) | 0b00000100;
+
+
+}
+
+void Bajar(void)
+{
+PORTD = (PORTD & 0b00001111) | 0b00010000;
+}
+
+void Subir(void)
+{
+PORTD = (PORTD & 0b00001111) | 0b00100000;
+}
+
+void Izquierda(void)
+{
+PORTD = (PORTD & 0b00001111) | 0b01000000;
+}
+
+
+void Derecha(void)
+{
+PORTD = (PORTD & 0b00001111) | 0b10000000;
+}
+
+void AbajoIzquierda(void)
+{
+	PORTD = (PORTD & 0b00001111) | 0b01010000; // D6 y D4
+}
+
+void AbajoDerecha(void){
+	PORTD = (PORTD & 0b00001111) | 0b10010000; // D6 y D4
+}
+
+void ArribaIzquierda(void)
+{
+	PORTD = (PORTD & 0b00001111) | 0b01100000; // D3 y D4
+}
+
+void ArribaDerecha(void){
+	PORTD = (PORTD & 0b00001111) | 0b10100000; // D6 y D4
+}
+
+\end{lstlisting}
+
+
+\paragraph{Menu de pruebas}---\\
+\begin{lstlisting}[language=C, caption={Menu de pruebas}]
+
+void peurbas(char c){
+	switch (c) {
+		case 'x': apagar(); break;
+		case 's': Subir_s(); break;
+		case 'u': Subir(); break;
+		case 'd': Bajar(); break;
+		case 'l': Izquierda(); break;
+		case 'r': Derecha(); break;
+		case 'z': AbajoIzquierda(); break;
+		case 'c': AbajoDerecha(); break;
+		case 'q': ArribaIzquierda(); break;
+		case 'e': ArribaDerecha(); break;   
+		case 'j': centrar(); break;
+		default: break;
+	}
+
+\end{lstlisting}
+
+}
 \subsubsection{\textbf{Colores}}---
 
 \paragraph{Librerías utilziadas}---\\
