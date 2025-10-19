@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2025.8.12)  19 OCT 2025 14:05
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2025.8.12)  19 OCT 2025 14:15
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -731,17 +731,17 @@ Package pdftex.def Info: anexos/colores/terminal.jpg  used on input line 61.
 <anexos/piano/circuito.jpg, id=315, 727.21687pt x 748.29562pt>
 File: anexos/piano/circuito.jpg Graphic file (type jpg)
 <use anexos/piano/circuito.jpg>
-Package pdftex.def Info: anexos/piano/circuito.jpg  used on input line 74.
+Package pdftex.def Info: anexos/piano/circuito.jpg  used on input line 80.
 (pdftex.def)             Requested size: 219.8163pt x 226.18028pt.
 <anexos/piano/terminal.jpg, id=316, 706.13812pt x 679.78969pt>
 File: anexos/piano/terminal.jpg Graphic file (type jpg)
 <use anexos/piano/terminal.jpg>
-Package pdftex.def Info: anexos/piano/terminal.jpg  used on input line 86.
+Package pdftex.def Info: anexos/piano/terminal.jpg  used on input line 92.
 (pdftex.def)             Requested size: 219.8163pt x 211.6143pt.
 <anexos/cerradura/circuito.jpg, id=317, 671.50874pt x 787.44188pt>
 File: anexos/cerradura/circuito.jpg Graphic file (type jpg)
 <use anexos/cerradura/circuito.jpg>
-Package pdftex.def Info: anexos/cerradura/circuito.jpg  used on input line 113.
+Package pdftex.def Info: anexos/cerradura/circuito.jpg  used on input line 115.
 (pdftex.def)             Requested size: 219.8163pt x 257.76595pt.
 
 
@@ -750,14 +750,14 @@ Package pdftex.def Info: anexos/cerradura/circuito.jpg  used on input line 113.
 ) (main.bbl) (6_anexos.tex
 ** WARNING: Ignoring useless \section in Appendix (line 1).
 
+
+[9 <./anexos/cerradura/circuito.jpg>]
 Underfull \hbox (badness 10000) in paragraph at lines 9--10
 
  []
 
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on input line 10.
 
-
-[9 <./anexos/cerradura/circuito.jpg>]
 Underfull \hbox (badness 10000) in paragraph at lines 19--20
 
  []
@@ -829,9 +829,6 @@ Underfull \hbox (badness 10000) in paragraph at lines 339--340
 Underfull \hbox (badness 10000) in paragraph at lines 377--378
 
  []
-
-
-Underfull \vbox (badness 1466) has occurred while \output is active []
 
 
 
@@ -914,20 +911,20 @@ LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-07-20>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 289052CFC202682CF8E1A6A901CB4015;5362.
+(rerunfilecheck)             Checksum: AB529CC3E371559C6B051E35BC1C7FE9;5362.
  ) 
 Here is how much of TeX's memory you used:
- 20989 strings out of 468134
- 391478 string characters out of 5430740
- 1785499 words of memory out of 5000000
+ 20992 strings out of 468134
+ 391511 string characters out of 5430740
+ 1788499 words of memory out of 5000000
  48559 multiletter control sequences out of 15000+600000
  674878 words of font info for 139 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,11n,80p,962b,2657s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,11n,80p,962b,2636s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrb8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrr8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrro8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmbi8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (15 pages, 1712748 bytes).
+Output written on main.pdf (15 pages, 1713412 bytes).
 PDF statistics:
- 1286 PDF objects out of 1440 (max. 8388607)
- 790 named destinations out of 1000 (max. 500000)
+ 1291 PDF objects out of 1440 (max. 8388607)
+ 793 named destinations out of 1000 (max. 500000)
  359 words of extra memory for PDF output out of 10000 (max. 10000000)
 

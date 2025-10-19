@@ -65,6 +65,12 @@ En esta sección se presentan los resultados obtenidos durante la implementació
         \label{fig:usart_terminal}
     \end{figure}
 
+    \paragraph*{\textbf{Simulación}}---
+    % La simulacion en proteus funcionó ok, se ve como al variar los valores del LDR se producen variaciones en la salida del dispositivo
+
+    % Figura simulacion
+
+
 \subsubsection{\textbf{Piano}}---
     \paragraph*{\textbf{Generación de frecuencias}}---
     
@@ -89,23 +95,19 @@ En esta sección se presentan los resultados obtenidos durante la implementació
         Fuente: elaboración propia.}
         \label{fig:piano_usart_menu}
     \end{figure}
+    
+    \paragraph*{\textbf{Simulación}}---
+    % La simulacion en proteus funciono ok, se reproducian los diferentes sonidos y demas. Se optó por utilizar el atmega como tal en lugar de el modulo arduino uno de libreria ya que este no detectaba interrupciones PCINT
+    
+    % captura de la simulacion
 
-
-% Mostrá capturas de los menús USART, las canciones reproducidas o las frecuencias generadas.
-
-% Explicá el uso de interrupciones para reproducir melodías sin detener el programa.
-
-% Comentá si el sonido fue limpio, si hubo desfase, o cómo responden los botones.
-
-% 💬 Ejemplo:
-
-% El piano electrónico logró reproducir correctamente las melodías “Cha-La Head-Cha-La” y “Still Alive”. Cada nota se generó a partir del temporizador 0 configurado en modo CTC. La reproducción simultánea de pistas A y B mostró un leve desfase tras varios segundos de ejecución, atribuible a pequeñas diferencias en el conteo de interrupciones.
 
 
 
 
 
 \subsubsection{\textbf{Cerradura}}---
+
     \paragraph*{\textbf{Teclado matricial}}---
     \paragraph*{\textbf{Interfaz de usuario}}---
     \begin{figure}[H]
@@ -120,18 +122,16 @@ En esta sección se presentan los resultados obtenidos durante la implementació
 
     \paragraph*{\textbf{Planificador de tareas}}---
     \paragraph*{\textbf{Almacenamiento en EEPROM}}---
+    \paragraph*{\textbf{Simulación}}---
+    % no se pudo encontrar la manera de simular en proteus, 
+    % la pantalla LCD I2C no tenia respuesta alguna del sistema
+    % en picsimlab funciono correctamente, pero para probar el guardado en memoria EEPROM era necesario reiniciar el programa utilizando el boton DEGUB, ya que el boton de reset causaba que el teclado dejara de funcionar. Durante la implementacion fisica no se encontraron estos problemas.
+
+    % Figura simulacion
+
+    
 
 
-
-% Mostrá el flujo de la interfaz (mensajes en LCD, ingreso de contraseña, cambio de clave, activación de alarma).
-
-% Si podés, mostrás una tabla con los estados de la máquina y qué hace cada uno.
-
-% Comentá observaciones de funcionamiento en simulación vs físico.
-
-% 💬 Ejemplo:
-
-% El sistema respondió correctamente al ingreso de contraseñas válidas e inválidas. Tras tres intentos fallidos, se activó la alarma visual y sonora. El cambio de contraseña fue exitoso y persistió tras apagar el microcontrolador, confirmando la correcta escritura en EEPROM. En PicSimLab, el teclado dejó de responder tras reiniciar, pero en el hardware físico el funcionamiento fue estable.
 
 
 

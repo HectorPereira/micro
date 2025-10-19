@@ -209,7 +209,7 @@ void rgb_init(void){
 
 
 void servo_init(void) {
-	SERVO_DDR |= (1 << SERVO_PORT); 
+	SERVO_DDR |= (1 << SERVO_PIN); 
 
 	TCCR1A = (1 << COM1A1) | (1 << WGM11);
 	TCCR1B = (1 << WGM13) | (1 << WGM12) | (1 << CS11); // 8
