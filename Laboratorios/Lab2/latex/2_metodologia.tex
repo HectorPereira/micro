@@ -81,45 +81,19 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
 
     En el microcontrolador ATmega328P, esta señal se genera mediante el uso de los temporizadores internos (\textit{timers}), configurados para producir una onda cuadrada en un pin de salida. Al modificar la frecuencia de conmutación, es posible variar el tono percibido, ya que la frecuencia del sonido determina su altura musical. De esta manera, cada nota puede asociarse a una frecuencia específica según la escala. Por ejemplo, la nota \textit{La4} corresponde a una frecuencia de 440\,Hz, mientras que \textit{Do4} equivale aproximadamente a 262\,Hz (véase anexo~\ref{anexo:notas_musicales}).
 
-    % #define G4 392	
-    % #define Fb4 370	
-    % #define E4 330	
-    % #define D4 294	
 
     \vspace{1em}
 
     \paragraph*{\textbf{Generación de frecuencias}}---
-    Para reproducir una nota musical, el microcontrolador debe generar una señal cuadrada con una frecuencia específica, determinada por el valor de comparación del temporizador. En el ATmega328P, dicha frecuencia depende de la relación entre la frecuencia del reloj del sistema (\texttt{F\_CPU}), el valor de comparación \texttt{OCRx}, y el prescaler aplicado al temporizador. Este último actúa como un divisor de frecuencia, reduciendo la velocidad a la que el contador incrementa. 
+    Para reproducir una nota musical, el microcontrolador debe generar una señal cuadrada con una frecuencia específica, determinada por el valor de comparación del temporizador. En el ATmega328P, dicha frecuencia depende de la relación entre la frecuencia del reloj del sistema (\texttt{F\_CPU}), el valor de comparación \texttt{OCRx}, y el prescaler aplicado al temporizador. Este último actúa como un divisor de frecuencia, reduciendo la velocidad a la que el contador incrementa.
+    
+    \vspace{1em}
 
     Elegir el prescaler adecuado resulta fundamental para asegurar que el valor de \texttt{OCRx} se mantenga dentro del rango permitido por el temporizador (por ejemplo, 8 bits en el Timer0). Si la frecuencia deseada es alta, se requiere un prescaler pequeño para mantener precisión; si es baja, un prescaler grande evita desbordamientos y permite generar tonos audibles. 
 
+    \vspace{1em}
+
     En la práctica, el programa selecciona dinámicamente el prescaler que produce un valor de \texttt{OCR0A} válido para la nota solicitada (véase anexo~\ref{anexo:piano_prescaler}). De esta forma, es posible generar un amplio rango de frecuencias musicales con un solo temporizador, manteniendo una relación estable entre tono y duración.
-
-    % void playFrequencyA(uint16_t freq) {
-    % 	if (!freq) return;  
-
-    % 	DDRD |= (1 << PORTD6);
-        
-    % 	// Elegir prescaler adecuado para esa frecuencia
-
-    % 	uint8_t presc_bits = 0;     
-    % 	uint16_t ocr = 0;
-
-    % 	const uint16_t presc_list[] = {8, 64, 256, 1024};
-    % 	const uint8_t  bits_list[]  = {0b010, 0b011, 0b100, 0b101};
-
-    % 	for (uint8_t i = 0; i < 4; i++) {
-    % 		ocr = (F_CPU / (2UL * presc_list[i] * freq)) - 1;
-    % 		if (ocr <= 255) {
-    % 			presc_bits = bits_list[i];
-    % 			break;
-    % 		}
-    % 	}
-
-    % 	TCCR0A = (1 << COM0A0) | (1 << WGM01);
-    % 	TCCR0B = presc_bits;          
-    % 	OCR0A  = (uint8_t)ocr;        
-    % }
 
     \vspace{1em}
 
@@ -130,9 +104,7 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
 
     \vspace{1em}
 
-    La reproducción simultánea de varios instrumentos en un entorno digital requiere el manejo de múltiples secuencias de notas en paralelo. Para lograrlo sin recurrir al uso de ciclos de espera activos (\textit{polling}), se utilizan interrupciones asociadas a los temporizadores. De este modo, el microcontrolador puede controlar la duración y el inicio de cada nota de forma independiente y precisa, optimizando el uso del procesador y permitiendo la ejecución de tareas concurrentes, como la lectura de entradas o la comunicación serial, mientras la música continúa sonando de manera autónoma.
-
-    % Ejemplo de pista guardada e interrupciones
+    La reproducción simultánea de varios instrumentos en un entorno digital requiere el manejo de múltiples secuencias de notas en paralelo. Para lograrlo sin recurrir al uso de ciclos de espera activos (\textit{polling}), se utilizan interrupciones asociadas a los temporizadores. De este modo, el microcontrolador puede controlar la duración y el inicio de cada nota de forma independiente y precisa, optimizando el uso del procesador y permitiendo la ejecución de tareas concurrentes, como la lectura de entradas o la comunicación serial, mientras la música continúa sonando de manera autónoma (véase anexo~\ref{anexo:reproduccion_pista}).
 
     \vspace{1em}
 
@@ -141,9 +113,7 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
 
     \vspace{1em}
 
-    Finalmente, a este sistema se integra funcionalidad USART para mostrar un menú al usuario por consola y permitir comandar el funcionamiento del sistema de manera sencilla. El usuario es presentado con 3 opciones: [1]: Reproducir canción 1, [2]: Reproducir cancion 2, [P]: Cambiar a modo piano. Mediante variables de control se deshabilita la funcionalidad de piano durante la reproducción de canciones, y vice versa, al cambiar al modo piano se detiene y reinician las pistas que se estaban reproduciendo.
-
-    % Ejemplo de pista guardada e interrupciones
+    Finalmente, a este sistema se integra funcionalidad USART para mostrar un menú al usuario por consola y permitir comandar el funcionamiento del sistema de manera sencilla. El usuario es presentado con 3 opciones: [1]: Reproducir canción 1, [2]: Reproducir cancion 2, [P]: Cambiar a modo piano. Mediante variables de control se deshabilita la funcionalidad de piano durante la reproducción de canciones, y vice versa, al cambiar al modo piano se detiene y reinician las pistas que se estaban reproduciendo (véase anexo~\ref{anexo:piano_USART}).
 
     \vspace{1em}
 
@@ -152,7 +122,7 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
     \vspace{1em}
 
 \subsubsection{\textbf{Cerradura}}
-    \paragraph*{\textbf{Funcionamiento general}}---
+    \paragraph*{\textbf{Idea general}}---
     El sistema de cerradura electrónica desarrollado tiene como objetivo controlar el acceso mediante una contraseña numérica almacenada en memoria no volátil. Inicialmente, el dispositivo se encuentra en estado de \textit{candado cerrado}. Cuando el usuario ingresa la contraseña correcta, el sistema cambia al estado de \textit{candado abierto}, permitiendo el acceso. En caso de introducir una contraseña incorrecta tres veces consecutivas, se activa una alarma acústica a través de un buzzer, indicando un intento de acceso no autorizado.
 
     \vspace{1em}
@@ -172,11 +142,12 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
 
     \vspace{1em}
 
-    El sistema se diseñó siguiendo una lógica de \textit{máquina de estados finitos}, en la que cada modo de operación (menú principal, ingreso de contraseña, cambio de clave, acceso autorizado, alarma, etc.) representa un estado. Las transiciones entre estados se producen en función de las acciones del usuario y las condiciones del sistema. Este enfoque facilita la gestión de comportamientos complejos, simplifica el control del flujo de ejecución y mejora la legibilidad del código.
+    El sistema se diseñó siguiendo una lógica de \textit{máquina de estados finitos}, en la que cada modo de operación (menú principal, ingreso de contraseña, cambio de clave, acceso autorizado, alarma, etc.) representa un estado. Las transiciones entre estados se producen en función de las acciones del usuario y las condiciones del sistema. Este enfoque facilita la gestión de comportamientos complejos, simplifica el control del flujo de ejecución y mejora la legibilidad del código (véase anexo~\ref{anexo:logica_estados}).
 
     \vspace{1em}
+    
     \paragraph*{\textbf{Teclado matricial}}---
-    El ingreso de datos se realiza mediante un teclado matricial 4x4 que combina filas y columnas, optimizando el uso de pines del microcontrolador. Las filas se configuran como salidas y las columnas como entradas con resistencias de \textit{pull-up} activadas. El proceso de lectura consiste en activar una fila a nivel bajo (0) mientras las demás permanecen en alto (1); si alguna tecla de esa fila se encuentra presionada, la columna correspondiente cambia a nivel bajo, permitiendo identificar la intersección entre fila y columna.  
+    El ingreso de datos se realiza mediante un teclado matricial 4x4 que combina filas y columnas, optimizando el uso de pines del microcontrolador. Las filas se configuran como salidas y las columnas como entradas con resistencias de \textit{pull-up} activadas. El proceso de lectura consiste en activar una fila a nivel bajo (0) mientras las demás permanecen en alto (1); si alguna tecla de esa fila se encuentra presionada, la columna correspondiente cambia a nivel bajo, permitiendo identificar la intersección entre fila y columna (véase anexo~\ref{anexo:lectura_keypad}).  
 
     \vspace{1em}
 
@@ -189,7 +160,7 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
 
     \vspace{1em}
 
-    Para resolver esta limitación, se implementó un esquema de ejecución basado en un \textit{planificador de tareas} o \textit{task scheduler} de propósito general. Se utiliza un solo temporizador configurado para generar interrupciones periódicas, incrementando un contador global de 32 bits que actúa como referencia temporal (en milisegundos). Cada tarea compara el tiempo actual con el instante programado de su próxima ejecución, y si se cumple el intervalo, se ejecuta la acción correspondiente. De este modo, múltiples eventos temporizados pueden coexistir sin emplear retardos bloqueantes ni técnicas de \textit{polling}.
+    Para resolver esta limitación, se implementó un esquema de ejecución basado en un \textit{planificador de tareas} o \textit{task scheduler} de propósito general. Se utiliza un solo temporizador configurado para generar interrupciones periódicas, incrementando un contador global de 32 bits que actúa como referencia temporal (en milisegundos). Cada tarea compara el tiempo actual con el instante programado de su próxima ejecución, y si se cumple el intervalo, se ejecuta la acción correspondiente. De este modo, múltiples eventos temporizados pueden coexistir sin emplear retardos bloqueantes ni técnicas de \textit{polling} (véase anexo~\ref{anexo:tareas}).
 
     \vspace{1em}
 
@@ -198,7 +169,7 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
 
     \vspace{1em}
 
-    La lectura y escritura se realizan mediante las funciones de la biblioteca estándar \texttt{avr/eeprom.h}, que permiten transferir cadenas de caracteres directamente desde y hacia direcciones específicas de la EEPROM. Así, el sistema recupera la contraseña almacenada al inicio del programa y la compara con la ingresada por el usuario durante la operación normal.
+    La lectura y escritura se realizan mediante las funciones de la biblioteca estándar \texttt{avr/eeprom.h}, que permiten transferir cadenas de caracteres directamente desde y hacia direcciones específicas de la EEPROM. Así, el sistema recupera la contraseña almacenada al inicio del programa y la compara con la ingresada por el usuario durante la operación normal (véase anexo~\ref{anexo:EEPROM}).
 
     \vspace{1em}
 

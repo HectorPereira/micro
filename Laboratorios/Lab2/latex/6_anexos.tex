@@ -318,107 +318,133 @@ int main(void) {
 
 \subsubsection{\textbf{Piano}}---
 
+\paragraph{Librerías utilizadas}---\\
+\begin{lstlisting}[language=C, caption={Librerías utilizadas}]
+#define F_CPU 16000000UL
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <avr/pgmspace.h>
+\end{lstlisting}
 
-USART con buffers
-\begin{lstlisting}[language=C, caption={Funciones USART con buffering}]
 
-#define TX_BUF_SZ 128
-#define TX_MASK   (TX_BUF_SZ - 1)
+\paragraph{Guardado de notas musicales}\label{anexo:notas_musicales}---\\
+\begin{lstlisting}[language=C, caption={Selección dinámica de prescaler}]
+#define G4 392	
+#define Fb4 370	
+#define E4 330	
+#define D4 294	
+// ...
+\end{lstlisting}
 
-#define RX_BUF_SZ 128
-#define RX_MASK   (RX_BUF_SZ - 1)
+\paragraph{Selección dinámica de prescaler}\label{anexo:piano_prescaler}---\\
+\begin{lstlisting}[language=C, caption={Selección dinámica de prescaler}]
+void playFrequencyA(uint16_t freq) {
+	if (!freq) return;  
 
-uint8_t tx_buf[TX_BUF_SZ];
-uint8_t tx_head = 0, tx_tail = 0;
+	DDRD |= (1 << PORTD6);
+	
+	// Elegir prescaler adecuado para esa frecuencia
 
-uint8_t rx_buf[RX_BUF_SZ];
-uint8_t rx_head = 0, rx_tail = 0;
+	uint8_t presc_bits = 0;     
+	uint16_t ocr = 0;
 
-uint8_t usart_rx_available(void) {
-	return (uint8_t)((rx_head - rx_tail) & RX_MASK);
-}
+	const uint16_t presc_list[] = {8, 64, 256, 1024};
+	const uint8_t  bits_list[]  = {0b010, 0b011, 0b100, 0b101};
 
-void usart_init_9600(void) {
-	const uint16_t ubrr = (16000000UL / (16UL * 9600)) - 1;
-	UBRR0H = ubrr >> 8;
-	UBRR0L = ubrr;
-	UCSR0A = 0;
-	UCSR0B = _BV(TXEN0) | _BV(RXEN0) | _BV(RXCIE0);   // <- RX interrupt
-	UCSR0C = _BV(UCSZ01) | _BV(UCSZ00);               // 8N1
-}
-
-// USART
-void usart_init_9600(void) {
-	const uint16_t ubrr = (16000000UL / (16UL * 9600)) - 1;
-	UBRR0H = ubrr >> 8;
-	UBRR0L = ubrr;
-	UCSR0A = 0;
-	UCSR0B = _BV(TXEN0) | _BV(RXEN0) | _BV(RXCIE0);   // <- RX interrupt
-	UCSR0C = _BV(UCSZ01) | _BV(UCSZ00);               // 8N1
-}
-
-// Escribir byte al buffer
-uint8_t usart_write_try(uint8_t b) {
-	uint8_t next = (uint8_t)((tx_head + 1) & TX_MASK);
-	if (next == tx_tail) return 0;               // buffer lleno
-	tx_buf[tx_head] = b;
-	tx_head = next;
-	UCSR0B |= _BV(UDRIE0);                       // kick the ISR
-	return 1;
-}
-
-// Escribir string al buffer
-uint16_t usart_write_str(const char *s) {
-	uint16_t n = 0;
-	while (*s && usart_write_try((uint8_t)*s++)) n++;
-	return n;
-}
-
-// Leer byte del buffer de recepcion
-uint8_t usart_read_try(uint8_t *b) {
-	if (rx_head == rx_tail) return 0;                
-	*b = rx_buf[rx_tail];
-	rx_tail = (uint8_t)((rx_tail + 1) & RX_MASK);
-	return 1;
-}
-
-// Interrupcion de registro de TX libre
-ISR(USART_UDRE_vect) {
-	if (tx_head == tx_tail) {                    
-		UCSR0B &= (uint8_t)~_BV(UDRIE0);         
-		return;
+	for (uint8_t i = 0; i < 4; i++) {
+		ocr = (F_CPU / (2UL * presc_list[i] * freq)) - 1;
+		if (ocr <= 255) {
+			presc_bits = bits_list[i];
+			break;
+		}
 	}
-	UDR0 = tx_buf[tx_tail];
-	tx_tail = (uint8_t)((tx_tail + 1) & TX_MASK);
+
+	TCCR0A = (1 << COM0A0) | (1 << WGM01);
+	TCCR0B = presc_bits;          
+	OCR0A  = (uint8_t)ocr;        
 }
 
-// Interrupcion de dato recibido
-ISR(USART_RX_vect) {
-	uint8_t d = UDR0;
-	uint8_t next = (uint8_t)((rx_head + 1) & RX_MASK);
-	if (next != rx_tail) {                
-		rx_buf[rx_head] = d;
-		rx_head = next;
+// Dejar de reproducir frencuencia buzzer 1
+void stopFrequencyA(void) {
+	TCCR0A = 0;
+	TCCR0B = 0;
+	DDRD  |=  (1 << PORTD6);
+	PORTD &= ~(1 << PORTD6);
+}
+\end{lstlisting}
+
+
+\paragraph{Reproducción de pistas}\label{anexo:reproduccion_pista}---\\
+\begin{lstlisting}[language=C, caption={Reproducción de pistas}]
+
+const int midiA[349][3] PROGMEM = {
+	{G4, 252, 0},
+	{Fb4, 252, 0},
+	{E4, 252, 0},
+	{E4, 252, 0},
+	// ...
+}
+
+void read_midi_event(const int (*track)[3], uint16_t index, int out_values[3]) {
+	for (uint8_t i = 0; i < 3; i++) {
+		out_values[i] = pgm_read_word(&(track[index][i]));
+	}
+}
+
+// Reproducir melodia o track en buzzer 1
+void playTrackA(void) {
+	int values[3];
+	if (song == 0){
+		read_midi_event(midiC, indexA++, values);
+	} else {
+		read_midi_event(midiA, indexA++, values);
+	}
+
+	uint16_t freq = values[0];
+	maxCountAon  = values[1];
+	maxCountAoff = values[2];
+
+	playFrequencyA(freq);       
+	enableCountAon = 1;         
+}
+
+ISR(TIMER1_OVF_vect){
+	TCNT1 = 65536 - 250;  // 1ms preload
+	
+	// Debouncing
+	if (debounce_active) {  // 1 ms debounce
+		PCICR |= (1 << PCIE1) | (1 << PCIE2);
+		debounce_active = 0;
+	}
+	
+	// Note playing
+	if (enableCountAon) {
+		if (++countA > maxCountAon) {
+			eventAon = 1;
+		}
+		
+		} else if (enableCountAoff){
+		if (++countA > maxCountAoff){
+			eventAoff = 1;
+		}
+	}
+	
+	if (enableCountBon) {
+		if (++countB > maxCountBon) {
+			eventBon = 1;
+		}
+		
+		} else if (enableCountBoff){
+		if (++countB > maxCountBoff){
+			eventBoff = 1;
+		}
 	}
 }
 \end{lstlisting}
 
-Formato de guardado de canciones
-\begin{lstlisting}[language=C, caption={Guardado de canciones}]
-// Midi tracks
-// Generated using https://github.com/ShivamJoker/MIDI-to-Arduino
-const int midiC[827][3] PROGMEM = {
-	{E5, 94, 0},
-	{B4, 94, 0},
-	{A4, 94, 0},
-	{E4, 94, 0},
-	{A4, 94, 0},
-	{B4, 94, 0}
-    // ... 
-}
-\end{lstlisting}
-
-\begin{lstlisting}[language=C, caption={Manejo de eventos RX USART}]
+\paragraph{Manejo de estados por USART}\label{anexo:piano_USART}---\\
+\begin{lstlisting}[language=C, caption={Manejo de estados por USART}]
+// Manejo de cambio de estados de usart
 void handleUSART(uint8_t character){
 	if (character == '1'){
 		mode = 1;
@@ -501,59 +527,9 @@ void handleUSART(uint8_t character){
 \end{lstlisting}
 
 
-\begin{lstlisting}[language=C, caption={Reproduccion de frecuencias}]
-void playFrequencyA(uint16_t freq) {
-	if (!freq) return;  
-
-	DDRD |= (1 << PORTD6);
-	
-	// Elegir prescaler adecuado para esa frecuencia
-
-	uint8_t presc_bits = 0;     
-	uint16_t ocr = 0;
-
-	const uint16_t presc_list[] = {8, 64, 256, 1024};
-	const uint8_t  bits_list[]  = {0b010, 0b011, 0b100, 0b101};
-
-	for (uint8_t i = 0; i < 4; i++) {
-		ocr = (F_CPU / (2UL * presc_list[i] * freq)) - 1;
-		if (ocr <= 255) {
-			presc_bits = bits_list[i];
-			break;
-		}
-	}
-
-	TCCR0A = (1 << COM0A0) | (1 << WGM01);
-	TCCR0B = presc_bits;          
-	OCR0A  = (uint8_t)ocr;        
-}
-\end{lstlisting}
-
-
-
-
-
-\begin{lstlisting}[language=C, caption={Variables de control de flujo}]
-uint8_t eventAon = 0; // Encender track A
-uint8_t eventAoff = 0; // Apagar track A
-uint16_t indexA = 0; // Posicion track A
-uint16_t countA = 0; // Conteo de overflow de notas de A
-uint16_t maxCountAon = 0; // Maximo conteo de overflow encendido en A
-uint16_t maxCountAoff = 0; // Maximo conteo de overflow apagado en A
-uint8_t enableCountAon = 0; // Habilitar conteo de encendido en A
-uint8_t enableCountAoff = 0; // Habilidad conteo de apagado en A
-
-uint8_t eventBon = 0; // Encender track B
-uint8_t eventBoff = 0; // Apagar track B
-uint16_t indexB = 0; // Posicion track B
-uint16_t countB = 0; // Conteo de overflow de notas de B
-uint16_t maxCountBon = 0; // Maximo conteo de overflow encendido en B
-uint16_t maxCountBoff = 0; // Maximo conteo de overflow apagado en B
-uint8_t enableCountBon = 0; // Habilitar conteo encendido en B
-uint8_t enableCountBoff = 0; // Habilitar conteo apagado en B
-\end{lstlisting}
-
-\begin{lstlisting}[language=C, caption={Variables de control de flujo}]
+\paragraph{Programa principal}---\\
+\begin{lstlisting}[language=C, caption={Programa principal}]
+// Programa principal
 int main(void) {
 	timer1_init();
 	usart_init_9600();
@@ -561,15 +537,8 @@ int main(void) {
 	sei();
 	
 	usart_write_str("Elija una opcion:\r\n");
-	
-	usart_write_str(
-		"[1] Dragon Ball - Cha-La Head-Cha-La\r\n"
-		);
-
-	usart_write_str(
-		"[2] Portal - Still alive\r\n"
-		);
-
+	usart_write_str("[1] Dragon Ball - Cha-La Head-Cha-La\r\n");
+	usart_write_str("[2] Portal - Still alive\r\n");
 	usart_write_str("[P] Modo piano\r\n");
 
 	
@@ -585,7 +554,13 @@ int main(void) {
 	    }
 	}
 }
+
+
 \end{lstlisting}
+
+
+
+
 
 \subsubsection{\textbf{Cerradura}}---
 
@@ -608,11 +583,28 @@ int main(void){
 }
 \end{lstlisting}
 
+\paragraph{Logica de estados}\label{anexo:logica_estados}---\\
+\begin{lstlisting}[language=C, caption={Logica de estados}]
+typedef enum { UI_MENU, UI_INGRESO, UI_CAMBIO_ACTUAL, UI_CAMBIO_NUEVA, UI_ABIERTO, UI_ALARMA } ui_state_t;
 
-Implementacion de tareas
-\begin{lstlisting}[language=C, caption={Implementacion de tareas}]
-uint32_t millis_counter = 0;
+int main(void){
+	while(1){
+		char key = keypad_scan();
+		if (key) {
+			switch (ui_state)
+			{
+				case UI_MENU: break;
+				case UI_INGRESO: break;
+				case UI_CAMBIO_ACTUAL: break;
+				case UI_CAMBIO_NUEVA: break;
+				case UI_CAMBIO_ALARMA: break;
+				case UI_CAMBIO_ABIERTO: break;
+	}
+}
+\end{lstlisting}
 
+\paragraph{Lectura multiplexada de keypad}\label{anexo:lectura_keypad}---\\
+\begin{lstlisting}[language=C, caption={Funcion de lectura multiplexada de keypad}]
 // Mapeo de keypad
 const char keypad[4][4] = {
 	{'1', '2', '3', 'A'},
@@ -621,44 +613,6 @@ const char keypad[4][4] = {
 	{'*', '0', '#', 'D'}
 };
 
-
-uint32_t keypad_on_at = 0;
-uint8_t keypad_enable = 1;
-
-ISR(TIMER0_OVF_vect){
-    millis_counter++;
-}
-
-uint32_t millis_now(void) {
-    uint32_t m;
-    cli();     // disable interrupts
-    m = millis_counter;
-    sei();     // re-enable
-    return m;
-}
-
-void keypad_debounce_ms(uint16_t delay_ms){
-    keypad_enable = 0;
-    keypad_on_at = millis_now() + delay_ms;
-}
-
-void keypad_task(void){
-    if (!keypad_enable && (millis_now() > keypad_on_at)){
-        keypad_enable = 1;
-    }
-}   
-
-int main(void){
-    // main code ...
-    while (1){
-        keypad_task();
-        // loop code ...
-    }
-}
-\end{lstlisting}
-
-Lectura multiplexada de keypad
-\begin{lstlisting}[language=C, caption={Funcion de lectura multiplexada de keypad}]
 char keypad_scan(void) {
 	if (!keypad_enable) return 0;
 	
@@ -686,34 +640,46 @@ char keypad_scan(void) {
 }
 \end{lstlisting}
 
-Tarea de alarma
-\begin{lstlisting}[language=C, caption={Tarea de alarma}]
- void alarm_task(void){
-	if (!alarm_active) return;
-	uint32_t now = millis_now();
-	
-	if (now > alarm_until){
-		alarm_active = 0;
-		PORTB &= ~(1<<PORTB5);
-		led_red_on();
-		return;
+\paragraph{Implementacion de tareas}\label{anexo:tareas}---\\
+\begin{lstlisting}[language=C, caption={Implementacion de tareas}]
+uint32_t millis_counter = 0;
+
+uint32_t keypad_on_at = 0;
+uint8_t keypad_enable = 1;
+
+ISR(TIMER0_OVF_vect){
+	millis_counter++;
+}
+
+uint32_t millis_now(void) {
+	uint32_t m;
+	cli();     // disable interrupts
+	m = millis_counter;
+	sei();     // re-enable
+	return m;
+}
+
+void keypad_debounce_ms(uint16_t delay_ms){
+	keypad_enable = 0;
+	keypad_on_at = millis_now() + delay_ms;
+}
+
+void keypad_task(void){
+	if (!keypad_enable && (millis_now() > keypad_on_at)){
+		keypad_enable = 1;
 	}
-	
-	if (now > alarm_next_toggle){
-		alarm_next_toggle = now + ALARM_TOGGLE_MS;
-		if (alarm_phase){
-			led_red_on();
-		} else {
-			led_green_on();
-		}
-		alarm_phase ^= 1;
-		
-		buzzer_beep(100);
+}   
+
+int main(void){
+	// main code ...
+	while (1){
+		keypad_task();
+		// loop code ...
 	}
 }
 \end{lstlisting}
 
-Escritura y lectura de EEPROM
+\paragraph{Escritura y lectura de EEPROM}\label{anexo:EEPROM}---\\
 \begin{lstlisting}[language=C, caption={Escritura y lectura de EEPROM}]
 #include <avr/eeprom.h>
 
@@ -755,23 +721,35 @@ void eeprom_save_password(const char *pwd) {
 \end{lstlisting}
 
 
-Logica de estados
-\begin{lstlisting}[language=C, caption={Logica de estados}]
-typedef enum { UI_MENU, UI_INGRESO, UI_CAMBIO_ACTUAL, UI_CAMBIO_NUEVA, UI_ABIERTO, UI_ALARMA } ui_state_t;
-
-int main(void){
-    while(1){
-        char key = keypad_scan();
-		if (key) {
-			switch (ui_state)
-			{
-                case UI_MENU: break;
-                case UI_INGRESO: break;
-                case UI_CAMBIO_ACTUAL: break;
-                case UI_CAMBIO_NUEVA: break;
-                case UI_CAMBIO_ALARMA: break;
-                case UI_CAMBIO_ABIERTO: break;
-    }
+Tarea de alarma
+\begin{lstlisting}[language=C, caption={Tarea de alarma}]
+ void alarm_task(void){
+	if (!alarm_active) return;
+	uint32_t now = millis_now();
+	
+	if (now > alarm_until){
+		alarm_active = 0;
+		PORTB &= ~(1<<PORTB5);
+		led_red_on();
+		return;
+	}
+	
+	if (now > alarm_next_toggle){
+		alarm_next_toggle = now + ALARM_TOGGLE_MS;
+		if (alarm_phase){
+			led_red_on();
+		} else {
+			led_green_on();
+		}
+		alarm_phase ^= 1;
+		
+		buzzer_beep(100);
+	}
 }
 \end{lstlisting}
+
+
+
+
+
 
