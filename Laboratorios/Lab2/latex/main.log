@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2025.8.12)  19 OCT 2025 03:00
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.4) (preloaded format=pdflatex 2025.8.12)  19 OCT 2025 03:10
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -490,7 +490,9 @@ File: lstmisc.sty 2024/09/23 1.10c (Carsten Heinz)
 File: listings.cfg 2024/09/23 1.10c listings configuration
 ))
 Package: listings 2024/09/23 1.10c (Carsten Heinz)
- (C:\Users\hecto\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstlang1.sty
+ (C:\Users\hecto\AppData\Local\Programs\MiKTeX\tex/latex/xurl\xurl.sty
+Package: xurl 2022/01/09 v 0.10 modify URL breaks
+) (C:\Users\hecto\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstlang1.sty
 File: lstlang1.sty 2024/09/23 1.10c listings language file
 ) (C:\Users\hecto\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstmisc.sty
 File: lstmisc.sty 2024/09/23 1.10c (Carsten Heinz)
@@ -505,24 +507,24 @@ Package babel Info: 'spanish' activates 'spanish' shorthands.
 )
 \openout1 = `main.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 40.
-LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
 
 -- Lines per column: 56 (approximate, difference = 9.15898pt).
 (C:\Users\hecto\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mkii
@@ -546,10 +548,10 @@ File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 )) (C:\Users\hecto\AppData\Local\Programs\MiKTeX\tex/latex/translations/dicts\translations-basic-dictionary-spanish.trsl
 File: translations-basic-dictionary-spanish.trsl (spanish translation file `translations-basic-dictionary')
 )
-Package translations Info: loading dictionary `translations-basic-dictionary' for `spanish'. on input line 40.
-LaTeX Info: Redefining \. on input line 40.
-LaTeX Info: Redefining \% on input line 40.
-Package hyperref Info: Link coloring OFF on input line 40.
+Package translations Info: loading dictionary `translations-basic-dictionary' for `spanish'. on input line 41.
+LaTeX Info: Redefining \. on input line 41.
+LaTeX Info: Redefining \% on input line 41.
+Package hyperref Info: Link coloring OFF on input line 41.
  (main.out) (main.out)
 \@outlinefile=\write3
 \openout3 = `main.out'.
@@ -590,15 +592,15 @@ Package hyperref Info: Link coloring OFF on input line 40.
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 \c@lstlisting=\count361
-LaTeX Font Info:    Trying to load font information for U+msa on input line 61.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 62.
 (C:\Users\hecto\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 61.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 62.
  (C:\Users\hecto\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-LaTeX Font Info:    Calculating math sizes for size <11> on input line 61.
+LaTeX Font Info:    Calculating math sizes for size <11> on input line 62.
  (0_introduccion.tex) (1_marco_teorico.tex
 <anexos/colores/fotorresistencia_arduino.png, id=156, 672.5125pt x 695.59875pt>
 File: anexos/colores/fotorresistencia_arduino.png Graphic file (type png)
@@ -606,67 +608,17 @@ File: anexos/colores/fotorresistencia_arduino.png Graphic file (type png)
 Package pdftex.def Info: anexos/colores/fotorresistencia_arduino.png  used on input line 9.
 (pdftex.def)             Requested size: 146.54668pt x 151.57808pt.
 
-Underfull \hbox (badness 2142) in paragraph at lines 10--10
-\OT1/ptm/m/n/8 Figura 1.  []Esquema de co-ne-xi[]on del sen-sor LDR en un di-vi-sor
- []
-
-
-Underfull \hbox (badness 1803) in paragraph at lines 10--10
-\OT1/ptm/m/n/8 re-sis-ti-vo cu-ya sa-li-da se di-ri-ge al ca-nal ADC del mi-cro-con-tro-la-dor
- []
-
-
-Underfull \hbox (badness 3312) in paragraph at lines 10--10
-\OT1/ptm/m/n/8 AT-me-ga328P. Fuen-te: []$https : / / paraarduino . com / sensores / fotorresistencias /
- []
-
-
 
 <anexos/colores/a-RGB-Color-Space-7-b-YCbCr-Color-Space-8.png, id=162, 401.5pt x 295.1025pt>
 File: anexos/colores/a-RGB-Color-Space-7-b-YCbCr-Color-Space-8.png Graphic file (type png)
 <use anexos/colores/a-RGB-Color-Space-7-b-YCbCr-Color-Space-8.png>
 Package pdftex.def Info: anexos/colores/a-RGB-Color-Space-7-b-YCbCr-Color-Space-8.png  used on input line 19.
 (pdftex.def)             Requested size: 158.7558pt x 116.68803pt.
-
-Underfull \hbox (badness 8151) in paragraph at lines 21--21
-\OT1/ptm/m/n/8 Figura 2.  []Representaci[]on tri-di-men-sio-nal del mo-de-lo de co-lor
- []
-
-
-Underfull \hbox (badness 1533) in paragraph at lines 21--21
-\OT1/ptm/m/n/8 RGB, don-de ca-da eje co-rres-pon-de a una de las com-po-nen-tes pri-
- []
-
-
-Underfull \hbox (badness 7308) in paragraph at lines 21--21
-\OT1/ptm/m/n/8 ma-rias \OT1/ptm/m/it/8 (Red, Green, Blue) \OT1/ptm/m/n/8 y su com-bi-na-ci[]on ge-ne-ra el es-pa-
- []
-
-
-Underfull \hbox (badness 5607) in paragraph at lines 21--21
-\OT1/ptm/m/n/8 cio de co-lo-res adi-ti-vos. Fuen-te: []$https : / / www . researchgate . net / ^^Lgure /
- []
-
 <anexos/colores/Resistance-vs-illumination-curve-LDRs-are-light-dependent-devices-whose-resistance.png, id=165, 401.5pt x 289.08pt>
 File: anexos/colores/Resistance-vs-illumination-curve-LDRs-are-light-dependent-devices-whose-resistance.png Graphic file (type png)
 <use anexos/colores/Resistance-vs-illumination-curve-LDRs-are-light-dependent-devices-whose-resistance.png>
 Package pdftex.def Info: anexos/colores/Resistance-vs-illumination-curve-LDRs-are-light-dependent-devices-whose-resistance.png  used on input line 30.
 (pdftex.def)             Requested size: 170.96864pt x 123.09776pt.
-
-Underfull \hbox (badness 4096) in paragraph at lines 33--33
-\OT1/ptm/m/n/8 cu-ya re-sis-ten-cia dis-mi-nu-ye de for-ma ex-po-nen-cial al au-men-tar la
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 33--33
-\OT1/ptm/m/n/8 in-ten-si-dad lu-mi-no-sa. Fuen-te: []$https : / / www . researchgate . net / ^^Lgure /
- []
-
-
-Overfull \hbox (41.69879pt too wide) in paragraph at lines 33--33
-\OT1/ptm/m/n/8 Resistance-[]vs-[]illumination-[]curve-[]LDRs-[]are-[]light-[]dependent-[]devices-[]whose-[]resistance[]
- []
-
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
@@ -680,84 +632,62 @@ LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 50
  (C:\Users\hecto\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
-<anexos/colores/a1TD5.png, id=188, 642.4pt x 346.29375pt>
+<anexos/colores/a1TD5.png, id=189, 642.4pt x 346.29375pt>
 File: anexos/colores/a1TD5.png Graphic file (type png)
 <use anexos/colores/a1TD5.png>
 Package pdftex.def Info: anexos/colores/a1TD5.png  used on input line 55.
 (pdftex.def)             Requested size: 183.18149pt x 98.7423pt.
 
 
-<anexos/piano/piezo-buzzer-buyapica__32185.jpg, id=193, 1284.8pt x 1281.78876pt>
+<anexos/piano/piezo-buzzer-buyapica__32185.jpg, id=194, 1284.8pt x 1281.78876pt>
 File: anexos/piano/piezo-buzzer-buyapica__32185.jpg Graphic file (type jpg)
 <use anexos/piano/piezo-buzzer-buyapica__32185.jpg>
 Package pdftex.def Info: anexos/piano/piezo-buzzer-buyapica__32185.jpg  used on input line 75.
-(pdftex.def)             Requested size: 219.8163pt x 219.28986pt.
-
-Underfull \hbox (badness 6348) in paragraph at lines 78--78
-\OT1/ptm/m/n/8 Figura 5.  []Buzzer pie-zo-el[]ectri-co mo-de-lo PS1240, uti-li-za-do co-
- []
-
-
-Underfull \hbox (badness 7047) in paragraph at lines 78--78
-\OT1/ptm/m/n/8 mo trans-duc-tor ac[]usti-co pa-ra la ge-ne-ra-ci[]on de so-ni-do me-dian-
- []
-
-
-Underfull \hbox (badness 2875) in paragraph at lines 78--78
-\OT1/ptm/m/n/8 te se[]nales cua-dra-das. Su fun-cio-na-mien-to se ba-sa en la vi-bra-ci[]on
- []
-
-
-Underfull \hbox (badness 5050) in paragraph at lines 78--78
-\OT1/ptm/m/n/8 te. Fuen-te: []$https : / / www . pishop . us / product / piezo-[]buzzer-[]ps1240 / ?srsltid =
- []
-
-<anexos/piano/20240827145846060.png, id=197, 304.7385pt x 138.5175pt>
+(pdftex.def)             Requested size: 170.96864pt x 170.55008pt.
+<anexos/piano/20240827145846060.png, id=198, 304.7385pt x 138.5175pt>
 File: anexos/piano/20240827145846060.png Graphic file (type png)
 <use anexos/piano/20240827145846060.png>
 Package pdftex.def Info: anexos/piano/20240827145846060.png  used on input line 87.
 (pdftex.def)             Requested size: 170.96864pt x 77.71298pt.
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-[2 <./anexos/colores/Resistance-vs-illumination-curve-LDRs-are-light-dependent-devices-whose-resistance.png> <./anexos/colores/a1TD5.png> <./anexos/piano/piezo-buzzer-buyapica__32185.jpg>]
-
-<anexos/cerradura/state-diagram-circuit-1.jpg, id=224, 511.9125pt x 397.485pt>
+[2 <./anexos/colores/Resistance-vs-illumination-curve-LDRs-are-light-dependent-devices-whose-resistance.png> <./anexos/colores/a1TD5.png> <./anexos/piano/piezo-buzzer-buyapica__32185.jpg> <./anexos/piano/20240827145846060.png>]
+<anexos/cerradura/state-diagram-circuit-1.jpg, id=227, 511.9125pt x 397.485pt>
 File: anexos/cerradura/state-diagram-circuit-1.jpg Graphic file (type jpg)
 <use anexos/cerradura/state-diagram-circuit-1.jpg>
 Package pdftex.def Info: anexos/cerradura/state-diagram-circuit-1.jpg  used on input line 119.
 (pdftex.def)             Requested size: 183.18149pt x 142.23323pt.
 
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+
+
 Underfull \hbox (badness 3872) in paragraph at lines 130--131
 []\OT1/ptm/m/n/10 La \OT1/ptm/b/n/10 EE-PROM \OT1/ptm/m/n/10 (\OT1/ptm/m/it/10 Elec-tri-cally Era-sa-ble Pro-gram-ma-ble
  []
 
-<anexos/piano/2_8bitAVRinstructionSet.jpg, id=229, 588.69937pt x 398.23781pt>
+<anexos/piano/2_8bitAVRinstructionSet.jpg, id=232, 588.69937pt x 398.23781pt>
 File: anexos/piano/2_8bitAVRinstructionSet.jpg Graphic file (type jpg)
 <use anexos/piano/2_8bitAVRinstructionSet.jpg>
 Package pdftex.def Info: anexos/piano/2_8bitAVRinstructionSet.jpg  used on input line 139.
 (pdftex.def)             Requested size: 183.18149pt x 123.91426pt.
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
 
-
-
-[3 <./anexos/piano/20240827145846060.png> <./anexos/cerradura/state-diagram-circuit-1.jpg>]
+[3 <./anexos/cerradura/state-diagram-circuit-1.jpg> <./anexos/piano/2_8bitAVRinstructionSet.jpg>]
 LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 154.
  (C:\Users\hecto\AppData\Local\Programs\MiKTeX\tex/latex/psnfss\ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 )) (2_metodologia.tex
-
-
 Underfull \hbox (badness 1371) in paragraph at lines 14--15
 []\OT1/ptm/m/n/10 Software: Mi-cro-chip Stu-dio, Pro-teus / Pic-Sim-Lab,
  []
 
 
 
-[4 <./anexos/piano/2_8bitAVRinstructionSet.jpg>]
+
+
+[4]
 
 
 
@@ -766,55 +696,33 @@ Underfull \hbox (badness 2088) in paragraph at lines 116--117
 []\OT1/ptm/m/n/10 Finalmente, a es-te sis-te-ma se in-te-gra fun-cio-na-li-dad
  []
 
-
-
-<anexos/cerradura/DiagramaFlujo.png, id=288, 1802.735pt x 984.67876pt>
+<anexos/cerradura/DiagramaFlujo.png, id=291, 1802.735pt x 984.67876pt>
 File: anexos/cerradura/DiagramaFlujo.png Graphic file (type png)
 <use anexos/cerradura/DiagramaFlujo.png>
 Package pdftex.def Info: anexos/cerradura/DiagramaFlujo.png  used on input line 134.
 (pdftex.def)             Requested size: 219.8163pt x 120.06451pt.
 
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+
+
 
 [6 <./anexos/cerradura/DiagramaFlujo.png>]) (3_resultados.tex
-
-<anexos/colores/EvidenciaFuncionamiento.jpg, id=307, 519.1395pt x 572.73975pt>
+<anexos/colores/EvidenciaFuncionamiento.jpg, id=309, 519.1395pt x 572.73975pt>
 File: anexos/colores/EvidenciaFuncionamiento.jpg Graphic file (type jpg)
 <use anexos/colores/EvidenciaFuncionamiento.jpg>
 Package pdftex.def Info: anexos/colores/EvidenciaFuncionamiento.jpg  used on input line 43.
 (pdftex.def)             Requested size: 219.8163pt x 242.51538pt.
+
+
 ) (4_conclusiones.tex
-Underfull \vbox (badness 3579) has occurred while \output is active []
-
-
 
 [7 <./anexos/colores/EvidenciaFuncionamiento.jpg>]) (main.bbl
-Underfull \hbox (badness 3612) in paragraph at lines 31--34
-\OT1/ptm/m/n/8 Avai-la-ble: []$https : / / ww1 . microchip . com / downloads / en / DeviceDoc /
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 31--34
-\OT1/ptm/m/n/8 Atmel-[]7810-[]Automotive-[]Microcontrollers-[]ATmega328P[]Datasheet .
- []
-
-
-
-
-Overfull \hbox (29.87581pt too wide) in paragraph at lines 89--95
-\OT1/ptm/m/n/8 learn-[]how-[]an-[]8x8-[]led-[]display-[]works-[]and-[]how-[]to-[]control-[]it-[]using-[]an-[]arduino/$[] 
- []
-
-
-Underfull \hbox (badness 1810) in paragraph at lines 133--137
-[]\OT1/ptm/m/n/8 Laboratorio de Mi-cro-con-tro-la-do-res, UTEC, ``Re-po-si-to-rio de la-
- []
-
-
-Underfull \hbox (badness 3019) in paragraph at lines 133--137
-\OT1/ptm/m/n/8 bo-ra-to-rio de mi-cro-con-tro-la-do-res (tec.micro),'' []$https : / / github . com /
- []
 
 ) (6_anexos.tex
+** WARNING: Ignoring useless \section in Appendix (line 1).
+
 Underfull \hbox (badness 10000) in paragraph at lines 9--10
 
  []
@@ -842,11 +750,6 @@ Underfull \hbox (badness 10000) in paragraph at lines 88--89
 
 
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-
-[9]
 Underfull \hbox (badness 10000) in paragraph at lines 187--188
 
  []
@@ -857,6 +760,11 @@ Underfull \hbox (badness 10000) in paragraph at lines 198--199
  []
 
 
+Underfull \vbox (badness 7814) has occurred while \output is active []
+
+
+
+[9]
 Underfull \hbox (badness 10000) in paragraph at lines 242--243
 
  []
@@ -869,11 +777,6 @@ Underfull \hbox (badness 10000) in paragraph at lines 298--299
  []
 
 
-Underfull \vbox (badness 1466) has occurred while \output is active []
-
-
-
-[10]
 Underfull \hbox (badness 10000) in paragraph at lines 321--322
 
  []
@@ -884,11 +787,11 @@ Underfull \hbox (badness 10000) in paragraph at lines 330--331
  []
 
 
+
+[10]
 Underfull \hbox (badness 10000) in paragraph at lines 339--340
 
  []
-
-
 
 
 Underfull \hbox (badness 10000) in paragraph at lines 377--378
@@ -897,12 +800,17 @@ Underfull \hbox (badness 10000) in paragraph at lines 377--378
 
 
 
-[11]
+
 Underfull \hbox (badness 10000) in paragraph at lines 445--446
 
  []
 
 
+Underfull \vbox (badness 1466) has occurred while \output is active []
+
+
+
+[11]
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
@@ -913,8 +821,6 @@ Underfull \hbox (badness 10000) in paragraph at lines 530--531
  []
 
 
-
-[12]
 Underfull \hbox (badness 10000) in paragraph at lines 566--567
 
  []
@@ -925,11 +831,11 @@ Underfull \hbox (badness 10000) in paragraph at lines 582--583
  []
 
 
+
+[12]
 Underfull \hbox (badness 10000) in paragraph at lines 602--603
 
  []
-
-
 
 
 Underfull \hbox (badness 10000) in paragraph at lines 639--640
@@ -937,9 +843,14 @@ Underfull \hbox (badness 10000) in paragraph at lines 639--640
  []
 
 
+
+
 Underfull \hbox (badness 10000) in paragraph at lines 678--679
 
  []
+
+
+Underfull \vbox (badness 1466) has occurred while \output is active []
 
 
 
@@ -975,20 +886,20 @@ LaTeX2e <2025-06-01> patch level 1
 L3 programming layer <2025-07-20>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 66C168B99F10D51AB1C1816EF48ECBE7;5645.
+(rerunfilecheck)             Checksum: 85551C3BBEBA9BCB0DF957732935F5FA;5743.
  ) 
 Here is how much of TeX's memory you used:
- 20920 strings out of 468134
- 389445 string characters out of 5430740
- 1759214 words of memory out of 5000000
- 48508 multiletter control sequences out of 15000+600000
+ 20946 strings out of 468134
+ 390365 string characters out of 5430740
+ 1715499 words of memory out of 5000000
+ 48529 multiletter control sequences out of 15000+600000
  674878 words of font info for 139 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  75i,11n,80p,882b,2636s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi7.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr7.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmsy10.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrb8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrr8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/courier/ucrro8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmbi8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (14 pages, 1013140 bytes).
+Output written on main.pdf (14 pages, 1014767 bytes).
 PDF statistics:
- 1267 PDF objects out of 1440 (max. 8388607)
- 776 named destinations out of 1000 (max. 500000)
+ 1269 PDF objects out of 1440 (max. 8388607)
+ 777 named destinations out of 1000 (max. 500000)
  355 words of extra memory for PDF output out of 10000 (max. 10000000)
 

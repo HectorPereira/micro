@@ -1,20 +1,20 @@
 # Fdb version 4
-["bibtex main"] 1760853606.76943 "main.aux" "main.bbl" "main" 1760853611.5498 0
+["bibtex main"] 1760854235.43836 "main.aux" "main.bbl" "main" 1760854239.36091 0
   "./5_referencias.bib" 1760850028 5980 9a74f72c3ad2ac47286a24b65d882d49 ""
   "C:/Users/hecto/AppData/Local/Programs/MiKTeX/bibtex/bst/ieeetran/IEEEtran.bst" 1440622569 57748 7c8250ecf02814ce6ddc0cdbb63df1dd ""
-  "main.aux" 1760853610 21924 e93f2cd5b9efaec0b25d3a9c2685abb7 "pdflatex"
+  "main.aux" 1760854238 21796 b0bbcd83c21a1a58f07db14c414743c5 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1760853607.38156 "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" "main.pdf" "main" 1760853611.55086 0
+["pdflatex"] 1760854235.85248 "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" "main.pdf" "main" 1760854239.36159 0
   "0_introduccion.tex" 1760850831 2490 5e39eba3310b1d196bf57bb6934f38a0 ""
-  "1_marco_teorico.tex" 1760853598 14952 7e6c956cc609744aff7b2df2ed2a63d1 ""
+  "1_marco_teorico.tex" 1760853943 14952 ba5e87d98a833c1602e44a6b58fa6793 ""
   "2_metodologia.tex" 1760834940 18093 44accc825079d0d112b7b1c982539ab2 ""
   "3_resultados.tex" 1760820106 9966 cfdf6b940831fbc045c03fb2d2b45a3a ""
   "4_conclusiones.tex" 1760808656 1419 940955c28d2cabbf7b768b2f5c6116d6 ""
   "6_anexos.tex" 1760833325 18104 549f83b26e882a619786978f2ee4a66a ""
-  "C:/Users/hecto/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1760550035 82507 a9eef8696c92627b87e9975edea03b2a ""
+  "C:/Users/hecto/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1760853866 82507 a9eef8696c92627b87e9975edea03b2a ""
   "C:/Users/hecto/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1755027854 13257295 6220036096196477d82c74b95064958e ""
   "C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc" 1458473887 4993 80dc9bab7f31fb78a000ccfed0e27cab ""
   "C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/tfm/adobe/courier/pcrb7t.tfm" 1136765053 960 4ab65358b8406f30ef5496c8c096d22b ""
@@ -153,6 +153,7 @@
   "C:/Users/hecto/AppData/Local/Programs/MiKTeX/tex/latex/translations/translations.sty" 1644048522 44247 2188b95d0ee74e31eca4d316263c58a7 ""
   "C:/Users/hecto/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/hecto/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1729265222 55384 b454dec21c2d9f45ec0b793f0995b992 ""
+  "C:/Users/hecto/AppData/Local/Programs/MiKTeX/tex/latex/xurl/xurl.sty" 1641733940 4675 e4b8c405820368c2dfb03526e16d725a ""
   "anexos/cerradura/DiagramaFlujo.png" 1760577668 135661 33799ff9390f636122e22e23015a3045 ""
   "anexos/cerradura/state-diagram-circuit-1.jpg" 1760853216 11156 30bd43b66cd388760d622f17ebb3d612 ""
   "anexos/colores/EvidenciaFuncionamiento.jpg" 1760819068 215710 3aeab09ac7b239331d08b32dc7fd73b7 ""
@@ -163,11 +164,11 @@
   "anexos/piano/20240827145846060.png" 1760852689 6779 daee7b7115a9bceeff96356ffa359b09 ""
   "anexos/piano/2_8bitAVRinstructionSet.jpg" 1760853499 71472 5e16e2e47121064b2d40a8399e5a9e04 ""
   "anexos/piano/piezo-buzzer-buyapica__32185.jpg" 1760852568 82252 c55f1595f636879e30c98abafdbc5cdf ""
-  "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" 1760577296 1958 aced8ca767d0094b8f2f09eae0e4a5a6 ""
-  "main.aux" 1760853610 21924 e93f2cd5b9efaec0b25d3a9c2685abb7 "pdflatex"
-  "main.bbl" 1760853607 5981 f4db9430ddfeb305679ef28f111ae3ac "bibtex main"
-  "main.out" 1760853610 5645 66c168b99f10d51ab1c1816ef48ecbe7 "pdflatex"
-  "main.tex" 1760577296 1958 aced8ca767d0094b8f2f09eae0e4a5a6 ""
+  "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" 1760854229 1990 913d7414aa62560cd61e8ce366a0d764 ""
+  "main.aux" 1760854238 21796 b0bbcd83c21a1a58f07db14c414743c5 "pdflatex"
+  "main.bbl" 1760854235 5981 f4db9430ddfeb305679ef28f111ae3ac "bibtex main"
+  "main.out" 1760854238 5743 85551c3bbeba9bcb0df957732935f5fa "pdflatex"
+  "main.tex" 1760854229 1990 913d7414aa62560cd61e8ce366a0d764 ""
   (generated)
   "main.aux"
   "main.log"
