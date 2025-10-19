@@ -1,15 +1,15 @@
 # Fdb version 4
-["bibtex main"] 1760847544.61926 "main.aux" "main.bbl" "main" 1760847548.61784 0
+["bibtex main"] 1760848982.78426 "main.aux" "main.bbl" "main" 1760849459.70382 0
   "./5_referencias.bib" 1760822478 3322 86d274452faadaf785bd50a176ee05f7 ""
   "C:/Users/hecto/AppData/Local/Programs/MiKTeX/bibtex/bst/ieeetran/IEEEtran.bst" 1440622569 57748 7c8250ecf02814ce6ddc0cdbb63df1dd ""
-  "main.aux" 1760847547 14019 3c65d6a15a6e64fce38fe5fcee28c70c "pdflatex"
+  "main.aux" 1760849458 14010 67d29baa1894a5690a326d24cd9d0bb9 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1760847545.21862 "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" "main.pdf" "main" 1760847548.61843 0
+["pdflatex"] 1760849455.94393 "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" "main.pdf" "main" 1760849459.70446 0
   "0_introduccion.tex" 1760810780 2501 8efb83de72a84d19bcc60b3fe79fa09e ""
-  "1_marco_teorico.tex" 1760847540 13277 b29d2271655efb6bdda75f78f2624d35 ""
+  "1_marco_teorico.tex" 1760849455 10060 aed7561dedddbc5f5e27356489f165dc ""
   "2_metodologia.tex" 1760834940 18093 44accc825079d0d112b7b1c982539ab2 ""
   "3_resultados.tex" 1760820106 9966 cfdf6b940831fbc045c03fb2d2b45a3a ""
   "4_conclusiones.tex" 1760808656 1419 940955c28d2cabbf7b768b2f5c6116d6 ""
@@ -154,9 +154,9 @@
   "anexos/cerradura/DiagramaFlujo.png" 1760577668 135661 33799ff9390f636122e22e23015a3045 ""
   "anexos/colores/EvidenciaFuncionamiento.jpg" 1760819068 215710 3aeab09ac7b239331d08b32dc7fd73b7 ""
   "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" 1760577296 1958 aced8ca767d0094b8f2f09eae0e4a5a6 ""
-  "main.aux" 1760847547 14019 3c65d6a15a6e64fce38fe5fcee28c70c "pdflatex"
-  "main.bbl" 1760847545 4037 9a4910a085c9c6ece1916caca8a3b42f "bibtex main"
-  "main.out" 1760847547 5827 e545f04cd2dceb9e76097af4b50e1d14 "pdflatex"
+  "main.aux" 1760849458 14010 67d29baa1894a5690a326d24cd9d0bb9 "pdflatex"
+  "main.bbl" 1760848983 4037 9a4910a085c9c6ece1916caca8a3b42f "bibtex main"
+  "main.out" 1760849458 5827 e545f04cd2dceb9e76097af4b50e1d14 "pdflatex"
   "main.tex" 1760577296 1958 aced8ca767d0094b8f2f09eae0e4a5a6 ""
   (generated)
   "main.aux"

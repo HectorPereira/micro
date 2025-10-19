@@ -2,105 +2,88 @@
 
 \subsection{Procesamiento de señales y sensores de color}
 
-Un sensor de luz o \textit{Light Dependent Resistor} (LDR) es un dispositivo fotoresistivo cuya resistencia eléctrica varía de manera inversamente proporcional a la intensidad luminosa incidente. En condiciones de baja iluminación, la resistencia del material semiconductor (generalmente sulfuro de cadmio) es elevada, mientras que ante una mayor cantidad de luz, la energía de los fotones libera más portadores de carga, reduciendo la resistencia. Este principio permite convertir la intensidad luminosa en una señal eléctrica analógica, que puede ser medida por el convertidor analógico–digital (ADC) del microcontrolador.
+Un sensor de luz o \textit{Light Dependent Resistor} (LDR) es un dispositivo fotoresistivo cuya resistencia eléctrica disminuye cuando aumenta la intensidad luminosa incidente. Este comportamiento se debe a que la radiación electromagnética libera portadores de carga en el material semiconductor —generalmente sulfuro de cadmio— reduciendo su resistividad. De este modo, el LDR convierte la variación de luz en una señal eléctrica analógica que puede ser interpretada por el convertidor analógico–digital (ADC) del microcontrolador.
 
 \vspace{1em}
 
-Para representar y clasificar los colores percibidos por el sensor se emplea el modelo aditivo de color \textbf{RGB} (Red, Green, Blue), basado en la combinación de tres componentes de luz primaria. Cada componente puede tomar valores dentro de un rango de 0 a 255, generando un espacio tridimensional en el cual cada punto $(R,G,B)$ define un color único. En este espacio, los ejes representan la contribución relativa de cada componente: el rojo sobre el eje $R$, el verde sobre el eje $G$ y el azul sobre el eje $B$. De esta forma, el color blanco corresponde a $(255,255,255)$ y el negro a $(0,0,0)$.
+En el caso del ATmega328P, el ADC posee una resolución de 10 bits, lo que permite representar las señales analógicas dentro de un rango discreto de 0 a 1023, donde los valores extremos corresponden a la tensión mínima y máxima de referencia. Estos niveles cuantificados pueden relacionarse con la intensidad relativa de los componentes del modelo aditivo de color \textbf{RGB} (\textit{Red, Green, Blue}), el cual describe los colores como combinaciones de tres luces primarias. En dicho modelo, cada componente adopta un valor dentro de una escala de 0 a 255, rango que se utiliza en la representación digital del color en dispositivos emisores de luz, como pantallas o tiras de LEDs.
 
 \vspace{1em}
 
-Dado que la respuesta espectral del LDR no es lineal ni uniforme para todos los colores, es necesario un proceso de \textbf{calibración}. Este consiste en medir los valores del ADC frente a una hoja de referencia con colores conocidos, obteniendo así un conjunto de vectores $(R_i, G_i, B_i)$ asociados a cada color de muestra. Durante la operación, el sistema compara el vector medido $(R_m, G_m, B_m)$ con los valores almacenados y determina el color más cercano calculando la \textit{distancia euclidiana} entre ellos:
-
-\[
-d_i = \sqrt{(R_m - R_i)^2 + (G_m - G_i)^2 + (B_m - B_i)^2}
-\]
-
-El color correspondiente al menor valor de $d_i$ se considera el identificado. Este método permite una clasificación robusta frente a pequeñas variaciones de iluminación o de lectura analógica, asegurando una detección estable y repetible en entornos experimentales.
+Dado que la respuesta espectral del LDR no es lineal ni uniforme frente a distintas longitudes de onda, la interpretación cromática requiere un proceso de calibración que establezca correspondencias entre los valores eléctricos medidos y los tonos del espacio RGB. Este principio permite compensar las variaciones inherentes del sensor y asegurar una medición coherente en condiciones de iluminación variables.
 
 
 \subsection{Señales PWM y control de servomotores}
 
-El \textit{Pulse Width Modulation} (PWM) o modulación por ancho de pulso es una técnica ampliamente utilizada en sistemas embebidos para controlar dispositivos analógicos mediante señales digitales. Consiste en generar una señal periódica cuya frecuencia permanece constante, pero cuyo ciclo de trabajo (\textit{duty cycle}) varía según la magnitud que se desea representar. Este ciclo de trabajo, definido como la relación entre el tiempo en nivel alto ($t_{on}$) y el periodo total ($T$), se expresa como:
+El \textit{Pulse Width Modulation} (PWM) o modulación por ancho de pulso es una técnica utilizada en sistemas embebidos para generar señales de control analógicas a partir de salidas digitales. Consiste en emitir una señal periódica de frecuencia constante cuyo ciclo de trabajo (\textit{duty cycle}) varía en función de la magnitud deseada. Este ciclo se define como la relación entre el tiempo en nivel alto ($t_{on}$) y el periodo total ($T$):
 
 \[
 D = \frac{t_{on}}{T} \times 100~(\%)
 \]
 
-En el caso de los servomotores de tipo hobby, el control de posición se logra variando el ancho del pulso dentro de un periodo fijo de aproximadamente \SI{20}{\milli\second} (equivalente a una frecuencia de \SI{50}{\hertz}). Un pulso de \SI{1}{\milli\second} suele corresponder a una posición angular mínima (por ejemplo, 0°), mientras que un pulso de \SI{2}{\milli\second} representa la posición máxima (180°). De esta manera, el ángulo del eje del servo se determina de forma proporcional al ancho del pulso aplicado a su señal de control.
+En los servomotores de tipo \textit{hobby}, el control de posición se basa en la variación del ancho del pulso dentro de un periodo fijo de aproximadamente \SI{20}{\milli\second}, correspondiente a una frecuencia de \SI{50}{\hertz}. Pulsos de alrededor de \SI{1}{\milli\second} y \SI{2}{\milli\second} suelen representar los límites de desplazamiento angular del eje (por ejemplo, 0° y 180°). Así, la posición del servo se determina proporcionalmente al tiempo que la señal permanece en nivel alto.
 
 \vspace{1em}
 
-En el microcontrolador ATmega328P, la generación de esta señal se realiza mediante el \textbf{Timer/Counter1}, un temporizador de 16 bits capaz de operar en modo de comparación rápida (\textit{Fast PWM}). Configurando los registros \texttt{TCCR1A} y \texttt{TCCR1B} para emplear el modo PWM con un prescaler de 8 y un valor superior (\texttt{ICR1}) de 39\,999, se obtiene un periodo de 20~ms bajo una frecuencia de reloj de \SI{16}{\mega\hertz}. El registro de comparación \texttt{OCR1A} define el tiempo en alto de la señal, ajustando el ángulo del servomotor según la ecuación:
+En el microcontrolador ATmega328P, la generación de señales PWM se realiza mediante los temporizadores de hardware (\textit{Timer/Counter}), que permiten obtener pulsos de duración precisa sin requerir intervención constante del procesador. Esta característica es fundamental para el control de actuadores como servomotores, ya que garantiza estabilidad temporal, repetitividad y eficiencia computacional. Al delegar la modulación al hardware, el microcontrolador puede atender otras tareas concurrentes sin afectar la calidad de la señal de control.
 
-\[
-t_{on} = 1000~\mu s + \left(\frac{\text{ángulo}}{180}\right) \times 1000~\mu s
-\]
-
-De esta forma, el módulo PWM permite un control preciso y estable del servomotor, sin necesidad de intervención constante del procesador, ya que el hardware del temporizador mantiene la generación continua de los pulsos.
 
 
 \subsection{Reproducción de sonido digital}
 
-El sonido es una onda mecánica periódica cuya frecuencia determina la percepción del tono musical. En términos físicos, la frecuencia ($f$), medida en hertzios (Hz), representa el número de oscilaciones por segundo, mientras que su inverso define el periodo ($T = 1/f$). En el contexto de un buzzer piezoeléctrico, este principio se aprovecha generando una señal eléctrica alternante que provoca vibraciones en el material piezoeléctrico, transformándolas en ondas sonoras audibles.
+El sonido es una onda mecánica periódica cuya frecuencia determina la percepción del tono musical. En términos físicos, la frecuencia ($f$), medida en hertzios (Hz), representa el número de oscilaciones por segundo, mientras que su inverso define el periodo ($T = 1/f$). En los sistemas electrónicos, este principio se aplica mediante la generación de señales eléctricas alternantes que hacen vibrar un transductor, como un buzzer piezoeléctrico, produciendo así ondas sonoras audibles.
 
 \vspace{1em}
 
-En un sistema basado en microcontroladores, dichas oscilaciones pueden producirse mediante los temporizadores internos (\textit{timers}), configurados para generar ondas cuadradas con una frecuencia ajustable. Por ejemplo, al programar un temporizador en modo de comparación (CTC o \textit{Clear Timer on Compare Match}), el registro de comparación (\texttt{OCRx}) se calcula en función de la frecuencia deseada y del reloj del sistema ($f_{clk}$) según:
-
-\[
-OCR_x = \frac{f_{clk}}{2 \times N \times f_{sonido}} - 1
-\]
-
-donde $N$ es el factor de prescalado. Cada vez que el temporizador alcanza este valor, se invierte el estado del pin de salida, generando así una onda cuadrada que excita directamente al buzzer. De esta forma, variando el valor de \texttt{OCRx}, es posible reproducir distintas notas musicales.
+En los microcontroladores, la síntesis de sonido se logra a través de la modulación temporal de señales digitales, comúnmente en forma de ondas cuadradas. La frecuencia de conmutación de estas ondas determina el tono percibido, mientras que su duración controla la extensión temporal de la nota. De esta manera, es posible representar una escala musical a partir de un conjunto discreto de frecuencias asociadas a las notas estándar.
 
 \vspace{1em}
 
-Para crear melodías, se utiliza una estructura de datos que almacena pares de valores de frecuencia y duración asociados a cada nota. El microcontrolador recorre secuencialmente este arreglo, configurando el temporizador para cada frecuencia y manteniéndola activa durante el tiempo correspondiente. Este procedimiento puede implementarse de manera eficiente mediante interrupciones del temporizador, lo que permite reproducir secuencias musicales sin bloquear la ejecución del resto de las tareas del sistema.
+En el ámbito de la música digital, el formato \textbf{MIDI} (\textit{Musical Instrument Digital Interface}) constituye un estándar ampliamente utilizado para describir eventos musicales mediante códigos numéricos. Cada evento MIDI contiene información como la nota a ejecutar, su duración, intensidad y canal asignado. Aunque no transmite sonido directamente, este formato permite definir secuencias musicales que pueden ser interpretadas por distintos dispositivos electrónicos, incluidos los microcontroladores, mediante la generación de las frecuencias correspondientes.
 
 \vspace{1em}
 
-El resultado es una \textbf{melodía digital}, donde cada nota se sintetiza a partir de una señal cuadrada controlada por software, imitando el comportamiento de un oscilador simple y demostrando la capacidad del microcontrolador para generar sonidos a partir de la modulación temporal de sus recursos internos.
+La reproducción de melodías digitales se basa, por tanto, en la secuenciación de notas definidas por su frecuencia y duración. Este enfoque, derivado de los principios del formato MIDI, permite sintetizar melodías simples mediante la temporización de señales cuadradas, demostrando la capacidad de los sistemas embebidos para generar sonido a partir de parámetros discretos de control temporal y frecuencia.
+
 
 
 \subsection{Interfaz de usuario e interacción hombre–máquina}
 
-En los sistemas embebidos, la \textbf{interfaz de usuario} (\textit{User Interface}, UI) constituye el conjunto de mecanismos físicos y lógicos que permiten la comunicación entre el usuario y el dispositivo. Su función principal es traducir las acciones del operador (entradas) en respuestas visibles o audibles (salidas) que reflejen el estado actual del sistema. Este intercambio bidireccional resulta fundamental para lograr un funcionamiento intuitivo, seguro y eficiente en aplicaciones donde la interacción humana es constante.
+En los sistemas embebidos, la \textbf{interfaz de usuario} (\textit{User Interface}, UI) se define como el conjunto de componentes físicos y lógicos que facilitan la comunicación entre el usuario y el dispositivo. Su función principal es transformar las acciones del operador en respuestas visuales o auditivas que reflejen el estado interno del sistema, permitiendo un control intuitivo y seguro del mismo.
 
 \vspace{1em}
 
-En el caso del sistema desarrollado, la interfaz está compuesta por un teclado matricial, una pantalla LCD, indicadores luminosos y un buzzer. El teclado permite el ingreso de datos —como contraseñas o comandos—, mientras que la pantalla LCD presenta mensajes de guía o confirmación. Los LEDs y el buzzer complementan la experiencia de usuario al proporcionar \textit{feedback} visual y auditivo, respectivamente, facilitando la interpretación inmediata de los estados del sistema (éxito, error o alarma).
+Este intercambio bidireccional se logra a través de distintos medios de entrada y salida. Los periféricos de entrada —como teclados, pulsadores o sensores— registran las acciones del usuario, mientras que los de salida —como pantallas, indicadores luminosos o buzzers— proporcionan \textit{feedback} sobre el resultado de dichas acciones. En conjunto, estos elementos conforman un canal de comunicación que mejora la interacción y la comprensión del funcionamiento del sistema.
 
 \vspace{1em}
 
-La lógica de interacción se organiza mediante una \textbf{máquina de estados finitos} (FSM, por sus siglas en inglés), estructura ampliamente utilizada en el diseño de interfaces embebidas. En este enfoque, el programa se divide en estados bien definidos, tales como \textit{inicio}, \textit{ingreso}, \textit{verificación} o \textit{alarma}, y las transiciones entre ellos se producen en función de eventos específicos, como la presión de una tecla o la comparación de contraseñas. Este modelo favorece un código más claro, modular y predecible, al mismo tiempo que simplifica la gestión de entradas concurrentes y condiciones de error.
+Para organizar la lógica de funcionamiento, los sistemas embebidos suelen emplear una \textbf{máquina de estados finitos} (FSM, por sus siglas en inglés). Este modelo conceptual divide la operación del programa en un conjunto finito de estados definidos, entre los cuales se producen transiciones en respuesta a eventos determinados. Dicho enfoque favorece la modularidad, la claridad del código y la predictibilidad del comportamiento, cualidades esenciales en el diseño de interfaces de usuario para entornos con recursos limitados.
 
-\vspace{1em}
-
-La combinación de estímulos visuales (mensajes y LEDs) y auditivos (tonos del buzzer) proporciona al usuario una retroalimentación inmediata sobre el resultado de sus acciones. Este tipo de \textit{feedback} sensorial no solo mejora la usabilidad del sistema, sino que también incrementa su confiabilidad operativa, al minimizar ambigüedades y facilitar la detección de fallos o estados anómalos durante la interacción.
 
 
 \subsection{Almacenamiento no volátil y EEPROM}
 
-La \textbf{EEPROM} (\textit{Electrically Erasable Programmable Read-Only Memory}) es un tipo de memoria no volátil integrada en la mayoría de los microcontroladores AVR, cuya principal característica es conservar los datos almacenados incluso cuando el sistema se apaga o se reinicia. A diferencia de la memoria RAM, que se borra al interrumpirse la alimentación, la EEPROM permite mantener información crítica de configuración o de usuario entre sesiones de uso, lo que la convierte en un recurso esencial para aplicaciones que requieren persistencia de datos.
+La \textbf{EEPROM} (\textit{Electrically Erasable Programmable Read-Only Memory}) es un tipo de memoria no volátil que permite conservar la información almacenada incluso después de interrumpir la alimentación del sistema. A diferencia de la memoria RAM, que se borra al apagar el dispositivo, la EEPROM mantiene los datos de forma permanente hasta que son modificados explícitamente por el programa, lo que la hace ideal para guardar configuraciones o valores críticos de usuario.
 
 \vspace{1em}
 
-En el caso del microcontrolador ATmega328P, la EEPROM posee una capacidad de \SI{1}{\kilo\byte}, organizada en celdas de 8 bits. Cada celda puede ser escrita y borrada eléctricamente un número limitado de veces, típicamente en el orden de $10^5$ ciclos, según lo especificado en el \textit{datasheet} del dispositivo. Por este motivo, es importante administrar cuidadosamente las operaciones de escritura para evitar el desgaste prematuro de las celdas de memoria. El acceso a la EEPROM se realiza mediante instrucciones específicas del microcontrolador o a través de las funciones provistas por la librería \texttt{<avr/eeprom.h>} de AVR-LibC, que abstraen los procesos de lectura y escritura en bloques o bytes individuales.
+En el microcontrolador ATmega328P, este tipo de memoria tiene una capacidad de \SI{1}{\kilo\byte} organizada en celdas de 8 bits, cada una de las cuales puede ser escrita y borrada eléctricamente un número limitado de veces —del orden de $10^5$ ciclos— según las especificaciones del fabricante. Debido a esta limitación, es recomendable minimizar las operaciones de escritura para evitar el desgaste prematuro de las celdas y asegurar la longevidad del dispositivo.
 
 \vspace{1em}
 
-Dentro del sistema desarrollado, la EEPROM se utiliza para el \textbf{almacenamiento persistente de contraseñas}. Al iniciar el dispositivo, el programa lee desde esta memoria la última contraseña registrada; si los datos no existen o no son válidos, se inicializa con una clave predeterminada. Cuando el usuario cambia su contraseña a través de la interfaz, el nuevo valor se escribe en la EEPROM, garantizando que permanezca disponible después de un apagado. Este mecanismo asegura tanto la continuidad funcional del sistema como la independencia de la memoria volátil, permitiendo que la información sensible se mantenga protegida y accesible de manera confiable a lo largo del tiempo.
+La EEPROM se utiliza comúnmente en sistemas embebidos para conservar información que debe persistir entre encendidos, como parámetros de calibración, configuraciones del sistema o datos de usuario. Su manejo puede realizarse mediante instrucciones específicas del microcontrolador o por medio de librerías de más alto nivel que abstraen las operaciones de lectura y escritura, garantizando un acceso controlado y confiable a la memoria no volátil.
+
 
 
 \subsection{Planificación temporal y multitarea cooperativa}
 
-En los sistemas embebidos, la ejecución simultánea de múltiples procesos suele requerir una estrategia de \textbf{planificación temporal} que permita atender diversas tareas sin provocar bloqueos ni retardos innecesarios. Una de las técnicas más utilizadas en microcontroladores de propósito general, como el ATmega328P, es la \textbf{multitarea cooperativa}, en la cual cada tarea se ejecuta de forma secuencial dentro del ciclo principal (\texttt{main loop}) y cede voluntariamente el control al resto una vez completada su función. A diferencia de la multitarea con planificación por interrupciones o sistemas operativos en tiempo real (RTOS), este enfoque no requiere un cambio de contexto ni la gestión de múltiples pilas, lo que lo hace ideal para aplicaciones de baja complejidad y recursos limitados.
+En los sistemas embebidos, la ejecución de múltiples procesos requiere una estrategia de \textbf{planificación temporal} que permita coordinar distintas tareas sin provocar bloqueos ni retardos innecesarios. Una de las técnicas más empleadas en microcontroladores de propósito general es la \textbf{multitarea cooperativa}, en la cual las tareas se ejecutan de manera secuencial dentro del ciclo principal (\texttt{main loop}) y ceden voluntariamente el control al resto una vez completada su función.
 
 \vspace{1em}
 
-El núcleo de esta técnica se basa en un \textbf{contador global de tiempo}, comúnmente implementado mediante un temporizador de hardware (\textit{timer}) que se incrementa de forma periódica por interrupción. Este contador —por ejemplo, la variable \texttt{millis}— representa el tiempo transcurrido desde el arranque del sistema y permite medir intervalos de manera no bloqueante. Cada tarea compara el tiempo actual con el instante en que fue ejecutada por última vez; si la diferencia supera el periodo asignado, la función correspondiente se vuelve a ejecutar. De este modo, múltiples procesos periódicos pueden coexistir sobre un único temporizador sin interferir entre sí.
+A diferencia de los sistemas con planificación basada en interrupciones o sistemas operativos en tiempo real (RTOS), la multitarea cooperativa no requiere mecanismos de cambio de contexto ni gestión de múltiples pilas, lo que la hace especialmente adecuada para dispositivos con recursos limitados. En este modelo, cada proceso es responsable de ejecutarse rápidamente y permitir la continuidad del flujo general del programa, garantizando un funcionamiento fluido y determinista.
 
 \vspace{1em}
 
-Este método permite, por ejemplo, activar un buzzer, actualizar el estado de un LED, escanear el teclado matricial y refrescar la pantalla LCD de forma concurrente y sincronizada, utilizando un solo temporizador interno. La principal ventaja de este enfoque radica en que elimina el uso de retardos activos (\texttt{\_delay\_ms()}), evitando el \textit{polling} continuo y mejorando la eficiencia general del sistema. Además, al ser determinista y cooperativo, el programador conserva un control explícito sobre la prioridad y el momento de ejecución de cada tarea, lo cual resulta fundamental en sistemas con recursos de hardware limitados y requisitos de respuesta predecibles.
+Esta técnica permite estructurar el programa en módulos independientes que se ejecutan de forma periódica o condicional, favoreciendo un diseño más claro y eficiente. Su simplicidad y bajo consumo de recursos la convierten en una herramienta fundamental en el desarrollo de sistemas embebidos donde la sincronización temporal es crítica y la capacidad de procesamiento es reducida.
+
