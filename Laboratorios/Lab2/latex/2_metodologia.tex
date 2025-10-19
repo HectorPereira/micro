@@ -15,7 +15,7 @@
 \end{itemize}
 
 \subsection{Procedimiento general}
-Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Piano y Cerradura).
+Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Piano y Cerradura) y se abarcó cada consigna de manera individual.
 
 \subsubsection{\textbf{Plotter}}
 
@@ -36,12 +36,12 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
 
     \vspace{1em}
     
-    Para resolver esta limitación, se empleó un diodo emisor de luz RGB como fuente de iluminación controlada. Al iluminar secuencialmente la superficie con luz roja, verde y azul, el sistema obtiene tres mediciones independientes mediante el LDR. Dichos valores, convertidos por el módulo ADC (\textit{Analog-to-Digital Converter}) del microcontrolador ATmega328P, representan las coordenadas $(R, G, B)$ de un punto dentro de un espacio de color tridimensional (Véase anexo~\ref{anexos:lectura_colores}).
+    Para resolver esta limitación, se empleó un diodo emisor de luz RGB como fuente de iluminación controlada. Al iluminar secuencialmente la superficie con luz roja, verde y azul, el sistema obtiene tres mediciones independientes mediante el LDR. Dichos valores, convertidos por el módulo ADC (\textit{Analog-to-Digital Converter}) del microcontrolador ATmega328P, representan las coordenadas $(R, G, B)$ de un punto dentro de un espacio de color tridimensional (véase anexo~\ref{anexos:lectura_colores}).
 
     \vspace{1em}
 
     \paragraph*{\textbf{Calibración y reconocimiento}}---
-    Dado que tanto la respuesta espectral del LDR como la emisión de los LED presentan variaciones no lineales, los valores obtenidos no son directamente proporcionales a las componentes RGB teóricas. No obstante, se implementa un proceso de calibración inicial para contrarrestar estos efectos, donde se miden manualmente los colores de referencia (rojo, verde, azul claro, violeta, morado, amarillo y blanco) y se almacenan sus valores de respeusta RGB de conversión analógica-digital.
+    Dado que tanto la respuesta espectral del LDR como la emisión de los LED presentan variaciones no lineales, los valores obtenidos no son directamente proporcionales a las componentes RGB teóricas. No obstante, se implementa un proceso de calibración inicial para contrarrestar estos efectos, donde se miden manualmente los colores de referencia (rojo, verde, azul claro, violeta, morado, amarillo y blanco) y se almacenan sus valores de respuesta RGB de conversión analógica-digital.
 
     \vspace{1em}
 
@@ -51,19 +51,19 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
     D = \sqrt{(R_m - R_i)^2 + (G_m - G_i)^2 + (B_m - B_i)^2}
     \end{equation}
 
-    donde $(R_m, G_m, B_m)$ representan los valores medidos por el sensor y $(R_i, G_i, B_i)$ corresponden a los valores calibrados de cada color de la hoja de referencia. El color identificado será aquel cuya distancia $D$ sea mínima (Véase anexo~\ref{anexo:reconocimiento_colores}).
+    donde $(R_m, G_m, B_m)$ representan los valores medidos por el sensor y $(R_i, G_i, B_i)$ corresponden a los valores calibrados de cada color de la hoja de referencia. El color identificado será aquel cuya distancia $D$ sea mínima (véase anexo~\ref{anexo:reconocimiento_colores}).
 
     \paragraph*{\textbf{Servomotor y tira LED}}---
-    El servomotor se controla mediante el \textit{Timer1} configurado en modo \textit{Fast PWM} a 50\,Hz, generando pulsos de entre 1 y 2\,ms para posicionar el eje según el color identificado. Cada ángulo se calcula a partir del valor del registro \texttt{OCR1A}, que define el tiempo en alto del ciclo PWM (Véase anexo~\ref{anexo:servomotor}).
+    El servomotor se controla mediante el \textit{Timer1} configurado en modo \textit{Fast PWM} a 50\,Hz, generando pulsos de entre 1 y 2\,ms para posicionar el eje según el color identificado. Cada ángulo se calcula a partir del valor del registro \texttt{OCR1A}, que define el tiempo en alto del ciclo PWM (véase anexo~\ref{anexo:servomotor}).
 
     \vspace{1em}
 
-    La visualización del color se realiza con una tira de LED WS2812, donde cada diodo recibe datos digitales codificados en tres bytes (RGB). Para cumplir con los tiempos estrictos del protocolo, se emplearon instrucciones \texttt{asm volatile} que garantizan una sincronización precisa en la transmisión de pulsos. Así, al identificar un color, el sistema replica su tonalidad en la tira LED y mueve el servomotor al ángulo correspondiente, integrando una respuesta visual y mecánica simultánea (Véase anexo~\ref{anexo:tira_led}).
+    La visualización del color se realiza con una tira de LED WS2812, donde cada diodo recibe datos digitales codificados en tres bytes (RGB). Para cumplir con los tiempos estrictos del protocolo, se emplearon instrucciones \texttt{asm volatile} que garantizan una sincronización precisa en la transmisión de pulsos. Así, al identificar un color, el sistema replica su tonalidad en la tira LED y mueve el servomotor al ángulo correspondiente, integrando una respuesta visual y mecánica simultánea (véase anexo~\ref{anexo:tira_led}).
 
     \vspace{1em}
 
     \paragraph*{\textbf{USART}}---
-   A través de USART se comunican los valores del sensor y el color detectado hacia una interfaz serial. Se utiliza un buffer circular para transmisión continua sin bloqueo, y la función auxiliar \texttt{UTOA} convierte los datos numéricos del ADC en texto ASCII antes de su envío. De esta forma, el sistema comunica en tiempo real los valores $(R, G, B)$ medidos, el color identificado y el ángulo del servomotor, facilitando el monitoreo y la calibración del sistema (Véase anexo~\ref{anexo:USART}).
+   A través de USART se comunican los valores del sensor y el color detectado hacia una interfaz serial. Se utiliza un buffer circular para transmisión continua sin bloqueo, y la función auxiliar \texttt{UTOA} convierte los datos numéricos del ADC en texto ASCII antes de su envío. De esta forma, el sistema comunica en tiempo real los valores $(R, G, B)$ medidos, el color identificado y el ángulo del servomotor, facilitando el monitoreo y la calibración del sistema (véase anexo~\ref{anexo:USART}).
 
     \vspace{1em}
     
@@ -104,7 +104,7 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
 
     \vspace{1em}
 
-    La reproducción simultánea de varios instrumentos en un entorno digital requiere el manejo de múltiples secuencias de notas en paralelo. Para lograrlo sin recurrir al uso de ciclos de espera activos (\textit{polling}), se utilizan interrupciones asociadas a los temporizadores. De este modo, el microcontrolador puede controlar la duración y el inicio de cada nota de forma independiente y precisa, optimizando el uso del procesador y permitiendo la ejecución de tareas concurrentes, como la lectura de entradas o la comunicación serial, mientras la música continúa sonando de manera autónoma (véase anexo~\ref{anexo:reproduccion_pista}).
+    La reproducción simultánea de varios instrumentos en un entorno digital requiere el manejo de múltiples secuencias de notas en paralelo. Para lograrlo sin recurrir al uso de ciclos de espera activos (\textit{polling}), se utilizan interrupciones asociadas a los temporizadores. De este modo, el microcontrolador puede controlar la duración y el inicio de cada nota de forma independiente y precisa, optimizando el uso del procesador y permitiendo la ejecución de tareas concurrentes, como la lectura de entradas o la comunicación serial, mientras la música continúa sonando de manera autónoma (véase anexo~\ref{anexo:reproduccion_pista}).9
 
     \vspace{1em}
 
@@ -113,7 +113,7 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
 
     \vspace{1em}
 
-    Finalmente, a este sistema se integra funcionalidad USART para mostrar un menú al usuario por consola y permitir comandar el funcionamiento del sistema de manera sencilla. El usuario es presentado con 3 opciones: [1]: Reproducir canción 1, [2]: Reproducir cancion 2, [P]: Cambiar a modo piano. Mediante variables de control se deshabilita la funcionalidad de piano durante la reproducción de canciones, y vice versa, al cambiar al modo piano se detiene y reinician las pistas que se estaban reproduciendo (véase anexo~\ref{anexo:piano_USART}).
+    Finalmente, a este sistema se integra funcionalidad USART para mostrar un menú al usuario por consola y permitir comandar el funcionamiento del sistema de manera sencilla. El usuario es presentado con 3 opciones: [1]: Reproducir canción 1, [2]: Reproducir canción 2, [P]: Cambiar a modo piano. Mediante variables de control se deshabilita la funcionalidad de piano durante la reproducción de canciones, y vice versa, al cambiar al modo piano se detiene y reinician las pistas que se estaban reproduciendo (véase anexo~\ref{anexo:piano_USART}).
 
     \vspace{1em}
 
@@ -132,7 +132,7 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
     \begin{figure}[H]
         \centering
         \includegraphics[width=0.9\columnwidth]{anexos/cerradura/DiagramaFlujo.png}
-        \caption{Diagrama de flujo de programa de cerradura. Fuente: elaboración própia}
+        \caption{Diagrama de flujo de programa de cerradura. Fuente: elaboración propia}
         \label{fig:lcd_ui}
     \end{figure}
 
