@@ -1,37 +1,50 @@
 \section{Introducción}
 
-% Este laboratorio se enmarca dentro del curso de Microcontroladores, y tiene como objetivo aplicar los conocimientos adquiridos sobre arquitectura AVR y programación en C para el desarrollo de sistemas embebidos funcionales. A diferencia del laboratorio anterior, que se centró en el manejo básico de periféricos y estructuras de control, en esta segunda instancia se busca integrar varios módulos interactivos en un entorno de tiempo real.
+El presente laboratorio se desarrolla en el marco del curso de Microcontroladores, teniendo como objetivo principal la aplicación práctica de los conocimientos teóricos adquiridos sobre la arquitectura AVR y la programación en lenguaje C. A diferencia de los ejercicios iniciales, orientados al manejo individual de periféricos, esta instancia propone el diseño e integración de varios módulos funcionales que operan en un entorno de tiempo real, permitiendo comprender la interacción entre hardware y software dentro de un sistema embebido.  
 
 \subsection{Propósito del laboratorio}
 
-% El objetivo principal es diseñar, programar e integrar distintos subsistemas sobre el microcontrolador ATmega328P, demostrando el uso combinado de entradas analógicas y digitales, comunicación serial, control por PWM, almacenamiento no volátil y planificación de tareas. Cada módulo implementado aborda un conjunto diferente de competencias, permitiendo comprender el funcionamiento coordinado del hardware y el software en un entorno embebido.
+El propósito central es diseñar, programar e integrar subsistemas independientes sobre el microcontrolador ATmega328P, abordando diversas interfaces de entrada y salida, comunicación serial, control de actuadores por \textit{Pulse Width Modulation} (PWM), adquisición analógica de señales y almacenamiento no volátil mediante memoria EEPROM.  
+A través de este trabajo se busca consolidar la capacidad de desarrollar proyectos embebidos que respondan de forma determinista a eventos externos y gestionen múltiples tareas concurrentes con recursos limitados.
+
+\subsection{Objetivos}
+
+\textbf{Objetivo general:}
+\begin{itemize}
+    \item Integrar y programar distintos módulos electrónicos basados en el microcontrolador ATmega328P, aplicando conceptos de arquitectura AVR, control de periféricos y desarrollo de sistemas embebidos en tiempo real.
+\end{itemize}
+
+\textbf{Objetivos específicos:}
+\begin{itemize}
+    \item Implementar un sistema de control cartesiano (plotter) mediante servomotores y comunicación serial.
+    \item Desarrollar un sistema de detección de colores que combine medición analógica, control PWM y visualización RGB.
+    \item Diseñar un piano electrónico con reproducción de notas y melodías almacenadas utilizando temporizadores e interrupciones.
+    \item Construir una cerradura digital que permita el ingreso y cambio de contraseñas almacenadas en la memoria EEPROM.
+    \item Aplicar principios de modularidad y diseño estructurado en C para lograr una integración eficiente entre hardware y software.
+\end{itemize}
 
 \subsection{Descripción general de los módulos}
 
-% El laboratorio se divide en cuatro desarrollos principales:
+El laboratorio se divide en cuatro implementaciones principales:
 
-    % Plotter: sistema de control cartesiano para movimiento de ejes y trazado de figuras.
-
-    % Colores: sensor RGB con medición por LDR, control de servomotor y replicación visual en una tira LED.
-
-    % Piano: reproducción de melodías mediante timers, interrupciones y manejo de frecuencias.
-
-    % Cerradura electrónica: sistema de acceso con contraseña almacenada en EEPROM, teclado matricial y pantalla LCD.
+\begin{itemize}
+    \item \textbf{Plotter:} sistema de control cartesiano para el movimiento coordinado de ejes y el trazado de figuras mediante servomotores.
+    \item \textbf{Colores:} sensor de detección cromática basado en una fotocelda (LDR), control de servomotor para posicionamiento angular y visualización del color identificado en una tira LED WS2812.
+    \item \textbf{Piano:} instrumento electrónico que reproduce notas musicales y melodías almacenadas en memoria utilizando temporizadores e interrupciones.
+    \item \textbf{Cerradura electrónica:} sistema de acceso protegido mediante contraseña, con interfaz de teclado matricial, pantalla LCD y almacenamiento persistente en EEPROM.
+\end{itemize}
 
 \subsection{Competencias desarrolladas}
 
-% A través de estos proyectos se ejercitan competencias fundamentales en ingeniería mecatrónica, tales como:
+Durante el desarrollo de los módulos se aplicaron y fortalecieron competencias clave en el ámbito de la ingeniería mecatrónica, tales como:
 
-    % Programación estructurada en lenguaje C sobre microcontroladores AVR.
+\begin{itemize}
+    \item Programación estructurada en lenguaje C sobre microcontroladores de arquitectura AVR.
+    \item Configuración y uso de temporizadores e interrupciones para la ejecución de tareas simultáneas.
+    \item Aplicación de PWM en el control de servomotores y generación de señales de audio.
+    \item Implementación de comunicación serial (USART) para intercambio de datos y monitoreo del sistema.
+    \item Manejo de memoria EEPROM para almacenamiento no volátil de información.
+    \item Diseño de máquinas de estados para la gestión de la interfaz usuario–sistema.
+\end{itemize}
 
-    % Uso de interrupciones y temporizadores para tareas concurrentes.
 
-    % Aplicación de PWM para control de actuadores.
-
-    % Implementación de comunicación serial (USART) y almacenamiento persistente (EEPROM).
-
-    % Diseño de máquinas de estado para gestionar la interacción con el usuario.
-
-% Cierre o enfoque global
-
-% En conjunto, el laboratorio permite afianzar la comprensión del funcionamiento interno del ATmega328P y su ecosistema de periféricos, aplicando conceptos de electrónica digital, control en tiempo real y diseño de interfaces. El resultado es un conjunto de sistemas autónomos capaces de procesar información, interactuar con el entorno y ofrecer respuestas predecibles y seguras.
