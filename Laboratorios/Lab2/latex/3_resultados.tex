@@ -65,11 +65,19 @@ En esta sección se presentan los resultados obtenidos durante la implementació
         \label{fig:usart_terminal}
     \end{figure}
 
+
     \paragraph*{\textbf{Simulación}}---
-    % La simulacion en proteus funcionó ok, se ve como al variar los valores del LDR se producen variaciones en la salida del dispositivo
 
-    % Figura simulacion
+    La simulación en Proteus permitió verificar el funcionamiento lógico del sistema antes de su implementación física. En el entorno virtual, se replicó el comportamiento del LDR mediante una fuente de voltaje variable que simulaba distintos niveles de iluminación. Al variar dicho valor, se observaron cambios coherentes en la salida del ADC, en la posición del servomotor y en el color representado por la tira de LEDs. Esto confirmó la correcta interacción entre los módulos de lectura, procesamiento y visualización del sistema. La simulación también permitió ajustar los tiempos de respuesta y verificar la estabilidad del ciclo de lectura sin la influencia de ruido externo.
 
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{anexos/colores/simulacion.png}
+        \caption{Simulación en Proteus del sistema de detección de color. 
+        Se observa la variación de la señal del LDR y la correspondiente respuesta del servomotor y de la tira LED. 
+        Fuente: elaboración propia.}
+        \label{fig:color_simulacion}
+    \end{figure}
 
 \subsubsection{\textbf{Piano}}---
     \paragraph*{\textbf{Generación de frecuencias}}---
@@ -97,9 +105,21 @@ En esta sección se presentan los resultados obtenidos durante la implementació
     \end{figure}
     
     \paragraph*{\textbf{Simulación}}---
-    % La simulacion en proteus funciono ok, se reproducian los diferentes sonidos y demas. Se optó por utilizar el atmega como tal en lugar de el modulo arduino uno de libreria ya que este no detectaba interrupciones PCINT
-    
-    % captura de la simulacion
+
+    La simulación del sistema de piano electrónico se realizó en el entorno \textbf{Proteus}, verificando el correcto funcionamiento de la generación de tonos, las interrupciones y la respuesta de los pulsadores. Durante las pruebas se observó que el sistema reproducía adecuadamente las diferentes notas musicales al accionar cada tecla, así como las melodías preprogramadas controladas mediante comandos USART.
+
+    Para obtener un comportamiento más fiel al hardware real, se optó por utilizar el microcontrolador \textbf{ATmega328P} de manera independiente en lugar del módulo \textit{Arduino Uno} provisto por la librería de Proteus, ya que este último presentaba inconvenientes en la detección de interrupciones por cambio de pin (\texttt{PCINT}). 
+    Con el modelo del microcontrolador configurado directamente, las interrupciones se gestionaron correctamente y la simulación mostró una respuesta precisa tanto en el modo manual como en la reproducción automática.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{anexos/piano/simulacion.png}
+        \caption{Simulación en Proteus del sistema de piano electrónico. 
+        Se observa la activación de los pulsadores, la generación de tonos en el buzzer y la respuesta del microcontrolador ATmega328P configurado con interrupciones \texttt{PCINT}. 
+        Fuente: elaboración propia.}
+        \label{fig:piano_simulacion}
+    \end{figure}
+
 
 
 
@@ -123,13 +143,23 @@ En esta sección se presentan los resultados obtenidos durante la implementació
     \paragraph*{\textbf{Planificador de tareas}}---
     \paragraph*{\textbf{Almacenamiento en EEPROM}}---
     \paragraph*{\textbf{Simulación}}---
-    % no se pudo encontrar la manera de simular en proteus, 
-    % la pantalla LCD I2C no tenia respuesta alguna del sistema
-    % en picsimlab funciono correctamente, pero para probar el guardado en memoria EEPROM era necesario reiniciar el programa utilizando el boton DEGUB, ya que el boton de reset causaba que el teclado dejara de funcionar. Durante la implementacion fisica no se encontraron estos problemas.
 
-    % Figura simulacion
+    Durante la etapa de simulación se presentaron algunas limitaciones al intentar reproducir el comportamiento del sistema en Proteus. En particular, la pantalla LCD con interfaz I2C no respondió correctamente a las señales generadas por el microcontrolador, impidiendo observar la interacción esperada con el usuario. 
+    Para solventar esta dificultad, se empleó el entorno \textbf{PicSimLab}, donde el sistema logró ejecutarse con normalidad y se verificó la funcionalidad general del teclado matricial, la pantalla LCD, los indicadores LED y el buzzer.
 
-    
+    Durante las pruebas en PicSimLab se comprobó que la lectura del teclado y la navegación entre estados de la máquina de interfaz funcionaban de manera estable. Sin embargo, para evaluar el almacenamiento en memoria EEPROM fue necesario reiniciar la simulación mediante el botón \textit{DEBUG}, ya que el botón de \textit{reset} causaba la desactivación parcial del teclado. Este inconveniente no se presentó en la implementación física, donde el sistema operó correctamente, conservando la contraseña y recuperándola tras cada reinicio.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{anexos/cerradura/simulacion.png}
+        \caption{Simulación en PicSimLab del sistema de cerradura electrónica. 
+        Se observan los periféricos principales: teclado matricial, pantalla LCD, LEDs indicadores y buzzer, 
+        así como la correcta ejecución de las rutinas de interfaz y control de estado. 
+        Fuente: elaboración propia.}
+        \label{fig:cerradura_simulacion}
+    \end{figure}
+
+        
 
 
 
