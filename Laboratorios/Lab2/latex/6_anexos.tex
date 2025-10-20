@@ -6,7 +6,7 @@
 \paragraph{Configuracion de USART}---\\
 \begin{lstlisting}[language=C, caption={Configuracion de USART}]
 #define F_CPU 16000000UL    // Frecuencia del reloj del micro (16 MHz)
-#define BAUD 9600           // Velocidad de transmisión (baudios)
+#define BAUD 9600           // Velocidad de transmision (baudios)
 #define BRC ((F_CPU / 16 / BAUD) - 1)   // Valor para UBRR
 #define TX_BUFFER_SIZE 128
 #define RX_BUFFER_SIZE 128  void appendSerial(char c)
@@ -30,7 +30,7 @@ ISR(USART_UDRE_vect){
 		UDR0 = serialBuffer[serialReadPos];
 		serialReadPos = (serialReadPos + 1) % TX_BUFFER_SIZE;
 		} else {
-		UCSR0B &= ~(1 << UDRIE0);  // nada más que enviar
+		UCSR0B &= ~(1 << UDRIE0);  // nada mas que enviar
 	}
 }
 char peekChar(void)
@@ -174,14 +174,14 @@ void peurbas(char c){
 		case 'j': centrar(); break;
 		default: break;
 	}
+}
 
 \end{lstlisting}
 
-}
 
 \paragraph{Calculo trigonometrico}---\\
 \begin{lstlisting}[language=C, caption={Calculo trigonometrico}]
-// ---- Generar tablas seno/cos 0–90° ----
+// ---- Generar tablas seno/cos 0-90 ----
 void precompute_semicirculo_arrays_90(uint16_t I_ms, uint16_t tR90[90], uint16_t tU90[90]) {
 	for (uint16_t i = 0; i < 90; ++i) {
 		float th = (float)i * (float)M_PI / 180.0f;
@@ -193,21 +193,21 @@ void precompute_semicirculo_arrays_90(uint16_t I_ms, uint16_t tR90[90], uint16_t
 		tU90[i] = (uint16_t)lrintf(s * (float)I_ms);
 	}
 }
-// ---- Dibujar círculo completo ----
+// ---- Dibujar circulo completo ----
 void Hacer_circulo(void) {
-	const uint16_t I_ms = 90;      // Duración base de cada paso
-	uint16_t tR90[90], tU90[90];   // Tablas seno/cos de 0–90°
+	const uint16_t I_ms = 90;      // Duracion base de cada paso
+	uint16_t tR90[90], tU90[90];   // Tablas seno/cos de 0 90
 
 	precompute_semicirculo_arrays_90(I_ms, tR90, tU90);
 
 	delay_ms_timer1(100);
 	cli();
 
-	Subir_s();   // Baja el lápiz
+	Subir_s();   // Baja el lapiz
 
 	for (uint16_t ang = 0; ang < 360; ++ang) {
-		uint16_t q = ang / 90;      // Cuadrante actual (0–3)
-		uint16_t idx = ang % 90;    // Índice dentro del cuadrante (0–89)
+		uint16_t q = ang / 90;      // Cuadrante actual (0 3)
+		uint16_t idx = ang % 90;    // indice dentro del cuadrante (0-89)
 
 		switch (q) {
 			case 0: // Q1: UP + RIGHT
@@ -261,7 +261,7 @@ void Hacer_circulo(void) {
 drive.mount('/content/drive')
 
 # Ruta de la imagen
-image_path = '/content/drive/MyDrive/Semestre 4/Forma-Flor.png'  # Cambiá esto si tu imagen está en otra carpeta
+image_path = '/content/drive/MyDrive/Semestre 4/Forma-Flor.png'
 
 # Cargar la imagen
 img = Image.open(image_path)
@@ -271,7 +271,7 @@ img_cv = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
 gray = cv2.cvtColor(img_cv, cv2.COLOR_BGR2GRAY)
 blur = cv2.GaussianBlur(gray, (5, 5), 0)
 
-# Detección de bordes con Canny
+# Deteccion de bordes con Canny
 edges = cv2.Canny(blur, 50, 150)
 
 # Encontrar contornos
@@ -335,7 +335,7 @@ if len(contours) > 0:
 
     print(f"Archivo 'movimientos2.txt' guardado con {len(movimientos2)} pasos.")
 else:
-    print("No se detectó ningún contorno.")
+    print("No se detecto ningun contorno.")
 
 # ======================================================
 # Agrupar cada 15 elementos y agregar coma final
@@ -356,7 +356,7 @@ for i in range(0, len(direcciones), n):
 with open("direcciones_comas.txt", "w") as f:
     f.write("\n".join(nuevas_lineas))
 
-print(f"Listo : Se escribieron {len(direcciones)} movimientos en {len(nuevas_lineas)} líneas.")
+print(f"Listo : Se escribieron {len(direcciones)} movimientos en {len(nuevas_lineas)} lineas.")
 
 # Leer y mostrar contenido
 with open("direcciones_comas.txt", "r") as f:
@@ -373,13 +373,12 @@ void ejecutar_forma(const uint16_t *tablaDir, uint16_t size) {
 	_delay_ms(1000);  // Espera inicial
 
 	for (uint16_t i = 0; i < size; i++) {
-		cmd = pgm_read_byte(&tablaDir[i]);   // dirección
+		cmd = pgm_read_byte(&tablaDir[i]); 
 		
 
 		if (cmd == STOP)
 		break;
 
-		// Ejecutar la acción según comando
 		switch (cmd) {
 			case UP:            Subir(); break;
 			case DOWN:          Bajar(); break;
