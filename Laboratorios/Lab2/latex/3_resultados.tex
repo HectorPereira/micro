@@ -4,11 +4,10 @@ En esta sección se presentan los resultados obtenidos durante la implementació
 \subsection{Resultados por módulo}
 
 \subsubsection{\textbf{Plotter}}---
-% Explicá cómo se verificó el movimiento (por ejemplo, ejecución de trayectorias simples o figuras predefinidas).
-\paragraph*{\textbf{USART}}
+\paragraph*{\textbf{Comunicación USART}}
 
-Para configurar USART se uso una configuracion de buffer circular tanto para la recepcion como para el envio de datos al atmega(Vease ~\ref{anexo:Configuracion de USART}).
-El menu de opciones para dibujar figuras es el que se puede ver en la figura \ref{fig:Menu}.
+Para configurar USART se uso una configuracion de buffer circular tanto para la recepcion como para el envio de datos al atmega (véase anexo~\ref{anexos:config_USART}).
+El menu de opciones para dibujar figuras es el que se puede ver en la figura~\ref{fig:Menu}.
 
  \begin{figure}[H]
         \centering
@@ -19,11 +18,11 @@ El menu de opciones para dibujar figuras es el que se puede ver en la figura \re
 
 \paragraph*{\textbf{Declaracion de variables globales}}
 
-Para controlar el movimiento del plotter de manera adecuada, es necesario considerar que las señales de activación de los motores se determinan según la tabla \ref{fig:tab}.
-Con el fin de simplificar el código y su implementación, se emplearon variables globales, presentadas en la tabla \ref{tab:direcciones}, las cuales representan los diferentes estados de dirección y control.
+Para controlar el movimiento del plotter de manera adecuada, es necesario considerar que las señales de activación de los motores se determinan según la tabla~\ref{fig:tab}.
+Con el fin de simplificar el código y su implementación, se emplearon variables globales, presentadas en la tabla~\ref{tab:direcciones}, las cuales representan los diferentes estados de dirección y control.
 Para garantizar un desplazamiento correcto, cada vez que una de estas variables se asigna a los pines de salida del puerto \texttt{D}, se aplica una operación lógica \texttt{AND}.
 Esto permite aislar los bits correspondientes al movimiento del eje, evitando interferir con las señales destinadas al accionamiento del pistón que eleva o desciende el lápiz, responsable de establecer o interrumpir el contacto con la hoja.
-Se puede ver en anexo ~\ref{anexo:Variables globales}.
+Se puede ver en anexo~\ref{anexo:variables_globales}.
 
  \begin{figure}[H]
         \centering
@@ -59,7 +58,7 @@ Se puede ver en anexo ~\ref{anexo:Variables globales}.
 \end{table}
 
 Para simplemente controlar el selenoide a gusto, en la etapa de pruebas, tambien se implemento un modo de movimiento libre.
-Donde el mismo usuario es el que elige como mover el lapiz en todo momento. Vease anexo ~\ref{Menu de pruebas}.
+Donde el mismo usuario es el que elige como mover el lapiz en todo momento. Vease anexo~\ref{anexo:menu_pruebas}.
 
 
 \paragraph{\textbf{Implementacion del circulo mediante trigonometria}}
@@ -71,14 +70,14 @@ describir el arco del círculo mediante pequeños desplazamientos sucesivos del 
 Siendo modificado unicamente, el tiempo de desplazamiento para subir y bajar el trazo. Es decir se emplean escalones que se van adaptando al angulo del fragmento trazado. 
 
 Para realizar el calculo se empleo la funcion \textbf{void precompute semicirculo arrays 90"}, que se encarga de tomar los angulos comprendidos entre 0 y 90 grados, para pasarlos a radianes cada uno de forma individual. Aplicando seno y coseno para cada angulo, a su vez se le agrega una verificación en caso de que el valor devuelto sea mayor a 1 o menor a 0 (Ya que pierde la utilidad y afecta al trazado, llevandolo fuera del circulo).
-Y asi mutiplicar a \textbf{I ms} por el valor comprendido entre 0 y 1.  Para luego guardar dicho valor en los arreglos \textbf{TR y TU}(En anexo ~\ref{Calculo trigonometrico}).
-De esta forma se varia el tamaño del circulo variando el valor de \textbf{I ms}. Una representacion grafica que ayuda a entender la implementacion, se puede ver en la figura \ref{fig:Demostracion}.
+Y asi mutiplicar a \textbf{I ms} por el valor comprendido entre 0 y 1.  Para luego guardar dicho valor en los arreglos \textbf{TR y TU}( vease anexo~\ref{anexo:calc_trig}).
+De esta forma se varia el tamaño del circulo variando el valor de \textbf{I ms}. Una representacion grafica que ayuda a entender la implementacion, se puede ver en la figura~\ref{fig:demo}.
 
  \begin{figure}[H]
         \centering
         \includegraphics[width=0.9\linewidth]{anexos/Plotter/Demostracion.png}
         \caption{Demostracion}
-        \label{fig:Demostracion}
+        \label{fig:demo}
     \end{figure}
 
 El trazado del círculo se inicia en la función \textbf{Hacer circulo}, la cual completa los 360° utilizando los mismos valores de coordenadas para los cuatro cuadrantes. La diferencia entre cada uno radica únicamente en el tipo de movimiento aplicado.
@@ -89,7 +88,7 @@ De esta forma, reutilizando los mismos cálculos trigonométricos y variando ún
 
 Dado que la implementación se realizó en Google Colab, se incorporaron librerias específicas para acceder a imágenes almacenadas en Google Drive. El flujo de procesamiento inicia cargando la imagen desde Drive y convirtiéndola, mediante \textit{Pillow} (PIL), en un objeto manipulable con metodos que señalan color, angulo, etc; posteriormente, se transforma a una matriz \textbf{NumPy} para operar píxel a píxel, donde cada elemento representa un color en el espacio \textbf{RGB}.
 
-A continuación, la imagen se convierte a escala de grises con \textbf{cv2.cvtColor} y se aplica un suavizado con \textbf{cv2.GaussianBlur} para reducir ruido y facilitar la detección de bordes. Luego, se ejecuta el detector de bordes (\textbf{cv2.Canny}) y se obtienen los contornos mediante \texttt{cv2.findContours}; para visualización, se dibuja el contorno externo sobre la imagen original. El código completo de este procesamiento se presenta en ~\ref{Deteccion de contorno}.
+A continuación, la imagen se convierte a escala de grises con \textbf{cv2.cvtColor} y se aplica un suavizado con \textbf{cv2.GaussianBlur} para reducir ruido y facilitar la detección de bordes. Luego, se ejecuta el detector de bordes (\textbf{cv2.Canny}) y se obtienen los contornos mediante \texttt{cv2.findContours}; para visualización, se dibuja el contorno externo sobre la imagen original. El código completo de este procesamiento se presenta en el anexo~\ref{anexo:det_contorno}.
 En este punto, se recorren los contornos extraídos de la imagen y se traducen a una secuencia de comandos adaptados a las variables globales del \textit{plotter}. Primero se verifica que exista al menos un contorno y, para cada uno, se descartan los casos degenerados con menos de dos puntos (no permiten definir un desplazamiento). Acto seguido, se inserta el comando \texttt{SOLENOID\_DOWN} para iniciar el trazado con el lápiz en contacto.
 
 Luego, el algoritmo itera punto a punto sobre cada contorno, tomando pares consecutivos \((x_1,y_1)\) y \((x_2,y_2)\). A partir de las diferencias dy y dx
@@ -97,7 +96,7 @@ se determina una etiqueta de dirección entre ocho posibles (cardinales y diagon
 
 Una vez procesados todos los segmentos del contorno, se añade SOLENOID\_UP para levantar el lápiz y finalizar el trazo de esa forma. El resultado es una cadena de comandos \emph{no bloqueante} que codifica el recorrido del contorno con el solenoide coordinado.
 
-La secuencia de movimientos se almacena como cadena de comandos en un archivo .txt para su posterior uso en el firmware del \textbf{plotter}. Finalmente, con el fin de facilitar la carga manual en la LUT, los elementos se formatean en renglones de 15 entradas, separados por comas. La implementación de este formateo se muestra en ~\ref{Trazado en txt}, y un ejemplo del contorno extraído puede observarse en la figura \ref{fig:contotno}.
+La secuencia de movimientos se almacena como cadena de comandos en un archivo .txt para su posterior uso en el firmware del \textbf{plotter}. Finalmente, con el fin de facilitar la carga manual en la LUT, los elementos se formatean en renglones de 15 entradas, separados por comas. La implementación de este formateo se muestra en el anexo~\ref{anexo:trazado_txt}, y un ejemplo del contorno extraído puede observarse en la figura~\ref{fig:contotno}.
  
 
 \begin{figure}[H]
@@ -111,9 +110,9 @@ La secuencia de movimientos se almacena como cadena de comandos en un archivo .t
 
 Para ejecutar el trazado en el plotter se empleo la funcion \textbf{Ejecutar trazado}.
 Que toma el arreglo declarado en la LUT para la figura correspondiente. Y evalua cada elemento hasta encontrar un STOP, en cada elemento evaluando va seteando las salidas del puerto D. Para saber que tiene que hacer se utiliza un simple Switch case. 
-Se puede ver la funcion en el anexo ~\ref{Funcion de trazado}. 
+Se puede ver la funcion en el anexo~\ref{anexo:funcion_trazado}. 
 
-Las figuras representadas mediante este metodo, fueron el Murcielago, La flor y el circulo. En las figuras \ref{fig:M},\ref{fig:c} y \ref{fig:co} se puede ver cada una correspondiente.
+Las figuras representadas mediante este metodo, fueron el Murcielago, La flor y el circulo. En las figuras~\ref{fig:M},~\ref{fig:c} y~\ref{fig:co} se puede ver cada una correspondiente.
 
 \begin{figure}[H]
         \centering
@@ -141,7 +140,7 @@ Las figuras representadas mediante este metodo, fueron el Murcielago, La flor y 
 
 Para el triángulo se reutilizaron las funciones de movimiento previamente descritas, parametrizando el tiempo de activación para cada tramo. La figura corresponde a un triángulo isósceles: se asignó un tiempo específico para la línea de la base y otro para cada uno de los dos lados restantes. En la práctica, se observó un ligero retardo de respuesta durante el trazado de la base que tendía a desalinear el vértice de cierre; para compensarlo, se incrementó levemente el tiempo de la base respecto del de los catetos, garantizando el cierre geométrico del contorno.
 
-La imagen del triángulo obtenido se presenta en \ref{fig:Tria}, y la función correspondiente se incluye en el anexo ~\ref{Ejecutar Triangulo}.
+La imagen del triángulo obtenido se presenta en la figura~\ref{fig:Tria}, y la función correspondiente se incluye en el anexo~\ref{anexo:triangulo}.
 
 \begin{figure}[H]
         \centering
@@ -154,16 +153,11 @@ La imagen del triángulo obtenido se presenta en \ref{fig:Tria}, y la función c
 
 \paragraph{\textbf{Cruz}}
 
-Para la cruz se empleo el codigo que se puede ver en ~\ref{Ejecutar Cruz}. Se utilizaron los movimientos en diagonal del plotter, moviendo para una diagonal hasta llegar al final. 
+Para la cruz se empleo el codigo que se puede ver en el anexo~\ref{anexo:cruz}. Se utilizaron los movimientos en diagonal del plotter, moviendo para una diagonal hasta llegar al final. 
 Volver al medio de esa linea, y ahi ejecutar la segunda diagonal. 
 
-El video de todas las figuras juntas se puede encontrar en el drive del laboratorio.
-% Mostrá fotos o diagramas de movimiento, si tenés.
-% Comentá observaciones: velocidad, precisión, limitaciones por USART.
+El video de todas las figuras juntas se puede encontrar en el drive del laboratorio (vease anexo~\ref{anexo:drive}).
 
-% 💬 Ejemplo:
-
-% El plotter ejecutó correctamente trayectorias lineales y circulares generadas desde un script en Python. Se comprobó que, al reducir la tasa de envío por USART, la respuesta del sistema fue más fluida y sin interrupciones perceptibles.
 
 \subsubsection{\textbf{Colores}}---
 

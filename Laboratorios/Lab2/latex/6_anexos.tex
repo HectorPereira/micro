@@ -1,9 +1,12 @@
 \section{Anexos}
 
+\subsection{Drive de Laboratorio}
+La carpeta de Google Drive correspondiente a este laboratorio puede encontrarse en \url{https://drive.google.com/drive/folders/1fylHKdJC3ad7wB_ZZz2fyQ-oS7G_49QM?usp=sharing}. Allí encontrará evidencias del trabajo realizado durante esta actividad.
+
 \subsection{Fragmentos de codigo}
 
 \subsubsection{\textbf{Plotter}}---
-\paragraph{Configuracion de USART}---\\
+\paragraph{Configuracion de USART}\label{anexos:config_USART}---\\
 \begin{lstlisting}[language=C, caption={Configuracion de USART}]
 #define F_CPU 16000000UL    // Frecuencia del reloj del micro (16 MHz)
 #define BAUD 9600           // Velocidad de transmision (baudios)
@@ -79,7 +82,7 @@ ISR(USART_RX_vect)
 
 
 
-\paragraph{Variables globales - PORTD}---\\
+\paragraph{Variables globales}\label{anexo:variables_globales}---\\
 \begin{lstlisting}[language=C, caption={Variables globales}]
 // Direcciones base
 #define SOLENOIDDOWN   1
@@ -156,7 +159,7 @@ void ArribaDerecha(void){
 \end{lstlisting}
 
 
-\paragraph{Menu de pruebas}---\\
+\paragraph{Menu de pruebas}\label{anexo:menu_pruebas}---\\
 \begin{lstlisting}[language=C, caption={Menu de pruebas}]
 
 void peurbas(char c){
@@ -179,7 +182,7 @@ void peurbas(char c){
 \end{lstlisting}
 
 
-\paragraph{Calculo trigonometrico}---\\
+\paragraph{Calculo trigonometrico}\label{anexo:calc_trig}---\\
 \begin{lstlisting}[language=C, caption={Calculo trigonometrico}]
 // ---- Generar tablas seno/cos 0-90 ----
 void precompute_semicirculo_arrays_90(uint16_t I_ms, uint16_t tR90[90], uint16_t tU90[90]) {
@@ -255,7 +258,7 @@ void Hacer_circulo(void) {
 \end{lstlisting}
 
 
-\paragraph{Deteccion de contorno}---\\
+\paragraph{Deteccion de contorno}\label{anexo:det_contorno}---\\
 \begin{lstlisting}[language=C, caption={Deteccion de contorno}]
 #Google Drive
 drive.mount('/content/drive')
@@ -284,7 +287,7 @@ cv2_imshow(img_with_contours)
 \end{lstlisting}
 
 
-\paragraph{Trazado en txt}---\\
+\paragraph{Trazado en txt}\label{anexo:trazado_txt}---\\
 \begin{lstlisting}[language=C, caption={Trazado en txt}]
 # ======================================================
 # Generar secuencia de movimientos 
@@ -365,7 +368,7 @@ with open("direcciones_comas.txt", "r") as f:
 print(content)
 \end{lstlisting}
 
-\paragraph{Funcion de trazado}---\\
+\paragraph{Funcion de trazado}\label{anexo:funcion_trazado}---\\
 \begin{lstlisting}[language=C, caption={Funcion de trazado}]
 void ejecutar_forma(const uint16_t *tablaDir, uint16_t size) {
 	uint8_t cmd;
@@ -405,7 +408,7 @@ void ejecutar_forma(const uint16_t *tablaDir, uint16_t size) {
 \end{lstlisting}
 
 
-\paragraph{Ejecutar Triangulo}---\\
+\paragraph{Ejecutar Triangulo}\label{anexo:triangulo}---\\
 \begin{lstlisting}[language=C, caption={Ejecutar Triangulo}]
  void dibujar_triangulo(void){
 	
@@ -423,7 +426,7 @@ void ejecutar_forma(const uint16_t *tablaDir, uint16_t size) {
  }
 \end{lstlisting}
 
-\paragraph{Ejecutar Cruz}---\\
+\paragraph{Ejecutar Cruz}\label{anexo:cruz}---\\
 \begin{lstlisting}[language=C, caption={Ejecutar Cruz}]
  void dibujar_cruz(void){
 	 Subir_s();

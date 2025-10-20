@@ -11,6 +11,7 @@
     \item Buzzers piezoeléctricos (activo y pasivo)
     \item Tira LED WS2812
     \item Resistencias, cables, protoboard
+    \item Plotter 
     \item Software: Microchip Studio, Proteus / PicSimLab, Python (para generación de secuencias del plotter)
 \end{itemize}
 
@@ -18,29 +19,21 @@
 Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Piano y Cerradura) y se abarcó cada consigna de manera individual.
 
 \subsubsection{\textbf{Plotter}}
-    \paragraph*{\textbf{Movimiento del plotter}}
-    El plotter está controlado por un PLC, el cual se encarga de enviar las señales de control a los motores. A su vez, el microcontrolador ATmega328P comunica al PLC las instrucciones necesarias para definir el comportamiento de dichos actuadores.
-    Según sea el movimiento de los ejes accionados por dichos motores, se podrá trazar o dibujar 
-    una figura dependiendo del programa que se ejecute. 
+    \paragraph*{\textbf{Movimiento del plotter}}---
+    El sistema de trazado está controlado por un PLC, encargado de accionar los motores responsables del desplazamiento en los ejes \textit{X} e \textit{Y}. El microcontrolador ATmega328P, mediante comunicación serial, transmite al PLC las instrucciones que determinan el sentido y la magnitud de los movimientos. Según la secuencia enviada, el conjunto de actuadores traza distintas figuras geométricas o patrones definidos en memoria.
 
-    \paragraph*{\textbf{Comunicacion via USART}}
-    Mediante USART se transmite al plc el estado de las salidas, enviando una serie de datos para trazar un dibujo. En el trazado de figuras mas complejas, se reperesenta mediante pixeles individuales y en las formas geometricas simples(Triangulo y Cruz) salidas constantes calculadas por tiempo, para dibujas la linea correspondiente.
-    Para el dibujo del circulo hubieron dos planteamientos dstintos, uno mediante el empleo de formulas trigonometricas y otro mediante la toma de cada bit del circulo individual.
-    
-    \paragraph*{\textbf{Python para crear datos}}
-    Se implemento un codigo en pyhton para poder utilizar imagenes y mediante el uso de sus librerias seleccionar el contorno de la figura e ir trazando su movimiento bit a bit, escribiendolo en un txt que posteriormente se almacenaria en la LUT del atmega328p.
+    \paragraph*{\textbf{Comunicación vía USART}}---
+    La comunicación entre el microcontrolador y el PLC se realiza mediante el protocolo USART, configurado a 9600\,bps y formato 8N1. A través de esta interfaz se transmiten las órdenes de movimiento y los estados de control necesarios para el dibujo. En figuras simples, como cruces o triángulos, los movimientos se generan mediante señales de duración controlada, mientras que en figuras más complejas se utilizan secuencias discretas equivalentes a píxeles. Esta metodología permite equilibrar precisión y tiempo de ejecución según la figura a trazar.
 
-    \paragraph*{\textbf{Dibujo del circulo con seno y coseno}}
-    Mediante el uso de librerías matemáticas en lenguaje C es posible calcular las coordenadas exactas del movimiento en los ejes \textit{X} e \textit{Y} para un radio determinado \( r \). A partir de las funciones trigonométricas \textit{seno} y \textit{coseno}, se obtienen los desplazamientos correspondientes a cada ángulo dentro del primer cuadrante, es decir, entre \( 0^\circ \) y \( 90^\circ \).  
-    Aplicado al plotter, este procedimiento permite determinar con precisión cuánto debe desplazarse el actuador en cada eje, generando así —mediante incrementos angulares muy pequeños— la trayectoria que describe un cuarto de circunferencia. 
-    Repitiendo el proceso 4 veces, cambiando el movimiento en X e Y, entre las combinaciones de Up, Down, Right y Left, se traza un circulo solo utilizando escalones.
-    \vspace{1em}
+    \paragraph*{\textbf{Procesamiento de datos en Python}}---
+    Con el fin de automatizar la generación de trayectorias, se desarrolló un script en \textit{Python} que emplea librerías de procesamiento de imágenes para obtener el contorno de una figura y convertirlo en coordenadas discretas de desplazamiento. Estos datos se almacenan en un archivo \texttt{.txt}, que luego se carga en la memoria del ATmega328P como una \textit{Look-Up Table} (LUT), permitiendo al microcontrolador ejecutar el trazado sin procesamiento adicional durante la ejecución.
+
+    \paragraph*{\textbf{Dibujo del círculo mediante funciones trigonométricas}}---
+    Para el caso del círculo, se implementó un algoritmo alternativo basado en funciones trigonométricas. Utilizando las librerías matemáticas del lenguaje C, se calcularon las coordenadas de desplazamiento para cada incremento angular dentro del rango de \(0^\circ\) a \(90^\circ\). De este modo, el sistema determina los desplazamientos exactos en los ejes \textit{X} e \textit{Y}, generando un cuarto de circunferencia mediante pequeños escalones. Repitiendo el procedimiento en los cuatro cuadrantes y combinando los movimientos \texttt{UP}, \texttt{DOWN}, \texttt{LEFT} y \texttt{RIGHT}, se obtiene la trayectoria completa del círculo.
+
+
     
 \subsubsection{\textbf{Colores}}
-    \paragraph*{\textbf{Idea general}}---
-    El circuito se implementó mediante un divisor resistivo conectado a una de las entradas analógicas del microcontrolador. El color identificado se replica visualmente en la tira de LED WS2812, y el servomotor se posiciona en el ángulo correspondiente (predefinido) al color detectado dentro de la hoja de referencia, integrando así un sistema de selección e identificación de color completamente automatizado.
-
-    \vspace{1em}
 
     \paragraph*{\textbf{Descomposición de colores}}---
     El proceso de reconocimiento de colores se fundamenta en la descomposición de cada color en sus componentes primarias dentro del modelo RGB (\textit{Red}, \textit{Green}, \textit{Blue}). Un color puede representarse como la combinación ponderada de estas tres intensidades, lo que permite su descripción en un espacio tridimensional.  
