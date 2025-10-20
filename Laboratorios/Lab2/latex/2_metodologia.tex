@@ -26,7 +26,7 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
     La comunicación entre el microcontrolador y el PLC se realiza mediante el protocolo USART, configurado a 9600\,bps y formato 8N1. A través de esta interfaz se transmiten las órdenes de movimiento y los estados de control necesarios para el dibujo. En figuras simples, como cruces o triángulos, los movimientos se generan mediante señales de duración controlada, mientras que en figuras más complejas se utilizan secuencias discretas equivalentes a píxeles. Esta metodología permite equilibrar precisión y tiempo de ejecución según la figura a trazar.
 
     \paragraph*{\textbf{Procesamiento de datos en Python}}---
-    Con el fin de automatizar la generación de trayectorias, se desarrolló un script en \textit{Python} que emplea librerías de procesamiento de imágenes para obtener el contorno de una figura y convertirlo en coordenadas discretas de desplazamiento. Estos datos se almacenan en un archivo \texttt{.txt}, que luego se carga en la memoria del ATmega328P como una \textit{Look-Up Table} (LUT), permitiendo al microcontrolador ejecutar el trazado sin procesamiento adicional durante la ejecución.
+    Con el fin de automatizar la generación de trayectorias, se desarrolló un script en \textit{Python} que emplea librerías de procesamiento de imágenes para obtener el contorno de una figura y convertirlo en coordenadas discretas de desplazamiento. Estos datos se almacenan een un archivo \texttt{.txt}, que luego se carga en la memoria del ATmega328P como una Look-Up Table (LUT),, permitiendo al microcontrolador ejecutar el trazado sin procesamiento adicional durante la ejecución.
 
     \paragraph*{\textbf{Dibujo del círculo mediante funciones trigonométricas}}---
     Para el caso del círculo, se implementó un algoritmo alternativo basado en funciones trigonométricas. Utilizando las librerías matemáticas del lenguaje C, se calcularon las coordenadas de desplazamiento para cada incremento angular dentro del rango de \(0^\circ\) a \(90^\circ\). De este modo, el sistema determina los desplazamientos exactos en los ejes \textit{X} e \textit{Y}, generando un cuarto de circunferencia mediante pequeños escalones. Repitiendo el procedimiento en los cuatro cuadrantes y combinando los movimientos \texttt{UP}, \texttt{DOWN}, \texttt{LEFT} y \texttt{RIGHT}, se obtiene la trayectoria completa del círculo.
@@ -44,7 +44,7 @@ Se dividió el sistema en cuatro módulos independientes (Plotter, Colores, Pian
 
     \vspace{1em}
     
-    Para resolver esta limitación, se empleó un diodo emisor de luz RGB como fuente de iluminación controlada. Al iluminar secuencialmente la superficie con luz roja, verde y azul, el sistema obtiene tres mediciones independientes mediante el LDR. Dichos valores, convertidos por el módulo ADC (\textit{Analog-to-Digital Converter}) del microcontrolador ATmega328P, representan las coordenadas $(R, G, B)$ de un punto dentro de un espacio de color tridimensional (véase anexo~\ref{anexos:lectura_colores}).
+    Para resolver esta limitación, se empleó un diodo emisor de luz RGB como fuente de iluminación controlada. Al iluminar secuencialmente la superficie con luz roja, verde y azul, el sistema obtiene tres mediciones independientes mediante el LDR. Dichos valores, convertidos por el módulo ADC (\textit{Analog-to-Digital Converter}) del microcontrolador ATmega328P, representan las coordenadas $(R, G, B)$ de un punto dentro de un espacio de color tridimensional (véase anexo~\ref{anexo:lectura_colores}).
 
     \vspace{1em}
 

@@ -3,160 +3,126 @@ En esta sección se presentan los resultados obtenidos durante la implementació
 
 \subsection{Resultados por módulo}
 
-\subsubsection{\textbf{Plotter}}---
-\paragraph*{\textbf{Comunicación USART}}
+    \subsubsection{\textbf{Plotter}}---
 
-Para configurar USART se uso una configuracion de buffer circular tanto para la recepcion como para el envio de datos al atmega (véase anexo~\ref{anexos:config_USART}).
-El menu de opciones para dibujar figuras es el que se puede ver en la figura~\ref{fig:Menu}.
+    \paragraph*{\textbf{Comunicación USART}}---
+    Para la comunicación entre el microcontrolador y el PLC se implementó una interfaz \textbf{USART} configurada a 9600~bps, 8N1, con un esquema de \textit{buffer circular} tanto para transmisión como para recepción, lo que permitió un flujo de datos continuo sin bloqueo del programa principal (véase anexo~\ref{anexo:config_USART}). 
+    El menú de selección de figuras implementado para el usuario se muestra en la figura~\ref{fig:Menu}.
 
- \begin{figure}[H]
+    \begin{figure}[H]
         \centering
         \includegraphics[width=0.9\linewidth]{anexos/Plotter/Menu.png}
-        \caption{Menu de seleccion de figura.}
+        \caption{Menú de selección de figura del módulo Plotter. Fuente: elaboración propia.}
         \label{fig:Menu}
     \end{figure}
 
-\paragraph*{\textbf{Declaracion de variables globales}}
+    \paragraph*{\textbf{Declaración de variables globales}}---
+    Para controlar el movimiento del \textit{plotter} de manera adecuada, se definieron macros y variables globales que representan los distintos estados de dirección y control del sistema. 
+    Las señales de activación de los motores se determinan según la tabla~\ref{fig:tab}. 
+    Con el fin de simplificar el código y asegurar un desplazamiento correcto, cada vez que una de estas variables se asigna a los pines del puerto~\texttt{D}, se aplica una operación lógica \texttt{AND}, aislando los bits correspondientes al movimiento de los ejes y evitando interferencias con las señales del solenoide encargado de levantar o bajar el lápiz (véase anexo~\ref{anexo:variables_globales}).
 
-Para controlar el movimiento del plotter de manera adecuada, es necesario considerar que las señales de activación de los motores se determinan según la tabla~\ref{fig:tab}.
-Con el fin de simplificar el código y su implementación, se emplearon variables globales, presentadas en la tabla~\ref{tab:direcciones}, las cuales representan los diferentes estados de dirección y control.
-Para garantizar un desplazamiento correcto, cada vez que una de estas variables se asigna a los pines de salida del puerto \texttt{D}, se aplica una operación lógica \texttt{AND}.
-Esto permite aislar los bits correspondientes al movimiento del eje, evitando interferir con las señales destinadas al accionamiento del pistón que eleva o desciende el lápiz, responsable de establecer o interrumpir el contacto con la hoja.
-Se puede ver en anexo~\ref{anexo:variables_globales}.
-
- \begin{figure}[H]
+    \begin{figure}[H]
         \centering
         \includegraphics[width=0.9\linewidth]{anexos/Plotter/Tabla.png}
-        \caption{Menu de seleccion de figura.}
+        \caption{Asignación de señales de control para el movimiento del \textit{plotter}. Fuente: elaboración propia.}
         \label{fig:tab}
     \end{figure}
 
     \begin{table}[H]
-\centering
+        \centering
+        \caption{Códigos de dirección y control utilizados en el firmware del \textit{plotter}.}
+        \label{tab:direcciones}
+        \begin{tabular}{lll}
+            \toprule
+            \textbf{Código (macro)} & \textbf{Descripción} & \textbf{Valor} \\
+            \midrule
+            \texttt{SOLENOID\_DOWN} & Bajar solenoide (pluma en contacto) & 1 \\
+            \texttt{SOLENOID\_UP}   & Subir solenoide (pluma levantada)   & 2 \\
+            \texttt{DOWN}           & Movimiento hacia abajo              & 3 \\
+            \texttt{UP}             & Movimiento hacia arriba             & 4 \\
+            \texttt{RIGHT}          & Movimiento hacia la derecha         & 5 \\
+            \texttt{LEFT}           & Movimiento hacia la izquierda       & 6 \\
+            \texttt{STOP}           & Fin de secuencia / detener          & 7 \\
+            \midrule
+            \texttt{UP\_RIGHT}      & Arriba + derecha                    & 8 \\
+            \texttt{UP\_LEFT}       & Arriba + izquierda                  & 9 \\
+            \texttt{DOWN\_RIGHT}    & Abajo + derecha                     & 10 \\
+            \texttt{DOWN\_LEFT}     & Abajo + izquierda                   & 11 \\
+            \bottomrule
+        \end{tabular}
+    \end{table}
 
+    Durante las pruebas iniciales se implementó un modo de movimiento libre, que permitía al usuario controlar manualmente los desplazamientos y la posición del lápiz, facilitando la calibración del sistema (véase anexo~\ref{anexo:menu_pruebas}).
 
-\caption{Códigos de dirección y control utilizados en el firmware del plotter}
-\label{tab:direcciones}
-\begin{tabular}{lllc}
-\toprule
-\textbf{Código (macro)} & \textbf{Descripción} & \textbf{Valor} \\
-\midrule
-\texttt{SOLENOID\_DOWN} & Bajar solenoide (pluma en contacto) & 1 \\
- \texttt{SOLENOID\_UP}   & Subir solenoide (pluma levantada)   & 2 \\
- \texttt{DOWN}           & Movimiento hacia abajo               & 3 \\
-\texttt{UP}             & Movimiento hacia arriba              & 4 \\
-\texttt{RIGHT}          & Movimiento a la derecha              & 5 \\
-\texttt{LEFT}           & Movimiento a la izquierda            & 6 \\
-\texttt{STOP}           & Fin de secuencia / detener           & 7 \\
-\midrule
- \texttt{UP\_RIGHT}      & Arriba + derecha                     & 8 \\
-\texttt{UP\_LEFT}       & Arriba + izquierda                   & 9 \\
-\texttt{DOWN\_RIGHT}    & Abajo + derecha                      & 10 \\
-\texttt{DOWN\_LEFT}     & Abajo + izquierda                    & 11 \\
-\bottomrule
-\end{tabular}
-\end{table}
+    \paragraph*{\textbf{Implementación del círculo mediante trigonometría}}---
+    Para generar un círculo de forma matemática se aplicaron relaciones trigonométricas, considerando que la hipotenusa representa el radio, mientras que los catetos corresponden a las proyecciones en los ejes \textit{X} e \textit{Y}. Mediante las funciones \texttt{sin()} y \texttt{cos()} se obtienen las coordenadas incrementales de cada punto, describiendo el arco del círculo mediante pequeños desplazamientos sucesivos del \textit{plotter}. La función \texttt{precompute\_semicirculo\_arrays\_90()} calcula los valores de seno y coseno para los ángulos comprendidos entre \(0^\circ\) y \(90^\circ\), convirtiéndolos a radianes y limitando los resultados al rango \([0,1]\) para evitar errores numéricos. Cada valor se multiplica por un factor temporal \texttt{I\_ms}, que determina el tamaño del círculo. Los resultados se almacenan en los arreglos \texttt{TR[]} y \texttt{TU[]} (véase anexo~\ref{anexo:calc_trig}). 
+    La figura~\ref{fig:demo} muestra la representación gráfica de este procedimiento.
 
-Para simplemente controlar el selenoide a gusto, en la etapa de pruebas, tambien se implemento un modo de movimiento libre.
-Donde el mismo usuario es el que elige como mover el lapiz en todo momento. Vease anexo~\ref{anexo:menu_pruebas}.
-
-
-\paragraph{\textbf{Implementacion del circulo mediante trigonometria}}
-
-Para generar el círculo mediante cálculo inmediato se consideró la relación trigonométrica de un triángulo rectángulo. En este caso, la hipotenusa representa el radio del círculo,
-mientras que el cateto opuesto corresponde a la altura de cada fragmento individual del trazo y el cateto adyacente a la distancia en el eje 
-x asociada a dicho fragmento. De esta forma, aplicando las funciones seno y coseno se obtiene la posición incremental del punto en cada eje, permitiendo
-describir el arco del círculo mediante pequeños desplazamientos sucesivos del \textit{plotter}. 
-Siendo modificado unicamente, el tiempo de desplazamiento para subir y bajar el trazo. Es decir se emplean escalones que se van adaptando al angulo del fragmento trazado. 
-
-Para realizar el calculo se empleo la funcion \textbf{void precompute semicirculo arrays 90"}, que se encarga de tomar los angulos comprendidos entre 0 y 90 grados, para pasarlos a radianes cada uno de forma individual. Aplicando seno y coseno para cada angulo, a su vez se le agrega una verificación en caso de que el valor devuelto sea mayor a 1 o menor a 0 (Ya que pierde la utilidad y afecta al trazado, llevandolo fuera del circulo).
-Y asi mutiplicar a \textbf{I ms} por el valor comprendido entre 0 y 1.  Para luego guardar dicho valor en los arreglos \textbf{TR y TU}( vease anexo~\ref{anexo:calc_trig}).
-De esta forma se varia el tamaño del circulo variando el valor de \textbf{I ms}. Una representacion grafica que ayuda a entender la implementacion, se puede ver en la figura~\ref{fig:demo}.
-
- \begin{figure}[H]
+    \begin{figure}[H]
         \centering
         \includegraphics[width=0.9\linewidth]{anexos/Plotter/Demostracion.png}
-        \caption{Demostracion}
+        \caption{Representación esquemática del trazado circular basado en funciones trigonométricas. Fuente: elaboración propia.}
         \label{fig:demo}
     \end{figure}
 
-El trazado del círculo se inicia en la función \textbf{Hacer circulo}, la cual completa los 360° utilizando los mismos valores de coordenadas para los cuatro cuadrantes. La diferencia entre cada uno radica únicamente en el tipo de movimiento aplicado.
-En el primer cuadrante, el desplazamiento se realiza primero hacia la derecha y luego hacia arriba; en el segundo, hacia la derecha y posteriormente hacia abajo; en el tercero, primero hacia la izquierda y luego hacia abajo; y en el cuarto, el movimiento es ascendente seguido de un desplazamiento hacia la izquierda.
-De esta forma, reutilizando los mismos cálculos trigonométricos y variando únicamente el orden y dirección de los movimientos (así como los tiempos de ejecución) se logra completar el trazado continuo de todo el círculo con una implementación.
+    El trazado completo se realiza en la función \texttt{hacer\_circulo()}, que utiliza los mismos valores de coordenadas para los cuatro cuadrantes, variando únicamente el orden y la dirección de los movimientos. Así, se logra un círculo completo reutilizando los cálculos trigonométricos y modificando los tiempos de desplazamiento para cada cuadrante.
 
-\paragraph{\textbf{Tomar trazado con Python}}
+    \paragraph*{\textbf{Trazado con Python}}---
+    Para obtener trazos complejos a partir de imágenes, se desarrolló un script en \textit{Python} ejecutado en Google Colab. El proceso comienza con la carga de la imagen desde Google Drive y su conversión a escala de grises mediante \texttt{cv2.cvtColor}. A continuación, se aplica un filtro \texttt{cv2.GaussianBlur} para reducir el ruido, seguido del detector de bordes \texttt{cv2.Canny}. Los contornos resultantes se obtienen con \texttt{cv2.findContours} y se recorren punto a punto, calculando las diferencias \(\Delta x\) y \(\Delta y\) entre coordenadas consecutivas para determinar la dirección de movimiento (RIGHT, LEFT, UP, DOWN, y diagonales). Cada segmento se traduce a una macro del firmware y se agrega a una secuencia que controla el solenoide y el movimiento (véase anexo~\ref{anexo:det_contorno}). 
 
-Dado que la implementación se realizó en Google Colab, se incorporaron librerias específicas para acceder a imágenes almacenadas en Google Drive. El flujo de procesamiento inicia cargando la imagen desde Drive y convirtiéndola, mediante \textit{Pillow} (PIL), en un objeto manipulable con metodos que señalan color, angulo, etc; posteriormente, se transforma a una matriz \textbf{NumPy} para operar píxel a píxel, donde cada elemento representa un color en el espacio \textbf{RGB}.
+    \vspace{1em}
+    
+    El resultado se guarda en un archivo \texttt{.txt} formateado en líneas de 15 comandos separados por comas, optimizando su carga en la LUT del microcontrolador. 
+    Un ejemplo del contorno extraído se muestra en la figura~\ref{fig:contorno}.
 
-A continuación, la imagen se convierte a escala de grises con \textbf{cv2.cvtColor} y se aplica un suavizado con \textbf{cv2.GaussianBlur} para reducir ruido y facilitar la detección de bordes. Luego, se ejecuta el detector de bordes (\textbf{cv2.Canny}) y se obtienen los contornos mediante \texttt{cv2.findContours}; para visualización, se dibuja el contorno externo sobre la imagen original. El código completo de este procesamiento se presenta en el anexo~\ref{anexo:det_contorno}.
-En este punto, se recorren los contornos extraídos de la imagen y se traducen a una secuencia de comandos adaptados a las variables globales del \textit{plotter}. Primero se verifica que exista al menos un contorno y, para cada uno, se descartan los casos degenerados con menos de dos puntos (no permiten definir un desplazamiento). Acto seguido, se inserta el comando \texttt{SOLENOID\_DOWN} para iniciar el trazado con el lápiz en contacto.
-
-Luego, el algoritmo itera punto a punto sobre cada contorno, tomando pares consecutivos \((x_1,y_1)\) y \((x_2,y_2)\). A partir de las diferencias dy y dx
-se determina una etiqueta de dirección entre ocho posibles (cardinales y diagonales): RIGHT, LEFT, UP, DOWN, UPRIGHT, UPLEFT, DOWNRIGHT, DOWNLEFT. Si \(\Delta x = \Delta y = 0\), se etiqueta como \texttt{STAY}. Esta clasificación se basa en el signo y la nulidad relativa de \(\Delta x\) y \(\Delta y\). Es importante recordar que, en el sistema de coordenadas de imagen, el eje \(y\) crece hacia abajo; por ello, \(\Delta y>0\) se interpreta como \textit{descenso} (\texttt{DOWN}) y \(\Delta y<0\) como \textit{ascenso} (\texttt{UP}). Cada etiqueta resultante se agrega secuencialmente a la lista de movimientos.
-
-Una vez procesados todos los segmentos del contorno, se añade SOLENOID\_UP para levantar el lápiz y finalizar el trazo de esa forma. El resultado es una cadena de comandos \emph{no bloqueante} que codifica el recorrido del contorno con el solenoide coordinado.
-
-La secuencia de movimientos se almacena como cadena de comandos en un archivo .txt para su posterior uso en el firmware del \textbf{plotter}. Finalmente, con el fin de facilitar la carga manual en la LUT, los elementos se formatean en renglones de 15 entradas, separados por comas. La implementación de este formateo se muestra en el anexo~\ref{anexo:trazado_txt}, y un ejemplo del contorno extraído puede observarse en la figura~\ref{fig:contotno}.
- 
-
-\begin{figure}[H]
+    \begin{figure}[H]
         \centering
         \includegraphics[width=0.9\linewidth]{anexos/Plotter/Screenshot 2025-10-20 004338.png}
-        \caption{Imagen contorno}
-        \label{fig:contotno}
+        \caption{Contorno procesado en Python y convertido a secuencia de movimientos. Fuente: elaboración propia.}
+        \label{fig:contorno}
     \end{figure}
 
-\paragraph{\textbf{Ejecucion del trazado}}
+    \paragraph*{\textbf{Ejecución del trazado}}---
+    La función \texttt{ejecutar\_trazado()} recorre la LUT correspondiente a la figura seleccionada, interpretando cada comando mediante una estructura \texttt{switch-case} y actualizando los pines del puerto \texttt{D} hasta encontrar la instrucción \texttt{STOP}. 
+    De esta forma, el trazado se realiza de manera determinista y sincronizada con las señales del PLC. Las figuras obtenidas con este método fueron el murciélago, la flor y el círculo, mostradas en las figuras~\ref{fig:M}–\ref{fig:co}.
 
-Para ejecutar el trazado en el plotter se empleo la funcion \textbf{Ejecutar trazado}.
-Que toma el arreglo declarado en la LUT para la figura correspondiente. Y evalua cada elemento hasta encontrar un STOP, en cada elemento evaluando va seteando las salidas del puerto D. Para saber que tiene que hacer se utiliza un simple Switch case. 
-Se puede ver la funcion en el anexo~\ref{anexo:funcion_trazado}. 
-
-Las figuras representadas mediante este metodo, fueron el Murcielago, La flor y el circulo. En las figuras~\ref{fig:M},~\ref{fig:c} y~\ref{fig:co} se puede ver cada una correspondiente.
-
-\begin{figure}[H]
+    \begin{figure}[H]
         \centering
-        \includegraphics[width=0.9\linewidth]{anexos/Plotter/Murcielafo_dib.png}
-        \caption{Imagen Murcielago}
+        \includegraphics[width=0.7\linewidth]{anexos/Plotter/Murcielafo_dib.png}
+        \caption{Figura del murciélago trazada con el \textit{plotter}. Fuente: elaboración propia.}
         \label{fig:M}
     \end{figure}
 
-\begin{figure}[H]
+    \begin{figure}[H]
         \centering
-        \includegraphics[width=0.9\linewidth]{anexos/Plotter/Flor.png}
-        \caption{Imagen Flor}
+        \includegraphics[width=0.7\linewidth]{anexos/Plotter/Flor.png}
+        \caption{Figura de la flor trazada con el \textit{plotter}. Fuente: elaboración propia.}
         \label{fig:c}
     \end{figure}
 
-
-\begin{figure}[H]
+    \begin{figure}[H]
         \centering
-        \includegraphics[width=0.9\linewidth]{anexos/Plotter/Circulo.png}
-        \caption{Imagen Circulo}
+        \includegraphics[width=0.7\linewidth]{anexos/Plotter/Circulo.png}
+        \caption{Figura del círculo trazada mediante funciones trigonométricas. Fuente: elaboración propia.}
         \label{fig:co}
     \end{figure}
 
-\paragraph{\textbf{Triangulo}}
+    \paragraph*{\textbf{Trazado de triángulo y cruz}}---
+    Para el triángulo se reutilizaron las funciones de movimiento, ajustando los tiempos de activación para definir un triángulo isósceles. Se compensaron pequeñas desviaciones ajustando el tiempo de base para garantizar el cierre geométrico del contorno (véase anexo~\ref{anexo:triangulo}). El resultado se muestra en la figura~\ref{fig:Tria}.
 
-Para el triángulo se reutilizaron las funciones de movimiento previamente descritas, parametrizando el tiempo de activación para cada tramo. La figura corresponde a un triángulo isósceles: se asignó un tiempo específico para la línea de la base y otro para cada uno de los dos lados restantes. En la práctica, se observó un ligero retardo de respuesta durante el trazado de la base que tendía a desalinear el vértice de cierre; para compensarlo, se incrementó levemente el tiempo de la base respecto del de los catetos, garantizando el cierre geométrico del contorno.
-
-La imagen del triángulo obtenido se presenta en la figura~\ref{fig:Tria}, y la función correspondiente se incluye en el anexo~\ref{anexo:triangulo}.
-
-\begin{figure}[H]
+    \begin{figure}[H]
         \centering
-        \includegraphics[width=0.9\linewidth]{anexos/Plotter/WhatsApp Image 2025-10-20 at 00.54.42_88438fbb.jpg}
-        \caption{Imagen Triangulo}
+        \includegraphics[width=0.7\linewidth]{anexos/Plotter/WhatsApp Image 2025-10-20 at 00.54.42_88438fbb.jpg}
+        \caption{Figura del triángulo trazada con el \textit{plotter}. Fuente: elaboración propia.}
         \label{fig:Tria}
     \end{figure}
 
+    En el caso de la cruz, se utilizaron los movimientos diagonales del sistema, trazando primero una diagonal completa, retornando al centro y luego ejecutando la diagonal opuesta (véase anexo~\ref{anexo:cruz}).
 
 
-\paragraph{\textbf{Cruz}}
 
-Para la cruz se empleo el codigo que se puede ver en el anexo~\ref{anexo:cruz}. Se utilizaron los movimientos en diagonal del plotter, moviendo para una diagonal hasta llegar al final. 
-Volver al medio de esa linea, y ahi ejecutar la segunda diagonal. 
 
-El video de todas las figuras juntas se puede encontrar en el drive del laboratorio (vease anexo~\ref{anexo:drive}).
+
 
 
 \subsubsection{\textbf{Colores}}---
@@ -182,7 +148,7 @@ El video de todas las figuras juntas se puede encontrar en el drive del laborato
     
     \begin{table}[H]
     \centering
-    \caption{Valores de referencia RGB para cada color calibrado.}
+    \caption{Valores de referencia RGB (unidades ADC) para cada color calibrado.}
     \begin{tabular}{lccc}
     \toprule
     \textbf{Color} & \textbf{R} & \textbf{G} & \textbf{B} \\
@@ -201,14 +167,14 @@ El video de todas las figuras juntas se puede encontrar en el drive del laborato
 
 
 
-    \paragraph*{\textbf{Reconocimiento decolores y manejo de la tira LED}}---
+    \paragraph*{\textbf{Reconocimiento de colores y manejo de la tira LED}}---
 
     Además, se observó que la cantidad de luz ambiental influía directamente en la precisión de la lectura del sensor. La misma tira de LEDs WS2812 utilizada para la representación del color introducía una leve interferencia óptica sobre la LDR cuando se encontraba demasiado cerca, provocando pequeñas desviaciones en las mediciones. Para mitigar este efecto, se implementó un apantallamiento parcial que bloqueó la incidencia directa de la luz de la tira sobre el sensor, manteniendo al mismo tiempo una iluminación uniforme sobre la superficie de calibración. Con estas modificaciones, el sistema logró una detección estable y una correspondencia confiable entre los valores ADC medidos y los colores calibrados.
             
     \begin{figure}[H]
         \centering
         \includegraphics[width=0.9\columnwidth]{anexos/colores/EvidenciaFuncionamiento.jpg}
-        \caption{Identificación de color efectiva. Fuente: elaboración propia}
+        \caption{Identificación de color efectiva. Fuente: elaboración propia.}
         \label{fig:color_evidencia}
     \end{figure}
 
@@ -255,8 +221,7 @@ El video de todas las figuras juntas se puede encontrar en el drive del laborato
 
     \paragraph*{\textbf{Reproducción de música}}---
 
-    El sistema reprodujo correctamente las melodías preprogramadas, manteniendo el ritmo y la secuencia esperada de las notas. 
-    Se detectaron leves desfasajes entre las pistas durante la ejecución, lo cuales se volvían más aparentes conforme avanzaba la reproducción. Para melodias con una sola pista no se detectaron desviaciones con las originales, lo que confirmó la estabilidad temporal del módulo. Las canciones fueron reproducidas con continuidad y volumen uniforme, evidenciando un control adecuado sobre la temporización y la generación de frecuencias.
+    El sistema reprodujo correctamente las melodías preprogramadas, manteniendo el ritmo y la secuencia esperada de las notas. Se detectaron leves desfasajes entre las pistas durante la ejecución, lo cuales se volvían más evidentes conforme avanzaba la reproducción. Para melodías con una sola pista no se detectaron desviaciones con las originales, lo que confirmó la estabilidad temporal del módulo. Las canciones fueron reproducidas con continuidad y volumen uniforme, evidenciando un control adecuado sobre la temporización y la generación de frecuencias.
 
     \paragraph*{\textbf{Modos de funcionamiento y comunicación USART}}---
 
