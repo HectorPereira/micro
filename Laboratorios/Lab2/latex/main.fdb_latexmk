@@ -1,20 +1,20 @@
 # Fdb version 4
-["bibtex main"] 1760914068.6542 "main.aux" "main.bbl" "main" 1760914070.00934 2
+["bibtex main"] 1760924187.69567 "main.aux" "main.bbl" "main" 1760924188.32717 2
   "./5_referencias.bib" 1760893711 5980 9a74f72c3ad2ac47286a24b65d882d49 ""
   "C:/Program Files/MiKTeX/bibtex/bst/ieeetran/IEEEtran.bst" 1440622569 57748 7c8250ecf02814ce6ddc0cdbb63df1dd ""
-  "main.aux" 1760914060 32 3985256e7290058c681f74d7a3565a19 "pdflatex"
+  "main.aux" 1760924179 32 3985256e7290058c681f74d7a3565a19 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1760914055.04874 "c:/Users/isacm/OneDrive/Documents/Escritorio/Micro/Github - UTEC/micro/Laboratorios/Lab2/latex/main.tex" "main.pdf" "main" 1760914066.67257 2
+["pdflatex"] 1760924176.70952 "c:/Users/isacm/OneDrive/Documents/Escritorio/Micro/Github - UTEC/micro/Laboratorios/Lab2/latex/main.tex" "main.pdf" "main" 1760924186.12452 2
   ".jpg" 0 -1 0 ""
   "0_introduccion.tex" 1760901429 3885 872e5e7a77e500d8ebc764c0c7b67a5d ""
   "1_marco_teorico.tex" 1760893711 14952 ba5e87d98a833c1602e44a6b58fa6793 ""
   "2_metodologia.tex" 1760904984 20340 a90730a3cde7f750815b443879856c47 ""
-  "3_resultados.tex" 1760914048 15756 f4e59951c8aa36107153acb729a3a857 ""
+  "3_resultados.tex" 1760924177 22267 4cacfc6465dd21edabceb79052488860 ""
   "4_conclusiones.tex" 1760901429 2895 bce1596a4b210104482ac53981da5b1c ""
-  "6_anexos.tex" 1760914048 21512 7fe0bd332543c9d458a0093fc1f0c8dd ""
+  "6_anexos.tex" 1760922138 26810 cf7a65e12d2ddb40df339ba503febaa8 ""
   "C:/Program Files/MiKTeX/tex/generic/bigintcalc/bigintcalc.sty" 1576433602 40635 c40361e206be584d448876bba8a64a3b ""
   "C:/Program Files/MiKTeX/tex/generic/bitset/bitset.sty" 1575926576 33961 6b5c75130e435b2bfdb9f480a09a39f9 ""
   "C:/Program Files/MiKTeX/tex/generic/gettitlestring/gettitlestring.sty" 1576433666 8371 9d55b8bd010bc717624922fb3477d92e ""
@@ -156,6 +156,7 @@
   "C:/Users/isacm/AppData/Local/Programs/MiKTeX/tex/latex/listings/listings.sty" 1679057124 80947 75a96bb4c9f40ae31d54a01d924df2ff ""
   "C:/Users/isacm/AppData/Local/Programs/MiKTeX/tex/latex/listings/lstlang1.sty" 1679057124 205154 31132370016e8c97e49bc3862419679b ""
   "C:/Users/isacm/AppData/Local/Programs/MiKTeX/tex/latex/listings/lstmisc.sty" 1679057124 77021 d05e9115c67855816136d82929db8892 ""
+  "C:/Users/isacm/AppData/Local/Programs/MiKTeX/tex/latex/tools/.tex" 1700599895 1386 e12910b1679ec687be15153859582c13 ""
   "C:/Users/isacm/AppData/Local/Programs/MiKTeX/tex/latex/tools/array.sty" 1700599895 12667 e4b5eb11e4b7239e6c8a52bbe074a6c6 ""
   "C:/Users/isacm/AppData/Local/Programs/MiKTeX/tex/latex/tools/hhline.sty" 1700599895 3831 3c438840e5a214a46db44a0f25f46c5c ""
   "C:/Users/isacm/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
@@ -178,8 +179,8 @@
   "anexos/piano/simulacion.png" 1760901429 64604 ec43cb25ed360e2b5f26cb0175da44db ""
   "anexos/piano/terminal.jpg" 1760893711 146903 58dcf49510b4dea719c0e84c1189bb6c ""
   "c:/Users/isacm/OneDrive/Documents/Escritorio/Micro/Github - UTEC/micro/Laboratorios/Lab2/latex/main.tex" 1760901429 3071 ed8a91238a51baa9cebe5c82ea989fa7 ""
-  "main.aux" 1760914060 32 3985256e7290058c681f74d7a3565a19 "pdflatex"
-  "main.bbl" 1760914069 0 d41d8cd98f00b204e9800998ecf8427e "bibtex main"
+  "main.aux" 1760924179 32 3985256e7290058c681f74d7a3565a19 "pdflatex"
+  "main.bbl" 1760924188 0 d41d8cd98f00b204e9800998ecf8427e "bibtex main"
   "main.out" 0 -1 0 "pdflatex"
   "main.tex" 1760901429 3071 ed8a91238a51baa9cebe5c82ea989fa7 ""
   (generated)

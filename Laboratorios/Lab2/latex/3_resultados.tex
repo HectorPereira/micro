@@ -29,9 +29,61 @@ Para simplemente controlar el selenoide a gusto, en la etapa de pruebas, tambien
 Donde el mismo usuario es el que elige como mover el lapiz en todo momento. Vease anexo \ref{}.
 
 
+\paragraph{\textbf{Implementacion del circulo mediante trigonometria}}
+
+Para generar el círculo mediante cálculo inmediato se consideró la relación trigonométrica de un triángulo rectángulo. En este caso, la hipotenusa representa el radio del círculo,
+mientras que el cateto opuesto corresponde a la altura de cada fragmento individual del trazo y el cateto adyacente a la distancia en el eje 
+x asociada a dicho fragmento. De esta forma, aplicando las funciones seno y coseno se obtiene la posición incremental del punto en cada eje, permitiendo
+describir el arco del círculo mediante pequeños desplazamientos sucesivos del \textit{plotter}. 
+Siendo modificado unicamente, el tiempo de desplazamiento para subir y bajar el trazo. Es decir se emplean escalones que se van adaptando al angulo del fragmento trazado. 
+
+Para realizar el calculo se empleo la funcion \textbf{void precompute semicirculo arrays 90"}, que se encarga de tomar los angulos comprendidos entre 0 y 90 grados, para pasarlos a radianes cada uno de forma individual. Aplicando seno y coseno para cada angulo, a su vez se le agrega una verificación en caso de que el valor devuelto sea mayor a 1 o menor a 0 (Ya que pierde la utilidad y afecta al trazado, llevandolo fuera del circulo).
+Y asi mutiplicar a \textbf{I ms} por el valor comprendido entre 0 y 1.  Para luego guardar dicho valor en los arreglos \textbf{TR y TU}(En anexo \ref{}).
+De esta forma se varia el tamaño del circulo variando el valor de \textbf{I ms}. Una representacion grafica que ayuda a entender la implementacion, se puede ver en la figura \ref{}.
+
+ \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{}
+        \caption{}
+        \label{fig:color_simulacion}
+    \end{figure}
+
+El trazado del círculo se inicia en la función \textbf{Hacer circulo}, la cual completa los 360° utilizando los mismos valores de coordenadas para los cuatro cuadrantes. La diferencia entre cada uno radica únicamente en el tipo de movimiento aplicado.
+En el primer cuadrante, el desplazamiento se realiza primero hacia la derecha y luego hacia arriba; en el segundo, hacia la derecha y posteriormente hacia abajo; en el tercero, primero hacia la izquierda y luego hacia abajo; y en el cuarto, el movimiento es ascendente seguido de un desplazamiento hacia la izquierda.
+De esta forma, reutilizando los mismos cálculos trigonométricos y variando únicamente el orden y dirección de los movimientos (así como los tiempos de ejecución) se logra completar el trazado continuo de todo el círculo con una implementación.
+
+\paragraph{\textbf{Tomar trazado con Python}}
+
+Las librerías empleadas se detallan en el anexo \ref{}. Dado que la implementación se realizó en Google Colab, se incorporaron librerias específicas para acceder a imágenes almacenadas en Google Drive. El flujo de procesamiento inicia cargando la imagen desde Drive y convirtiéndola, mediante \textit{Pillow} (PIL), en un objeto manipulable con metodos que señalan color, angulo, etc; posteriormente, se transforma a una matriz \textbf{NumPy} para operar píxel a píxel, donde cada elemento representa un color en el espacio \textbf{RGB}.
+
+A continuación, la imagen se convierte a escala de grises con \textbf{cv2.cvtColor} y se aplica un suavizado con \textbf{cv2.GaussianBlur} para reducir ruido y facilitar la detección de bordes. Luego, se ejecuta el detector de bordes (\textbf{cv2.Canny}) y se obtienen los contornos mediante \texttt{cv2.findContours}; para visualización, se dibuja el contorno externo sobre la imagen original. El código completo de este procesamiento se presenta en \ref{}.
+En este punto, se recorren los contornos extraídos de la imagen y se traducen a una secuencia de comandos adaptados a las variables globales del \textit{plotter}. Primero se verifica que exista al menos un contorno y, para cada uno, se descartan los casos degenerados con menos de dos puntos (no permiten definir un desplazamiento). Acto seguido, se inserta el comando \texttt{SOLENOID\_DOWN} para iniciar el trazado con el lápiz en contacto.
+
+Luego, el algoritmo itera punto a punto sobre cada contorno, tomando pares consecutivos \((x_1,y_1)\) y \((x_2,y_2)\). A partir de las diferencias dy y dx
+se determina una etiqueta de dirección entre ocho posibles (cardinales y diagonales): \texttt{RIGHT}, \texttt{LEFT}, \texttt{UP}, \texttt{DOWN}, \texttt{UPRIGHT}, \texttt{UPLEFT}, \texttt{DOWNRIGHT}, \texttt{DOWNLEFT}. Si \(\Delta x = \Delta y = 0\), se etiqueta como \texttt{STAY}. Esta clasificación se basa en el signo y la nulidad relativa de \(\Delta x\) y \(\Delta y\). Es importante recordar que, en el sistema de coordenadas de imagen, el eje \(y\) crece hacia abajo; por ello, \(\Delta y>0\) se interpreta como \textit{descenso} (\texttt{DOWN}) y \(\Delta y<0\) como \textit{ascenso} (\texttt{UP}). Cada etiqueta resultante se agrega secuencialmente a la lista de movimientos.
+
+Una vez procesados todos los segmentos del contorno, se añade \texttt{SOLENOID\_UP} para levantar el lápiz y finalizar el trazo de esa forma. El resultado es una cadena de comandos \emph{no bloqueante} que codifica el recorrido del contorno con el solenoide coordinado.
+
+La secuencia de movimientos se almacena como cadena de comandos en un archivo \texttt{.txt} para su posterior uso en el firmware del \textbf{plotter}. Finalmente, con el fin de facilitar la carga manual en la LUT, los elementos se formatean en renglones de 15 entradas, separados por comas. La implementación de este formateo se muestra en \ref{}, y un ejemplo del contorno extraído puede observarse en la figura \ref{}.
+ \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{}
+        \caption{}
+        \label{fig:color_simulacion}
+    \end{figure}
+
+\paragraph{\textbf{Ejecucion del trazado}}
+
+Para ejecutar el trazado en el plotter se empleo la funcion \textbf{Ejecutar trazado}.
+Que toma el arreglo declarado en la LUT para la figura correspondiente. Y evalua cada elemento hasta encontrar un STOP, en cada elemento evaluando va seteando las salidas del puerto D. Para saber que tiene que hacer se utiliza un simple Switch case. 
+Se puede ver la funcion en el anexo \ref{}. 
+
+Las figuras representadas mediante este metodo, fueron el Murcielago, La flor y el circulo. En las figuras \ref{},\ref{} y \ref{} se puede ver cada una correspondiente.
 
 
+\paragraph{\textbf{Triangulo}}
 
+Para trazar el triangulo, se uso 
 % Mostrá fotos o diagramas de movimiento, si tenés.
 % Comentá observaciones: velocidad, precisión, limitaciones por USART.
 
