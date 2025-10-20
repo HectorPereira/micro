@@ -139,6 +139,7 @@ En esta sección se presentan los resultados obtenidos durante la implementació
     \end{figure}
 
 
+
     \paragraph*{\textbf{Servomotor y calibración}}---
 
     Durante el proceso de calibración se determinó que la estabilidad del sistema dependía en gran medida de la fuente de alimentación utilizada. Cuando el servomotor era alimentado únicamente desde el regulador de \SI{5}{\volt} del propio Arduino, se observaban fluctuaciones de tensión en los momentos de arranque debido a los picos de corriente característicos del motor. Esto provocaba lecturas erróneas del sensor LDR y una respuesta inestable en la identificación del color, generando un bucle de retroalimentación entre la medición y el movimiento del servo. La situación se resolvió alimentando el servomotor desde una fuente externa regulada, lo que permitió aislar las variaciones de corriente y obtener una lectura más consistente de los valores de referencia.
@@ -171,7 +172,7 @@ En esta sección se presentan los resultados obtenidos durante la implementació
             
     \begin{figure}[H]
         \centering
-        \includegraphics[width=0.9\columnwidth]{anexos/colores/EvidenciaFuncionamiento.jpg}
+        \includegraphics[width=0.8\columnwidth]{anexos/colores/EvidenciaFuncionamiento.jpg}
         \caption{Identificación de color efectiva. Fuente: elaboración propia.}
         \label{fig:color_evidencia}
     \end{figure}

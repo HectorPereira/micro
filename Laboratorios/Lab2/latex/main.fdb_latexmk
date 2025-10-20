@@ -1,19 +1,19 @@
 # Fdb version 4
-["bibtex main"] 1760939600.43402 "main.aux" "main.bbl" "main" 1760940156.76728 0
+["bibtex main"] 1760940550.61784 "main.aux" "main.bbl" "main" 1760940554.55923 0
   "./5_referencias.bib" 1760938832 6493 028755eaa38ea24b8eb49dc526bc9b21 ""
   "C:/Users/hecto/AppData/Local/Programs/MiKTeX/bibtex/bst/ieeetran/IEEEtran.bst" 1440622569 57748 7c8250ecf02814ce6ddc0cdbb63df1dd ""
-  "main.aux" 1760940155 35786 74c5e662b80ed6b8f2acf27a7a1dd293 "pdflatex"
+  "main.aux" 1760940553 35786 c42de9d8976272788e9fda12dd1aad96 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1760940152.46994 "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" "main.pdf" "main" 1760940156.76795 0
+["pdflatex"] 1760940550.88688 "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" "main.pdf" "main" 1760940554.55992 0
   "0_introduccion.tex" 1760900573 3885 872e5e7a77e500d8ebc764c0c7b67a5d ""
   "1_marco_teorico.tex" 1760940011 25706 f888ab61ec2bd1200834398eb44002a7 ""
   "2_metodologia.tex" 1760936368 20028 f62f41ccf6d86f3e150f9bdc944b1551 ""
-  "3_resultados.tex" 1760939897 22587 0908d471eaaf54dcc226c6b5c870cd2f ""
-  "4_conclusiones.tex" 1760940151 4838 cd0035be142062c52e7ae2e12cdad28d ""
-  "6_anexos.tex" 1760936368 28878 4905d579146f0371ef1b66251b373ce0 ""
+  "3_resultados.tex" 1760940546 22589 d05d01e7b8b9135f417c267437cb7735 ""
+  "4_conclusiones.tex" 1760940175 4838 cd0035be142062c52e7ae2e12cdad28d ""
+  "6_anexos.tex" 1760940468 28644 df2dc88855b8c806104f2fae7267ad28 ""
   "C:/Users/hecto/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1760853866 82507 a9eef8696c92627b87e9975edea03b2a ""
   "C:/Users/hecto/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1755027854 13257295 6220036096196477d82c74b95064958e ""
   "C:/Users/hecto/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/base/8r.enc" 1458473887 4993 80dc9bab7f31fb78a000ccfed0e27cab ""
@@ -184,9 +184,9 @@
   "anexos/piano/simulacion.png" 1760896000 64604 ec43cb25ed360e2b5f26cb0175da44db ""
   "anexos/piano/terminal.jpg" 1760890999 146903 58dcf49510b4dea719c0e84c1189bb6c ""
   "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" 1760934110 3107 01c96357ed87e78f0d7437e12c536b84 ""
-  "main.aux" 1760940155 35786 74c5e662b80ed6b8f2acf27a7a1dd293 "pdflatex"
-  "main.bbl" 1760939600 6280 1a15d38272dfcb67879a7660dd58eb45 "bibtex main"
-  "main.out" 1760940155 6900 f334cab45b9934903bdd3e4d21b3baa7 "pdflatex"
+  "main.aux" 1760940553 35786 c42de9d8976272788e9fda12dd1aad96 "pdflatex"
+  "main.bbl" 1760940550 6280 1a15d38272dfcb67879a7660dd58eb45 "bibtex main"
+  "main.out" 1760940553 6900 f334cab45b9934903bdd3e4d21b3baa7 "pdflatex"
   "main.tex" 1760934110 3107 01c96357ed87e78f0d7437e12c536b84 ""
   (generated)
   "main.aux"
