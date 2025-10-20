@@ -160,3 +160,116 @@ A diferencia de los sistemas con planificación basada en interrupciones o siste
 \vspace{1em}
 
 Esta técnica permite estructurar el programa en módulos independientes que se ejecutan de forma periódica o condicional, favoreciendo un diseño más claro y eficiente. Su simplicidad y bajo consumo de recursos la convierten en una herramienta fundamental en el desarrollo de sistemas embebidos donde la sincronización temporal es crítica y la capacidad de procesamiento es reducida.
+
+
+\subsection{Comunicación serial (USART)}
+
+    La \textbf{comunicación serial asíncrona} es uno de los métodos más utilizados para el intercambio de información entre dispositivos electrónicos, ya que permite transmitir datos mediante una única línea de envío (\textit{TX}) y una de recepción (\textit{RX}), reduciendo significativamente el número de conexiones necesarias en comparación con la comunicación paralela~\cite{mazidi_avr_2014}.  
+    En este tipo de enlace, los bits se envían de manera secuencial, comenzando por un \textit{bit de inicio}, seguido por los bits de datos, un posible bit de paridad y uno o más \textit{bits de parada}, que delimitan el final de cada trama de información.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.75\linewidth]{anexos/cerradura/UART-frame-format-The-UARTserial-communication-module-is-divided-into-three-sub-modules.png}
+        \caption{Estructura típica de una trama de comunicación asíncrona en formato USART.  
+        Cada trama se compone de un bit de inicio, un conjunto de bits de datos, un bit opcional de paridad y uno o dos bits de parada, que delimitan el fin de la transmisión.  
+        Fuente: \url{https://www.researchgate.net/figure/UART-frame-format-The-UARTserial-communication-module-is-divided-into-three-sub-modules_fig1_354311989}.}
+        \label{fig:usart_frame}
+    \end{figure}
+
+
+    En el microcontrolador \textbf{ATmega328P}, la interfaz USART (\textit{Universal Synchronous and Asynchronous Receiver–Transmitter}) se encuentra implementada a nivel de hardware dentro del módulo de periféricos de comunicación~\cite{atmega328p_datasheet}.  
+    Este subsistema permite operar tanto en modo síncrono —sincronizado por un reloj compartido— como en modo asíncrono, donde la sincronización se logra mediante los bits de inicio y parada.
+
+    \vspace{1em}
+    
+    El registro de control \texttt{UCSR0C} define el formato del paquete de datos, mientras que los registros \texttt{UBRR0H} y \texttt{UBRR0L} determinan el valor del divisor de reloj necesario para alcanzar una velocidad de transmisión (\textit{baud rate}) específica.  
+    En la práctica, una configuración de 9600~bps con formato 8N1 (8 bits de datos, sin paridad y 1 bit de parada) resulta estándar para la comunicación entre el microcontrolador y dispositivos externos, como un PLC o una computadora.
+
+    \begin{equation}
+        UBRR = \frac{F_{\text{CPU}}}{16 \times \text{BAUD}} - 1
+    \end{equation}
+
+    donde \(F_{\text{CPU}}\) representa la frecuencia de reloj del microcontrolador (en este caso, \SI{16}{\mega\hertz}) y \textit{BAUD} la velocidad de transmisión deseada.  
+    La implementación en hardware libera al procesador de la generación manual de bits, garantizando una transmisión estable y precisa incluso durante la ejecución de otras tareas concurrentes.
+
+    \vspace{1em}
+
+    Para evitar bloqueos durante el envío o recepción de datos, el firmware puede implementar un \textbf{buffer circular} (\textit{ring buffer}), técnica que permite almacenar temporalmente los datos en memoria mientras la transmisión física se completa~\cite{williams_make_avr_2014}.  
+    De esta forma, la comunicación se realiza de manera no bloqueante, asegurando un flujo continuo de información entre el microcontrolador y los periféricos conectados.  
+    Este principio resulta fundamental en sistemas como el \textit{plotter}, donde el ATmega328P envía comandos de movimiento al PLC de manera secuencial y en tiempo real, sin interferir con la ejecución del programa principal.
+
+
+\subsection{Coordenadas, representación y trazado vectorial}
+
+    El trazado automatizado del \textit{plotter} se basa en la interpretación de un conjunto de coordenadas vectoriales \((x, y)\) que describen el recorrido del lápiz sobre el plano.  
+    A diferencia de las imágenes rasterizadas, que representan una figura como una matriz de píxeles, los gráficos vectoriales definen líneas y curvas mediante ecuaciones geométricas, lo que permite almacenar solo los puntos necesarios y ejecutar movimientos con mayor precisión~\cite{angeles_robotics_2018}.
+
+    \vspace{1em}
+
+    Desde el punto de vista computacional, cada trayectoria se aproxima mediante incrementos discretos sobre los ejes cartesianos.  
+    El algoritmo de \textbf{Bresenham} determina estos pasos mínimos usando únicamente operaciones enteras, evitando el uso de coma flotante y optimizando el rendimiento en microcontroladores de bajo costo~\cite{bresenham_algorithm_1965}.  
+    En el firmware, cada desplazamiento elemental se codifica como una instrucción (\texttt{UP}, \texttt{DOWN}, \texttt{LEFT}, \texttt{RIGHT}) con un tiempo asociado que define la magnitud del movimiento.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{anexos/Plotter/Fig_23_04.png}
+        \caption{Aproximación discreta de una línea mediante el algoritmo de Bresenham.}
+        El método calcula los incrementos mínimos sobre los ejes cartesianos para representar una línea utilizando únicamente operaciones enteras, evitando el uso de coma flotante. Fuente: \url{http://abreojosensamblador.epizy.com/?Tarea=1&SubTarea=23}.
+        \label{fig:bresenham}
+    \end{figure}
+
+    Estas instrucciones se almacenan en una \textbf{Look-Up Table (LUT)} que el microcontrolador recorre secuencialmente durante el trazado, permitiendo reutilizar trayectorias precomputadas y liberar carga de procesamiento~\cite{williams_make_avr_2014}.  
+    En el caso de figuras curvas, las coordenadas se obtienen a partir de relaciones trigonométricas:
+
+    \[
+    x = r \cdot \cos(\theta), \qquad y = r \cdot \sin(\theta)
+    \]
+
+    donde el ángulo \(\theta\) se incrementa de forma discreta.  
+    Este enfoque combina la exactitud matemática de los modelos geométricos con la simplicidad secuencial del control embebido, permitiendo al ATmega328P ejecutar dibujos complejos con precisión y eficiencia temporal.
+
+
+\subsection{Procesamiento de imágenes en Python}
+
+    El procesamiento digital de imágenes permite transformar representaciones visuales en información analítica manipulable por un sistema embebido.  
+    En el contexto del \textit{plotter}, esta técnica se utiliza para convertir una imagen rasterizada en una secuencia de coordenadas que describen los contornos del dibujo.  
+    Mediante el lenguaje \textit{Python} y la biblioteca \textbf{OpenCV} (\textit{Open Source Computer Vision Library}), es posible aplicar algoritmos de filtrado, detección de bordes y extracción de contornos de forma eficiente~\cite{opencv_library}.
+
+    \vspace{1em}
+
+    El proceso general consta de varias etapas: primero, la imagen se convierte a escala de grises para reducir la información cromática.  Luego se aplica un filtro \texttt{GaussianBlur()} que elimina el ruido de alta frecuencia y mejora la uniformidad de las regiones.  A continuación, el algoritmo de \textbf{Canny} detecta los bordes más significativos en la imagen, los cuales se convierten en líneas cerradas mediante la función \texttt{findContours()}.  Finalmente, cada contorno se recorre punto a punto, generando pares de coordenadas \((x, y)\) que pueden ser interpretadas como instrucciones de movimiento por el microcontrolador.
+
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.9\linewidth]{anexos/Plotter/cover-EdgeDetection.png}
+        \caption{Ejemplo de detección de bordes en tiempo real utilizando \textit{Python} y la biblioteca OpenCV.  
+        En la imagen se observa el resultado del filtrado Gaussiano y la posterior aplicación del algoritmo de Canny para resaltar los contornos principales.  
+        Fuente: \url{https://data-ai.theodo.com/en/technical-blog/edge-detection-in-opencv}.}
+        \label{fig:opencv_edges}
+    \end{figure}
+
+
+    Este proceso de conversión de bordes a trayectorias discretas constituye una forma de vectorización, en la que los píxeles relevantes del contorno se transforman en segmentos de desplazamiento.  El resultado puede almacenarse en un archivo de texto o tabla (\texttt{.txt}) que el firmware del ATmega328P interpreta como una \textit{Look-Up Table} (LUT), reproduciendo así el dibujo original sin requerir cálculos gráficos complejos durante la ejecución.
+
+    \vspace{1em}
+
+    En síntesis, el uso de \textit{Python} como entorno de preprocesamiento permite aprovechar la potencia de cómputo de un sistema externo para realizar tareas de análisis de imagen, dejando al microcontrolador la función de control temporal y ejecución precisa de los movimientos del \textit{plotter}.  Este enfoque híbrido mejora la eficiencia general del sistema y posibilita la generación automatizada de figuras de mayor complejidad.
+
+
+\subsection{Conversión de trayectorias en instrucciones discretas}
+
+    Una vez obtenidas las coordenadas de los contornos mediante el procesamiento digital, es necesario convertirlas en un formato comprensible para el sistema embebido.  
+    Cada punto del contorno puede interpretarse como un desplazamiento relativo en los ejes cartesianos, definido por las variaciones \(\Delta x\) y \(\Delta y\) entre posiciones consecutivas.  
+    Estos desplazamientos se traducen a instrucciones elementales de movimiento —por ejemplo, \texttt{UP}, \texttt{DOWN}, \texttt{LEFT}, \texttt{RIGHT} y sus combinaciones diagonales— que el microcontrolador interpreta secuencialmente para accionar los motores del \textit{plotter}.
+
+    \vspace{1em}
+
+    El conjunto ordenado de estas instrucciones constituye una \textbf{tabla de búsqueda} (\textit{Look-Up Table}, LUT), almacenada en la memoria del microcontrolador o en un archivo externo.  
+    Durante la ejecución, el programa recorre esta tabla instrucción por instrucción, aplicando un retardo controlado que determina la duración de cada movimiento.  
+    De esta forma, se reproduce el trazado original con una resolución dependiente del paso temporal y de la densidad de puntos de la trayectoria~\cite{williams_make_avr_2014}.
+
+    \vspace{1em}
+
+    Este esquema de ejecución secuencial simplifica el firmware, ya que el microcontrolador no requiere realizar cálculos geométricos durante la operación.  
+    En su lugar, se comporta como un \textit{intérprete de trayectorias}, ejecutando de manera determinista las órdenes preprocesadas.  
+    La separación entre la etapa de generación (Python) y la de ejecución (ATmega328P) permite optimizar la precisión del trazado y la eficiencia computacional del sistema, manteniendo una arquitectura modular y escalable.

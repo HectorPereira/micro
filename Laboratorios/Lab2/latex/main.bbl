@@ -67,6 +67,14 @@ J.~J. Labrosse, \emph{Embedded Systems Building Blocks: Complete and
   \url{https://www.nongnu.org/avr-libc/user-manual/index.html}
 \BIBentrySTDinterwordspacing
 
+\bibitem{bresenham_algorithm_1965}
+J.~E. Bresenham, ``Algorithm for computer control of a digital plotter,''
+  \emph{IBM Systems Journal}, vol.~4, no.~1, pp. 25--30, 1965.
+
+\bibitem{opencv_library}
+G.~Bradski, ``The opencv library,'' in \emph{Dr. Dobb's Journal of Software
+  Tools}, 2000.
+
 \bibitem{arduino_midi_converter}
 {ShivamJoker}, ``Midi to arduino converter,''
   \url{https://arduinomidi.netlify.app/}, 2024, herramienta en línea para

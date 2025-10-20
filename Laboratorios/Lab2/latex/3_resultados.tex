@@ -30,7 +30,7 @@ En esta sección se presentan los resultados obtenidos durante la implementació
 
     \begin{table}[H]
         \centering
-        \caption{Códigos de dirección y control utilizados en el firmware del \textit{plotter}.}
+        \caption{Códigos de dirección y control utilizados en el firmware del plotter.}
         \label{tab:direcciones}
         \begin{tabular}{lll}
             \toprule
@@ -88,21 +88,21 @@ En esta sección se presentan los resultados obtenidos durante la implementació
 
     \begin{figure}[H]
         \centering
-        \includegraphics[width=0.7\linewidth]{anexos/Plotter/Murcielafo_dib.png}
+        \includegraphics[width=0.5\linewidth]{anexos/Plotter/Murcielafo_dib.png}
         \caption{Figura del murciélago trazada con el \textit{plotter}. Fuente: elaboración propia.}
         \label{fig:M}
     \end{figure}
 
     \begin{figure}[H]
         \centering
-        \includegraphics[width=0.7\linewidth]{anexos/Plotter/Flor.png}
+        \includegraphics[width=0.5\linewidth]{anexos/Plotter/Flor.png}
         \caption{Figura de la flor trazada con el \textit{plotter}. Fuente: elaboración propia.}
         \label{fig:c}
     \end{figure}
 
     \begin{figure}[H]
         \centering
-        \includegraphics[width=0.7\linewidth]{anexos/Plotter/Circulo.png}
+        \includegraphics[width=0.5\linewidth]{anexos/Plotter/Circulo.png}
         \caption{Figura del círculo trazada mediante funciones trigonométricas. Fuente: elaboración propia.}
         \label{fig:co}
     \end{figure}
@@ -112,7 +112,7 @@ En esta sección se presentan los resultados obtenidos durante la implementació
 
     \begin{figure}[H]
         \centering
-        \includegraphics[width=0.7\linewidth]{anexos/Plotter/WhatsApp Image 2025-10-20 at 00.54.42_88438fbb.jpg}
+        \includegraphics[width=0.5\linewidth]{anexos/Plotter/WhatsApp Image 2025-10-20 at 00.54.42_88438fbb.jpg}
         \caption{Figura del triángulo trazada con el \textit{plotter}. Fuente: elaboración propia.}
         \label{fig:Tria}
     \end{figure}
@@ -131,13 +131,11 @@ En esta sección se presentan los resultados obtenidos durante la implementació
 
     La simulación en Proteus permitió verificar el funcionamiento lógico del sistema antes de su implementación física. En el entorno virtual, se replicó el comportamiento del LDR mediante una fuente de voltaje variable que simulaba distintos niveles de iluminación. Al variar dicho valor, se observaron cambios coherentes en la salida del ADC, en la posición del servomotor y en el color representado por la tira de LEDs. Esto confirmó la correcta interacción entre los módulos de lectura, procesamiento y visualización del sistema. La simulación también permitió ajustar los tiempos de respuesta y verificar la estabilidad del ciclo de lectura sin la influencia de ruido externo.
 
-    \begin{figure}[H]
+    \begin{figure}[H]\label{fig:color_simulacion}
         \centering
         \includegraphics[width=0.9\linewidth]{anexos/colores/simulacion.png}
         \caption{Simulación en Proteus del sistema de detección de color. 
-        Se observa la variación de la señal del LDR y la correspondiente respuesta del servomotor y de la tira LED. 
-        Fuente: elaboración propia.}
-        \label{fig:color_simulacion}
+        Se observa la variación de la señal del LDR y la correspondiente respuesta del servomotor y de la tira LED. Fuente: elaboración propia.}
     \end{figure}
 
 

@@ -1,18 +1,18 @@
 # Fdb version 4
-["bibtex main"] 1760937380.5956 "main.aux" "main.bbl" "main" 1760937385.1013 0
-  "./5_referencias.bib" 1760850028 5980 9a74f72c3ad2ac47286a24b65d882d49 ""
+["bibtex main"] 1760939600.43402 "main.aux" "main.bbl" "main" 1760940016.22479 0
+  "./5_referencias.bib" 1760938832 6493 028755eaa38ea24b8eb49dc526bc9b21 ""
   "C:/Users/hecto/AppData/Local/Programs/MiKTeX/bibtex/bst/ieeetran/IEEEtran.bst" 1440622569 57748 7c8250ecf02814ce6ddc0cdbb63df1dd ""
-  "main.aux" 1760937384 32887 d7551f59760157c741fb4cfefe98e4b5 "pdflatex"
+  "main.aux" 1760940015 35786 74c5e662b80ed6b8f2acf27a7a1dd293 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1760937381.02909 "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" "main.pdf" "main" 1760937385.10218 0
+["pdflatex"] 1760940012.10371 "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" "main.pdf" "main" 1760940016.22545 0
   "0_introduccion.tex" 1760900573 3885 872e5e7a77e500d8ebc764c0c7b67a5d ""
-  "1_marco_teorico.tex" 1760918666 14952 ba5e87d98a833c1602e44a6b58fa6793 ""
+  "1_marco_teorico.tex" 1760940011 25706 f888ab61ec2bd1200834398eb44002a7 ""
   "2_metodologia.tex" 1760936368 20028 f62f41ccf6d86f3e150f9bdc944b1551 ""
-  "3_resultados.tex" 1760937380 22616 b69e72835424b9fb07cd2000e670dc36 ""
-  "4_conclusiones.tex" 1760934104 4779 be971ec010c097355e0e71745da58e69 ""
+  "3_resultados.tex" 1760939897 22587 0908d471eaaf54dcc226c6b5c870cd2f ""
+  "4_conclusiones.tex" 1760937809 4781 049450c62766d35307a4a1b25f62b900 ""
   "6_anexos.tex" 1760936368 28878 4905d579146f0371ef1b66251b373ce0 ""
   "C:/Users/hecto/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1760853866 82507 a9eef8696c92627b87e9975edea03b2a ""
   "C:/Users/hecto/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1755027854 13257295 6220036096196477d82c74b95064958e ""
@@ -157,13 +157,16 @@
   "C:/Users/hecto/AppData/Local/Programs/MiKTeX/tex/latex/xurl/xurl.sty" 1641733940 4675 e4b8c405820368c2dfb03526e16d725a ""
   "anexos/Plotter/Circulo.png" 1760934104 19587 444b5dfefa3fbc37225d7e2a5a3b6c60 ""
   "anexos/Plotter/Demostracion.png" 1760934104 136322 7174d3fa322d711adba89a061abcffe3 ""
+  "anexos/Plotter/Fig_23_04.png" 1760939143 3218 275c617a95c17d9dd44057251670724b ""
   "anexos/Plotter/Flor.png" 1760934104 10872 3e3a1ee6275eae82d2fce7a3dbeb7420 ""
   "anexos/Plotter/Menu.png" 1760934104 4937 d3d1ee1063d8d98551cb24a350b66ac4 ""
   "anexos/Plotter/Murcielafo_dib.png" 1760934104 39344 b26fff9ed82cd12b14ddb9947a60a7d8 ""
   "anexos/Plotter/Screenshot 2025-10-20 004338.png" 1760934104 158416 749bb4bc347040236b81cc153cbaf3ca ""
   "anexos/Plotter/Tabla.png" 1760934104 30383 c71646b6954455aba048b961f32cba25 ""
   "anexos/Plotter/WhatsApp Image 2025-10-20 at 00.54.42_88438fbb.jpg" 1760934104 2000 cf7444cb3d3e390a7ae6c6c335bd9954 ""
+  "anexos/Plotter/cover-EdgeDetection.png" 1760939536 95579 a8ce8c16d8e933ccd46aacf5dd01a5c0 ""
   "anexos/cerradura/DiagramaFlujo.png" 1760577668 135661 33799ff9390f636122e22e23015a3045 ""
+  "anexos/cerradura/UART-frame-format-The-UARTserial-communication-module-is-divided-into-three-sub-modules.png" 1760938773 7753 14b5f60eaa8441ea230cbd523c823f47 ""
   "anexos/cerradura/circuito.jpg" 1760890970 178824 cf4ac268586d1b2104715b4f0813f504 ""
   "anexos/cerradura/simulacion.png" 1760896225 161119 53d7da372a0f7223a10cb27fc0005370 ""
   "anexos/cerradura/state-diagram-circuit-1.jpg" 1760853216 11156 30bd43b66cd388760d622f17ebb3d612 ""
@@ -181,9 +184,9 @@
   "anexos/piano/simulacion.png" 1760896000 64604 ec43cb25ed360e2b5f26cb0175da44db ""
   "anexos/piano/terminal.jpg" 1760890999 146903 58dcf49510b4dea719c0e84c1189bb6c ""
   "c:/Users/hecto/OneDrive/Desktop/Github UTEC/micro/Laboratorios/Lab2/latex/main.tex" 1760934110 3107 01c96357ed87e78f0d7437e12c536b84 ""
-  "main.aux" 1760937384 32887 d7551f59760157c741fb4cfefe98e4b5 "pdflatex"
-  "main.bbl" 1760937380 5981 f4db9430ddfeb305679ef28f111ae3ac "bibtex main"
-  "main.out" 1760937384 5794 364f6d6ab956d208e78447fc3fa9aaca "pdflatex"
+  "main.aux" 1760940015 35786 74c5e662b80ed6b8f2acf27a7a1dd293 "pdflatex"
+  "main.bbl" 1760939600 6280 1a15d38272dfcb67879a7660dd58eb45 "bibtex main"
+  "main.out" 1760940015 6900 f334cab45b9934903bdd3e4d21b3baa7 "pdflatex"
   "main.tex" 1760934110 3107 01c96357ed87e78f0d7437e12c536b84 ""
   (generated)
   "main.aux"
