@@ -1,5 +1,14 @@
 \section{Conclusiones}
 
+\subsection{Plotter}
+
+El desarrollo del \textit{plotter} permitió constatar que, para tareas de procesamiento de imagen o manejo de grandes volúmenes de datos, conviene delegar el cómputo a herramientas de alto nivel en un equipo externo. De esta forma, el microcontrolador queda focalizado en la ejecución determinista en tiempo real (activación de motores y solenoide), preservando la eficiencia de un lenguaje de bajo nivel y evitando sobrecargar recursos limitados (CPU, SRAM, temporizadores).
+
+Esta separación de responsabilidades también visibilizó la necesidad de ajustes manuales y calibraciones en sistemas embebidos para corregir pequeñas irregularidades mecánicas o temporales (p.\,ej., compensaciones de tiempo en ciertos trazos). Se evaluó incluso un intento de generar el trazado por matriz directamente en C sobre el ATmega328P; no obstante, la complejidad frente al beneficio esperado y el límite temporal hicieron ver que no era buena alternativa.
+
+Finalmente, resultó ilustrativo comprobar cómo, a partir de una secuencia de datos precomputada (LUT), un conjunto de instrucciones simples —subir/bajar y movimientos cardinales o diagonales— puede componer figuras complejas (murciélago, flor, círculo, triángulo) con un flujo robusto, reproducible y fácil de implementar. La utiliacion de librerias matemáticas tambien fue clave en esta implementacion, ya que permiten manejar los datos de formas mas complejas como se puede ver en el circulo por funciones trigonometricas.
+
+Como mejora de la implementacion final, se podria implementar un codigo en pyhton que en vez de tomar solo el contorno externo, tome toda la figura, permitiendo ya realizar todo tipo de dibujos. Y a modo de mas aprendizaje, realizar la implementacion de un dibujo por matriz en C, aunque resulte mas complejo. Solo para aprovechar el 100 porciento del Atmega.
 \subsection{Colores}
 
 El desarrollo del sistema de detección de colores permitió comprender en profundidad el funcionamiento del conversor analógico–digital (ADC) del microcontrolador y su aplicación en la lectura de un sensor LDR. Además, se logró implementar con éxito la comunicación con la tira de LEDs WS2812 y el control de un servomotor mediante señales PWM, integrando varios periféricos de manera coordinada.  

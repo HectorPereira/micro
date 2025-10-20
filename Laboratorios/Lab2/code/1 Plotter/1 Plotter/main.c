@@ -333,6 +333,8 @@ int main(void)
 	serialWrite("1 - Murcielago\n");
 	serialWrite("2 - Flor\n");
 	serialWrite("3 - Circulo\n");
+	serialWrite("4 - Triangulo\n");
+	serialWrite("5 - Cruz\n");
 
 	
 	
@@ -357,7 +359,7 @@ int main(void)
 			ejecutar_forma(Flor, sizeof(Flor));
 					}
 		if (c == '3') {
-			Hacer_circulo2();
+			ejecutar_forma(CIRCLE_DATA, sizeof(CIRCLE_DATA));
 		}
 		if (c == '4') {
 			dibujar_triangulo();
@@ -430,40 +432,6 @@ void precompute_semicirculo_arrays_90(uint16_t I_ms, uint16_t tR90[90], uint16_t
 	}
 }
 
-void Hacer_circulo2(void) {
-	delay_ms_timer1(100);
-	cli();
-
-	Subir_s(); // baja el lápiz (solenoide)
-
-	uint16_t n = sizeof(CIRCLE_DATA); // bytes totales
-	for (uint16_t i = 0; i + 1 < n; i += 2) { // avanza de a pares (tiempo, comando)
-		uint8_t t   = pgm_read_byte(&CIRCLE_DATA[i]);     // tiempo en i
-		uint8_t cmd = pgm_read_byte(&CIRCLE_DATA[i + 1]); // comando en i+1
-
-		switch (cmd) {
-			case UP:         Subir(); break;
-			case DOWN:       Bajar(); break;
-			case LEFT:       Izquierda(); break;
-			case RIGHT:      Derecha(); break;
-			case UP_RIGHT:   ArribaDerecha(); break;
-			case DOWN_RIGHT: AbajoDerecha(); break;
-			case DOWN_LEFT:  AbajoIzquierda(); break;
-			case UP_LEFT:    ArribaIzquierda(); break;
-			case SOLENOID_UP:   /* si lo agregás en la LUT */ apagar(); break;
-			case SOLENOID_DOWN: /* si lo agregás en la LUT */ Subir_s(); break;
-			default:         apagar(); break;
-		}
-
-		delay_ms_timer1(t);
-		// opcional: un mini gap entre pasos
-		// delay_ms_timer1(2);
-	}
-
-	apagar();
-	sei();
-	delay_ms_timer1(200);
-}
 
 
 // ---- Dibujar círculo completo ----
@@ -576,46 +544,7 @@ void Hacer_circulo(void) {
  }
 
 
-void ejecutar_circulo_sinc(const uint8_t *tablaDir, const uint8_t *tablaTime, uint16_t size) {
-	uint8_t cmd;
-	uint8_t t;
 
-	_delay_ms(1000);  // Espera inicial
-
-	for (uint16_t i = 0; i < size; i++) {
-		cmd = pgm_read_byte(&tablaDir[i]);   // dirección
-		t   = pgm_read_byte(&tablaTime[i]);  // tiempo correspondiente
-
-		if (cmd == STOP)
-		break;
-
-		// Ejecutar la acción según comando
-		switch (cmd) {
-			case UP:            Subir(); break;
-			case DOWN:          Bajar(); break;
-			case LEFT:          Izquierda(); break;
-			case RIGHT:         Derecha(); break;
-
-			case UP_LEFT:       ArribaIzquierda(); break;
-			case UP_RIGHT:      ArribaDerecha(); break;
-			case DOWN_LEFT:     AbajoIzquierda(); break;
-			case DOWN_RIGHT:    AbajoDerecha(); break;
-
-			case SOLENOID_UP:   apagar(); break;
-			case SOLENOID_DOWN: Subir_s(); break;
-
-			default:            apagar(); break;
-		}
-
-		for (uint8_t j = 0; j < t; j++) {
-			_delay_ms(10);
-		}
-
-	}
-
-	_delay_ms(1000);  // Espera final
-	apagar();
-}
 
 void ejecutar_forma(const uint16_t *tablaDir, uint16_t size) {
 	uint8_t cmd;

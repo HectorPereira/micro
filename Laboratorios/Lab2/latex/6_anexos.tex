@@ -365,6 +365,82 @@ with open("direcciones_comas.txt", "r") as f:
 print(content)
 \end{lstlisting}
 
+\paragraph{Funcion de trazado}---\\
+\begin{lstlisting}[language=C, caption={Funcion de trazado}]
+void ejecutar_forma(const uint16_t *tablaDir, uint16_t size) {
+	uint8_t cmd;
+
+	_delay_ms(1000);  // Espera inicial
+
+	for (uint16_t i = 0; i < size; i++) {
+		cmd = pgm_read_byte(&tablaDir[i]);   // dirección
+		
+
+		if (cmd == STOP)
+		break;
+
+		// Ejecutar la acción según comando
+		switch (cmd) {
+			case UP:            Subir(); break;
+			case DOWN:          Bajar(); break;
+			case LEFT:          Izquierda(); break;
+			case RIGHT:         Derecha(); break;
+
+			case UPLEFT:       ArribaIzquierda(); break;
+			case UPRIGHT:      ArribaDerecha(); break;
+			case DOWNLEFT:     AbajoIzquierda(); break;
+			case DOWNRIGHT:    AbajoDerecha(); break;
+
+			case SOLENOID_UP:   apagar(); break;
+			case SOLENOID_DOWN: Subir_s(); break;
+
+			default:            apagar(); break;
+		}
+		_delay_ms(150);
+	}
+
+	_delay_ms(1000);  // Espera final
+	apagar();
+}
+
+\end{lstlisting}
+
+
+\paragraph{Ejecutar Triangulo}---\\
+\begin{lstlisting}[language=C, caption={Ejecutar Triangulo}]
+ void dibujar_triangulo(void){
+	
+		Subir_s();
+		_delay_ms(500);
+		Bajar();   
+		_delay_ms(27000); 
+		ArribaDerecha();  
+		_delay_ms(12000);
+		ArribaIzquierda();   
+		_delay_ms(12000);
+		
+		apagar();
+		
+ }
+\end{lstlisting}
+
+\paragraph{Ejecutar Cruz}---\\
+\begin{lstlisting}[language=C, caption={Ejecutar Cruz}]
+ void dibujar_cruz(void){
+	 Subir_s();
+	 _delay_ms(500);
+	 ArribaDerecha();
+	 _delay_ms(24000);
+	 AbajoIzquierda();
+	 _delay_ms(12000);
+	ArribaIzquierda();
+	_delay_ms(12000);
+	AbajoDerecha();
+	_delay_ms(24000);
+	 apagar();
+	 
+ }
+\end{lstlisting}
 
 \subsubsection{\textbf{Colores}}---
 
