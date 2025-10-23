@@ -7,6 +7,10 @@ Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "Matriz", "Matriz\Matriz.cpr
 EndProject
 Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "2 Colores", "..\..\..\..\Lab2\code\2 Colores\2 Colores\2 Colores.cproj", "{2F261979-D8AD-4C05-8066-48E1D5BED279}"
 EndProject
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "3 Piano", "..\..\..\..\Lab2\code\3 Piano\3 Piano\3 Piano.cproj", "{88226245-7025-4E8A-9699-535C777DBDC4}"
+EndProject
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "4 Cerradura", "..\..\..\..\Lab2\code\4 Cerradura\4 Cerradura\4 Cerradura.cproj", "{B6E24764-6A46-41A4-92C1-A203A6517F16}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AVR = Debug|AVR
@@ -21,6 +25,14 @@ Global
 		{2F261979-D8AD-4C05-8066-48E1D5BED279}.Debug|AVR.Build.0 = Debug|AVR
 		{2F261979-D8AD-4C05-8066-48E1D5BED279}.Release|AVR.ActiveCfg = Release|AVR
 		{2F261979-D8AD-4C05-8066-48E1D5BED279}.Release|AVR.Build.0 = Release|AVR
+		{88226245-7025-4E8A-9699-535C777DBDC4}.Debug|AVR.ActiveCfg = Debug|AVR
+		{88226245-7025-4E8A-9699-535C777DBDC4}.Debug|AVR.Build.0 = Debug|AVR
+		{88226245-7025-4E8A-9699-535C777DBDC4}.Release|AVR.ActiveCfg = Release|AVR
+		{88226245-7025-4E8A-9699-535C777DBDC4}.Release|AVR.Build.0 = Release|AVR
+		{B6E24764-6A46-41A4-92C1-A203A6517F16}.Debug|AVR.ActiveCfg = Debug|AVR
+		{B6E24764-6A46-41A4-92C1-A203A6517F16}.Debug|AVR.Build.0 = Debug|AVR
+		{B6E24764-6A46-41A4-92C1-A203A6517F16}.Release|AVR.ActiveCfg = Release|AVR
+		{B6E24764-6A46-41A4-92C1-A203A6517F16}.Release|AVR.Build.0 = Release|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

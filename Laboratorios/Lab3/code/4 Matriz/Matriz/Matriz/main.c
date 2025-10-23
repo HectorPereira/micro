@@ -26,8 +26,107 @@ uint8_t rx_buf[RX_BUF_SZ];
 uint8_t rx_head = 0, rx_tail = 0;
 
 // ADC
-uint16_t adc_result = 0;
-uint8_t  adc_done   = 0;
+uint16_t x_coord = 0;
+uint16_t y_coord = 0;
+
+uint32_t millis_counter = 0;
+
+#define DEBOUNCE_MS 500
+uint32_t debounce_on_at = 0;
+uint8_t debounce_active= 0;
+
+uint8_t usart_rx_available(void);
+void UTOA(uint16_t value, char *buffer);
+
+uint32_t millis_now(void);
+void timer0_init(void);
+
+
+
+
+void usart_init(void);
+void adc_init(void);
+	
+
+// Leer adc
+uint16_t adc_read(uint8_t channel);
+
+uint8_t usart_write_try(uint8_t b); 
+uint16_t usart_write_str(const char *s);
+uint8_t usart_read_try(uint8_t *b);
+uint8_t usart_read_str(char *dest, uint8_t max_len);
+
+void startDebounceTimer(void);
+void handleButtonChange(void);
+void init_joystick_button(void);
+
+void debouce_task(void);
+
+
+// ------------------------------------------------------------------
+// ISRs
+// ------------------------------------------------------------------
+
+
+
+
+ISR(TIMER0_OVF_vect){
+	millis_counter++;
+}
+
+// Piano buttons
+ISR(PCINT1_vect) {
+	PORTB ^= (1<<PORTB5);
+	PCICR &= ~(1<<PCIE1);
+	
+	debounce_on_at = millis_now() + DEBOUNCE_MS;
+	debounce_active = 1;
+}
+
+
+
+// ------------------------------------------------------------------
+// MAIN
+// ------------------------------------------------------------------
+
+int main(void) {
+	adc_init();
+	usart_init();
+	timer0_init();
+	DDRB |= (1<<PORTB5);
+	init_joystick_button();
+	sei();
+	
+	while (1) {
+		debouce_task();
+		x_coord = adc_read(2);
+		// usart_write_str("\nX: ");
+		// UTOA(x_coord, buffer); usart_write_str(buffer);
+		
+		y_coord = adc_read(3);
+		// usart_write_str(" | Y: ");
+		// UTOA(y_coord, buffer); usart_write_str(buffer);
+		
+		if (x_coord == 0) {
+			usart_write_str("\nLEFT");
+			_delay_ms(50);
+		}
+		if (x_coord == 1023) {
+			usart_write_str("\nRIGHT");
+			_delay_ms(50);
+		}
+		if (y_coord == 0) {
+			usart_write_str("\nUP");
+			_delay_ms(50);
+		}
+		if (y_coord == 1023) {
+			usart_write_str("\nDOWN");
+			_delay_ms(50);
+		};
+		
+		
+	}
+}
 
 // ------------------------------------------------------------------
 // HELPERS
@@ -79,15 +178,54 @@ void adc_init(void) {
 	| (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Prescaler 128
 }
 
+
+
 // ------------------------------------------------------------------
 // UTILITY
 // ------------------------------------------------------------------
+
+
+
+uint32_t millis_now(void) {
+	uint32_t m;
+	cli();     // disable interrupts
+	m = millis_counter;
+	sei();     // re-enable
+	return m;
+}
+
+
+void timer0_init(void){
+	TCCR0A = 0x00;
+	TCCR0B |= 0b011;
+	TIMSK0 |= (1<<TOIE0);
+}
+
+
+
+
+void debouce_task(void){
+	if (debounce_active && (millis_now() >= debounce_on_at)){
+		PCIFR |= (1<<PCIF1);
+		PCICR |= (1<<PCIE1);
+		debounce_active = 0;
+	}
+}
+
+
+
+void init_joystick_button(void){
+	DDRC &= ~(1<<PORTC4);
+	PORTC |= (1<<PORTC4);
+	PCICR |= (1<<PCIE1);
+	PCMSK1 |= (1<<PCINT12);
+}
 
 // Leer adc
 uint16_t adc_read(uint8_t channel) {
 	ADMUX = (ADMUX & 0xF0) | (channel & 0x0F);
 	ADCSRA |= (1 << ADSC);
-	while (ADCSRA & (1 << ADSC)); // Wait for conversion to finish         
+	while (ADCSRA & (1 << ADSC)); // Wait for conversion to finish
 	return ADC;
 }
 
@@ -132,34 +270,18 @@ uint8_t usart_read_str(char *dest, uint8_t max_len) {
 	return count;
 }
 
-// ------------------------------------------------------------------
-// MAIN
-// ------------------------------------------------------------------
-
-int main(void) {
-	adc_init();
-	usart_init();
-	sei();
-	
-	char buffer[8];
-	while (1) {
-		adc_result = adc_read(2);
-		usart_write_str("\nX: ");
-		UTOA(adc_result, buffer); usart_write_str(buffer);
-		
-		_delay_ms(50);
-		
-		adc_result = adc_read(3);
-		usart_write_str(" | Y: ");
-		UTOA(adc_result, buffer); usart_write_str(buffer);
-		
-		_delay_ms(50);
-	}
+void startDebounceTimer(void) {
+	TCCR0A = 0x00;                 // Normal mode
+	TCCR0B = (1 << CS02) | (1 << CS00); // clk/1024 prescaler
+	TCNT0  = 0;                    // Reset counter
+	TIMSK0 |= (1 << TOIE0);
+	PCICR &= ~((1 << PCIE1));
 }
 
-// ------------------------------------------------------------------
-// ISRs
-// ------------------------------------------------------------------
+
+// --------------------------------------------
+// USART ISRs
+// --------------------------------------------
 
 ISR(USART_UDRE_vect) {
 	if (tx_head == tx_tail) {
