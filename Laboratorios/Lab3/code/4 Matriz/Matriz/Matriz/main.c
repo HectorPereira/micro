@@ -11,6 +11,7 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <string.h>
+#include <stdlib.h>
 
 // USART
 #define TX_BUF_SZ 256
@@ -18,6 +19,12 @@
 #define RX_BUF_SZ 256
 #define RX_MASK   (RX_BUF_SZ - 1)
 #define BAUD_RATE 9600
+
+#define LED_PIN PORTD6
+#define LED_DDR DDRD
+
+#define NUM_LEDS 64
+uint8_t leds[NUM_LEDS * 3];  // GRB data
 
 // USART
 uint8_t tx_buf[TX_BUF_SZ];
@@ -28,10 +35,16 @@ uint8_t rx_head = 0, rx_tail = 0;
 // ADC
 uint16_t x_coord = 0;
 uint16_t y_coord = 0;
+uint8_t x_pos = 4;
+uint8_t y_pos = 4;
+
+uint8_t red = 100;
+uint8_t green = 100;
+uint8_t blue = 100;
 
 uint32_t millis_counter = 0;
 
-#define DEBOUNCE_MS 500
+#define DEBOUNCE_MS 300
 uint32_t debounce_on_at = 0;
 uint8_t debounce_active= 0;
 
@@ -62,6 +75,19 @@ void init_joystick_button(void);
 
 void debouce_task(void);
 
+void send_bit(uint8_t bitVal);
+void send_byte(uint8_t byte);
+void ws2812_send_pixel(uint8_t r, uint8_t g, uint8_t b);
+void ws2812_show(void);
+void ws2812_fill(uint8_t r, uint8_t g, uint8_t b, uint16_t n);
+
+void ws2812_init(void);
+
+void turn_led(uint8_t led_x, uint8_t led_y);
+void ws2812_set_pixel(uint8_t index, uint8_t r, uint8_t g, uint8_t b);
+void ws2812_show_all(void);
+void ws2812_clear(void);
+
 
 // ------------------------------------------------------------------
 // ISRs
@@ -79,6 +105,10 @@ ISR(PCINT1_vect) {
 	PORTB ^= (1<<PORTB5);
 	PCICR &= ~(1<<PCIE1);
 	
+	red = rand() % 256;  // random value 0–255
+	green = rand() % 256;  // random value 0–255
+	blue = rand() % 256;  // random value 0–255
+	
 	debounce_on_at = millis_now() + DEBOUNCE_MS;
 	debounce_active = 1;
 }
@@ -93,9 +123,11 @@ int main(void) {
 	adc_init();
 	usart_init();
 	timer0_init();
+	ws2812_init();
 	DDRB |= (1<<PORTB5);
 	init_joystick_button();
 	sei();
+		
 	
 	while (1) {
 		debouce_task();
@@ -108,24 +140,53 @@ int main(void) {
 		// UTOA(y_coord, buffer); usart_write_str(buffer);
 		
 		if (x_coord == 0) {
-			usart_write_str("\nLEFT");
+			x_pos = (x_pos > 0) ? x_pos - 1 : 0;    // clamp at 0
 			_delay_ms(50);
 		}
 		if (x_coord == 1023) {
-			usart_write_str("\nRIGHT");
+			x_pos = (x_pos < 7) ? x_pos + 1 : 7;    // clamp at 7
 			_delay_ms(50);
 		}
 		if (y_coord == 0) {
-			usart_write_str("\nUP");
+			y_pos = (y_pos > 0) ? y_pos - 1 : 0;    // clamp at 0
 			_delay_ms(50);
 		}
 		if (y_coord == 1023) {
-			usart_write_str("\nDOWN");
+			y_pos = (y_pos < 7) ? y_pos + 1 : 7;    // clamp at 7
 			_delay_ms(50);
 		};
-		
-		
+		turn_led(x_pos, y_pos);
+		_delay_ms(50);
+			
 	}
+}
+
+void turn_led(uint8_t led_x, uint8_t led_y) {
+	uint8_t index = led_y * 8 + led_x;  // 8×8 matrix mapping
+	ws2812_clear();                      // set all to 0 in buffer
+	ws2812_set_pixel(index, red, green, blue);  // set one pixel
+	ws2812_show_all();                   // send entire frame once
+}
+
+void ws2812_set_pixel(uint8_t index, uint8_t r, uint8_t g, uint8_t b) {
+	if (index >= NUM_LEDS) return;
+	leds[index * 3 + 0] = g;  // WS2812 expects GRB order
+	leds[index * 3 + 1] = r;
+	leds[index * 3 + 2] = b;
+}
+
+void ws2812_show_all(void) {
+	cli();
+	for (uint16_t i = 0; i < NUM_LEDS; i++) {
+		ws2812_send_pixel(leds[i * 3 + 1], leds[i * 3 + 0], leds[i * 3 + 2]);
+		// or just send_byte() for each component if using your low-level routine
+	}
+	sei();
+	ws2812_show();   // 50 µs reset
+}
+
+void ws2812_clear(void) {
+	for (uint16_t i = 0; i < NUM_LEDS * 3; i++) leds[i] = 0;
 }
 
 // ------------------------------------------------------------------
@@ -183,6 +244,71 @@ void adc_init(void) {
 // ------------------------------------------------------------------
 // UTILITY
 // ------------------------------------------------------------------
+
+
+
+
+void send_bit(uint8_t bitVal){
+	if(bitVal){
+		PORTD |=  (1<<LED_PIN);
+		asm volatile (
+		"nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"
+		"nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+		
+		PORTD &= ~(1<<LED_PIN);
+		
+		asm volatile (
+		"nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+		
+		} else {
+		PORTD |=  (1<<LED_PIN);
+		asm volatile (
+		"nop\n\t""nop\n\t""nop\n\t");
+		
+		PORTD &= ~(1<<LED_PIN);
+		asm volatile (
+		"nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"
+		"nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+	}
+}
+
+void send_byte(uint8_t byte) {
+	cli();
+	for (uint8_t i = 0; i < 8; i++) {
+		send_bit(byte & 0x80);  // send most significant bit first
+		byte <<= 1;             // shift next bit into MSB position
+	}
+	sei();  // re-enable interrupts
+}
+
+// Enviar pixel
+void ws2812_send_pixel(uint8_t r, uint8_t g, uint8_t b) {
+	send_byte(g);
+	send_byte(r);
+	send_byte(b);
+}
+
+void ws2812_show(void) {
+	_delay_us(60);  // Tiempo de reset
+}
+
+// Encender n leds del mismo color
+void ws2812_fill(uint8_t r, uint8_t g, uint8_t b, uint16_t n) {
+	cli();
+	for (uint16_t i = 0; i < n; i++) {
+		ws2812_send_pixel(r, g, b);
+	}
+	sei();
+	ws2812_show();
+}
+
+void ws2812_init(void) { // tira de leds
+	LED_DDR |= (1 << LED_PIN);
+}
+
+
+
+
 
 
 

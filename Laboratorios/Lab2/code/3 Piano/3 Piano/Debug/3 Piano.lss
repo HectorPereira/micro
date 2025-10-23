@@ -712,10 +712,10 @@ Disassembly of section .text.playFrequencyB:
 Disassembly of section .text.stopFrequencyA:
 
 000031ae <stopFrequencyA>:
-	TCCR2B = presc_bits;
 	OCR2A  = (uint8_t)ocr;
 }
 
+// Dejar de reproducir frencuencia buzzer 1
 void stopFrequencyA(void) {
 	TCCR0A = 0;
     31ae:	14 bc       	out	0x24, r1	; 36
@@ -736,6 +736,7 @@ Disassembly of section .text.stopFrequencyB:
 0000316c <stopFrequencyB>:
 }
 
+// Dejar de reproducir frencuencia buzzer 2
 void stopFrequencyB(void) {
 	TCCR2A = 0;
     316c:	10 92 b0 00 	sts	0x00B0, r1	; 0x8000b0 <__TEXT_REGION_LENGTH__+0x7f80b0>
@@ -869,10 +870,10 @@ Disassembly of section .text.playTrackB:
 Disassembly of section .text.startDebounceTimer:
 
 00003182 <startDebounceTimer>:
-}
 
 // Buttons -------------------------------------
 
+// Debouncing de botones
 void startDebounceTimer(void) {
 	debounce_ms = 0;
     3182:	10 92 33 02 	sts	0x0233, r1	; 0x800233 <debounce_ms>
