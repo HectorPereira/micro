@@ -6,5 +6,29 @@
     \item 
 \end{itemize}
 
+
+
 \subsection{Procedimiento general}
 
+\subsubsection{Plotter} ---
+El sistema del plotter tiene como objetivo controlar de manera coordinada dos motores paso a paso y una válvula solenoide utilizando el microcontrolador ATmega328P. A través de la interfaz serial (UART), el usuario puede seleccionar distintas figuras predeterminadas —como triángulos, cruces o círculos— para su trazado automático. El microcontrolador envía las órdenes de dirección y activación al sistema de potencia, asegurando que los movimientos se mantengan dentro de los límites definidos por los sensores de fin de carrera. De esta forma, el dispositivo permite realizar dibujos controlados en los ejes X e Y, integrando comunicación serial, control de motores y manejo de periféricos en una aplicación práctica de control embebido.
+
+\vspace{1em}
+\subsubsection{Temperatura} ---
+Este módulo mide la temperatura ambiente mediante un sensor LM35 y ajusta automáticamente el funcionamiento de un calefactor y un ventilador según el rango térmico detectado. El ATmega328P ejecuta lecturas periódicas a través del ADC y determina las acciones de control utilizando salidas digitales y señales PWM. El sistema comunica los valores y estados por UART, e incluye un menú que permite modificar el punto medio de temperatura. Además, se prevé una simulación y una implementación física del sistema, complementadas con una gráfica de evolución de temperatura generada en Python o MATLAB.
+
+\vspace{1em}
+\subsubsection{Motor} ---
+En este sistema se comparan las lecturas de dos potenciómetros, uno como referencia y otro acoplado al eje de un motor, con el fin de igualar ambas señales. El microcontrolador utiliza el conversor ADC para leer los valores y genera una señal PWM que ajusta la velocidad y el sentido de giro del motor hasta lograr la coincidencia. Durante el proceso, se transmiten por UART los valores de referencia, posición actual, nivel de PWM y sentido de giro, permitiendo un seguimiento en tiempo real. El sistema se implementa tanto en simulación como físicamente, complementado con una visualización gráfica de los resultados.
+
+\vspace{1em}
+\subsubsection{Matriz} ---
+El sistema emplea un joystick analógico para desplazar un LED activo dentro de una matriz RGB, utilizando el ADC del ATmega328P para detectar los movimientos sobre los ejes X e Y. Los límites de desplazamiento están restringidos al área visible de la matriz, y al presionar el botón del joystick se cambia aleatoriamente el color del LED activo. Se incorpora una zona muerta para evitar lecturas erráticas por ruido analógico, garantizando un control preciso y fluido. Esta parte se desarrolla únicamente de forma física en el laboratorio.
+
+\vspace{1em}
+\subsubsection{Cerradura} ---
+La cerradura electrónica implementa un sistema de autenticación mediante tarjetas RFID RC522 controladas por el microcontrolador ATmega328P. El identificador único (ID) de la tarjeta autorizada se almacena en la memoria EEPROM para su verificación permanente. La interfaz incluye una pantalla LCD I2C, LEDs indicadores y comunicación UART para mensajes informativos y supervisión externa. El sistema permite registrar, actualizar y eliminar tarjetas de acceso, combinando almacenamiento no volátil, comunicación serie y periféricos de entrada/salida en un diseño de seguridad embebido. Este módulo se desarrolla tanto en simulación como en implementación física.
+
+\vspace{1em}
+\subsubsection{Fútbol} ---
+Esta consigna consiste en el diseño y programación de un robot móvil basado en el ATmega328P, capaz de disputar partidos de mini fútbol sobre un campo reducido. El robot integra sensores, actuadores y sistemas de comunicación inalámbrica (Bluetooth o RF) para detectar y conducir el balón hacia la portería rival. Se evalúan la autonomía, el control, la integración mecánica y la creatividad del diseño. Este proyecto se realiza únicamente de forma física, siendo el cierre práctico y competitivo del laboratorio.
