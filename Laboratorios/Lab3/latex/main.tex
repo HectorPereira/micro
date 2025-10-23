@@ -1,0 +1,82 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{siunitx}
+\usepackage[spanish]{babel}
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+\usepackage{hhline}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{xurl}
+
+\lstset{
+    language=C,
+    basicstyle=\ttfamily\footnotesize,
+    frame=single,
+    breaklines=true,
+    breakatwhitespace=false,
+    columns=fullflexible,
+    keepspaces=true,
+    captionpos=b,
+    showstringspaces=false,
+    tabsize=4,
+    aboveskip=1em,
+    belowskip=1em
+}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+    
+\begin{document}
+
+\title{Título del informe\\
+{\footnotesize \textsuperscript{}}
+\thanks{}
+}
+
+\author{\IEEEauthorblockN{1\textsuperscript{st} Autor 1}
+\IEEEauthorblockA{\textit{Carrera o Departamento} \\
+\textit{Universidad o Institución}\\
+Ciudad, País \\
+correo1@ejemplo.com}
+\and
+\IEEEauthorblockN{2\textsuperscript{nd} Autor 2}
+\IEEEauthorblockA{\textit{Carrera o Departamento} \\
+\textit{Universidad o Institución}\\
+Ciudad, País \\
+correo2@ejemplo.com}
+}
+
+\maketitle
+
+\begin{abstract}
+% --- Escribe aquí tu resumen ---
+\end{abstract}
+
+\textit{Palabras clave:} palabra1, palabra2, palabra3, palabra4
+
+\input{0_introduccion}
+\input{1_marco_teorico}
+\input{2_metodologia}
+\input{3_resultados}
+\input{4_conclusiones}
+
+\bibliographystyle{IEEEtran}
+\nocite{*}
+\bibliography{5_referencias}
+
+\appendix
+\input{6_anexos}
+
+\end{document}
