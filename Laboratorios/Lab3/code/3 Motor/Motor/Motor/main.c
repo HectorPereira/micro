@@ -163,6 +163,7 @@ uint16_t adc_read(uint8_t channel) {
 
 
 void usart_task(void) {
+	uint8_t direction = 0;
 	motor_pot = adc_read(3);       // feedback
 	reference_pot = adc_read(4);   // target
 
@@ -174,6 +175,8 @@ void usart_task(void) {
 		// Forward direction
 		PORTD |=  (1 << IN1);
 		PORTD &= ~(1 << IN2);
+		
+		direction = 1;
 
 		pwm_output = error * 2;
 		if (pwm_output < MIN_PWM) pwm_output = MIN_PWM;
@@ -208,7 +211,12 @@ void usart_task(void) {
 	
 	UTOA(pwm_output, buffer);
 	usart_write_str(buffer);
-	usart_write_str("\r\n");
+	usart_write_str(" ");
+	
+	if (!pwm_output) usart_write_str("Stop\r\n");
+	else if (!direction) usart_write_str("Izq.\r\n");
+	else usart_write_str("Der.\r\n"); 
+	
 }
 
 
