@@ -3,6 +3,11 @@
 #include <util/delay_basic.h>
 #include <util/delay.h>
 
+#include <math.h>    // for sinf() and cosf()
+
+#define STEP_SCALE 1.0f    // steps per mm (or your calibration)
+#define PI 3.1415926f
+
 // -------------------- PIN MAP --------------------
 #define STEP_X PB3
 #define DIR_X  PB4
@@ -48,6 +53,8 @@ uint8_t direction, uint16_t steps)
 	}
 }
 
+
+
 // Wrappers for readability
 void move_x(uint8_t dir, uint16_t steps) {
 	move_axis(&PORTB, DIR_X, &PORTB, STEP_X, dir, steps);
@@ -68,18 +75,40 @@ void pen_up(void) {
 	_delay_ms(100);
 }
 
+void draw_circle(uint16_t radius_mm, uint8_t step_res_deg) {
+	const float r_steps = radius_mm * STEP_SCALE;
+	pen_down();
+
+	float prev_x = r_steps, prev_y = 0;
+	for (uint16_t a = step_res_deg; a <= 360; a += step_res_deg) {
+		float rad = a * PI / 180.0f;
+		float new_x = r_steps * cosf(rad);
+		float new_y = r_steps * sinf(rad);
+
+		int16_t dx = (int16_t)(new_x - prev_x);
+		int16_t dy = (int16_t)(new_y - prev_y);
+
+		if (dx > 0) move_x(1, dx);
+		else if (dx < 0) move_x(0, -dx);
+
+		if (dy > 0) move_y(1, dy);
+		else if (dy < 0) move_y(0, -dy);
+
+		prev_x = new_x;
+		prev_y = new_y;
+	}
+
+	pen_up();
+}
+
 // -------------------- MAIN TEST --------------------
 int main(void) {
 	plotter_init();
 
-	while(1) {
-		pen_down();   // lower pen to draw
-		move_x(1, 200);
-		move_y(1, 200);
-		move_x(0, 200);
-		move_y(0, 200);
+	while (1) {
+		// draw a 20 mm radius circle with 5° resolution
+		draw_circle(400, 10);
 
-		pen_up();     // lift pen
-		_delay_ms(1000);
+		_delay_ms(2000);  // wait 2s
 	}
 }
