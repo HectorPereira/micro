@@ -402,20 +402,20 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000      0xf0b
+.debug_info     0x0000000000000000      0xf09
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000      0x5f4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
- .debug_info    0x00000000000005f4      0x917 main.o
+ .debug_info    0x00000000000005f4      0x915 main.o
 
 .debug_abbrev   0x0000000000000000      0x800
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0x5a2 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
  .debug_abbrev  0x00000000000005a2      0x25e main.o
 
-.debug_line     0x0000000000000000      0x59c
+.debug_line     0x0000000000000000      0x59a
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000      0x137 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.7.374/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
- .debug_line    0x0000000000000137      0x465 main.o
+ .debug_line    0x0000000000000137      0x463 main.o
 
 .debug_frame    0x0000000000000000      0x1c4
  *(.debug_frame)
