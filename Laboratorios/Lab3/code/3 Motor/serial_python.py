@@ -26,10 +26,10 @@ plt.ion()
 
 fig, ax = plt.subplots(facecolor="#2e2e2e")
 line1, = ax.plot(t_data, ref_data, color="#FF00CC", label="Motor")
-line2, = ax.plot(t_data, mot_data, color="#0091FF", label="Referebcua")
+line2, = ax.plot(t_data, mot_data, color="#0091FF", label="Referencia")
 line3, = ax.plot(t_data, pwm_data, color="#FFFA66", label="PWM")
 
-ax.set_ylim(0, 1023)
+ax.set_ylim(-100, 1100)
 ax.set_xlabel("Muestras", color="white")
 ax.set_ylabel("ADC / PWM", color="white")
 ax.set_title("Arduino Plot Serial", color="white")
