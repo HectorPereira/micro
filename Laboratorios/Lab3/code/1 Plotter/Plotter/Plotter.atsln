@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "Plotter", "Plotter\Plotter.cproj", "{2285C48D-296E-43FD-A7B6-69885F64CFFD}"
 EndProject
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "1 Plotter", "..\..\..\..\Lab2\code\1 Plotter\1 Plotter\1 Plotter.cproj", "{2EBF1FC1-EB51-4973-A476-2E49572C737D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AVR = Debug|AVR
@@ -15,6 +17,10 @@ Global
 		{2285C48D-296E-43FD-A7B6-69885F64CFFD}.Debug|AVR.Build.0 = Debug|AVR
 		{2285C48D-296E-43FD-A7B6-69885F64CFFD}.Release|AVR.ActiveCfg = Release|AVR
 		{2285C48D-296E-43FD-A7B6-69885F64CFFD}.Release|AVR.Build.0 = Release|AVR
+		{2EBF1FC1-EB51-4973-A476-2E49572C737D}.Debug|AVR.ActiveCfg = Debug|AVR
+		{2EBF1FC1-EB51-4973-A476-2E49572C737D}.Debug|AVR.Build.0 = Debug|AVR
+		{2EBF1FC1-EB51-4973-A476-2E49572C737D}.Release|AVR.ActiveCfg = Release|AVR
+		{2EBF1FC1-EB51-4973-A476-2E49572C737D}.Release|AVR.Build.0 = Release|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

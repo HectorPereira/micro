@@ -1,9 +1,6 @@
 /*
- * main.c
- *
- * Created: 10/23/2025 11:36:11 AM
- *  Author: hecto
- */ 
+
+*/ 
 
 #include <xc.h>
 
