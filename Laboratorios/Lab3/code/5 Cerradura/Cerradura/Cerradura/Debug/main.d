@@ -20,6 +20,8 @@ main.d main.o: .././main.c \
  c:\program\ files\microchip\xc8\v2.36\avr\lib\gcc\avr\5.4.0\include\stdbool.h \
  c:\program\ files\microchip\xc8\v2.36\avr\avr\include\avr\pgmspace.h \
  c:\program\ files\microchip\xc8\v2.36\avr\lib\gcc\avr\5.4.0\include\stddef.h \
+ c:\program\ files\microchip\xc8\v2.36\avr\avr\include\avr\eeprom.h \
+ c:\program\ files\microchip\xc8\v2.36\avr\avr\include\util\twi.h \
  .././Include/Include/RC522.h \
  c:\program\ files\microchip\xc8\v2.36\avr\avr\include\stdio.h
 
@@ -64,6 +66,10 @@ c:\program\ files\microchip\xc8\v2.36\avr\lib\gcc\avr\5.4.0\include\stdbool.h:
 c:\program\ files\microchip\xc8\v2.36\avr\avr\include\avr\pgmspace.h:
 
 c:\program\ files\microchip\xc8\v2.36\avr\lib\gcc\avr\5.4.0\include\stddef.h:
+
+c:\program\ files\microchip\xc8\v2.36\avr\avr\include\avr\eeprom.h:
+
+c:\program\ files\microchip\xc8\v2.36\avr\avr\include\util\twi.h:
 
 .././Include/Include/RC522.h:
 
