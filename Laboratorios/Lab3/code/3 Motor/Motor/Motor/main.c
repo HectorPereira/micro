@@ -1,6 +1,4 @@
-/*
-
- */ 
+// Reutilizando las funciones de USART del laboratorio 2!
 
 
 // ------------------------------------------------------------------
@@ -26,8 +24,8 @@
 #define RX_MASK   (RX_BUF_SZ - 1)
 #define BAUD_RATE 9600
 
-#define IN1 PD2    // H-bridge direction pin 1
-#define IN2 PD3    // H-bridge direction pin 2
+#define IN1 PD2    // Direccion 1
+#define IN2 PD3    // Direccion 2
 
 #define MIN_PWM 150
 #define MAX_PWM 600
@@ -115,14 +113,14 @@ void adc_init(void) {
 // Escribir un byte al buffer de envio de USART
 uint8_t usart_write_try(uint8_t b) {
 	uint8_t next = (uint8_t)((tx_head + 1) & TX_MASK);
-	if (next == tx_tail) return 0;               // full
+	if (next == tx_tail) return 0;               
 	tx_buf[tx_head] = b;
 	tx_head = next;
-	UCSR0B |= (1 << UDRIE0);                       // kick the ISR
+	UCSR0B |= (1 << UDRIE0);                      
 	return 1;
 }
 
-// Escribir un string entero al buffer de env?o de USART
+// Escribir un string entero al buffer de envio de USART
 uint16_t usart_write_str(const char *s) {
 	uint16_t n = 0;
 	while (*s && usart_write_try((uint8_t)*s++)) n++;
@@ -131,7 +129,7 @@ uint16_t usart_write_str(const char *s) {
 
 // Leer byte del buffer de recepcion de usart
 uint8_t usart_read_try(uint8_t *b) {
-	if (rx_head == rx_tail) return 0;                 // empty
+	if (rx_head == rx_tail) return 0;
 	*b = rx_buf[rx_tail];
 	rx_tail = (uint8_t)((rx_tail + 1) & RX_MASK);
 	return 1;
@@ -157,7 +155,7 @@ uint8_t usart_read_str(char *dest, uint8_t max_len) {
 uint16_t adc_read(uint8_t channel) {
 	ADMUX = (ADMUX & 0xF0) | (channel & 0x0F);  
 	ADCSRA |= (1 << ADSC);                     
-	while (ADCSRA & (1 << ADSC));               // Wait for conversion to finish
+	while (ADCSRA & (1 << ADSC));         
 	return ADC;                                 
 }
 
@@ -172,9 +170,9 @@ void usart_task(void) {
 	int16_t error = (int16_t)reference_pot - (int16_t)motor_pot;
 	uint16_t pwm_output = 0;
 
-	// --- Direction + magnitude control ---
+	
 	if (error > DEAD_ZONE) {
-		// Forward direction
+		// Forward 
 		PORTD |=  (1 << IN1);
 		PORTD &= ~(1 << IN2);
 		
@@ -186,7 +184,7 @@ void usart_task(void) {
 		OCR1A = pwm_output;
 	}
 	else if (error < -DEAD_ZONE) {
-		// Reverse direction
+		// Reverse 
 		PORTD |=  (1 << IN2);
 		PORTD &= ~(1 << IN1);
 
@@ -196,8 +194,8 @@ void usart_task(void) {
 		OCR1A = pwm_output;
 	}
 	else {
-		// Stop (dead zone)
-		PORTD &= ~((1 << IN1) | (1 << IN2));  // both low = brake (or coast)
+		// Zona muerta
+		PORTD &= ~((1 << IN1) | (1 << IN2)); 
 		OCR1A = 0;
 	}
 
@@ -224,13 +222,10 @@ void usart_task(void) {
 
 
 void setup_pwm_and_dir(void) {
-	// Direction pins as outputs
 	DDRD |= (1 << IN1) | (1 << IN2);
 
-	// PWM pin PB1 (OC1A) as output
 	DDRB |= (1 << PORTB1);
 
-	// Fast PWM 10-bit, non-inverted, prescaler = 8
 	TCCR1A = (1 << COM1A1)  | (1 << WGM10) | (1 << WGM11);
 	TCCR1B = (1 << WGM12) | (1 << CS12); // clk/8
 }

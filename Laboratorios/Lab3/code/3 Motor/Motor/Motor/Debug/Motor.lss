@@ -414,7 +414,7 @@ uint16_t adc_read(uint8_t channel) {
  45e:	80 81       	ld	r24, Z
  460:	80 64       	ori	r24, 0x40	; 64
  462:	80 83       	st	Z, r24
-	while (ADCSRA & (1 << ADSC));               // Wait for conversion to finish
+	while (ADCSRA & (1 << ADSC));         
  464:	80 91 7a 00 	lds	r24, 0x007A	; 0x80007a <__TEXT_REGION_LENGTH__+0x7f807a>
  468:	86 fd       	sbrc	r24, 6
  46a:	fc cf       	rjmp	.-8      	; 0x464 <adc_read+0x18>
@@ -606,23 +606,21 @@ Disassembly of section .text.usart_task:
 Disassembly of section .text.setup_pwm_and_dir:
 
 000004d6 <setup_pwm_and_dir>:
+}
 
 
 
 void setup_pwm_and_dir(void) {
-	// Direction pins as outputs
 	DDRD |= (1 << IN1) | (1 << IN2);
  4d6:	8a b1       	in	r24, 0x0a	; 10
  4d8:	8c 60       	ori	r24, 0x0C	; 12
  4da:	8a b9       	out	0x0a, r24	; 10
 
-	// PWM pin PB1 (OC1A) as output
 	DDRB |= (1 << PORTB1);
  4dc:	84 b1       	in	r24, 0x04	; 4
  4de:	82 60       	ori	r24, 0x02	; 2
  4e0:	84 b9       	out	0x04, r24	; 4
 
-	// Fast PWM 10-bit, non-inverted, prescaler = 8
 	TCCR1A = (1 << COM1A1)  | (1 << WGM10) | (1 << WGM11);
  4e2:	83 e8       	ldi	r24, 0x83	; 131
  4e4:	80 93 80 00 	sts	0x0080, r24	; 0x800080 <__TEXT_REGION_LENGTH__+0x7f8080>
@@ -634,8 +632,8 @@ void setup_pwm_and_dir(void) {
 Disassembly of section .text.main:
 
 00000476 <main>:
-// MAIN
-// ------------------------------------------------------------------
+
+
 
 // programa principal
 int main(void) {
