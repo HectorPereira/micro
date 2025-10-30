@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #define F_CPU 16000000UL
 #include <avr/io.h>
 #include <util/delay.h>
@@ -9,6 +10,11 @@
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include <util/twi.h>
+=======
+/*
+
+*/ 
+>>>>>>> c7c0e8e6f3a1a91cc6868c95b11cd1bb24ae253d
 
 
 #define BAUD 9600UL

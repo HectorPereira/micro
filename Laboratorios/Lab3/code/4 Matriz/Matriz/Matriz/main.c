@@ -1,9 +1,6 @@
-/*
- * main.c
- *
- * Created: 10/23/2025 11:38:04 AM
- *  Author: hecto
- */ 
+// Reutilizando el codigo de USART del laboratorio 2
+// y los tiempos con asm volatile para la matriz de leds
+
 
 #define F_CPU 16000000UL
 
@@ -105,9 +102,9 @@ ISR(PCINT1_vect) {
 	PORTB ^= (1<<PORTB5);
 	PCICR &= ~(1<<PCIE1);
 	
-	red = rand() % 256;  // random value 0–255
-	green = rand() % 256;  // random value 0–255
-	blue = rand() % 256;  // random value 0–255
+	red = rand() % 256;  // random 0–255
+	green = rand() % 256;  // random 0–255
+	blue = rand() % 256;  // random 0–255
 	
 	debounce_on_at = millis_now() + DEBOUNCE_MS;
 	debounce_active = 1;
@@ -140,19 +137,19 @@ int main(void) {
 		// UTOA(y_coord, buffer); usart_write_str(buffer);
 		
 		if (x_coord == 0) {
-			x_pos = (x_pos > 0) ? x_pos - 1 : 0;    // clamp at 0
+			x_pos = (x_pos > 0) ? x_pos - 1 : 0;    // clamp en 0
 			_delay_ms(50);
 		}
 		if (x_coord == 1023) {
-			x_pos = (x_pos < 7) ? x_pos + 1 : 7;    // clamp at 7
+			x_pos = (x_pos < 7) ? x_pos + 1 : 7;    // clamp en 7
 			_delay_ms(50);
 		}
 		if (y_coord == 0) {
-			y_pos = (y_pos > 0) ? y_pos - 1 : 0;    // clamp at 0
+			y_pos = (y_pos > 0) ? y_pos - 1 : 0;    // clamp en 0
 			_delay_ms(50);
 		}
 		if (y_coord == 1023) {
-			y_pos = (y_pos < 7) ? y_pos + 1 : 7;    // clamp at 7
+			y_pos = (y_pos < 7) ? y_pos + 1 : 7;    // clamp en 7
 			_delay_ms(50);
 		};
 		turn_led(x_pos, y_pos);
@@ -162,15 +159,15 @@ int main(void) {
 }
 
 void turn_led(uint8_t led_x, uint8_t led_y) {
-	uint8_t index = led_y * 8 + led_x;  // 8×8 matrix mapping
-	ws2812_clear();                      // set all to 0 in buffer
-	ws2812_set_pixel(index, red, green, blue);  // set one pixel
-	ws2812_show_all();                   // send entire frame once
+	uint8_t index = led_y * 8 + led_x;  
+	ws2812_clear();                     
+	ws2812_set_pixel(index, red, green, blue);  
+	ws2812_show_all();                   
 }
 
 void ws2812_set_pixel(uint8_t index, uint8_t r, uint8_t g, uint8_t b) {
 	if (index >= NUM_LEDS) return;
-	leds[index * 3 + 0] = g;  // WS2812 expects GRB order
+	leds[index * 3 + 0] = g;  
 	leds[index * 3 + 1] = r;
 	leds[index * 3 + 2] = b;
 }
@@ -179,10 +176,9 @@ void ws2812_show_all(void) {
 	cli();
 	for (uint16_t i = 0; i < NUM_LEDS; i++) {
 		ws2812_send_pixel(leds[i * 3 + 1], leds[i * 3 + 0], leds[i * 3 + 2]);
-		// or just send_byte() for each component if using your low-level routine
 	}
 	sei();
-	ws2812_show();   // 50 µs reset
+	ws2812_show();   
 }
 
 void ws2812_clear(void) {
@@ -275,10 +271,10 @@ void send_bit(uint8_t bitVal){
 void send_byte(uint8_t byte) {
 	cli();
 	for (uint8_t i = 0; i < 8; i++) {
-		send_bit(byte & 0x80);  // send most significant bit first
-		byte <<= 1;             // shift next bit into MSB position
+		send_bit(byte & 0x80);  
+		byte <<= 1;             
 	}
-	sei();  // re-enable interrupts
+	sei();  
 }
 
 // Enviar pixel
