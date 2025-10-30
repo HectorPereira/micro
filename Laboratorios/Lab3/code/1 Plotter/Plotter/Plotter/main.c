@@ -27,9 +27,7 @@ volatile uint32_t g_ms = 0;
 volatile uint8_t  db0_armed = 0, db1_armed = 0;
 volatile uint32_t db0_deadline = 0, db1_deadline = 0;
 
-#include "murcielago_path.h"
-#include "circle_data_path.h"
-#include "flor_path.h"
+#include "path_data.h"
 
 #define STEP_X PB3
 #define DIR_X  PB4
@@ -177,14 +175,27 @@ int main(void) {
 	debounce_timer_init();
 	while (1) {
 		execute_path_mirrored(murcielago_path, sizeof(murcielago_path), 3.0f);
+		
 		pen_up();
-		move_y(0,50);
-		execute_path(circle_data_path, sizeof(circle_data_path), 0.05f);
+		move_x(0,40);
+		execute_path(circle_data_path, sizeof(circle_data_path), 0.04f);
+		
 		pen_up();
-		move_y(0,50);
+		move_y(1,20);
+		move_x(0,40);
 		execute_path(flor_path, sizeof(flor_path), 3.0f);
+		
 		pen_up();
-		move_y(0,500);
+		move_x(1,90);
+		move_y(1,60);
+		execute_path(cross_data_path, sizeof(cross_data_path), 0.5f);
+		
+		pen_up();
+		move_x(0,40);
+		execute_path(triangle_data_path, sizeof(triangle_data_path), 0.5f);
+		
+		pen_up();
+		move_x(0,500);
 	}
 }
 

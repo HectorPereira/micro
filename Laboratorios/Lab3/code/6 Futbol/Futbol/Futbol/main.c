@@ -1,16 +1,75 @@
-/*
- * main.c
- *
- * Created: 10/23/2025 11:38:41 AM
- *  Author: hecto
- */ 
+#define F_CPU 16000000UL
+#include <avr/io.h>
+#include <util/delay.h>
 
-#include <xc.h>
+void uart_init(void) {
+	// 9600 baud @ 16 MHz
+	uint16_t ubrr = 103;  // from formula: UBRR = (F_CPU / (16 * BAUD)) - 1
+	UBRR0H = (uint8_t)(ubrr >> 8);
+	UBRR0L = (uint8_t)(ubrr);
 
-int main(void)
-{
-    while(1)
-    {
-        //TODO:: Please write your application code 
-    }
+	// Enable transmitter and receiver
+	UCSR0B = (1 << RXEN0) | (1 << TXEN0);
+
+	// Frame format: 8 data bits, 1 stop bit, no parity
+	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
+}
+
+void uart_tx(char c) {
+	// Wait for empty transmit buffer
+	while (!(UCSR0A & (1 << UDRE0)));
+	UDR0 = c;
+}
+
+char uart_rx(void) {
+	// Wait for data to be received
+	while (!(UCSR0A & (1 << RXC0)));
+	return UDR0;
+}
+
+void motor_init(void){
+	DDRD |= (1<<PORTD6) | (1<<PORTD7);
+}
+
+void left(){
+	PORTD |= (1<<PORTD6);
+	PORTD &= ~(1<<PORTD7);
+}
+
+void right(){
+	PORTD |= (1<<PORTD7);
+	PORTD &= ~(1<<PORTD6);
+}
+
+void forward(){
+	PORTD |= (1<<PORTD7);
+	PORTD |= (1<<PORTD6);
+}
+
+void stop(){
+	PORTD &= ~(1<<PORTD7);
+	PORTD &= ~(1<<PORTD6);
+}
+
+void uart_println(char c) {
+	uart_tx(c);
+	uart_tx('\r');
+	uart_tx('\n');
+}
+
+int main(void) {
+	uart_init();
+	motor_init();
+
+	while (1) {
+		// If data available (RX complete flag)
+		if (UCSR0A & (1 << RXC0)) {
+			char val = uart_rx();
+			uart_println(val);
+			if (val == 'F') forward();
+			if (val == 'L') left();
+			if (val == 'R') right();
+			if (val == '0') stop();
+		}
+	}
 }
