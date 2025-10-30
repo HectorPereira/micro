@@ -19,7 +19,7 @@ main.d main.o: .././main.c \
  c:\program\ files\microchip\xc8\v2.36\avr\avr\include\avr\interrupt.h \
  c:\program\ files\microchip\xc8\v2.36\avr\avr\include\avr\pgmspace.h \
  c:\program\ files\microchip\xc8\v2.36\avr\lib\gcc\avr\5.4.0\include\stddef.h \
- .././murcielago_path.h .././circle_data_path.h .././flor_path.h
+ .././path_data.h
 
 c:\program\ files\microchip\xc8\v2.36\avr\avr\include\avr\io.h:
 
@@ -61,8 +61,4 @@ c:\program\ files\microchip\xc8\v2.36\avr\avr\include\avr\pgmspace.h:
 
 c:\program\ files\microchip\xc8\v2.36\avr\lib\gcc\avr\5.4.0\include\stddef.h:
 
-.././murcielago_path.h:
-
-.././circle_data_path.h:
-
-.././flor_path.h:
+.././path_data.h:

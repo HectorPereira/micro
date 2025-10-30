@@ -92,16 +92,10 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="circle_data_path.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="flor_path.h">
+    <Compile Include="path_data.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="murcielago_path.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
