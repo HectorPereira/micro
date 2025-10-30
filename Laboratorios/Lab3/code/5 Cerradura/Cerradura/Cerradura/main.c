@@ -132,7 +132,6 @@ static inline uint8_t uid_iguales(const uint8_t *a, const uint8_t *b){
 }
 
 // ---- EEPROM: guardar y leer UID ----
-// Usa tus EEPROM_write/EEPROM_read (evita desgaste con *_update_ si luego cambias a avr/eeprom.h)
 void guardar_uid(const uint8_t u[UID_LEN]){
 	for (uint8_t i=0;i<UID_LEN;i++){
 		EEPROM_write((uint16_t)&ee_uid[i], u[i]);
@@ -240,9 +239,9 @@ int main(void)
 	init_leds();
 	lcd_init();
 
-	portc_switch_init();       // <-- habilita PCINT en PC0..PC2
-	
-	sei();                     // habilita interrupciones globales
+// 	portc_switch_init();       // <-- habilita PCINT en PC0..PC2
+// 	
+// 	sei();                     // habilita interrupciones globales
 
 	lcd_msg2("Bienvenido!!", "RFID listo");
 	uart_print("\r\n1) Leer y comparar tarjeta\r\n2) Registrar nueva tarjeta\r\n3) Borrar tarjeta\r\n");
