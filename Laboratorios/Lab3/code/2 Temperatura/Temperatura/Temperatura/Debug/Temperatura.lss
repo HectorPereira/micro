@@ -15,11 +15,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   5 .debug_aranges 000000f0  00000000  00000000  0000297b  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   0000184c  00000000  00000000  00002a6b  2**0
+  6 .debug_info   0000184d  00000000  00000000  00002a6b  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 0000088f  00000000  00000000  000042b7  2**0
+  7 .debug_abbrev 0000088f  00000000  00000000  000042b8  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   000009c7  00000000  00000000  00004b46  2**0
+  8 .debug_line   000009c7  00000000  00000000  00004b47  2**0
                   CONTENTS, READONLY, DEBUGGING
   9 .debug_frame  00000398  00000000  00000000  00005510  2**2
                   CONTENTS, READONLY, DEBUGGING
@@ -73,7 +73,7 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
  34 .text.main    0000023e  00000ce0  00000ce0  00000d74  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 35 .bss.heater_on.2376 00000001  00800208  00800208  000027d2  2**0
+ 35 .bss.heater_on.2368 00000001  00800208  00800208  000027d2  2**0
                   ALLOC
  36 .bss.rxWritePos 00000001  00800209  00800209  000027d2  2**0
                   ALLOC
@@ -1164,7 +1164,7 @@ Disassembly of section .text.main:
  d96:	80 91 0b 02 	lds	r24, 0x020B	; 0x80020b <contolar>
  d9a:	88 23       	and	r24, r24
  d9c:	69 f3       	breq	.-38     	; 0xd78 <main+0x98>
- d9e:	10 92 02 02 	sts	0x0202, r1	; 0x800202 <string_to_send>
+ d9e:	10 92 02 02 	sts	0x0202, r1	; 0x800202 <_end>
  da2:	0e 94 1c 12 	call	0x2438	; 0x2438 <adc_read_blocking_adif>
  da6:	bc 01       	movw	r22, r24
  da8:	80 e0       	ldi	r24, 0x00	; 0
@@ -1282,7 +1282,7 @@ Disassembly of section .text.main:
  eb0:	18 16       	cp	r1, r24
  eb2:	3c f0       	brlt	.+14     	; 0xec2 <main+0x1e2>
  eb4:	81 e0       	ldi	r24, 0x01	; 1
- eb6:	80 93 08 02 	sts	0x0208, r24	; 0x800208 <heater_on.2376>
+ eb6:	80 93 08 02 	sts	0x0208, r24	; 0x800208 <heater_on.2368>
  eba:	85 b1       	in	r24, 0x05	; 5
  ebc:	8f 7e       	andi	r24, 0xEF	; 239
  ebe:	85 b9       	out	0x05, r24	; 5
@@ -1299,11 +1299,11 @@ Disassembly of section .text.main:
  ed6:	0e 94 81 13 	call	0x2702	; 0x2702 <__gesf2>
  eda:	88 23       	and	r24, r24
  edc:	2c f0       	brlt	.+10     	; 0xee8 <main+0x208>
- ede:	10 92 08 02 	sts	0x0208, r1	; 0x800208 <heater_on.2376>
+ ede:	10 92 08 02 	sts	0x0208, r1	; 0x800208 <heater_on.2368>
  ee2:	85 b1       	in	r24, 0x05	; 5
  ee4:	80 61       	ori	r24, 0x10	; 16
  ee6:	85 b9       	out	0x05, r24	; 5
- ee8:	80 91 08 02 	lds	r24, 0x0208	; 0x800208 <heater_on.2376>
+ ee8:	80 91 08 02 	lds	r24, 0x0208	; 0x800208 <heater_on.2368>
  eec:	88 23       	and	r24, r24
  eee:	11 f0       	breq	.+4      	; 0xef4 <main+0x214>
  ef0:	84 e6       	ldi	r24, 0x64	; 100

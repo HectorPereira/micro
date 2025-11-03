@@ -137,7 +137,7 @@ Discarded input sections
                 0x0000000000000000       0x16 main.o
  .text.spi_transfer
                 0x0000000000000000        0xc main.o
- .bss.cadena.2424
+ .bss.cadena.2416
                 0x0000000000000000        0xa main.o
  .bss.serialWritePos
                 0x0000000000000000        0x1 main.o
@@ -979,10 +979,10 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0x184c
+.debug_info     0x0000000000000000     0x184d
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000      0x5f4 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/Atmel/ATmega_DFP/2.1.506/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
- .debug_info    0x00000000000005f4     0x1258 main.o
+ .debug_info    0x00000000000005f4     0x1259 main.o
 
 .debug_abbrev   0x0000000000000000      0x88f
  *(.debug_abbrev)
@@ -1040,9 +1040,9 @@ LOAD data_init
  .note.gnu.avr.deviceinfo
                 0x0000000000000000       0x40 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/Atmel/ATmega_DFP/2.1.506/xc8/avr/lib/avr5/memx-const/crtatmega328p.o
 
-.bss.heater_on.2376
+.bss.heater_on.2368
                 0x0000000000800208        0x1
- .bss.heater_on.2376
+ .bss.heater_on.2368
                 0x0000000000800208        0x1 main.o
 
 .bss.rxWritePos

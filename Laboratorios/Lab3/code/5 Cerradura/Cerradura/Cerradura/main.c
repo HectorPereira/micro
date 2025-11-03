@@ -10,7 +10,7 @@
 #include <avr/eeprom.h>
 #include <util/twi.h>
 
-#include "Include/Include/RC522.h"
+
 #define BAUD 9600UL
 #define UBRR_VALUE ((F_CPU/16/BAUD) - 1)
 #define TX_BUFFER_SIZE 128
@@ -239,11 +239,9 @@ int main(void)
 	init_leds();
 	lcd_init();
 
-// 	portc_switch_init();       // <-- habilita PCINT en PC0..PC2
-// 	
-// 	sei();                     // habilita interrupciones globales
 
 	lcd_msg2("Bienvenido!!", "RFID listo");
+	
 	uart_print("\r\n1) Leer y comparar tarjeta\r\n2) Registrar nueva tarjeta\r\n3) Borrar tarjeta\r\n");
 	
 	while(1)
@@ -811,19 +809,13 @@ static inline uint8_t I2C_write(uint8_t v) {
 // ---- PCF8574 / LCD wiring (mapeo más común) ----
 // Si tu módulo ES de los que llevan D4..D7 en P0..P3 y EN=0x20, RW=0x40, RS=0x80, BL=0x10,
 // comenta estas 4 líneas y descomenta el bloque alternativo más abajo.
+
 #define LCD_EN         0x04
 #define LCD_RW         0x02
 #define LCD_RS         0x01
 #define LCD_BACKLIGHT  0x08
 static inline uint8_t nibble_to_bus(uint8_t nibble) { return (nibble << 4); } // nibble en P4..P7
 
-/*  —— Alternativa de mapeo (DESCOMENTAR si tu backpack es de este tipo) ——
-#define LCD_EN         0x20
-#define LCD_RW         0x40
-#define LCD_RS         0x80
-#define LCD_BACKLIGHT  0x10
-static inline uint8_t nibble_to_bus(uint8_t nibble) { return (nibble & 0x0F); } // nibble en P0..P3
-*/
 
 // ---- Dirección dinámica (autodetección) ----
 static uint8_t PCF_ADDR = 0x27; // valor por defecto

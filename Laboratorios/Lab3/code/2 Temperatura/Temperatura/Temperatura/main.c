@@ -49,7 +49,7 @@ uint8_t spi_transfer(uint8_t data);
 
 void uart_init(unsigned int ubrr);
 
-char uart_receive(void);
+
 
 void uart_send(char c);
 
@@ -58,6 +58,8 @@ void uart_print(const char *s);
 void uart_print_hex(uint16_t val);
 
 void uart_print_dec(uint16_t val);
+
+
 void enviar_temperatura(uint16_t tmin, uint16_t tmax);
 char Number_to_ascii(uint8_t val);
 
@@ -86,13 +88,15 @@ volatile char    rxBuffer[RX_BUFFER_SIZE];
 volatile uint8_t rxReadPos  = 0;
 volatile uint8_t rxWritePos = 0;
 
-void appendSerial(char c);
-void serialWrite(const char *c);
-char peekChar(void);
+
+
 char Chardos(void);
 char usart_recibirDato(void);
 char * usart_recibirCadena(void);
+
 bool usart_readstring(char *dst, uint8_t cap);
+
+
 bool ascii_to_u16_switch(const char *s, uint16_t *out);
 
 int main(void)
