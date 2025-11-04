@@ -7,28 +7,33 @@
 #include <avr/pgmspace.h>
 
 typedef struct {
-	char cmd;
-	float dx_mm;
-	float dy_mm;
+	char cmd;       // 'U' = levantar lápiz, 'D' = bajar lápiz
+	float dx_mm;    // desplazamiento en X (mm)
+	float dy_mm;    // desplazamiento en Y (mm)
 } Move;
 
+// Pines de los finales de carrera
 #define LIMIT_Y_MIN   PD2
 #define LIMIT_Y_MAX   PD3
 
 #define LIMIT_MIN_ACTIVE()   ((PIND & (1<<LIMIT_Y_MIN)) == 0)
 #define LIMIT_MAX_ACTIVE()   ((PIND & (1<<LIMIT_Y_MAX)) == 0)
 
-#define DEBOUNCE_MS  15
+#define DEBOUNCE_MS  15  // tiempo antirrebote
 
-volatile uint8_t  g_limit_hit = 0;
-volatile uint8_t  g_limit_src = 0xFF;
-volatile uint32_t g_ms = 0;
 
-volatile uint8_t  db0_armed = 0, db1_armed = 0;
+// Variables globales
+volatile uint8_t  g_limit_hit = 0;     // se activa si se toca un límite
+volatile uint8_t  g_limit_src = 0xFF;  // guarda cuál límite se activó
+volatile uint32_t g_ms = 0;            // contador de milisegundos
+
+volatile uint8_t  db0_armed = 0, db1_armed = 0;   // banderas de antirrebote
 volatile uint32_t db0_deadline = 0, db1_deadline = 0;
 
 #include "path_data.h"
 
+
+// Pines de motores y solenoide
 #define STEP_X PB3
 #define DIR_X  PB4
 #define EN_X   PB5
@@ -38,8 +43,10 @@ volatile uint32_t db0_deadline = 0, db1_deadline = 0;
 #define STEP_SCALE 18.46f
 #define SOLENOID PC0
 
+// Pequeña función de retardo por ciclos
 static inline void delay_cycles(uint16_t n){ _delay_loop_2(n); }
 
+// Inicialización de pines del plotter
 void plotter_init(void) {
 	DDRB |= (1<<STEP_X)|(1<<DIR_X)|(1<<EN_X);
 	DDRC |= (1<<STEP_Y)|(1<<DIR_Y)|(1<<EN_Y)|(1<<SOLENOID);
@@ -48,22 +55,27 @@ void plotter_init(void) {
 	PORTC &= ~(1<<SOLENOID);
 }
 
+// Lápiz arriba
 void pen_up(void) {
 	PORTC |= (1<<SOLENOID);
 }
 
+// Lápiz abajo
 void pen_down(void) {
 	PORTC &= ~(1<<SOLENOID);
 }
 
+// Movimiento básico de un eje
 void move_axis(volatile uint8_t *port_dir, uint8_t dir_bit,
 volatile uint8_t *port_step, uint8_t step_bit,
 uint8_t direction, uint16_t steps)
 {
-	if (g_limit_hit) return;
+	if (g_limit_hit) return; // detener si hay emergencia
+
 	if(direction) *port_dir |=  (1<<dir_bit);
 	else           *port_dir &= ~(1<<dir_bit);
 	delay_cycles(1);
+
 	for (uint16_t i = 0; i < steps; i++) {
 		if (g_limit_hit) break;
 		*port_step |=  (1<<step_bit);
@@ -73,22 +85,26 @@ uint8_t direction, uint16_t steps)
 	}
 }
 
+// Movimiento en eje X
 void move_x(uint8_t dir, float dist_mm) {
 	uint16_t steps = (uint16_t)(dist_mm * STEP_SCALE);
 	move_axis(&PORTB, DIR_X, &PORTB, STEP_X, dir, steps);
 }
 
+// Movimiento en eje Y
 void move_y(uint8_t dir, float dist_mm) {
 	uint16_t steps = (uint16_t)(dist_mm * STEP_SCALE);
 	move_axis(&PORTC, DIR_Y, &PORTC, STEP_Y, dir, steps);
 }
 
+// Apagado de emergencia
 static inline void emergency_stop(void){
 	pen_up();
 	PORTB &= ~(1<<EN_X);
 	PORTC &= ~(1<<EN_Y);
 }
 
+// Inicializa timer para antirrebote
 static void debounce_timer_init(void){
 	TCCR0A = (1<<WGM01);
 	TCCR0B = 0;
@@ -97,6 +113,8 @@ static void debounce_timer_init(void){
 	TCCR0B = (1<<CS01) | (1<<CS00);
 }
 
+
+// Configura interrupciones de los finales de carrera
 static void limits_init(void){
 	DDRD  &= ~((1<<LIMIT_Y_MIN) | (1<<LIMIT_Y_MAX));
 	PORTD |=  ((1<<LIMIT_Y_MIN) | (1<<LIMIT_Y_MAX));
@@ -108,6 +126,8 @@ static void limits_init(void){
 	sei();
 }
 
+
+// Ejecuta un camino normal
 void execute_path(const Move *path, uint16_t size, float path_scale) {
 	for (uint16_t i = 0; i < size / sizeof(Move); i++) {
 		if (g_limit_hit) break;
@@ -138,6 +158,7 @@ void execute_path(const Move *path, uint16_t size, float path_scale) {
 	}
 }
 
+// Ejecuta un camino y luego su reflejo vertical
 void execute_path_mirrored(const Move *path, uint16_t size, float path_scale) {
 	execute_path(path, size, path_scale);
 	for (int16_t i = (size / sizeof(Move)) - 1; i >= 0; i--) {
@@ -198,19 +219,21 @@ int main(void) {
 		move_x(0,500);
 	}
 }
-
+// Interrupción por límite inferior
 ISR(INT0_vect){
 	EIMSK &= ~(1<<INT0);
 	db0_armed    = 1;
 	db0_deadline = g_ms + DEBOUNCE_MS;
 }
 
+// Interrupción por límite superior
 ISR(INT1_vect){
 	EIMSK &= ~(1<<INT1);
 	db1_armed    = 1;
 	db1_deadline = g_ms + DEBOUNCE_MS;
 }
 
+// Interrupción del timer para antirrebote
 ISR(TIMER0_COMPA_vect){
 	g_ms++;
 	if (db0_armed && (int32_t)(g_ms - db0_deadline) >= 0){
