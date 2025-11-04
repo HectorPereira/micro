@@ -8,7 +8,7 @@ from collections import deque
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-PORT = "COM8"
+PORT = "COM7"
 BAUD = 9600
 EOL_ENVIO = "\r\n"  # o "\n"
 
