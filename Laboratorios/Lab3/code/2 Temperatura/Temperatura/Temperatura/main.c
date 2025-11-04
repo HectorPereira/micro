@@ -48,28 +48,17 @@ void spi_init(void);
 uint8_t spi_transfer(uint8_t data);
 
 void uart_init(unsigned int ubrr);
-
-
-
 void uart_send(char c);
-
 void uart_print(const char *s);
-
 void uart_print_hex(uint16_t val);
-
 void uart_print_dec(uint16_t val);
-
-
 void enviar_temperatura(uint16_t tmin, uint16_t tmax);
 char Number_to_ascii(uint8_t val);
-
 uint16_t adc_read_blocking_adif(void);
-
 void cambiar_rango(uint16_t *tmin, uint16_t *tmax);
 static void pedir_u16_linea(const char *prompt, uint16_t *out, uint16_t vmin, uint16_t vmax);
 
 
-void uart_print_hex_array(const uint8_t *arr, uint8_t len);
 
 static inline void Init_ventilador(void);
 static inline void Ventilador_on(void);
@@ -124,9 +113,9 @@ int main(void)
 	uint16_t adc = 0;
 	
 	OCR0A = 0;
-			
+	OCR2A = 0;    
+	
 	uart_print("Si quiere prender el sistema escriba Encender\r\n");
-	//uart_print("Una vez encendido, escriba change para cambiar el punto medio\r\n");
 	
 	char c[2];	
 	char u[64];      
@@ -178,8 +167,24 @@ int main(void)
 			heater_on = 0; 
 			Ventilador_on();             // por encima del máximo -> apagar
 		}
-		// dentro de la banda [tC2, tC3] se mantiene el último estado
-		OCR0A = heater_on ? 100 : 0;
+		
+		if (heater_on)  OCR0A = 100;
+		else            OCR0A = 0;
+		
+		uint8_t d_t   = (int16_t)tC - (int16_t)(tC3);
+		uint8_t pwm2;
+		if(d_t > 0){
+			
+			if (d_t > 20)       pwm2 = 255;
+			else if (d_t > 10)  pwm2 = 125;
+			else if (d_t > 5)   pwm2 = 50;
+			else                pwm2 = 25;
+
+			OCR2A = pwm2;   
+		}
+		
+	
+		
 		
 		char k = Chardos();
 		if (k == '1') {
@@ -271,15 +276,25 @@ ISR(TIMER1_OVF_vect) {
 	TCNT1 = T1_PRELOAD;         // recarga para el próximo segundo
 	medicion();                 // callback de usuario cada 1 s
 }
-//PIN 6 with fast PWM
-void Init_pwm(){
-    DDRD |= (1 << DDD6);
+// D6 (PD6/OC0A) con Timer0
+// D11 (PB3/OC2A) con Timer2
+void Init_pwm(void){
+	// --- Salidas PWM ---
+	DDRD |= (1 << DDD6);   // D6 = OC0A
+	DDRB |= (1 << DDB3);   // D11 = OC2A
+	//PORTB |= (1 << PORTB3);
 
-// Fast PWM (modo 3, TOP=255), salida no inversora en OC0A
-    TCCR0A = (1 << WGM01) | (1 << WGM00) | (1 << COM0A1); // COM0A1=1, COM0A0=0
-    TCCR0B = (1 << CS01) | (1 << CS00); // Prescaler = 64  (? 976 Hz @16MHz)
+	// ---- Timer0: Fast PWM 8-bit, no inversor en OC0A, N=64 (~976 Hz) ----
+	TCCR0A = (1 << WGM01) | (1 << WGM00)
+	| (1 << COM0A1);               // OC0A no inversor (D6)
+	TCCR0B = (1 << CS01)  | (1 << CS00);  // N=64
+	OCR0A  = 0;                           // duty D6
+
+	// ---- Timer2: Fast PWM 8-bit, no inversor en OC2A, N=64 (~976 Hz) ----
+	TCCR2A = (1 << WGM21) | (1 << WGM20)| (1 << COM2A1);               // OC2A no inversor (D11/PB3)
+	TCCR2B = (1 << CS22);                 // CS22:CS21:CS20 = 100 => N=64
+	OCR2A  = 0;                           // duty D11
 }
-
 
 Init_adc(){
 	ADMUX  = 0b01000001;
@@ -360,13 +375,6 @@ char Number_to_ascii(uint8_t val){
 }
 
 
-void uart_print_hex_array(const uint8_t *arr, uint8_t len) {
-	for (uint8_t i = 0; i < len; i++) {
-		uart_print_hex(arr[i]);
-		uart_send(' ');
-	}
-	uart_print("\r\n");
-}
 
 void spi_init(void) {
 	DDRB |= (1<<PORTB2)|(1<<PORTB3)|(1<<PORTB5); // SS, MOSI, SCK salidas
