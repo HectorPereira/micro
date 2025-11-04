@@ -4,47 +4,38 @@
 \subsection{Resultados por módulo}
 
 
-
-
 \subsection{Temperatura}
+El circuito final de esta consigna del laboratorio se puede ver en la imagen correspondiente. 
 
-Para esta consigna se utilizó el módulo mostrado en la Figura \ref{fig:modulo_tip31_lm35}, conformado por dos sensores de temperatura LM35, cada uno asociado a un transistor de potencia TIP31.
-En el circuito, los transistores TIP31 reciben una señal PWM generada por el microcontrolador, lo que provoca un aumento de su temperatura debido a la disipación de potencia en sus uniones.
-A su vez, las salidas analógicas de los LM35 se conectan a las entradas ADC del Arduino, permitiendo medir en tiempo real la variación de temperatura producida por el control PWM.
-Finalmente, se incorporó un puente H destinado a accionar un ventilador de enfriamiento, utilizado para regular la temperatura del sistema y acelerar el proceso de disipación térmica de los transistores.
+\paragraph{Envío de datos por USART}
+
+En la Figura \ref{fig:Tem_USART} se puede observar la forma en la que se enviaban los datos por puerto serial entre el \texttt{ATmega328P} y el código de Python. 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.35\textwidth]{Imagenes/Modulo Temperatura.jpg}
-    \caption{Módulo utilizado}
-    \label{fig:modulo_tip31_lm35}
+    \includegraphics[width=0.35\textwidth]{anexos/2 Temperatura/USART Temperatura.png}
+    \caption{Comunicación de datos vía USART entre el microcontrolador y Python.}
+    \label{fig:Tem_USART}
 \end{figure}
 
-\subsubsection{Configuracion de PMW}
+\paragraph{Gráfica en tiempo real}
 
-Para calentar los transistores de potencia TIP31 se empleó el pin digital D6 del microcontrolador, configurado en modo Fast PWM. De esta manera, al variar el ciclo de trabajo de la señal, se controló la potencia disipada por el transistor y, en consecuencia, su temperatura.
+El resultado de la gráfica en tiempo real se muestra en la Figura \ref{fig:Grafica1}. En ella se observa cómo el eje X representa la evolución temporal de la ejecución (hora de registro en tiempo real), mientras que en el eje Y se visualizan los valores de temperatura obtenidos cada segundo.  
+Además, se incluye una línea de referencia que indica la temperatura media esperada.
 
-Asimismo, se implementó PWM en el control del ventilador, ajustando la anchura del pulso en función de la diferencia de temperatura registrada por los sensores LM35. Esto permitió que el ventilador girara más rápido o más lento según las necesidades de enfriamiento del sistema.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.35\textwidth]{anexos/2 Temperatura/Grafica tiempo real.png}
+    \caption{Gráfica de temperatura en tiempo real.}
+    \label{fig:Grafica1}
+\end{figure}
 
-La inicialización del módulo PWM puede observarse en el fragmento de código incluido en el Anexo \ref{anexo:PMW_Temperatura}, donde se configuran los registros correspondientes al Timer0 en modo Fast PWM.
+\paragraph{Simulación}
 
-Cabe destacar que el calefactor operaba únicamente en modo binario (encendido/apagado) a través de su entrada PWM, mientras que la velocidad del ventilador se reguló de forma proporcional a una variable Dt (delta de temperatura), tal como se detalla en el Anexo.
+Véase la Figura  para una representación del montaje de la simulación, la cual fue realizada en el entorno \textbf{Proteus}. En dicha figura se puede observar la disposición de los componentes utilizados y las conexiones correspondientes al sistema de control térmico.
 
-\subsubsection{Comunicacion serial con python}
+\paragraph{Gráfica de la simulación}
 
-Para realizar la visualización en tiempo real de las mediciones, se empleó un script desarrollado en Python, utilizando la biblioteca PySerial para la comunicación con el microcontrolador a través del puerto serie.
-
-Con el fin de simplificar la lectura de datos, durante la inicialización del sistema el microcontrolador enviaba únicamente los valores numéricos de temperatura, cada uno separado por un salto de línea.
-
-Para indicar al programa de Python el momento en que debía calcular la temperatura media, el microcontrolador transmitía la palabra clave “Temp” a través del monitor serial. Al detectar esta palabra, el script leía dos líneas consecutivas con los valores de temperatura y calculaba la media correspondiente, la cual era luego graficada en tiempo real.
-
-\subsubsection{Transmicion de datos - Simua}
-
-
-
-\subsection{Grafica en tiempo real}
-
-
-
-
-\subsubsection{}
+El resultado de la gráfica correspondiente a la simulación se muestra en la Figura .  
+De manera análoga a la gráfica en tiempo real, se presentan en una misma figura tanto la temperatura de referencia como la temperatura medida en cada instante de tiempo.  
+La diferencia principal radica en que en esta gráfica se visualiza la **línea temporal completa** de toda la simulación.
