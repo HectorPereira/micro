@@ -2,6 +2,15 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+
+#define mp 10000
+#define Pin_M PORTB2
+
+double dutyCycle = 0;
+
+
+
+
 void uart_init(void) {
 	// 9600 baud @ 16 MHz
 	uint16_t ubrr = 103;  // from formula: UBRR = (F_CPU / (16 * BAUD)) - 1
@@ -31,6 +40,18 @@ void motor_init(void){
 	DDRD |= (1<<PORTD6) | (1<<PORTD7);
 }
 
+
+//PWM para el control del motor paso a paso 
+void init_motor2(){
+	DDRB |= (1<<Pin_M);
+	
+	TCCR0A |= (1 << WGM11) | (1<<COM1A1);
+	TCCR0B |= (1 << WGM13) | (1 << WGM12) | (1 << CS11); // clk/8
+	ICR1 = 39999;
+	
+	OCR0A = (dutyCycle/100)*255;
+}
+
 void left(){
 	PORTD |= (1<<PORTD6);
 	PORTD &= ~(1<<PORTD7);
@@ -51,17 +72,27 @@ void stop(){
 	PORTD &= ~(1<<PORTD6);
 }
 
+void punch(){
+	for(uint8_t i = 0; i < 100; i++){
+		OCR1A +=20;
+	}
+}
+
 void uart_println(char c) {
 	uart_tx(c);
 	uart_tx('\r');
 	uart_tx('\n');
 }
 
+
+
 int main(void) {
 	uart_init();
-	motor_init();
-
+	//motor_init();
+	init_motor2();
+	
 	while (1) {
+		punch();
 		// If data available (RX complete flag)
 		if (UCSR0A & (1 << RXC0)) {
 			char val = uart_rx();
@@ -69,6 +100,7 @@ int main(void) {
 			if (val == 'F') forward();
 			if (val == 'L') left();
 			if (val == 'R') right();
+			if (val == 'P') punch();
 			if (val == '0') stop();
 		}
 	}

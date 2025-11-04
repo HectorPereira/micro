@@ -3,3 +3,30 @@
 
 \subsection{Resultados por módulo}
 
+
+\subsection{Temperatura}
+
+Para esta consigna se utilizó el módulo mostrado en la Figura \ref{fig:modulo_tip31_lm35}, conformado por dos sensores de temperatura LM35, cada uno asociado a un transistor de potencia TIP31.
+En el circuito, los transistores TIP31 reciben una señal PWM generada por el microcontrolador, lo que provoca un aumento de su temperatura debido a la disipación de potencia en sus uniones.
+A su vez, las salidas analógicas de los LM35 se conectan a las entradas ADC del Arduino, permitiendo medir en tiempo real la variación de temperatura producida por el control PWM.
+Finalmente, se incorporó un puente H destinado a accionar un ventilador de enfriamiento, utilizado para regular la temperatura del sistema y acelerar el proceso de disipación térmica de los transistores.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.35\textwidth]{Imagenes/Modulo Temperatura.jpg}
+    \caption{Módulo utilizado}
+    \label{fig:modulo_tip31_lm35}
+\end{figure}
+
+\subsubsection{Configuracion de PMW}
+
+Para calentar los transistores de potencia TIP31 se empleó el pin digital D6 del microcontrolador, configurado en modo Fast PWM. De esta manera, al variar el ciclo de trabajo de la señal, se controló la potencia disipada por el transistor y, en consecuencia, su temperatura.
+
+Asimismo, se implementó PWM en el control del ventilador, ajustando la anchura del pulso en función de la diferencia de temperatura registrada por los sensores LM35. Esto permitió que el ventilador girara más rápido o más lento según las necesidades de enfriamiento del sistema.
+
+La inicialización del módulo PWM puede observarse en el fragmento de código incluido en el Anexo \ref{anexo:PMW_Temperatura}, donde se configuran los registros correspondientes al Timer0 en modo Fast PWM.
+
+Cabe destacar que el calefactor operaba únicamente en modo binario (encendido/apagado) a través de su entrada PWM, mientras que la velocidad del ventilador se reguló de forma proporcional a una variable Dt (delta de temperatura), tal como se detalla en el Anexo.
+
+
+\subsubsection{}
