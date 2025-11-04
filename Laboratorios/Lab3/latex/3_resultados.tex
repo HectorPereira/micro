@@ -35,7 +35,7 @@ En conclusión, el módulo cumplió su propósito demostrativo de integración e
 \subsection{Temperatura}
 El circuito final de esta consigna del laboratorio se puede ver en la imagen correspondiente. 
 
-\paragraph{Envío de datos por USART}
+\subsubsection{Envío de datos por USART}
 
 En la Figura \ref{fig:Tem_USART} se puede observar la forma en la que se enviaban los datos por puerto serial entre el \texttt{ATmega328P} y el código de Python. 
 
@@ -46,7 +46,7 @@ En la Figura \ref{fig:Tem_USART} se puede observar la forma en la que se enviaba
     \label{fig:Tem_USART}
 \end{figure}
 
-\paragraph{Gráfica en tiempo real}
+\subsubsection{Gráfica en tiempo real}
 
 El resultado de la gráfica en tiempo real se muestra en la Figura \ref{fig:Grafica1}. En ella se observa cómo el eje X representa la evolución temporal de la ejecución (hora de registro en tiempo real), mientras que en el eje Y se visualizan los valores de temperatura obtenidos cada segundo.  
 Además, se incluye una línea de referencia que indica la temperatura media esperada.
@@ -58,24 +58,18 @@ Además, se incluye una línea de referencia que indica la temperatura media esp
     \label{fig:Grafica1}
 \end{figure}
 
-\paragraph{Simulación}
+\subsubsection{Simulación}
 
 Véase la Figura  para una representación del montaje de la simulación, la cual fue realizada en el entorno \textbf{Proteus}. En dicha figura se puede observar la disposición de los componentes utilizados y las conexiones correspondientes al sistema de control térmico.
 
-\paragraph{Gráfica de la simulación}
+\subsubsection{Gráfica de la simulación}
 
-<<<<<<< HEAD
-El resultado de la gráfica correspondiente a la simulación se muestra en la Figura .  
-De manera análoga a la gráfica en tiempo real, se presentan en una misma figura tanto la temperatura de referencia como la temperatura medida en cada instante de tiempo.  
-La diferencia principal radica en que en esta gráfica se visualiza la **línea temporal completa** de toda la simulación.
-=======
 Para realizar la visualización en tiempo real de las mediciones, se empleó un script desarrollado en Python, utilizando la biblioteca PySerial para la comunicación con el microcontrolador a través del puerto serie.
 
 Con el fin de simplificar la lectura de datos, durante la inicialización del sistema el microcontrolador enviaba únicamente los valores numéricos de temperatura, cada uno separado por un salto de línea.
 
 Para indicar al programa de Python el momento en que debía calcular la temperatura media, el microcontrolador transmitía la palabra clave “Temp” a través del monitor serial. Al detectar esta palabra, el script leía dos líneas consecutivas con los valores de temperatura y calculaba la media correspondiente, la cual era luego graficada en tiempo real.
 
-\subsubsection{Transmicion de datos - Simua}
 
 
 
@@ -156,4 +150,3 @@ La implementación en ensamblador \texttt{inline} demostró ser una solución ef
 
 
 \subsection{Cerradura}
->>>>>>> c07484c70bc8ae7fd19d14ac16ec593cd8de7601
