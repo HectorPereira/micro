@@ -50,3 +50,52 @@ void Init_pwm(void){
 		
 \end{lstlisting}
 
+\paragraph{Configuracion de USART}\label{anexo:Py_monitor_serial}---\\
+\begin{lstlisting}[language=C, caption={Toma de datos por pyserial}]
+# ----------------- Hilos -----------------
+def lector(ser):
+    global temp_mode, temp_vals
+    while True:
+        try:
+            raw = ser.readline()
+            if not raw:
+                continue
+
+            s = raw.decode("utf-8", errors="replace").strip()
+            print(s)  # eco en consola
+
+            grabando.set()
+
+            # --- Protocolo 'temp': tomar 2 números y promediar ---
+            if s.lower() == "temp":
+                temp_mode = True
+                temp_vals = []
+                continue
+
+            if temp_mode:
+                # intenta parsear número para los dos siguientes renglones
+                try:
+                    v = float(s.replace(",", "."))
+                    temp_vals.append(v)
+                    if len(temp_vals) >= 2:
+                        avg = (temp_vals[0] + temp_vals[1]) / 2.0
+                        buf2.append(avg)              # Canal 2 = promedio
+                        temp_mode = False
+                        temp_vals = []
+                except ValueError:
+                    # si no es número, simplemente lo ignoramos y seguimos esperando
+                    pass
+                continue  # no permitir que estos números caigan al canal normal
+
+            # --- Caso normal: un número por línea -> Canal 1 ---
+            if grabando.is_set():
+                try:
+                    v = float(s.replace(",", "."))
+                    buf.append(v)
+                except ValueError:
+                    pass
+
+        except Exception as e:
+            print(f"\n[Lectura] {e}")
+            break
+\end{lstlisting}

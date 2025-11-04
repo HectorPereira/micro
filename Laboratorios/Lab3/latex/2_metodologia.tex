@@ -81,7 +81,10 @@ El módulo de Control de temperatura implementa un sistema de adquisición y reg
 El sensor LM35 está conectado al canal analógico A1 del microcontrolador. Su salida, proporcional a la temperatura (10 mV/°C), es digitalizada mediante el módulo ADC configurado con un prescaler de 128. La función \texttt{adc\_read\_blocking\_adif()} realiza una lectura bloqueante controlada por el flag \texttt{ADIF}, asegurando la finalización correcta de la conversión antes de procesar el valor obtenido.
 
 \paragraph*{\textbf{Control del ventilador mediante PWM}}---
-El ventilador es accionado mediante una señal PWM generada en el pin D6 (OC0A), utilizando el \texttt{Timer0} en modo Fast PWM. El ciclo de trabajo se ajusta variando el valor de \texttt{OCR0A} entre 0 y 255, de acuerdo con la temperatura medida. El sistema enciende o apaga el ventilador dependiendo de si la temperatura se encuentra fuera o dentro del rango configurado.
+El ventilador es accionado mediante una señal PWM generada en el pin D6 (OC0A), utilizando el Timer0 configurado en modo Fast PWM.
+El ciclo de trabajo se ajusta modificando el valor del registro \texttt{OCR0A} entre 0 y 255, en función de la temperatura medida por los sensores LM35.
+
+El sistema controla el ventilador de acuerdo con la temperatura: lo activa o desactiva según si el valor medido se encuentra fuera o dentro del rango establecido. La salida PWM se conecta al pin \texttt{ENABLE} del puente H, encargado de regular la velocidad del ventilador, mientras que la señal digital de control para el encendido o apagado se aplica a través del pin \texttt{PB4}, conectado al pin \texttt{IN2} del mismo puente.
 
 \paragraph*{\textbf{Límites de temperatura ajustables}}---
 Los valores mínimo y máximo (\texttt{tC2} y \texttt{tC3}) definen el rango de histéresis del control. El usuario puede modificarlos en tiempo real enviando el comando \texttt{'1'} por UART. El microcontrolador solicita los nuevos valores, los valida dentro del rango de 0 °C a 150 °C y los reenvía a la interfaz Python mediante la etiqueta \texttt{temp}, permitiendo su visualización inmediata.
