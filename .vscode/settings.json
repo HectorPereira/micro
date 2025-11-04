@@ -1,5 +1,7 @@
 {
+    
     "files.associations": {
+        "terminal.integrated.cwd": "${workspaceFolder}", 
         "string.h": "c",
         "compare": "c"
     }
