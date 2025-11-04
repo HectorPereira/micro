@@ -59,23 +59,16 @@ uint8_t debounce_active= 0;
 // ------------------------------------------------------------------
 
 
-uint8_t usart_rx_available(void);
 void UTOA(uint16_t value, char *buffer);
 
 uint32_t millis_now(void);
 void timer0_init(void);
 
-void usart_init(void);
 void adc_init(void);
 	
 
 // Leer adc
 uint16_t adc_read(uint8_t channel);
-
-uint8_t usart_write_try(uint8_t b); 
-uint16_t usart_write_str(const char *s);
-uint8_t usart_read_try(uint8_t *b);
-uint8_t usart_read_str(char *dest, uint8_t max_len);
 
 void startDebounceTimer(void);
 void handleButtonChange(void);
@@ -120,25 +113,7 @@ ISR(PCINT1_vect) {
 	debounce_active = 1;
 }
 
-// USART ISRs
-ISR(USART_UDRE_vect) {
-	if (tx_head == tx_tail) {
-		UCSR0B &= (uint8_t)~(1<<UDRIE0);
-		return;
-	}
-	UDR0 = tx_buf[tx_tail];
-	tx_tail = (uint8_t)((tx_tail + 1) & TX_MASK);
-}
 
-
-ISR(USART_RX_vect) {
-	uint8_t d = UDR0;
-	uint8_t next = (uint8_t)((rx_head + 1) & RX_MASK);
-	if (next != rx_tail) {
-		rx_buf[rx_head] = d;
-		rx_head = next;
-	}
-}
 
 
 
@@ -148,7 +123,6 @@ ISR(USART_RX_vect) {
 
 int main(void) {
 	adc_init();
-	usart_init();
 	timer0_init();
 	ws2812_init();
 	DDRB |= (1<<PORTB5);
@@ -159,12 +133,10 @@ int main(void) {
 	while (1) {
 		debouce_task();
 		x_coord = adc_read(2);
-		// usart_write_str("\nX: ");
-		// UTOA(x_coord, buffer); usart_write_str(buffer);
+
 		
 		y_coord = adc_read(3);
-		// usart_write_str(" | Y: ");
-		// UTOA(y_coord, buffer); usart_write_str(buffer);
+
 		
 		if (x_coord == 0) {
 			x_pos = (x_pos > 0) ? x_pos - 1 : 0;    // clamp en 0
@@ -222,10 +194,6 @@ void ws2812_clear(void) {
 // HELPERS
 // ------------------------------------------------------------------
 
-// Retorna la cantidad de elementos en el buffer de RX
-uint8_t usart_rx_available(void) {
-	return (uint8_t)((rx_head - rx_tail) & RX_MASK);
-}
 
 // Convierte un valor entero sin signo en un string
 void UTOA(uint16_t value, char *buffer) {
@@ -252,15 +220,6 @@ void UTOA(uint16_t value, char *buffer) {
 // ------------------------------------------------------------------
 // INITIALIZERS
 // ------------------------------------------------------------------
-
-void usart_init(void) {
-	const uint16_t ubrr = (16000000UL / (16UL * BAUD_RATE)) - 1;
-	UBRR0H = ubrr >> 8;
-	UBRR0L = ubrr;
-	UCSR0A = 0;
-	UCSR0B = (1 << TXEN0) | (1 << RXEN0) | (1 << RXCIE0);   // RX interrupt
-	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);               // 8N1
-}
 
 void adc_init(void) {
 	ADMUX  = (1 << REFS0);
@@ -384,46 +343,6 @@ uint16_t adc_read(uint8_t channel) {
 	return ADC;
 }
 
-// Escribir un byte al buffer de envio de USART
-uint8_t usart_write_try(uint8_t b) {
-	uint8_t next = (uint8_t)((tx_head + 1) & TX_MASK);
-	if (next == tx_tail) return 0;               // full
-	tx_buf[tx_head] = b;
-	tx_head = next;
-	UCSR0B |= (1 << UDRIE0);                       // kick the ISR
-	return 1;
-}
-
-// Escribir un string entero al buffer de env?o de USART
-uint16_t usart_write_str(const char *s) {
-	uint16_t n = 0;
-	while (*s && usart_write_try((uint8_t)*s++)) n++;
-	return n;
-}
-
-// Leer byte del buffer de recepcion de usart
-uint8_t usart_read_try(uint8_t *b) {
-	if (rx_head == rx_tail) return 0;                 // empty
-	*b = rx_buf[rx_tail];
-	rx_tail = (uint8_t)((rx_tail + 1) & RX_MASK);
-	return 1;
-}
-
-// Leer string del buffer de recepcion
-uint8_t usart_read_str(char *dest, uint8_t max_len) {
-	uint8_t count = 0;
-	while (usart_rx_available() && count < (max_len - 1)) {
-		uint8_t c;
-		usart_read_try(&c);
-		if (c == '\n' || c == '\r') {
-			break;
-		}
-		dest[count++] = c;
-	}
-	
-	dest[count] = '\0';
-	return count;
-}
 
 void startDebounceTimer(void) {
 	TCCR0A = 0x00;                 // Normal mode

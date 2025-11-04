@@ -1,7 +1,29 @@
 \section{Resultados}
 
 
-\subsection{Resultados por módulo}
+
+\subsection{Plotter}
+
+
+\subsubsection{Evaluación mecánica y electrónica}
+
+Durante las pruebas del sistema de trazado, se observaron diversas limitaciones mecánicas y de precisión en el módulo \textit{Plotter}. El conjunto presentaba un notable juego estructural en los ejes, lo que afectó la exactitud de los trazos desde las primeras ejecuciones. En particular, el solenoide encargado de accionar el lápiz mostraba holgura en el mecanismo, generando líneas imprecisas y desplazamientos no deseados al cambiar de dirección.
+
+\vspace{1em}
+
+Los motores paso a paso tendieron a trabarse de forma intermitente durante las trayectorias prolongadas, provocando pérdidas de pasos y deformaciones en las figuras dibujadas. A pesar de estas limitaciones mecánicas, el sistema de control electrónico funcionó correctamente: las interrupciones de los finales de carrera respondieron de manera confiable y el antirrebote temporal implementado con el \texttt{Timer0} evitó falsas activaciones, garantizando la detención completa del programa cuando un límite era alcanzado.
+
+\subsubsection{Análisis del intérprete Python}
+
+El intérprete desarrollado en Python logró convertir con éxito las trayectorias del formato discreto antiguo al nuevo formato estructurado \texttt{Move}. Esto permitió ejecutar los dibujos sin modificaciones manuales en el código fuente y facilitó la experimentación con distintos valores de escala para ajustar el tamaño de las figuras. Sin embargo, los resultados visuales finales, aunque funcionales, mostraron limitaciones en la precisión geométrica debido a las condiciones mecánicas del sistema anteriormente mencionadas.
+
+El uso de la función \texttt{execute\_path\_mirrored()} resultó especialmente eficiente, ya que permitió reducir a la mitad la cantidad de datos almacenados en memoria Flash para figuras simétricas como el murciélago. En este caso, se eliminó manualmente una de las mitades de la trayectoria luego de la conversión realizada por el intérprete, logrando un ahorro significativo de espacio sin afectar la forma general del trazado.
+
+\subsubsection{Conclusiones parciales}
+
+En conclusión, el módulo cumplió su propósito demostrativo de integración entre control secuencial, generación de trayectorias y detección de límites. No obstante, las deficiencias mecánicas del sistema limitaron la calidad del dibujo, evidenciando la importancia de una estructura más rígida y un solenoide de precisión para futuros desarrollos.
+
+
 
 
 \subsection{Temperatura}
@@ -36,6 +58,87 @@ Véase la Figura  para una representación del montaje de la simulación, la cua
 
 \paragraph{Gráfica de la simulación}
 
+<<<<<<< HEAD
 El resultado de la gráfica correspondiente a la simulación se muestra en la Figura .  
 De manera análoga a la gráfica en tiempo real, se presentan en una misma figura tanto la temperatura de referencia como la temperatura medida en cada instante de tiempo.  
 La diferencia principal radica en que en esta gráfica se visualiza la **línea temporal completa** de toda la simulación.
+=======
+Para realizar la visualización en tiempo real de las mediciones, se empleó un script desarrollado en Python, utilizando la biblioteca PySerial para la comunicación con el microcontrolador a través del puerto serie.
+
+Con el fin de simplificar la lectura de datos, durante la inicialización del sistema el microcontrolador enviaba únicamente los valores numéricos de temperatura, cada uno separado por un salto de línea.
+
+Para indicar al programa de Python el momento en que debía calcular la temperatura media, el microcontrolador transmitía la palabra clave “Temp” a través del monitor serial. Al detectar esta palabra, el script leía dos líneas consecutivas con los valores de temperatura y calculaba la media correspondiente, la cual era luego graficada en tiempo real.
+
+\subsubsection{Transmicion de datos - Simua}
+
+
+
+
+
+
+
+\subsection{Motor}
+
+\subsubsection{Adquisición analógica}
+Durante las pruebas del sistema se comprobó el correcto funcionamiento del módulo ADC del microcontrolador ATmega328P. Los dos canales analógicos configurados permitieron medir de manera estable las tensiones provenientes del potenciómetro de referencia y del potenciómetro acoplado al eje del motor. Las lecturas fueron consistentes y sin fluctuaciones significativas, lo que aseguró una retroalimentación confiable del sistema de posición.
+
+\subsubsection{Respuesta del control de dirección y PWM}
+El control de dirección y la modulación por ancho de pulso (PWM) operaron de forma adecuada. Cuando la diferencia entre los valores de referencia y los medidos aumentaba, el sistema aplicaba una señal PWM de mayor amplitud, produciendo un giro más rápido del motor para corregir el error. A medida que el valor real se aproximaba al de referencia, el ciclo útil disminuía gradualmente, reduciendo la velocidad hasta alcanzar el punto de equilibrio.  
+
+\vspace{1em}
+
+Esta respuesta proporcional permitió observar un comportamiento estable, sin sobreimpulsos ni saturaciones, reflejando la efectividad del lazo de control implementado.
+
+\subsubsection{Efecto de la zona muerta y del PWM mínimo}
+La zona muerta definida en el código resultó eficaz para evitar oscilaciones en torno al punto de equilibrio. Cuando la desviación entre ambos potenciómetros se encontraba dentro del umbral de tolerancia, el sistema apagaba la señal PWM y detenía el motor, evitando vibraciones o cambios de dirección erráticos.  
+
+\vspace{1em}
+
+De forma complementaria, la inclusión de un valor mínimo de PWM demostró ser útil para superar el torque estático del motor. Esto permitió que el eje iniciara el movimiento incluso ante errores pequeños, evitando que el sistema quedara inactivo en valores próximos al equilibrio.
+
+\subsubsection{Telemetría y visualización en Python}
+El módulo de comunicación UART transmitió de manera confiable los valores de referencia, posición real, señal PWM y dirección de giro. Los datos fueron interpretados correctamente por el programa \texttt{serial\_python.py}, que permitió graficar las variables en tiempo real mediante \texttt{matplotlib}.  
+
+\vspace{1em}
+
+Las curvas obtenidas mostraron la evolución del error y la respuesta del motor, confirmando la sincronía entre el muestreo del microcontrolador (cada 50~ms) y la actualización del gráfico en Python. Esta integración hardware–software proporcionó una herramienta útil para el análisis dinámico del sistema y la validación experimental del control implementado.
+
+\subsubsection{Conclusión del módulo}
+Este módulo demostró un funcionamiento estable y predecible. La interacción entre la adquisición analógica, la modulación PWM y la visualización en tiempo real permitió evaluar de manera completa la respuesta del sistema. La zona muerta y el PWM mínimo mejoraron la precisión del control, mientras que la telemetría ofreció una representación clara del comportamiento dinámico, validando el diseño propuesto.
+
+
+
+
+\subsection{Matriz}
+
+\subsubsection{Lectura analógica del joystick}
+Durante las pruebas del sistema se comprobó el correcto funcionamiento del joystick analógico conectado a los canales ADC2 y ADC3 del microcontrolador ATmega328P. Las lecturas mostraron valores estables, aunque con una ligera desviación respecto al punto medio teórico de 512, evidenciando un \textit{drift} propio del componente.  
+
+\vspace{1em}
+
+Para compensar esta desviación, se implementó un control por saturación, limitando los valores máximos y mínimos a los rangos 0 y 1023. Esta estrategia permitió mantener una respuesta predecible y coherente con el movimiento real del joystick, aprovechando el hecho de que los potenciómetros alcanzan dichos extremos antes del tope físico del mando.
+
+\subsubsection{Control y comunicación con la matriz WS2812}
+El control de la matriz de LEDs WS2812 resultó exitoso. Las rutinas desarrolladas en lenguaje C, apoyadas en instrucciones en ensamblador \texttt{inline} con \texttt{asm volatile}, lograron generar las señales temporizadas con la precisión requerida por el protocolo de comunicación de los LEDs.  
+
+\vspace{1em}
+
+Esta técnica permitió garantizar el número exacto de ciclos de reloj por bit transmitido, asegurando la correcta interpretación de los datos por cada píxel. La visualización de los colores fue estable y sin artefactos, confirmando la validez de la implementación temporal a nivel de firmware.
+
+\subsubsection{Interacción y generación de colores}
+La interacción del usuario con el sistema fue fluida gracias a la gestión por interrupciones y al mecanismo de antirrebote por software. El botón conectado al pin \texttt{PC4} activó la rutina de cambio de color, en la cual la función \texttt{rand()} generó valores aleatorios para los canales RGB, modificando el color del píxel activo.  
+
+\vspace{1em}
+
+El procesamiento del evento, combinado con el control de temporización por \texttt{Timer0}, evitó rebotes eléctricos y permitió una experiencia de control continua, donde cada pulsación producía un cambio de color perceptible y estable.
+
+\subsubsection{Conclusión del módulo}
+El módulo \textit{Matriz} integró de manera exitosa la lectura analógica, el control de temporización precisa y la interacción con el usuario. A pesar del leve \textit{drift} en los potenciómetros del joystick, el control por saturación compensó eficazmente el error, logrando un desplazamiento acorde a la intención del usuario.  
+
+\vspace{1em}
+
+La implementación en ensamblador \texttt{inline} demostró ser una solución eficiente para la generación del protocolo WS2812, y la combinación de interrupciones y antirrebote software proporcionó un funcionamiento estable. En conjunto, el sistema cumplió su objetivo de construir una interfaz visual interactiva controlada completamente por hardware y firmware del microcontrolador.
+
+
+\subsection{Cerradura}
+>>>>>>> c07484c70bc8ae7fd19d14ac16ec593cd8de7601
