@@ -6,42 +6,182 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 
+// -------------------------------------------
+// Estructuras de datos
+// -------------------------------------------
+
 typedef struct {
-	char cmd;       // 'U' = levantar lápiz, 'D' = bajar lápiz
-	float dx_mm;    // desplazamiento en X (mm)
-	float dy_mm;    // desplazamiento en Y (mm)
+	char cmd;     // 'U' = levantar lápiz, 'D' = bajar lápiz
+	float dx_mm;  // desplazamiento en X (mm)
+	float dy_mm;  // desplazamiento en Y (mm)
 } Move;
 
-// Pines de los finales de carrera
-#define LIMIT_Y_MIN   PD2
-#define LIMIT_Y_MAX   PD3
 
-#define LIMIT_MIN_ACTIVE()   ((PIND & (1<<LIMIT_Y_MIN)) == 0)
-#define LIMIT_MAX_ACTIVE()   ((PIND & (1<<LIMIT_Y_MAX)) == 0)
+// -------------------------------------------
+// Pines de finales de carrera
+// -------------------------------------------
 
-#define DEBOUNCE_MS  15  // tiempo antirrebote
+#define LIMIT_Y_MIN   PD2   // Interrupt 0
+#define LIMIT_Y_MAX   PD3   // Interrupt 1
+
+// Lectura de estado activo (activo en bajo)
+#define LIMIT_MIN_ACTIVE()   ((PIND & (1 << LIMIT_Y_MIN)) == 0)
+#define LIMIT_MAX_ACTIVE()   ((PIND & (1 << LIMIT_Y_MAX)) == 0)
+
+// Tiempo de antirrebote en milisegundos
+#define DEBOUNCE_MS  15
 
 
+// -------------------------------------------
 // Variables globales
-volatile uint8_t  g_limit_hit = 0;     // se activa si se toca un límite
-volatile uint8_t  g_limit_src = 0xFF;  // guarda cuál límite se activó
-volatile uint32_t g_ms = 0;            // contador de milisegundos
+// -------------------------------------------
 
-volatile uint8_t  db0_armed = 0, db1_armed = 0;   // banderas de antirrebote
-volatile uint32_t db0_deadline = 0, db1_deadline = 0;
+volatile uint8_t  g_limit_hit = 0;     // Se activa cuando un límite es alcanzado
+volatile uint8_t  g_limit_src = 0xFF;  // Indica cuál límite se activó
+volatile uint32_t g_ms = 0;            // Contador de milisegundos
+
+volatile uint8_t  db0_armed = 0;       // Estado antirrebote límite inferior
+volatile uint8_t  db1_armed = 0;       // Estado antirrebote límite superior
+volatile uint32_t db0_deadline = 0;    // Tiempo límite para desactivar antirrebote inferior
+volatile uint32_t db1_deadline = 0;    // Tiempo límite para desactivar antirrebote superior
+
+
+// -------------------------------------------
+// Archivo externo con trayectorias
+// -------------------------------------------
 
 #include "path_data.h"
 
 
+// -------------------------------------------
 // Pines de motores y solenoide
-#define STEP_X PB3
-#define DIR_X  PB4
-#define EN_X   PB5
-#define STEP_Y PC3
-#define DIR_Y  PC4
-#define EN_Y   PC5
-#define STEP_SCALE 18.46f
-#define SOLENOID PC0
+// -------------------------------------------
+
+#define STEP_X PB3       // Pulso de paso motor X
+#define DIR_X  PB4       // Dirección motor X
+#define EN_X   PB5       // Enable motor X
+
+#define STEP_Y PC3       // Pulso de paso motor Y
+#define DIR_Y  PC4       // Dirección motor Y
+#define EN_Y   PC5       // Enable motor Y
+
+#define SOLENOID PC0     // Control de solenoide (lápiz)
+
+#define STEP_SCALE 18.46f // Escala de pasos por milímetro
+
+// -----------------------------------
+// Prototipos
+// -----------------------------------
+
+// Retardo en ciclos de CPU
+static inline void delay_cycles(uint16_t n);
+
+// Inicialización general del sistema
+void plotter_init(void);
+
+// Control del lápiz o solenoide
+void pen_up(void);        // Levanta el lápiz (solenoide OFF)
+void pen_down(void);      // Baja el lápiz (solenoide ON)
+
+// Movimiento de ejes
+void move_axis(volatile uint8_t *port_dir, uint8_t dir_bit,
+               volatile uint8_t *port_step, uint8_t step_bit,
+               uint8_t direction, uint16_t steps);
+void move_x(uint8_t dir, float dist_mm);  // Movimiento en eje X
+void move_y(uint8_t dir, float dist_mm);  // Movimiento en eje Y
+
+// Seguridad y límites
+static inline void emergency_stop(void);  // Detiene todo ante un límite
+static void debounce_timer_init(void);    // Inicializa el temporizador de antirrebote
+static void limits_init(void);            // Configura las interrupciones de límites
+
+// Ejecución de trayectorias
+void execute_path(const Move *path, uint16_t size, float path_scale);
+void execute_path_mirrored(const Move *path, uint16_t size, float path_scale);
+
+
+
+// -----------------------------------
+// ISRs
+// -----------------------------------
+
+// Interrupción por límite inferior
+ISR(INT0_vect){
+	EIMSK &= ~(1<<INT0);
+	db0_armed    = 1;
+	db0_deadline = g_ms + DEBOUNCE_MS;
+}
+
+// Interrupción por límite superior
+ISR(INT1_vect){
+	EIMSK &= ~(1<<INT1);
+	db1_armed    = 1;
+	db1_deadline = g_ms + DEBOUNCE_MS;
+}
+
+// Interrupción del timer para antirrebote
+ISR(TIMER0_COMPA_vect){
+	g_ms++;
+	if (db0_armed && (int32_t)(g_ms - db0_deadline) >= 0){
+		if (LIMIT_MIN_ACTIVE()){
+			g_limit_hit = 1;
+			g_limit_src = 0;
+		}
+		EIMSK |= (1<<INT0);
+		db0_armed = 0;
+	}
+	if (db1_armed && (int32_t)(g_ms - db1_deadline) >= 0){
+		if (LIMIT_MAX_ACTIVE()){
+			g_limit_hit = 1;
+			g_limit_src = 1;
+		}
+		EIMSK |= (1<<INT1);
+		db1_armed = 0;
+	}
+}
+
+
+
+// -----------------------------------
+// Programa principal
+// -----------------------------------
+
+
+int main(void) {
+	plotter_init();
+	limits_init();
+	debounce_timer_init();
+	while (1) {
+		execute_path_mirrored(murcielago_path, sizeof(murcielago_path), 3.0f);
+		
+		pen_up();
+		move_x(0,40);
+		execute_path(circle_data_path, sizeof(circle_data_path), 0.04f);
+		
+		pen_up();
+		move_y(1,20);
+		move_x(0,40);
+		execute_path(flor_path, sizeof(flor_path), 3.0f);
+		
+		pen_up();
+		move_x(1,90);
+		move_y(1,60);
+		execute_path(cross_data_path, sizeof(cross_data_path), 0.5f);
+		
+		pen_up();
+		move_x(0,40);
+		execute_path(triangle_data_path, sizeof(triangle_data_path), 0.5f);
+		
+		pen_up();
+		move_x(0,500);
+	}
+}
+
+// -----------------------------------
+// Funciones
+// -----------------------------------
+
+
 
 // Pequeña función de retardo por ciclos
 static inline void delay_cycles(uint16_t n){ _delay_loop_2(n); }
@@ -187,69 +327,5 @@ void execute_path_mirrored(const Move *path, uint16_t size, float path_scale) {
 	}
 	if (g_limit_hit){
 		emergency_stop();
-	}
-}
-
-int main(void) {
-	plotter_init();
-	limits_init();
-	debounce_timer_init();
-	while (1) {
-		execute_path_mirrored(murcielago_path, sizeof(murcielago_path), 3.0f);
-		
-		pen_up();
-		move_x(0,40);
-		execute_path(circle_data_path, sizeof(circle_data_path), 0.04f);
-		
-		pen_up();
-		move_y(1,20);
-		move_x(0,40);
-		execute_path(flor_path, sizeof(flor_path), 3.0f);
-		
-		pen_up();
-		move_x(1,90);
-		move_y(1,60);
-		execute_path(cross_data_path, sizeof(cross_data_path), 0.5f);
-		
-		pen_up();
-		move_x(0,40);
-		execute_path(triangle_data_path, sizeof(triangle_data_path), 0.5f);
-		
-		pen_up();
-		move_x(0,500);
-	}
-}
-// Interrupción por límite inferior
-ISR(INT0_vect){
-	EIMSK &= ~(1<<INT0);
-	db0_armed    = 1;
-	db0_deadline = g_ms + DEBOUNCE_MS;
-}
-
-// Interrupción por límite superior
-ISR(INT1_vect){
-	EIMSK &= ~(1<<INT1);
-	db1_armed    = 1;
-	db1_deadline = g_ms + DEBOUNCE_MS;
-}
-
-// Interrupción del timer para antirrebote
-ISR(TIMER0_COMPA_vect){
-	g_ms++;
-	if (db0_armed && (int32_t)(g_ms - db0_deadline) >= 0){
-		if (LIMIT_MIN_ACTIVE()){
-			g_limit_hit = 1;
-			g_limit_src = 0;
-		}
-		EIMSK |= (1<<INT0);
-		db0_armed = 0;
-	}
-	if (db1_armed && (int32_t)(g_ms - db1_deadline) >= 0){
-		if (LIMIT_MAX_ACTIVE()){
-			g_limit_hit = 1;
-			g_limit_src = 1;
-		}
-		EIMSK |= (1<<INT1);
-		db1_armed = 0;
 	}
 }

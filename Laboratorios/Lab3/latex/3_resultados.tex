@@ -28,5 +28,21 @@ La inicialización del módulo PWM puede observarse en el fragmento de código i
 
 Cabe destacar que el calefactor operaba únicamente en modo binario (encendido/apagado) a través de su entrada PWM, mientras que la velocidad del ventilador se reguló de forma proporcional a una variable Dt (delta de temperatura), tal como se detalla en el Anexo.
 
+\subsubsection{Comunicacion serial con python}
+
+Para realizar la visualización en tiempo real de las mediciones, se empleó un script desarrollado en Python, utilizando la biblioteca PySerial para la comunicación con el microcontrolador a través del puerto serie.
+
+Con el fin de simplificar la lectura de datos, durante la inicialización del sistema el microcontrolador enviaba únicamente los valores numéricos de temperatura, cada uno separado por un salto de línea.
+
+Para indicar al programa de Python el momento en que debía calcular la temperatura media, el microcontrolador transmitía la palabra clave “Temp” a través del monitor serial. Al detectar esta palabra, el script leía dos líneas consecutivas con los valores de temperatura y calculaba la media correspondiente, la cual era luego graficada en tiempo real.
+
+\subsubsection{Transmicion de datos - Simua}
+
+
+
+\subsection{Grafica en tiempo real}
+
+
+
 
 \subsubsection{}

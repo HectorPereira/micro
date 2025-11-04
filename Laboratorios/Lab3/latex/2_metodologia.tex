@@ -3,32 +3,198 @@
 \subsection{Materiales y Herramientas}
 
 \begin{itemize}
-    \item 
+    \item \textbf{Microcontrolador principal:}
+    \begin{itemize}
+        \item ATmega328P
+    \end{itemize}
+
+    \item \textbf{Módulos y periféricos electrónicos:}
+    \begin{itemize}
+        \item Sensor de temperatura LM35
+        \item Ventilador DC 5~V
+        \item Motor DC + potenciómetro acoplado
+        \item Joystick analógico
+        \item Botón pulsador
+        \item Matriz de LEDs WS2812 (8×8)
+        \item Módulo RFID MFRC522
+        \item Pantalla LCD 16×2 con interfaz I2C (PCF8574)
+        \item Memoria EEPROM interna
+        \item LEDs indicadores (rojo, verde)
+        \item Buzzer piezoeléctrico
+        \item Fuente de alimentación 5~V–12~V
+    \end{itemize}
+
+    \item \textbf{Herramientas de programación y simulación:}
+    \begin{itemize}
+        \item Microchip Studio (Atmel Studio 7)
+        \item Proteus 8 / PicSimLab
+        \item Python 3.x
+        \item Bibliotecas Python: matplotlib, threading, serial (pySerial), collections.deque
+    \end{itemize}
 \end{itemize}
 
 
 
 \subsection{Procedimiento general}
 
-\subsubsection{Plotter} ---
-El sistema del plotter tiene como objetivo controlar de manera coordinada dos motores paso a paso y una válvula solenoide utilizando el microcontrolador ATmega328P. A través de la interfaz serial (UART), el usuario puede seleccionar distintas figuras predeterminadas —como triángulos, cruces o círculos— para su trazado automático. El microcontrolador envía las órdenes de dirección y activación al sistema de potencia, asegurando que los movimientos se mantengan dentro de los límites definidos por los sensores de fin de carrera. De esta forma, el dispositivo permite realizar dibujos controlados en los ejes X e Y, integrando comunicación serial, control de motores y manejo de periféricos en una aplicación práctica de control embebido.
+\vspace{2em}
 
-\vspace{1em}
-\subsubsection{Temperatura} ---
-Este módulo mide la temperatura ambiente mediante un sensor LM35 y ajusta automáticamente el funcionamiento de un calefactor y un ventilador según el rango térmico detectado. El ATmega328P ejecuta lecturas periódicas a través del ADC y determina las acciones de control utilizando salidas digitales y señales PWM. El sistema comunica los valores y estados por UART, e incluye un menú que permite modificar el punto medio de temperatura. Además, se prevé una simulación y una implementación física del sistema, complementadas con una gráfica de evolución de temperatura generada en Python o MATLAB.
+\subsubsection{\textbf{Plotter}}
 
-\vspace{1em}
-\subsubsection{Motor} ---
-En este sistema se comparan las lecturas de dos potenciómetros, uno como referencia y otro acoplado al eje de un motor, con el fin de igualar ambas señales. El microcontrolador utiliza el conversor ADC para leer los valores y genera una señal PWM que ajusta la velocidad y el sentido de giro del motor hasta lograr la coincidencia. Durante el proceso, se transmiten por UART los valores de referencia, posición actual, nivel de PWM y sentido de giro, permitiendo un seguimiento en tiempo real. El sistema se implementa tanto en simulación como físicamente, complementado con una visualización gráfica de los resultados.
+\paragraph*{\textbf{Idea general}}---
+El módulo Plotter implementa un sistema de dibujo automatizado de dos ejes cartesianos (X e Y), controlado por motores paso a paso y un solenoide que acciona el lápiz. Su funcionamiento se basa en la ejecución secuencial de trayectorias predefinidas almacenadas en la memoria de programa, las cuales describen figuras como el murciélago, círculo, flor, cruz y triángulo. El sistema integra control de límites mecánicos mediante interrupciones externas y un mecanismo de antirrebote por temporizador, garantizando precisión y seguridad en los movimientos. Además, se incorpora un intérprete en Python que permite convertir trayectorias del formato discreto anterior (basado en direcciones simbólicas) al nuevo formato estructurado \texttt{Move}, expresado en desplazamientos reales en milímetros. En conjunto, el módulo constituye una plataforma didáctica de control secuencial capaz de trazar figuras complejas de manera autónoma y reproducible.
 
-\vspace{1em}
-\subsubsection{Matriz} ---
-El sistema emplea un joystick analógico para desplazar un LED activo dentro de una matriz RGB, utilizando el ADC del ATmega328P para detectar los movimientos sobre los ejes X e Y. Los límites de desplazamiento están restringidos al área visible de la matriz, y al presionar el botón del joystick se cambia aleatoriamente el color del LED activo. Se incorpora una zona muerta para evitar lecturas erráticas por ruido analógico, garantizando un control preciso y fluido. Esta parte se desarrolla únicamente de forma física en el laboratorio.
+\paragraph*{\textbf{Estructura de datos para trayectorias}}---
+Se define una estructura \texttt{Move} que almacena el tipo de comando (\texttt{'U'} para levantar lápiz, \texttt{'D'} para bajarlo) y los desplazamientos relativos en los ejes X e Y (\texttt{dx\_mm}, \texttt{dy\_mm}). Esta representación permite describir trayectorias como secuencias vectoriales de movimientos continuos, en lugar de simples direcciones discretas, otorgando mayor resolución y control sobre la forma final trazada.
 
-\vspace{1em}
-\subsubsection{Cerradura} ---
-La cerradura electrónica implementa un sistema de autenticación mediante tarjetas RFID RC522 controladas por el microcontrolador ATmega328P. El identificador único (ID) de la tarjeta autorizada se almacena en la memoria EEPROM para su verificación permanente. La interfaz incluye una pantalla LCD I2C, LEDs indicadores y comunicación UART para mensajes informativos y supervisión externa. El sistema permite registrar, actualizar y eliminar tarjetas de acceso, combinando almacenamiento no volátil, comunicación serie y periféricos de entrada/salida en un diseño de seguridad embebido. Este módulo se desarrolla tanto en simulación como en implementación física.
+\paragraph*{\textbf{Gestión de límites y seguridad}}---
+El sistema incorpora un esquema completo de protección mecánica mediante los finales de carrera superior e inferior, conectados a las interrupciones externas \texttt{INT0} y \texttt{INT1} (pines PD2 y PD3). Ambas señales se procesan con un antirrebote temporal implementado por software, utilizando el \texttt{Timer0} en modo \texttt{CTC} para generar una base de tiempo en milisegundos (\texttt{g\_ms}). Cada sensor dispone de un intervalo de “muerto” controlado por variables \texttt{deadline}, lo que garantiza la validación únicamente tras un periodo estable. Si durante el desplazamiento se activa un límite, la variable \texttt{g\_limit\_hit} detiene inmediatamente la ejecución, y la rutina \texttt{emergency\_stop()} deshabilita los drivers y levanta el lápiz, asegurando una detención segura ante colisiones o bloqueos mecánicos.
 
-\vspace{1em}
-\subsubsection{Fútbol} ---
-Esta consigna consiste en el diseño y programación de un robot móvil basado en el ATmega328P, capaz de disputar partidos de mini fútbol sobre un campo reducido. El robot integra sensores, actuadores y sistemas de comunicación inalámbrica (Bluetooth o RF) para detectar y conducir el balón hacia la portería rival. Se evalúan la autonomía, el control, la integración mecánica y la creatividad del diseño. Este proyecto se realiza únicamente de forma física, siendo el cierre práctico y competitivo del laboratorio.
+\paragraph*{\textbf{Inicialización de periféricos}}---
+Las funciones \texttt{plotter\_init()}, \texttt{limits\_init()} y \texttt{debounce\_timer\_init()} configuran los pines de los motores paso a paso, el solenoide y las entradas digitales de los límites. En ellas se establecen las direcciones de los pines, los modos de interrupción, las resistencias \texttt{pull-up} y las condiciones iniciales del sistema, preparando el hardware para la ejecución autónoma del trazado.
+
+\paragraph*{\textbf{Control de actuadores}}---
+Cada eje (X e Y) cuenta con líneas independientes de dirección y paso (\texttt{DIR\_X/Y}, \texttt{STEP\_X/Y}), además de una señal de habilitación (\texttt{EN\_X/Y}). La función \texttt{move\_axis()} genera trenes de pulsos que determinan el número de pasos de cada motor, aplicando una escala establecida por \texttt{STEP\_SCALE} (pasos/mm). El control del lápiz se realiza mediante el solenoide, conmutado a través de las funciones \texttt{pen\_up()} y \texttt{pen\_down()}.
+
+\paragraph*{\textbf{Ejecución de trayectorias programadas}}---
+La función \texttt{execute\_path()} recorre las trayectorias almacenadas en memoria de programa (\texttt{PROGMEM}), interpretando cada estructura \texttt{Move}. Calcula los desplazamientos escalados en ambos ejes y genera los pulsos correspondientes, alternando los movimientos horizontales y verticales según los valores \texttt{dx\_mm} y \texttt{dy\_mm}.
+
+\paragraph*{\textbf{Reflexión de trayectorias}}---
+La función \texttt{execute\_path\_mirrored()} ejecuta una trayectoria completa y luego su reflejo vertical, reutilizando los mismos datos pero invirtiendo el signo de las coordenadas del eje Y. Esto permite duplicar figuras simétricas, como el murciélago, sin necesidad de almacenar datos adicionales, optimizando la memoria del sistema.
+
+\paragraph*{\textbf{Secuencia automática de figuras}}---
+En la función principal \texttt{main()}, el sistema ejecuta de manera secuencial las trayectorias definidas en \texttt{path\_data.h}, correspondientes a las figuras murciélago, círculo, flor, cruz y triángulo. Entre cada figura se realizan desplazamientos de reposicionamiento y levantamiento del lápiz para evitar trazos no deseados, completando un ciclo automático de dibujo.
+
+\paragraph*{\textbf{Conversión de trayectorias mediante intérprete en Python}}---
+Se desarrolló un intérprete en Python que convierte las trayectorias del formato discreto original del plotter (basado en direcciones simbólicas como \texttt{LEFT}, \texttt{DOWNRIGHT}, etc.) al nuevo formato estructurado \texttt{Move}. Este proceso genera coordenadas reales en milímetros, permitiendo la creación de nuevas figuras y su integración directa al firmware, sin necesidad de codificación manual.
+
+
+\vspace{2em}
+
+
+\subsubsection{\textbf{Temperatura}}
+
+\paragraph*{\textbf{Idea general}}---
+El módulo de Control de temperatura implementa un sistema de adquisición y regulación térmica basado en el microcontrolador ATmega328P. El circuito mide la temperatura ambiente mediante un sensor analógico LM35 y controla un ventilador a través de una señal PWM, manteniendo la temperatura dentro de un rango configurable. La comunicación serial (UART) permite transmitir los valores medidos hacia una interfaz en Python, donde se grafican en tiempo real junto con los límites establecidos. Además, el sistema puede recibir comandos desde el monitor serial para encender el control o modificar los valores de referencia, ofreciendo una interacción bidireccional entre el microcontrolador y el entorno de visualización.
+
+\paragraph*{\textbf{Medición analógica de temperatura}}---
+El sensor LM35 está conectado al canal analógico A1 del microcontrolador. Su salida, proporcional a la temperatura (10 mV/°C), es digitalizada mediante el módulo ADC configurado con un prescaler de 128. La función \texttt{adc\_read\_blocking\_adif()} realiza una lectura bloqueante controlada por el flag \texttt{ADIF}, asegurando la finalización correcta de la conversión antes de procesar el valor obtenido.
+
+\paragraph*{\textbf{Control del ventilador mediante PWM}}---
+El ventilador es accionado mediante una señal PWM generada en el pin D6 (OC0A), utilizando el \texttt{Timer0} en modo Fast PWM. El ciclo de trabajo se ajusta variando el valor de \texttt{OCR0A} entre 0 y 255, de acuerdo con la temperatura medida. El sistema enciende o apaga el ventilador dependiendo de si la temperatura se encuentra fuera o dentro del rango configurado.
+
+\paragraph*{\textbf{Límites de temperatura ajustables}}---
+Los valores mínimo y máximo (\texttt{tC2} y \texttt{tC3}) definen el rango de histéresis del control. El usuario puede modificarlos en tiempo real enviando el comando \texttt{'1'} por UART. El microcontrolador solicita los nuevos valores, los valida dentro del rango de 0 °C a 150 °C y los reenvía a la interfaz Python mediante la etiqueta \texttt{temp}, permitiendo su visualización inmediata.
+
+\paragraph*{\textbf{Control secuencial con temporización}}---
+El \texttt{Timer1} se configura en modo normal con prescaler 1024 para generar interrupciones cada segundo. En cada desbordamiento se ejecuta la rutina \texttt{medicion()}, que activa una bandera encargada de iniciar una nueva lectura de temperatura y aplicar el control térmico en el ciclo principal.
+
+\paragraph*{\textbf{Comunicación UART}}---
+La comunicación serial se establece a 9600 bps, permitiendo el envío de datos y comandos de texto. El sistema transmite la palabra clave \texttt{"temp"} seguida por los valores de límite inferior y superior, y reporta periódicamente la temperatura medida en grados Celsius. La recepción se maneja mediante interrupciones (\texttt{USART\_RX\_vect}) y buffers circulares, asegurando un intercambio continuo y no bloqueante.
+
+\paragraph*{\textbf{Interfaz Python para lectura en tiempo real}}---
+El script \texttt{Leer Monitor.py} se encarga de abrir el puerto serie, procesar los datos y graficar en tiempo real la evolución térmica. Detecta la palabra clave \texttt{"temp"} para capturar los límites actuales y utiliza las librerías \texttt{matplotlib.animation} y \texttt{threading} para actualizar el gráfico continuamente sin interferir con la lectura.
+
+\paragraph*{\textbf{Procesamiento de datos almacenados}}---
+El script \texttt{Graficar Simulacion.py} permite analizar registros guardados en el archivo \texttt{Datos.txt}. A partir de ellos, se reconstruyen las bandas de temperatura (\texttt{tmin}, \texttt{tmax}) y se calcula una serie promedio comparada con las mediciones experimentales, generando un gráfico estático que muestra la evolución térmica y la respuesta del sistema de control.
+
+
+\vspace{2em}
+
+
+
+\subsubsection{\textbf{Motor}}
+
+\paragraph*{\textbf{Idea general}}---
+El módulo implementa el control de posición de un motor de corriente continua con retroalimentación analógica utilizando el microcontrolador ATmega328P. El sistema compara en tiempo real dos señales analógicas adquiridas por el ADC: una correspondiente a la posición deseada (referencia) y otra proveniente del potenciómetro acoplado al eje del motor (posición real). En función del error entre ambas, el microcontrolador determina la dirección de giro mediante los pines \texttt{IN1} e \texttt{IN2}, y ajusta la velocidad aplicando una señal PWM proporcional en el pin \texttt{OC1A}. Se incorpora una zona muerta para evitar oscilaciones alrededor del punto de equilibrio y se establecen límites mínimo y máximo para el ciclo de trabajo. Los datos de referencia, posición actual y señal PWM se envían por UART hacia una interfaz en Python, donde se grafican en tiempo real para analizar la respuesta dinámica del sistema y la acción correctiva del controlador.
+
+\paragraph*{\textbf{Adquisición analógica dual}}---
+El sistema realiza lecturas simultáneas de dos canales del convertidor analógico-digital: el canal 3 para la retroalimentación del motor (posición actual) y el canal 4 para la señal de referencia. Cada conversión se realiza con una resolución de 10 bits, lo que permite un control preciso sobre el desplazamiento angular del potenciómetro y, por extensión, sobre la posición del eje del motor.
+
+\paragraph*{\textbf{Cálculo del error y zona muerta}}---
+La rutina \texttt{usart\_task()} calcula la diferencia entre la posición deseada y la posición real del motor. Cuando este error se encuentra dentro de la banda de tolerancia definida por \texttt{DEAD\_ZONE}, el sistema detiene el motor y desactiva la señal PWM, evitando así oscilaciones o inestabilidad en torno al punto de equilibrio.
+
+\paragraph*{\textbf{Control de dirección y modulación PWM}}---
+Según el signo del error calculado, el microcontrolador establece el sentido de giro mediante la activación de los pines \texttt{IN1} o \texttt{IN2}. La magnitud del error se convierte en una señal PWM proporcional generada por el canal \texttt{OC1A} del \texttt{Timer1}, configurado en modo Fast PWM. El valor aplicado a \texttt{OCR1A} se limita entre \texttt{MIN\_PWM} y \texttt{MAX\_PWM}, manteniendo la linealidad y evitando la saturación del actuador.
+
+\paragraph*{\textbf{Comunicación serie con buffer circular}}---
+El sistema reutiliza la librería de comunicación USART desarrollada previamente, implementada con buffers circulares y rutinas de interrupción (\texttt{USART\_RX\_vect} y \texttt{USART\_UDRE\_vect}). Este mecanismo permite transmitir y recibir información sin bloqueo, garantizando que el lazo de control funcione de manera continua mientras se intercambian datos con el ordenador.
+
+\paragraph*{\textbf{Telemetría y visualización en tiempo real}}---
+Durante la operación, el microcontrolador envía de forma continua los valores de referencia, posición real, ciclo PWM y dirección de giro a través de la interfaz UART, utilizando un formato ASCII simple y separado por espacios para facilitar su interpretación. El script \texttt{serial\_python.py} recibe los datos, los procesa y los grafica en tiempo real mediante \texttt{matplotlib}, utilizando estructuras \texttt{deque} para mantener una ventana deslizante de muestras. La frecuencia de muestreo del microcontrolador, de aproximadamente 50 ms por ciclo, está sincronizada con la tasa de actualización de la interfaz Python, logrando una visualización casi instantánea del comportamiento dinámico del sistema. Esta integración hardware–software permite analizar fenómenos transitorios como sobreimpulsos, retardos y estabilidad del control en tiempo real.
+
+
+
+\vspace{2em}
+
+
+\subsubsection{\textbf{Matriz}}
+
+\paragraph*{\textbf{Idea general}}---
+El módulo implementa un sistema de control interactivo de una matriz de LEDs WS2812 (64 píxeles dispuestos en una cuadrícula de 8×8) utilizando el microcontrolador ATmega328P, un joystick analógico y un botón con antirrebote por software. El joystick permite mover un píxel activo dentro de la matriz en las coordenadas \texttt{x\_pos} y \texttt{y\_pos}, mientras que el botón produce un cambio aleatorio de color mediante una interrupción externa con debounce. La comunicación serial UART (reutilizada de módulos anteriores) posibilita enviar mensajes de depuración o diagnóstico. Para generar las señales de tiempo exactas requeridas por los LEDs WS2812, se emplean rutinas en ensamblador \texttt{inline} con \texttt{asm volatile}, asegurando precisión de ciclos por bit. Además, el sistema incorpora un contador de milisegundos basado en el \texttt{Timer0} para temporización general y control del antirrebote. En conjunto, este módulo combina control analógico, comunicación serial y temporización precisa para implementar una interfaz visual dinámica e interactiva.
+
+\paragraph*{\textbf{Lectura analógica del joystick}}---
+El joystick está conectado a los canales ADC2 y ADC3, permitiendo medir las posiciones horizontales y verticales. Los valores digitalizados (\texttt{x\_coord} y \texttt{y\_coord}) se interpretan para desplazar el píxel activo dentro de la cuadrícula de 8×8. Cuando los valores alcanzan los extremos (0 o 1023), se aplican límites de saturación para mantener el movimiento dentro del rango válido.
+
+\paragraph*{\textbf{Control de posición del píxel}}---
+La rutina principal analiza las lecturas del ADC y actualiza las coordenadas \texttt{x\_pos} y \texttt{y\_pos}. Cada posición se traduce en un índice dentro del arreglo de LEDs mediante la relación \texttt{index = y\_pos × 8 + x\_pos}, que determina qué píxel se ilumina en la matriz. Esta lógica garantiza un desplazamiento coherente y visualmente fluido en ambas direcciones.
+
+\paragraph*{\textbf{Cambio de color por interrupción}}---
+El botón está conectado al pin \texttt{PC4} y configurado como interrupción por cambio de estado (\texttt{PCINT1\_vect}). Cada vez que se detecta una pulsación válida, el sistema genera nuevos valores aleatorios de color RGB mediante la función \texttt{rand()} y los aplica al píxel activo. Para evitar rebotes mecánicos, se establece un retardo de bloqueo de aproximadamente 300 ms.
+
+\paragraph*{\textbf{Antirrebote por temporización}}---
+El antirrebote se implementa en software mediante un contador global de tiempo en milisegundos (\texttt{millis\_counter}), incrementado en cada desbordamiento del \texttt{Timer0}. La función \texttt{debounce\_task()} re-habilita las interrupciones del botón únicamente una vez transcurrido el tiempo definido por \texttt{DEBOUNCE\_MS}, garantizando una respuesta estable y libre de falsas detecciones.
+
+\paragraph*{\textbf{Generación precisa de señal WS2812}}---
+El protocolo WS2812 requiere una señal con precisión de microsegundos en cada bit transmitido. Para cumplir con esta restricción temporal, se implementan rutinas en ensamblador \texttt{inline} (\texttt{asm volatile}) que generan los niveles lógicos con los tiempos exactos especificados por el fabricante. Las funciones \texttt{send\_bit()}, \texttt{send\_byte()} y \texttt{ws2812\_send\_pixel()} conforman la base de la transmisión, asegurando una codificación estable y sincronizada.
+
+\paragraph*{\textbf{Organización de datos RGB}}---
+Los valores de color se almacenan en el arreglo \texttt{leds[]} en formato \texttt{GRB}, conforme al protocolo WS2812. Cada píxel se actualiza individualmente mediante la función \texttt{ws2812\_set\_pixel()}, y la función \texttt{ws2812\_show\_all()} envía los datos de todos los LEDs en una secuencia protegida por desactivación temporal de interrupciones (\texttt{cli()/sei()}), asegurando la integridad de la señal.
+
+\paragraph*{\textbf{Comunicación serie para depuración}}---
+El sistema reutiliza la librería USART desarrollada en módulos previos, basada en buffers circulares e interrupciones (\texttt{USART\_RX\_vect} y \texttt{USART\_UDRE\_vect}). Esta arquitectura permite el envío y recepción de mensajes de depuración sin interferir con la ejecución de las rutinas críticas de temporización y control de la matriz.
+
+\paragraph*{\textbf{Temporizador y función millis()}}---
+El \texttt{Timer0} se configura en modo normal para generar desbordamientos periódicos. Cada interrupción incrementa el contador global \texttt{millis\_counter}, utilizado como referencia temporal en todo el sistema. La función \texttt{millis\_now()} devuelve el tiempo actual en milisegundos y sirve como base para el antirrebote y otras tareas periódicas dependientes del tiempo.
+
+
+
+\vspace{2em}
+
+
+\subsubsection{\textbf{Cerradura}}
+
+\paragraph*{\textbf{Idea general}}---
+El módulo implementa un sistema de control de acceso mediante RFID con visualización en pantalla LCD e interfaz serial, utilizando el microcontrolador ATmega328P y el módulo MFRC522 para la lectura de tarjetas. El sistema permite verificar, registrar y borrar credenciales electrónicas tanto por comandos enviados desde la terminal UART como mediante botones físicos. Los identificadores únicos (UID) de las tarjetas se almacenan de manera persistente en la memoria EEPROM interna y se comparan con los valores leídos en tiempo real. La interfaz de usuario combina una pantalla LCD controlada por I2C (mediante el expansor PCF8574), indicadores LED y un buzzer que brinda retroalimentación sonora. En conjunto, el sistema integra múltiples periféricos del ATmega328P —SPI, I2C, UART, EEPROM e interrupciones— para conformar un módulo de autenticación electrónica robusto, autónomo y de respuesta inmediata.
+
+\paragraph*{\textbf{Comunicación SPI con el módulo MFRC522}}---
+El lector RFID se comunica con el microcontrolador mediante el bus SPI, utilizando las líneas MOSI, MISO, SCK y SS. El bus se inicializa a una frecuencia de 2 MHz (divisor 8), y la selección del esclavo se controla mediante las macros \texttt{SS\_LOW()} y \texttt{SS\_HIGH()}. La rutina \texttt{mfrc522\_init()} configura los registros internos del lector, ajustando la modulación ASK, la ganancia de recepción y los parámetros de temporización para asegurar una comunicación estable y confiable.
+
+\paragraph*{\textbf{Lectura y procesamiento de UID}}---
+La detección de tarjetas se realiza mediante la rutina \texttt{mfrc522\_standard()}, que ejecuta los comandos \texttt{REQA} y \texttt{ANTICOLL}. Cuando se identifica una tarjeta válida, el sistema extrae su UID y lo almacena en un arreglo global. Este identificador se muestra en formato hexadecimal tanto en la terminal UART como en la pantalla LCD, facilitando la verificación y el registro.
+
+\paragraph*{\textbf{Gestión persistente con EEPROM}}---
+Los UIDs autorizados se almacenan en la memoria EEPROM del microcontrolador mediante las funciones \texttt{EEPROM\_write()} y \texttt{EEPROM\_read()}. Esta memoria no volátil garantiza la conservación de los registros incluso tras un reinicio. La verificación se realiza mediante la función \texttt{uid\_iguales()}, que compara byte a byte los identificadores almacenados y leídos.
+
+\paragraph*{\textbf{Interfaz de usuario LCD (I2C – PCF8574)}}---
+La pantalla LCD 16×2 se maneja mediante el expansor I2C PCF8574, detectado automáticamente por la rutina \texttt{pcf8574\_autodetect()}. A nivel bajo, las funciones \texttt{lcd\_write4()}, \texttt{lcd\_cmd()} y \texttt{lcd\_data()} gestionan la transmisión de datos en modo de 4 bits, mientras que las funciones de nivel alto \texttt{lcd\_msg2()} y \texttt{lcd\_print()} permiten mostrar mensajes informativos y estados del sistema de manera amigable para el usuario.
+
+\paragraph*{\textbf{Interacción mediante UART y botones físicos}}---
+El sistema puede ser controlado tanto por comandos seriales enviados desde la PC como por tres pulsadores físicos conectados al puerto C (pines PC0–PC2). Las interrupciones \texttt{PCINT1\_vect} y la rutina \texttt{poll\_switch\_portc()} detectan las pulsaciones y asignan un valor equivalente al carácter recibido por UART, unificando el control por hardware y software bajo una misma lógica de operación.
+
+\paragraph*{\textbf{Modos de funcionamiento}}---
+El sistema cuenta con tres modos principales:
+\begin{enumerate}
+    \item \textbf{Verificación de acceso:} compara el UID leído con el almacenado; si coinciden, muestra “Tarjeta aprobada” y activa el LED verde.
+    \item \textbf{Registro de nueva tarjeta:} guarda el UID detectado en la EEPROM tras confirmación visual en el LCD.
+    \item \textbf{Borrado de registro:} limpia la EEPROM y notifica la acción tanto en pantalla como por UART.
+\end{enumerate}
+
+\paragraph*{\textbf{Indicadores visuales y acústicos}}---
+El sistema cuenta con dos LEDs indicadores: verde (acceso concedido) y rojo (acceso denegado), conectados a los pines PD6 y PD7. Además, un buzzer piezoeléctrico ubicado en PC3 emite un tono breve de aproximadamente 2 kHz durante un segundo mediante la función \texttt{Sonar\_Buzzer()}, proporcionando una señal auditiva de confirmación o error.
+
+\paragraph*{\textbf{Comunicación UART con buffers circulares}}---
+La comunicación serial reutiliza la librería no bloqueante desarrollada en módulos anteriores, basada en interrupciones (\texttt{USART\_RX\_vect} y \texttt{USART\_UDRE\_vect}) y en buffers circulares \texttt{serialBuffer} y \texttt{rxBuffer}. Este diseño permite transmitir y registrar eventos o mensajes sin interrumpir las operaciones del lector RFID ni de la pantalla LCD, garantizando un flujo continuo de información entre el microcontrolador y el entorno de supervisión.
+
+
+

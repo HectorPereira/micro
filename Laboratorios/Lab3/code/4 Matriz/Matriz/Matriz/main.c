@@ -10,6 +10,11 @@
 #include <string.h>
 #include <stdlib.h>
 
+
+// ------------------------------------------------------------------
+// Definiciones y bariables
+// ------------------------------------------------------------------
+
 // USART
 #define TX_BUF_SZ 256
 #define TX_MASK   (TX_BUF_SZ - 1)
@@ -19,6 +24,8 @@
 
 #define LED_PIN PORTD6
 #define LED_DDR DDRD
+
+#define DEBOUNCE_MS 300
 
 #define NUM_LEDS 64
 uint8_t leds[NUM_LEDS * 3];  // GRB data
@@ -41,18 +48,22 @@ uint8_t blue = 100;
 
 uint32_t millis_counter = 0;
 
-#define DEBOUNCE_MS 300
 uint32_t debounce_on_at = 0;
 uint8_t debounce_active= 0;
+
+
+
+
+// ------------------------------------------------------------------
+// Prototipos
+// ------------------------------------------------------------------
+
 
 uint8_t usart_rx_available(void);
 void UTOA(uint16_t value, char *buffer);
 
 uint32_t millis_now(void);
 void timer0_init(void);
-
-
-
 
 void usart_init(void);
 void adc_init(void);
@@ -92,7 +103,6 @@ void ws2812_clear(void);
 
 
 
-
 ISR(TIMER0_OVF_vect){
 	millis_counter++;
 }
@@ -102,12 +112,32 @@ ISR(PCINT1_vect) {
 	PORTB ^= (1<<PORTB5);
 	PCICR &= ~(1<<PCIE1);
 	
-	red = rand() % 256;  // random 0–255
-	green = rand() % 256;  // random 0–255
-	blue = rand() % 256;  // random 0–255
+	red = rand() % 256;  // random 0ï¿½255
+	green = rand() % 256;  // random 0ï¿½255
+	blue = rand() % 256;  // random 0ï¿½255
 	
 	debounce_on_at = millis_now() + DEBOUNCE_MS;
 	debounce_active = 1;
+}
+
+// USART ISRs
+ISR(USART_UDRE_vect) {
+	if (tx_head == tx_tail) {
+		UCSR0B &= (uint8_t)~(1<<UDRIE0);
+		return;
+	}
+	UDR0 = tx_buf[tx_tail];
+	tx_tail = (uint8_t)((tx_tail + 1) & TX_MASK);
+}
+
+
+ISR(USART_RX_vect) {
+	uint8_t d = UDR0;
+	uint8_t next = (uint8_t)((rx_head + 1) & RX_MASK);
+	if (next != rx_tail) {
+		rx_buf[rx_head] = d;
+		rx_head = next;
+	}
 }
 
 
@@ -157,6 +187,9 @@ int main(void) {
 			
 	}
 }
+
+
+
 
 void turn_led(uint8_t led_x, uint8_t led_y) {
 	uint8_t index = led_y * 8 + led_x;  
@@ -401,25 +434,3 @@ void startDebounceTimer(void) {
 }
 
 
-// --------------------------------------------
-// USART ISRs
-// --------------------------------------------
-
-ISR(USART_UDRE_vect) {
-	if (tx_head == tx_tail) {
-		UCSR0B &= (uint8_t)~(1<<UDRIE0);
-		return;
-	}
-	UDR0 = tx_buf[tx_tail];
-	tx_tail = (uint8_t)((tx_tail + 1) & TX_MASK);
-}
-
-
-ISR(USART_RX_vect) {
-	uint8_t d = UDR0;
-	uint8_t next = (uint8_t)((rx_head + 1) & RX_MASK);
-	if (next != rx_tail) {
-		rx_buf[rx_head] = d;
-		rx_head = next;
-	}
-}
