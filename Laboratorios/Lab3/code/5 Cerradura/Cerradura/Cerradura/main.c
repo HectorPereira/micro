@@ -4,8 +4,8 @@
 #include <avr/interrupt.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdbool.h>
-#include <math.h>
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include <util/twi.h>
@@ -472,8 +472,6 @@ void mfrc522_standard(uint8_t *card_uid) {
 	uint8_t req[1] = {PICC_REQIDL};
 	uint8_t buffer[16];
 	uint8_t bufferLength = sizeof(buffer);
-	uint8_t backBits = 0;
-	uint8_t status;
 	
 	// Preparar registro de bits y FIFO
 	mfrc522_write(BitFramingReg, 0x07); // 7 bits para REQA
@@ -625,7 +623,6 @@ static inline uint8_t I2C_write(uint8_t v) {
 	return (s == 0x18 || s == 0x28);
 }
 
-static inline uint8_t nibble_to_bus(uint8_t nibble) { return (nibble << 4); } // nibble en P4..P7
 
 static uint8_t pcf8574_autodetect(void) {
 	for (uint8_t a=0x20; a<=0x27; a++) {

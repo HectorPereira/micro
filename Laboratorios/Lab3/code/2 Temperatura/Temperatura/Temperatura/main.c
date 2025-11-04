@@ -1,11 +1,11 @@
 #define F_CPU 16000000UL
-#include <avr/io.h>          // Acceso a registros, DDRx, PORTx, TCCR, etc.
-#include <util/delay.h>      // Para _delay_ms(), aunque aquí no lo usas explícitamente (pero suele quedar bien tenerla)
-#include <avr/interrupt.h>   // Para ISR(), sei(), cli()
-#include <string.h>          // Para strcmp(), strlen()
-#include <stdint.h>          // Para uint8_t, uint16_t, etc.
-#include <stdbool.h>         // Para bool, true, false
-#include <stdio.h>           // Para sprintf()
+#include <avr/io.h>          
+#include <util/delay.h>      
+#include <avr/interrupt.h>   
+#include <string.h>          
+#include <stdint.h>          
+#include <stdbool.h>         
+#include <stdio.h>           
 
 // ----------------------------------
 // Definiciones 
@@ -111,7 +111,6 @@ int main(void) {
 
 	uart_print("Si quiere prender el sistema escriba Encender\r\n");
 	
-	char c[2];
 	char u[64];
 	u[0] = '\0';
 
@@ -138,11 +137,6 @@ int main(void) {
 				div *= 10;
 			}
 
-			// Convierte el valor numérico en cadena
-			for (div; div > 0; div /= 10) {
-				uint8_t d = (valor / div) % 10;
-				add_string(string_to_send, Number_to_ascii(d));
-			}
 
 			uart_print("\r\n");
 			uart_print(string_to_send);
@@ -376,7 +370,7 @@ void cambiar_rango(uint16_t *tmin, uint16_t *tmax) {
 
 	uart_print("Rango actualizado.\r\n");
 }
-static void pedir_u16_linea(const char *prompt, uint16_t *out, uint16_t vmin, uint16_t vmax) {
+void pedir_u16_linea(const char *prompt, uint16_t *out, uint16_t vmin, uint16_t vmax) {
 	char buf[8];
 	uint16_t v;
 
