@@ -1,84 +1,42 @@
 #define F_CPU 16000000UL
-#include <avr/io.h>
-#include <util/delay.h>
-#include <avr/interrupt.h>
-#include <string.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <math.h>
-#include <avr/pgmspace.h>
-#include <avr/eeprom.h>
-#include <util/twi.h>
+#include <avr/io.h>          // Acceso a registros, DDRx, PORTx, TCCR, etc.
+#include <util/delay.h>      // Para _delay_ms(), aunque aquí no lo usas explícitamente (pero suele quedar bien tenerla)
+#include <avr/interrupt.h>   // Para ISR(), sei(), cli()
+#include <string.h>          // Para strcmp(), strlen()
+#include <stdint.h>          // Para uint8_t, uint16_t, etc.
+#include <stdbool.h>         // Para bool, true, false
+#include <stdio.h>           // Para sprintf()
 
+// ----------------------------------
+// Definiciones 
+// ----------------------------------
 
 #define BAUD 9600UL
 #define UBRR_VALUE ((F_CPU/16/BAUD) - 1)
 #define TX_BUFFER_SIZE 128
 #define RX_BUFFER_SIZE 128
+#define UART_TIMEOUT_MS 500
+
 #define precarger 10000
 
 #define VENT_PORT  PORTB
 #define VENT_DDR   DDRB
-
 #define VENT_PIN   PB4   // D12 en Arduino UNO
-uint8_t contolar = 0;
-
-// preload = 65536 - 15625 = 49911 = 0xC2F7
-#define T1_PRELOAD   (uint16_t)(65536UL - (F_CPU/1024UL))
-
-
-char string_to_send[4] = ""; 
-uint16_t valor = 0;
-
-void Init_pwm();
-void Init_adc();
-
 
 // macro para setear
 #define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
-
 // macro para resetear
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
 
-#define UART_TIMEOUT_MS 500
+#define T1_PRELOAD   (uint16_t)(65536UL - (F_CPU/1024UL))
 
+// ----------------------------------
+// Variables 
+// ----------------------------------
 
-void spi_init(void);
-
-uint8_t spi_transfer(uint8_t data);
-
-void uart_init(unsigned int ubrr);
-
-
-
-void uart_send(char c);
-
-void uart_print(const char *s);
-
-void uart_print_hex(uint16_t val);
-
-void uart_print_dec(uint16_t val);
-
-
-void enviar_temperatura(uint16_t tmin, uint16_t tmax);
-char Number_to_ascii(uint8_t val);
-
-uint16_t adc_read_blocking_adif(void);
-
-void cambiar_rango(uint16_t *tmin, uint16_t *tmax);
-static void pedir_u16_linea(const char *prompt, uint16_t *out, uint16_t vmin, uint16_t vmax);
-
-
-void uart_print_hex_array(const uint8_t *arr, uint8_t len);
-
-static inline void Init_ventilador(void);
-static inline void Ventilador_on(void);
-static inline void Ventilador_off(void);
-
-void medicion(void); 
-
-void init_timer(void);
-
+char string_to_send[4] = ""; 
+uint16_t valor = 0;
+uint8_t contolar = 0;
 
 volatile char    serialBuffer[TX_BUFFER_SIZE];
 volatile uint8_t serialReadPos  = 0;
@@ -88,256 +46,219 @@ volatile char    rxBuffer[RX_BUFFER_SIZE];
 volatile uint8_t rxReadPos  = 0;
 volatile uint8_t rxWritePos = 0;
 
+// ----------------------------------
+// Prototipos 
+// ----------------------------------
+
+// Inicialización general
+void Init_pwm(void);        // Configura PWM en OC0A (pin D6)
+void Init_adc(void);        // Configura el ADC (canal A1)
+void init_timer(void);      // Configura el Timer1 para interrupciones cada 1 s
+void medicion(void);        // Marca bandera para tomar una medición
+void Init_ventilador(void); // Inicializa el pin del ventilador como salida
+void Ventilador_on(void);   // Enciende el ventilador
+void Ventilador_off(void);  // Apaga el ventilador
 
 
-char Chardos(void);
-char usart_recibirDato(void);
-char * usart_recibirCadena(void);
+// Comunicación UART / USART
+void uart_init(unsigned int ubrr);       // Inicializa UART con el valor UBRR indicado
+void uart_send(char c);                  // Envía un carácter por UART
+void uart_print(const char *s);          // Envía una cadena de texto
+void add_string(char *s, char c);
 
-bool usart_readstring(char *dst, uint8_t cap);
+
+char Chardos(void);                      // Lee un carácter del buffer RX (no bloqueante)
+bool usart_readstring(char *dst, uint8_t cap); // Lee una línea de texto hasta '\n'
+
+// Conversión y utilidades
+char Number_to_ascii(uint8_t val);       // Convierte un número (0–9) en carácter ASCII
+bool ascii_to_u16_switch(const char *s, uint16_t *out); // Convierte texto numérico a entero de 16 bits
+
+// Lectura analógica
+uint16_t adc_read_blocking_adif(void);   // Realiza lectura ADC bloqueante (espera ADIF=1)
+
+// Control de temperatura
+void enviar_temperatura(uint16_t tmin, uint16_t tmax); // Envía límites de temperatura por UART
+void cambiar_rango(uint16_t *tmin, uint16_t *tmax);    // Permite modificar los límites de temperatura
+void pedir_u16_linea(const char *prompt, uint16_t *out,
+                            uint16_t vmin, uint16_t vmax); // Solicita un valor numérico por UART y valida el rango
 
 
-bool ascii_to_u16_switch(const char *s, uint16_t *out);
+// ----------------------------------
+// Programa principal
+// ----------------------------------
 
-int main(void)
-{
-	
+int main(void) {
 	uart_init(UBRR_VALUE);
-	
 
-	// RX por interrupci�n
-	UCSR0B |= (1<<RXCIE0);
-
+	// Habilita interrupción por recepción UART
+	UCSR0B |= (1 << RXCIE0);
 
 	Init_pwm();
 	uart_init(UBRR_VALUE);
 	Init_adc();
 	init_timer();
-	sei();
+	sei();                     // Habilita interrupciones globales
 	Init_ventilador();
-	Ventilador_off();
+	Ventilador_off();          // Asegura que el ventilador inicie apagado
 	
-	float tC;
-	uint16_t tC2 = 25; //Temperatura minima
-	uint16_t tC3 = 30; //Temperatura maxima
+	float tC;                  // Temperatura actual
+	uint16_t tC2 = 25;         // Temperatura mínima
+	uint16_t tC3 = 30;         // Temperatura máxima
+	uint16_t adc = 0;          // Valor ADC leído
 	
-	uint16_t adc = 0;
-	
-	OCR0A = 0;
-			
+	OCR0A = 0;                 // PWM inicial en 0
+
 	uart_print("Si quiere prender el sistema escriba Encender\r\n");
-	//uart_print("Una vez encendido, escriba change para cambiar el punto medio\r\n");
 	
-	char c[2];	
-	char u[64];      
+	char c[2];
+	char u[64];
 	u[0] = '\0';
-    while(1)
-    {
-	    
-	   while (strcmp(u, "Encender") != 0) {
-		   usart_readstring(u,  64 );
-		   
-		   if (strcmp(u, "Encender") == 0) {
+
+	while (1) {
+		// Espera hasta recibir el comando "Encender"
+		while (strcmp(u, "Encender") != 0) {
+			usart_readstring(u, 64);
+			if (strcmp(u, "Encender") == 0) {
 				enviar_temperatura(tC2, tC3);
-		   }
-	   }
-	   
-	 
-	//Ventilador_on();
+			}
+		}
 	    
-	    if(contolar){
-		    string_to_send[0] = '\0';
-		    uint16_t div = 1;
-		    
-		    adc = adc_read_blocking_adif();
-		    
-		    tC = ((adc * 500.0f) / 1023.0f );
-		    
-		    valor = tC;
-		    
-		    while (valor / div >= 10) {
-			    div *= 10;
-		    }
-		    
-		    for (div ; div > 0; div /= 10) {
-			    uint8_t d = (valor / div) % 10;
-			    add_string(string_to_send, Number_to_ascii(d));
-		    }
-		    
-		    uart_print("\r\n");
-		    uart_print(string_to_send);
-		    uart_print("\r\n");
-		    contolar = 0;
-		 
-		static uint8_t heater_on = 0;   // 1 = encendido, 0 = apagado
+		// Si se activa la bandera de medición (cada 1 s)
+		if (contolar) {
+			string_to_send[0] = '\0';
+			uint16_t div = 1;
 
-		if (tC <= tC2) {
-			heater_on = 1;              // por debajo del m�nimo -> encender
-			Ventilador_off();
-			} else if (tC >= tC3) {
-			heater_on = 0; 
-			Ventilador_on();             // por encima del m�ximo -> apagar
+			adc = adc_read_blocking_adif();     // Lee ADC
+			tC = (adc * 500.0f) / 1023.0f;      // Convierte a °C (LM35)
+			valor = tC;
+
+			// Calcula divisor para conversión a caracteres
+			while (valor / div >= 10) {
+				div *= 10;
+			}
+
+			// Convierte el valor numérico en cadena
+			for (div; div > 0; div /= 10) {
+				uint8_t d = (valor / div) % 10;
+				add_string(string_to_send, Number_to_ascii(d));
+			}
+
+			uart_print("\r\n");
+			uart_print(string_to_send);
+			uart_print("\r\n");
+
+			contolar = 0;
+
+			// Control de temperatura y ventilador
+			static uint8_t heater_on = 0;  // 1 = encendido, 0 = apagado
+
+			if (tC <= tC2) {
+				heater_on = 1;             // Por debajo del mínimo -> encender
+				Ventilador_off();
+			} 
+			else if (tC >= tC3) {
+				heater_on = 0;             // Por encima del máximo -> apagar
+				Ventilador_on();
+			}
+
+			// Mantiene el último estado dentro del rango [tC2, tC3]
+			OCR0A = heater_on ? 100 : 0;
+
+			// Si recibe '1', permite cambiar el rango de temperatura
+			char k = Chardos();
+			if (k == '1') {
+				cambiar_rango(&tC2, &tC3);
+				enviar_temperatura(tC2, tC3);
+			}
 		}
-		// dentro de la banda [tC2, tC3] se mantiene el �ltimo estado
-		OCR0A = heater_on ? 100 : 0;
-		
-		char k = Chardos();
-		if (k == '1') {
-			cambiar_rango(&tC2, &tC3);
-			enviar_temperatura(tC2, tC3);
-		}
-     }
- 	
 	}
 }
 
 
-bool ascii_to_u16_switch(const char *s, uint16_t *out) {
-	uint8_t digs[5];          // hasta 5 d�gitos (0..65535)
-	uint8_t n = 0;
+// ----------------------------------
+// Funciones
+// ----------------------------------
 
-	// 1) Leer y validar d�gitos (corta en CR/LF)
-	for (; *s && *s!='\r' && *s!='\n'; ++s) {
-		char c = *s;
-		uint8_t d;
-		switch (c) {
-			case '0': d = '0' - '0'; break;
-			case '1': d = '1' - '0'; break;
-			case '2': d = '2' - '0'; break;
-			case '3': d = '3' - '0'; break;
-			case '4': d = '4' - '0'; break;
-			case '5': d = '5' - '0'; break;
-			case '6': d = '6' - '0'; break;
-			case '7': d = '7' - '0'; break;
-			case '8': d = '8' - '0'; break;
-			case '9': d = '9' - '0'; break;
-			default: return false;         // car�cter no num�rico
-		}
-		if (n >= 5) return false;          // m�s de 5 d�gitos (posible overflow)
-		digs[n++] = d;
-	}
-	if (n == 0) return false;              // cadena vac�a
-
-	// 2) Recombinar: unidades, decenas, centenas, ...
-	uint32_t val = 0, mult = 1;
-	for (int8_t i = (int8_t)n - 1; i >= 0; --i) {
-		val += (uint32_t)digs[i] * mult;   // suma de a 1,10,100,1000...
-		mult *= 10;
-	}
-	if (val > 65535u) return false;        // l�mite de uint16_t
-
-	*out = (uint16_t)val;
-	return true;
-
-}
-
-bool usart_readstring(char *dst, uint8_t cap) {
-	char c = Chardos();          // toma 1 char si hay; '\0' si no
-	if (c == '\0') return false; // no lleg� nada todav�a
-
-	if (c == '\r') return false; // ignorar CR
-	if (c == '\n') return true;  // fin de l�nea
-
-	
-	 if (strlen(dst) < cap - 1) {add_string(dst, c);}
-
-	return false;
-}
-
-char usart_recibirDato(void)
-{
-	while (!(UCSR0A & (1<<RXC0)));
-	return(UDR0);
-}
-
-char * usart_recibirCadena(void)
-{
-	int longitud = 0;
-	static char cadena[10];
-	
-	for (longitud = 0; longitud < 10; longitud++)
-	{
-		cadena[longitud] = usart_recibirDato();
-	}
-	
-	return cadena;
-}
-
-void medicion(){
-	contolar = 1;
-}
-
-ISR(TIMER1_OVF_vect) {
-	TCNT1 = T1_PRELOAD;         // recarga para el pr�ximo segundo
-	medicion();                 // callback de usuario cada 1 s
-}
-//PIN 6 with fast PWM
-void Init_pwm(){
+void Init_pwm(void){
     DDRD |= (1 << DDD6);
-
-// Fast PWM (modo 3, TOP=255), salida no inversora en OC0A
+	// Fast PWM (modo 3, TOP=255), salida no inversora en OC0A
     TCCR0A = (1 << WGM01) | (1 << WGM00) | (1 << COM0A1); // COM0A1=1, COM0A0=0
     TCCR0B = (1 << CS01) | (1 << CS00); // Prescaler = 64  (? 976 Hz @16MHz)
 }
-
-
-Init_adc(){
+void Init_adc(void){
 	ADMUX  = 0b01000001;
 	ADCSRA = (1 << ADEN)| (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);   // ADPS=111 ? prescaler 128
 	DIDR0  = (1 << ADC0D); // Desabilitado la entrada Digital
 }
-
-
-// Lectura  esperando ADIF=1 
-uint16_t adc_read_blocking_adif(void) {
-	ADCSRA |= (1 << ADIF);                       // Limpia flag previo
-	ADCSRA |= (1 << ADSC);                       // Inicia conversi�n
-	while (!(ADCSRA & (1 << ADIF))) { }          // Espera fin (ADIF=1)
-	uint16_t v = ADC;                             // Lee resultado
-	ADCSRA |= (1 << ADIF);                       // Limpia flag para la pr�xima
-	return v;
+void init_timer(void) {
+	cli();                      // Deshabilita interrupciones globales (opcional)
+	TCCR1A = 0;                 // Modo normal (WGM13:0 = 0)
+	TCCR1B = 0;
+	TCNT1  = T1_PRELOAD;        // Carga inicial para un período de ~1 s
+	TIMSK1 = (1 << TOIE1);      // Habilita interrupción por desbordamiento
+	TCCR1B = (1 << CS12) | (1 << CS10);  // Prescaler = 1024
+	// sei();                   // Habilita interrupciones globales (si se desea aquí)
 }
+void medicion(void){
+	contolar = 1;
+}
+void Init_ventilador(void) {
+	sbi(VENT_DDR, VENT_PIN);   // como salida
+	sbi(VENT_PORT, VENT_PIN);  // encender (activo en alto)
+}
+void Ventilador_on(void)  { sbi(VENT_PORT, VENT_PIN); }
+void Ventilador_off(void) { cbi(VENT_PORT, VENT_PIN); }
+
+
 
 void uart_init(unsigned int ubrr) {
 	UBRR0H = (unsigned char)(ubrr>>8);
 	UBRR0L = (unsigned char)ubrr;
 	UCSR0B = (1<<TXEN0) | (1<<RXEN0) | (1<<RXCIE0);
-
 	UCSR0C = (1<<UCSZ01) | (1<<UCSZ00);
 }
-
-char uart_receive(void) {
-	while (!(UCSR0A & (1<<RXC0)));
-	return UDR0;
-}
-
 void uart_send(char c) {
 	while (!(UCSR0A & (1<<UDRE0)));
 	UDR0 = c;
 }
-
 void uart_print(const char *s) {
 	while (*s) uart_send(*s++);
 }
-
-void uart_print_hex(uint16_t val) {
-	char buf[6];
-	sprintf(buf, "0x%02X", val);
-	uart_print(buf);
-}
-
 void add_string(char *s, char c) {
 	while (*s++);
 	*(s - 1) = c;
 	*s = '\0';
 }
 
-void uart_print_dec(uint16_t val){
-	if (val == 0){ uart_send('0'); return; }                 // char ? uart_send
-	if (val < 10){ uint8_t d = (uint8_t)(val % 10); char c = Number_to_ascii(d); add_string(string_to_send, c); return; }
-	if (val >= 10){ uint8_t d = (uint8_t)((val/10) % 10); char c = Number_to_ascii(d); add_string(string_to_send, c); return; }
-	if (val >= 100){ uint8_t d = (uint8_t)((val/100) % 10); char c = Number_to_ascii(d); add_string(string_to_send, c); return; }
-	if (val >= 1000){ uint8_t d = (uint8_t)((val/1000) % 10); char c = Number_to_ascii(d); add_string(string_to_send, c); return; }
+
+
+char Chardos(void){
+	char ret = '\0';
+
+	if (rxReadPos != rxWritePos){
+		ret = rxBuffer[rxReadPos];
+		rxReadPos++;
+
+		if (rxReadPos >= RX_BUFFER_SIZE){
+			rxReadPos = 0;
+		}
+	}
+	
+	return ret;
+}
+bool usart_readstring(char *dst, uint8_t cap) {
+	char c = Chardos();          // Toma 1 carácter si hay; '\0' si no
+	if (c == '\0') return false; // No llegó nada todavía
+	if (c == '\r') return false; // Ignorar retorno de carro
+	if (c == '\n') return true;  // Fin de línea
+
+	// Agrega el carácter recibido si aún hay espacio en el buffer
+	if (strlen(dst) < cap - 1) {
+		add_string(dst, c);
+	}
+
+	return false;
 }
 
 
@@ -358,133 +279,144 @@ char Number_to_ascii(uint8_t val){
 		default: return '?';
 	}
 }
+bool ascii_to_u16_switch(const char *s, uint16_t *out) {
+	uint8_t digs[5];   // Hasta 5 dígitos posibles (0..65535)
+	uint8_t n = 0;
 
+	// Leer y validar dígitos (detiene en CR o LF)
+	for (; *s && *s != '\r' && *s != '\n'; ++s) {
+		char c = *s;
+		uint8_t d;
 
-void uart_print_hex_array(const uint8_t *arr, uint8_t len) {
-	for (uint8_t i = 0; i < len; i++) {
-		uart_print_hex(arr[i]);
-		uart_send(' ');
+		switch (c) {
+			case '0': d = 0; break;
+			case '1': d = 1; break;
+			case '2': d = 2; break;
+			case '3': d = 3; break;
+			case '4': d = 4; break;
+			case '5': d = 5; break;
+			case '6': d = 6; break;
+			case '7': d = 7; break;
+			case '8': d = 8; break;
+			case '9': d = 9; break;
+			default: return false;  // Carácter no numérico
+		}
+
+		if (n >= 5) return false;  // Demasiados dígitos (posible overflow)
+		digs[n++] = d;
 	}
+
+	if (n == 0) return false;      // Cadena vacía
+
+	// Recombinar los dígitos: unidades, decenas, centenas, etc.
+	uint32_t val = 0;
+	uint32_t mult = 1;
+
+	for (int8_t i = (int8_t)n - 1; i >= 0; --i) {
+		val += (uint32_t)digs[i] * mult;
+		mult *= 10;
+	}
+
+	if (val > 65535u) return false;  // Límite de uint16_t superado
+
+	*out = (uint16_t)val;
+	return true;
+}
+
+
+
+// Lectura bloqueante esperando ADIF = 1
+uint16_t adc_read_blocking_adif(void) {
+	ADCSRA |= (1 << ADIF);      // Limpia el flag previo de conversión
+	ADCSRA |= (1 << ADSC);      // Inicia una nueva conversión ADC
+
+	while (!(ADCSRA & (1 << ADIF))) {
+		// Espera hasta que la conversión finalice (ADIF = 1)
+	}
+
+	uint16_t v = ADC;           // Lee el resultado de la conversión
+	ADCSRA |= (1 << ADIF);      // Limpia el flag para la próxima conversión
+	return v;
+}
+
+
+
+
+void enviar_temperatura(uint16_t tmin, uint16_t tmax) {
+	char buf[12];
+
+	// Línea 1: palabra de encabezado
+	uart_print("temp\r\n");
+
+	// Línea 2: temperatura mínima
+	sprintf(buf, "%u", (unsigned)tmin);
+	uart_print(buf);
+	uart_print("\r\n");
+
+	// Línea 3: temperatura máxima
+	sprintf(buf, "%u", (unsigned)tmax);
+	uart_print(buf);
 	uart_print("\r\n");
 }
+void cambiar_rango(uint16_t *tmin, uint16_t *tmax) {
+	uint16_t a, b;
 
-void spi_init(void) {
-	DDRB |= (1<<PORTB2)|(1<<PORTB3)|(1<<PORTB5); // SS, MOSI, SCK salidas
-	DDRB &= ~(1<<PORTB4); // MISO entrada
-	SPCR = (1<<SPE)|(1<<MSTR);
-	SPSR = (1<<SPI2X); // fosc/8
-}
+	uart_print("\r\n--- CAMBIO DE RANGO ---\r\n");
 
-uint8_t spi_transfer(uint8_t data) {
-	SPDR = data;
-	while(!(SPSR & (1<<SPIF)));
-	return SPDR;
-}
+	pedir_u16_linea("Ingrese tC2 (mínimo, entero °C 0..150): ", &a, 0, 150);
+	pedir_u16_linea("Ingrese tC3 (máximo, entero °C 0..150): ", &b, 0, 150);
 
-void init_timer(){
-	cli();                      // opcional
-	TCCR1A = 0;                 // modo normal (WGM13:0 = 0)
-	TCCR1B = 0;
-	TCNT1  = T1_PRELOAD;        // primer periodo completo de ~1 s
-	TIMSK1 = (1 << TOIE1);      // habilita interrupci�n por overflow
-	TCCR1B = (1 << CS12) | (1 << CS10);  // prescaler = 1024
-	//sei();                      // habilita globales
-}
-
-
-char Chardos(void)
-{
-	char ret = '\0';
-
-	if (rxReadPos != rxWritePos)
-	{
-		ret = rxBuffer[rxReadPos];
-
-		rxReadPos++;
-
-		if (rxReadPos >= RX_BUFFER_SIZE)
-		{
-			rxReadPos = 0;
-		}
+	if (b <= a) {
+		uart_print("tC3 debe ser estrictamente mayor que tC2. Operación cancelada.\r\n");
+		return;
 	}
 
-	return ret;
+	*tmin = a;
+	*tmax = b;
+
+	uart_print("Rango actualizado.\r\n");
 }
-ISR(USART_RX_vect)
-{
-	rxBuffer[rxWritePos] = UDR0;
-
-	rxWritePos++;
-
-	if (rxWritePos >= RX_BUFFER_SIZE)
-	{
-		rxWritePos = 0;
-	}
-}
-
-// Lee una l�nea con usart_readstring() y la convierte a uint16 en [vmin..vmax]
 static void pedir_u16_linea(const char *prompt, uint16_t *out, uint16_t vmin, uint16_t vmax) {
 	char buf[8];
 	uint16_t v;
 
 	while (1) {
 		uart_print(prompt);
-		uart_print("\r\n");       // salto de l�nea para comodidad
+		uart_print("\r\n");  // Salto de línea para legibilidad
 
 		buf[0] = '\0';
-		// Esperar hasta que usart_readstring finalice la l�nea ('\n')
+
+		// Espera hasta que usart_readstring() complete la línea ('\n')
 		while (!usart_readstring(buf, sizeof(buf))) {
-			// spin no bloqueante: usart_readstring consume del buffer RX
+			// Espera activa no bloqueante: usart_readstring consume del buffer RX
 		}
 
+		// Valida que el valor ingresado sea numérico y esté dentro del rango
 		if (ascii_to_u16_switch(buf, &v) && v >= vmin && v <= vmax) {
 			*out = v;
 			return;
 		}
-		uart_print("Valor invalido. Intente nuevamente.\r\n");
+
+		uart_print("Valor inválido. Intente nuevamente.\r\n");
 	}
 }
 
-// Pide y valida nuevo rango [tmin..tmax] con tmax>tmin
-void cambiar_rango(uint16_t *tmin, uint16_t *tmax) {
-	uint16_t a, b;
 
-	uart_print("\r\n--- CAMBIO DE RANGO ---\r\n");
-	pedir_u16_linea("Ingrese tC2 (min, entero �C 0..150): ", &a, 0, 150);
-	pedir_u16_linea("Ingrese tC3 (max, entero �C 0..150): ", &b, 0, 150);
 
-	if (b <= a) {
-		uart_print("tC3 debe ser estrictamente mayor que tC2. Operacion cancelada.\r\n");
-		return;
+
+// ----------------------------------
+// ISRs
+// ----------------------------------
+
+ISR(USART_RX_vect){
+	rxBuffer[rxWritePos] = UDR0;
+	rxWritePos++;
+
+	if (rxWritePos >= RX_BUFFER_SIZE){
+		rxWritePos = 0;
 	}
-
-	*tmin = a;
-	*tmax = b;
-	uart_print("Rango actualizado.\r\n");
 }
-
-
-static inline void Init_ventilador(void) {
-	sbi(VENT_DDR, VENT_PIN);   // como salida
-	sbi(VENT_PORT, VENT_PIN);  // encender (activo en alto)
-}
-
-static inline void Ventilador_on(void)  { sbi(VENT_PORT, VENT_PIN); }
-static inline void Ventilador_off(void) { cbi(VENT_PORT, VENT_PIN); }
-	
-void enviar_temperatura(uint16_t tmin, uint16_t tmax) {
-	char buf[12];
-
-	// L�nea 1: la palabra "temp"
-	uart_print("temp\r\n");
-
-	// L�nea 2: tC2 (m�nima)
-	sprintf(buf, "%u", (unsigned)tmin);
-	uart_print(buf);
-	uart_print("\r\n");
-
-	// L�nea 3: tC3 (m�xima)
-	sprintf(buf, "%u", (unsigned)tmax);
-	uart_print(buf);
-	uart_print("\r\n");
+ISR(TIMER1_OVF_vect) {
+	TCNT1 = T1_PRELOAD;         
+	medicion();                 
 }
