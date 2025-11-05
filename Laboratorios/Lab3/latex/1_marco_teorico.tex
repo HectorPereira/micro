@@ -139,12 +139,12 @@ Este proceso es fundamental para medir variables físicas, como temperatura, luz
 
 El ADC del ATmega328P posee las siguientes características técnicas:
 
-    \begin{itemize}{
+    \begin{itemize}
         \item Resolución de \textbf{10 bits}, lo que permite representar \( 2^{10} = 1024 \) niveles distintos.
         \item Entradas analógicas: \textbf{6 canales} disponibles (de \texttt{ADC0} a \texttt{ADC5}), ubicados en los pines \texttt{PC0} a \texttt{PC5}.
         \item Rango de tensión de entrada: entre \( 0~\text{V} \) y el valor de referencia seleccionado (\(V_{REF}\)).
         \item Tiempo típico de conversión: \( 13~\text{a}~260~\mu s \) según el prescaler utilizado.
-        \item Fuente de referencia seleccionable: tensión de alimentación (\(V_{CC}\)), referencia interna de \(1.
+        \item Fuente de referencia seleccionable: tensión de alimentación.
     
 
 
@@ -229,8 +229,81 @@ Además, dispone de un pin de \texttt{RESET} y otro de \texttt{IRQ} (interrupci�
     \label{fig:rc522_pinout}
 \end{figure}
 
-\subsubsection*{Aplicación en el proyecto}
 
-En el presente trabajo, el módulo RC522 fue utilizado para la \textbf{lectura y validación de tarjetas RFID}, las cuales permiten la identificación de usuarios en el sistema.  
-El microcontrolador \texttt{ATmega328P} se comunica con el RC522 a través de la interfaz SPI, interpretando el UID leído y ejecutando las acciones correspondientes, como habilitar o denegar el acceso según la programación establecida.
+
+\subsection{Protocolo de comunicación SPI}
+
+El protocolo \textbf{SPI (Serial Peripheral Interface)} es un estándar de comunicación serial síncrona desarrollado por Motorola, ampliamente utilizado en sistemas embebidos para la transmisión de datos de alta velocidad entre un \textit{microcontrolador} y uno o varios \textit{periféricos}.  
+A diferencia de otros protocolos como \textit{I\textsuperscript{2}C} o \textit{UART}, el SPI permite una comunicación completamente dúplex y ofrece una estructura simple y eficiente.
+
+\subsubsection*{Principio de funcionamiento}
+
+SPI opera bajo un esquema de tipo \textbf{maestro–esclavo}, en el cual el dispositivo maestro (por ejemplo, el \texttt{ATmega328P}) controla el reloj y sincroniza la transferencia de datos con los dispositivos esclavos.  
+Cada ciclo de transferencia se produce en sincronía con la señal de reloj (\texttt{SCK}), que coordina el envío y recepción de bits entre ambos extremos.
+
+Los datos se transmiten de forma \textbf{serial}, bit a bit, a través de dos líneas principales:  
+una para los datos enviados desde el maestro al esclavo (\texttt{MOSI}) y otra para los datos que viajan en sentido contrario (\texttt{MISO}). Vease la figura \ref{fig:spi_diagrama}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.35\textwidth]{anexos/Marco Teorico/SPI.png}
+    \caption{Esquema de conexión típica del protocolo SPI entre un maestro y un esclavo.}
+    \label{fig:spi_diagrama}
+\end{figure}
+
+\subsubsection*{Líneas de comunicación}
+
+El bus SPI está compuesto por cuatro señales principales:
+
+\begin{itemize}
+    \item \textbf{MOSI (Master Out Slave In):} línea por la cual el maestro envía datos hacia el esclavo.
+    \item \textbf{MISO (Master In Slave Out):} línea utilizada por el esclavo para enviar datos de vuelta al maestro.
+    \item \textbf{SCK (Serial Clock):} señal de reloj generada por el maestro, que sincroniza la transmisión de datos.
+    \item \textbf{SS (Slave Select)} o \textbf{CS (Chip Select):} línea que habilita la comunicación con un esclavo específico; su nivel activo es bajo (\textit{active low}).
+\end{itemize}
+
+\subsubsection*{Modos de operación}
+
+El protocolo SPI permite diferentes configuraciones según la polaridad y fase del reloj, determinadas por los bits \texttt{CPOL} y \texttt{CPHA}.  
+Estas combinaciones definen los cuatro modos posibles de SPI:
+
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Modos de operación del protocolo SPI.}
+    \label{tab:spi_modes}
+    \begin{tabular}{@{}cccc@{}}
+        \toprule
+        \textbf{Modo} & \textbf{CPOL} & \textbf{CPHA} & \textbf{Descripción} \\
+        \midrule
+        0 & 0 & 0 & Flanco de subida, reloj en reposo bajo. \\
+        1 & 0 & 1 & Flanco de bajada, reloj en reposo bajo. \\
+        2 & 1 & 0 & Flanco de bajada, reloj en reposo alto. \\
+        3 & 1 & 1 & Flanco de subida, reloj en reposo alto. \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\subsubsection*{SPI en el ATmega328P}
+
+El microcontrolador \texttt{ATmega328P} incluye un módulo de hardware SPI, cuyas líneas están asignadas a los siguientes pines del puerto \texttt{B}:
+
+\begin{itemize}
+    \item \texttt{PB2 (SS)} — Selección del esclavo.
+    \item \texttt{PB3 (MOSI)} — Salida de datos del maestro.
+    \item \texttt{PB4 (MISO)} — Entrada de datos hacia el maestro.
+    \item \texttt{PB5 (SCK)} — Señal de reloj.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.35\textwidth]{anexos/Marco Teorico/SPI Tiempo.png}
+    \caption{Diagrama temporal de transferencia de datos en el protocolo SPI.}
+    \label{fig:spi_timing}
+\end{figure}
+
+
+
+
 
