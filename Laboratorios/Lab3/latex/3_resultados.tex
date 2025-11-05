@@ -27,48 +27,49 @@ El uso de la función \texttt{execute\_path\_mirrored()} resultó especialmente 
 
 
 
-
-
 \subsection{Temperatura}
 
-
-
-El circuito final de esta consigna del laboratorio se puede ver en la imagen correspondiente. 
+El circuito final correspondiente a esta consigna del laboratorio se muestra en la figura adjunta, donde se aprecia la disposición del sensor de temperatura, el microcontrolador y la interfaz de comunicación con el entorno Python.
 
 \subsubsection{Envío de datos por USART}
 
-En la Figura \ref{fig:Tem_USART} se puede observar la forma en la que se enviaban los datos por puerto serial entre el \texttt{ATmega328P} y el código de Python. 
+En la Figura \ref{fig:Tem_USART} se observa el proceso de transmisión de datos entre el \texttt{ATmega328P} y el script de Python mediante el puerto serial.
+El sistema enviaba de forma periódica los valores de temperatura convertidos por el ADC, asegurando una comunicación confiable y sin pérdidas de paquetes.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.35\textwidth]{anexos/2 Temperatura/USART Temperatura.png}
-    \caption{Comunicación de datos vía USART entre el microcontrolador y Python.}
-    \label{fig:Tem_USART}
+\centering
+\includegraphics[width=0.35\textwidth]{anexos/2 Temperatura/USART Temperatura.png}
+\caption{Comunicación de datos vía USART entre el microcontrolador y Python.}
+\label{fig:Tem_USART}
 \end{figure}
 
 \subsubsection{Gráfica en tiempo real}
 
-El resultado de la gráfica en tiempo real se muestra en la Figura \ref{fig:Grafica1}. En ella se observa cómo el eje X representa la evolución temporal de la ejecución (hora de registro en tiempo real), mientras que en el eje Y se visualizan los valores de temperatura obtenidos cada segundo.  
-Además, se incluye una línea de referencia que indica la temperatura media esperada.
+El resultado de la representación gráfica en tiempo real se muestra en la Figura \ref{fig:Grafica1}.
+En el eje X se visualiza la evolución temporal de la ejecución, mientras que el eje Y presenta los valores de temperatura adquiridos cada segundo.
+La línea de referencia corresponde al valor medio esperado, lo que permitió evaluar la estabilidad de las mediciones y la respuesta térmica del sistema.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.35\textwidth]{anexos/2 Temperatura/Grafica tiempo real.png}
-    \caption{Gráfica de temperatura en tiempo real.}
-    \label{fig:Grafica1}
+\centering
+\includegraphics[width=0.35\textwidth]{anexos/2 Temperatura/Grafica tiempo real.png}
+\caption{Gráfica de temperatura en tiempo real.}
+\label{fig:Grafica1}
 \end{figure}
 
 \subsubsection{Simulación}
 
-Véase la Figura  para una representación del montaje de la simulación, la cual fue realizada en el entorno \textbf{Proteus}. En dicha figura se puede observar la disposición de los componentes utilizados y las conexiones correspondientes al sistema de control térmico.
+La simulación fue realizada en el entorno \textbf{Proteus}, donde se reprodujo el montaje del sistema de control térmico.
+En la figura correspondiente se ilustra la disposición de los componentes, las conexiones del sensor con las entradas analógicas del microcontrolador y el enlace serial utilizado para la transmisión de datos.
 
 \subsubsection{Gráfica de la simulación}
 
-Para realizar la visualización en tiempo real de las mediciones, se empleó un script desarrollado en Python, utilizando la biblioteca PySerial para la comunicación con el microcontrolador a través del puerto serie.
+Para la visualización en tiempo real de los valores simulados, se desarrolló un script en Python basado en la biblioteca \texttt{PySerial}.
+Durante la inicialización, el microcontrolador enviaba únicamente los valores numéricos de temperatura separados por saltos de línea.
+Al detectar la palabra clave \texttt{Temp}, el programa de Python registraba dos mediciones consecutivas y calculaba su promedio, mostrando el resultado en una gráfica actualizada dinámicamente.
 
-Con el fin de simplificar la lectura de datos, durante la inicialización del sistema el microcontrolador enviaba únicamente los valores numéricos de temperatura, cada uno separado por un salto de línea.
+\vspace{1em}
 
-Para indicar al programa de Python el momento en que debía calcular la temperatura media, el microcontrolador transmitía la palabra clave “Temp” a través del monitor serial. Al detectar esta palabra, el script leía dos líneas consecutivas con los valores de temperatura y calculaba la media correspondiente, la cual era luego graficada en tiempo real.
+Este procedimiento permitió observar variaciones suaves y coherentes en las mediciones, confirmando la correcta lectura, transmisión y procesamiento de los datos de temperatura.
 
 
 
@@ -78,7 +79,11 @@ Para indicar al programa de Python el momento en que debía calcular la temperat
 \subsection{Motor}
 
 \subsubsection{Simulación}
+La simulación del módulo motor permitió verificar el correcto funcionamiento lógico del sistema antes de su implementación física. En el entorno virtual se probaron las rutinas de lectura analógica, control de dirección y generación de la señal PWM, observándose que el motor respondía adecuadamente a las variaciones del potenciómetro de referencia. Las salidas por \texttt{USART} mostraron valores coherentes con el comportamiento esperado, confirmando la adecuada comunicación y ejecución del algoritmo de control.
 
+\vspace{1em}
+
+Como limitación, el entorno no permitió vincular de manera directa el potenciómetro del eje con el motor para emular el acoplamiento físico. Sin embargo, al manipular ambos potenciómetros de forma independiente se reprodujo satisfactoriamente el comportamiento dinámico del sistema, validando la estabilidad del control y la correspondencia entre las señales de referencia, posición y dirección.
 
 \subsubsection{Adquisición analógica}
 Durante las pruebas del sistema se comprobó el correcto funcionamiento del módulo ADC del microcontrolador ATmega328P. Los dos canales analógicos configurados permitieron medir de manera estable las tensiones provenientes del potenciómetro de referencia y del potenciómetro acoplado al eje del motor. Las lecturas fueron consistentes y sin fluctuaciones significativas, lo que aseguró una retroalimentación confiable del sistema de posición.
