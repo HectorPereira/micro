@@ -200,6 +200,13 @@ ISR(USART_UDRE_vect){
 }
 
 
+void I2C_init(void) {
+	TWSR = 0x00;            // Prescaler = 1
+	TWBR = ((F_CPU / 100000UL) - 16) / 2;  // 100 kHz
+	TWCR = (1<<TWEN);       // Habilitar TWI
+}
+
+
 // --------------------------------------
 // Programa principal
 // --------------------------------------
@@ -212,7 +219,8 @@ int main(void)
 
 	// RX por interrupci�n
 	UCSR0B |= (1<<RXCIE0);
-
+    I2C_init();
+	
 	spi_init();
 	mfrc522_resetPinInit();
 	mfrc522_init();
@@ -682,9 +690,9 @@ static void lcd_print(const char *s) {
 void lcd_init(void) {
 	_delay_ms(50);                   // power-up
 	// Autodetecta direcci�n (opcional pero �til)
-	uint8_t found = pcf8574_autodetect();
-	if (found) PCF_ADDR = found;
-
+// 	uint8_t found = pcf8574_autodetect();
+// 	if (found) PCF_ADDR = found;
+	PCF_ADDR = 0x27;
 	// Secuencia de 4 bits �oficial�
 	lcd_write4(0x03, 0); _delay_ms(5);
 	lcd_write4(0x03, 0); _delay_us(150);
