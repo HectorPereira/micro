@@ -1,13 +1,13 @@
 \section{Marco teórico}
 
-\section{Modulación por Ancho de Pulso (PWM)}
+\subsection{Modulación por Ancho de Pulso (PWM)}
 
 La \textbf{Modulación por Ancho de Pulso (PWM, por sus siglas en inglés)} es una técnica utilizada para controlar la potencia entregada a una carga mediante una señal digital.  
 Consiste en variar el \textit{ciclo de trabajo} (\textit{duty cycle}) de una onda cuadrada de frecuencia fija.  
 El ciclo de trabajo se define como la proporción de tiempo que la señal permanece en nivel alto durante un período completo (\( D = \frac{t_{ON}}{T} \times 100\% \)).  
 De esta manera, el valor medio de la tensión aplicada a la carga depende directamente del ciclo de trabajo.
 
-\subsection{PWM en el ATmega328P}
+\subsubsection{PWM en el ATmega328P}
 
 El microcontrolador \textbf{ATmega328P} posee tres temporizadores capaces de generar señales PWM por hardware:
 
@@ -26,7 +26,7 @@ Los modos más utilizados para la generación de PWM son:
     \item \textbf{Modo Normal:} el temporizador simplemente cuenta desde cero hasta su valor máximo (255 u 65535) y reinicia, sin generar una forma de onda PWM.
 \end{enumerate}
 
-\subsection{Configuración de registros}
+\subsubsection{Configuración de registros}
 
 El funcionamiento del PWM depende principalmente de tres registros:
 
@@ -53,7 +53,7 @@ En el modo \textbf{Normal}, el contador simplemente incrementa sin modificar nin
     \label{fig:normal_mode}
 \end{figure}
 
-\subsection{Aplicaciones}
+\subsubsection{Aplicaciones}
 
 La modulación PWM es ampliamente utilizada en sistemas embebidos, especialmente para:
 \begin{itemize}
@@ -64,4 +64,171 @@ La modulación PWM es ampliamente utilizada en sistemas embebidos, especialmente
 \end{itemize}
 
 En este trabajo práctico, el modo \textbf{Fast PWM} del \texttt{Timer0} se empleó para controlar tanto la potencia disipada en los transistores TIP31 como la velocidad del ventilador mediante el ajuste dinámico del ciclo de trabajo.
+
+\subsection{Sensor de temperatura LM35}
+
+El \textbf{LM35} es un sensor de temperatura de precisión fabricado, que entrega una señal de salida \textbf{linealmente proporcional} a la temperatura ambiente. El LM35 genera una tensión de salida proporcional a la temperatura según la relación:
+\[
+V_{OUT} = 10~\text{mV}/^\circ\text{C} \times T
+\]
+donde \( T \) representa la temperatura en grados Celsius.  
+
+Por ejemplo, a \( 25~^\circ\text{C} \), la tensión de salida es de aproximadamente \( 250~\text{mV} \).  
+El sensor puede funcionar típicamente en un rango de \(-55~^\circ\text{C}\) a \(150~^\circ\text{C}\), con una exactitud de ±0.5°C a temperatura ambiente.
+
+
+El LM35 requiere una conexión de tres terminales:
+
+\begin{itemize}
+    \item \textbf{V\textsubscript{CC}} — alimentación (4 a 20 V).
+    \item \textbf{V\textsubscript{OUT}} — salida analógica (conectada a una entrada ADC del microcontrolador).
+    \item \textbf{GND} — referencia a tierra común.
+\end{itemize}
+
+Vease figura \ref{fig:lm35_pinout}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{anexos/Marco Teorico/LM35.png}
+    \caption{Diagrama de pines y conexión típica del sensor LM35.}
+    \label{fig:lm35_pinout}
+\end{figure}
+
+\subsection{Transistor de potencia TIP31}
+
+El \textbf{TIP31} es un transistor \textbf{NPN de propósito general} diseñado para aplicaciones de conmutación y amplificación de potencia.  
+Posee una capacidad de corriente continua máxima de \(3~\text{A}\) y una disipación de potencia de hasta \(40~\text{W}\), dependiendo del sistema de refrigeración empleado. Se puede ver en la figura \ref{fig:tip31_pinout}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{anexos/Marco Teorico/TIP31.png}
+    \caption{Transistor TIP31.}
+    \label{fig:tip31_pinout}
+\end{figure}
+
+
+\subsubsection{Características principales}
+
+\begin{itemize}
+    \item Tipo: NPN de silicio.
+    \item Corriente máxima de colector: \(I_C = 3~\text{A}\).
+    \item Voltaje máximo colector-emisor: \(V_{CE(max)} = 40~\text{V}\).
+    \item Ganancia de corriente (hFE): entre 10 y 50.
+    \item Encapsulado: TO-220.
+\end{itemize}
+
+
+\subsubsection{Principio de funcionamiento}
+
+En el TIP31, una pequeña corriente de base \(I_B\) controla una corriente mucho mayor de colector \(I_C\).  
+El transistor actúa como un interruptor controlado por señal:  
+\begin{itemize}
+    \item Cuando \(V_{BE} > 0.7~\text{V}\), el transistor entra en saturación y permite el paso de corriente entre colector y emisor.
+    \item Cuando \(V_{BE} < 0.7~\text{V}\), el transistor se encuentra en corte y no conduce.
+\end{itemize}
+
+Al aplicar una señal PWM en la base, el transistor conmuta rápidamente entre los estados de saturación y corte, produciendo un efecto de \textbf{control proporcional de potencia} en la carga conectada (por ejemplo, un calefactor o resistor de potencia).
+
+
+\subsection{Entradas ADC del ATmega328P}
+
+El \textbf{Conversor Analógico-Digital (ADC)} incorporado en el microcontrolador \textbf{ATmega328P} permite transformar una señal analógica continua en una representación digital discreta.  
+Este proceso es fundamental para medir variables físicas, como temperatura, luz o voltaje, a partir de sensores que entregan señales analógicas.
+
+\subsubsection*{Características principales}
+
+El ADC del ATmega328P posee las siguientes características técnicas:
+
+    \begin{itemize}{
+        \item Resolución de \textbf{10 bits}, lo que permite representar \( 2^{10} = 1024 \) niveles distintos.
+        \item Entradas analógicas: \textbf{6 canales} disponibles (de \texttt{ADC0} a \texttt{ADC5}), ubicados en los pines \texttt{PC0} a \texttt{PC5}.
+        \item Rango de tensión de entrada: entre \( 0~\text{V} \) y el valor de referencia seleccionado (\(V_{REF}\)).
+        \item Tiempo típico de conversión: \( 13~\text{a}~260~\mu s \) según el prescaler utilizado.
+        \item Fuente de referencia seleccionable: tensión de alimentación (\(V_{CC}\)), referencia interna de \(1.
+    
+
+
+
+\subsection{Librerías utilizadas en Python}
+
+Para el desarrollo del software de adquisición y visualización de datos, se emplearon distintas librerías de \textbf{Python 3.3} que facilitaron la comunicación con el microcontrolador, el manejo de datos y la generación de gráficos.  
+A continuación, se describen brevemente las principales:
+
+\paragraph*{PySerial}
+Es una librería que permite la \textbf{comunicación serie} entre Python y dispositivos externos, como microcontroladores o sensores.  
+Proporciona funciones para abrir, leer y escribir datos a través de un puerto serial, siendo ampliamente utilizada en proyectos con \textit{Arduino} o \textit{ATmega328P}.
+
+\paragraph*{Matplotlib}
+Corresponde a una de las bibliotecas más utilizadas en Python para la \textbf{generación de gráficos y visualización de datos}.  
+Permite crear gráficos en dos dimensiones (2D) de manera sencilla y personalizable, siendo ideal para representar la evolución temporal de variables como la temperatura.
+
+\paragraph*{Threading}
+Es una librería que ofrece herramientas para la \textbf{ejecución de tareas concurrentes} mediante hilos de ejecución (\textit{threads}).  
+Se utiliza para realizar procesos en paralelo, por ejemplo, leer datos del puerto serial mientras se actualiza la gráfica en tiempo real.
+
+\paragraph*{Collections}
+Proporciona tipos de datos adicionales y estructuras más eficientes que las nativas de Python, como \texttt{deque}, \texttt{Counter} o \texttt{namedtuple}.  
+En este proyecto se empleó la estructura \texttt{deque} para almacenar los datos recibidos del puerto serie de forma dinámica y eficiente, facilitando el manejo de ventanas de tiempo en las gráficas en tiempo real.
+
+
+\subsection{Tecnología RFID y módulo RC522}
+
+La \textbf{Identificación por Radiofrecuencia (RFID, por sus siglas en inglés)} es una tecnología utilizada para la \textbf{identificación automática de objetos o personas} mediante el intercambio de información inalámbrica entre un \textit{lector} y una \textit{etiqueta} o \textit{tarjeta}.  
+Su funcionamiento se basa en la inducción electromagnética: el lector genera un campo de radiofrecuencia que activa la etiqueta, la cual responde enviando su código de identificación único (\textit{UID}).
+
+\subsubsection*{Principio de funcionamiento}
+
+Un sistema RFID se compone principalmente de tres elementos:
+
+\begin{itemize}
+    \item \textbf{Etiqueta o tarjeta RFID:} contiene un chip con memoria y una antena integrada, que almacena el identificador único (UID). Puede ser de tipo \textit{pasiva} (sin fuente de energía) o \textit{activa} (con alimentación propia).
+    \item \textbf{Lector RFID:} genera el campo electromagnético que energiza la etiqueta y recibe los datos transmitidos.
+    \item \textbf{Controlador o microcontrolador:} procesa la información recibida por el lector y toma decisiones según la aplicación (por ejemplo, habilitar un acceso o registrar un usuario).
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.35\textwidth]{anexos/Marco Teorico/RFID.png}
+    \caption{Esquema general del funcionamiento de un sistema RFID.}
+    \label{fig:rfid_system}
+\end{figure}
+
+\subsubsection*{Módulo RC522}
+
+El \textbf{RC522} es un módulo lector de RFID de bajo costo ampliamente utilizado en sistemas embebidos y proyectos académicos.  
+Opera a una frecuencia de \textbf{13.56 MHz} y es compatible con tarjetas RFID del tipo \textbf{MIFARE}, las cuales utilizan el protocolo ISO/IEC 14443A.
+
+Este módulo se comunica con el microcontrolador mediante el protocolo \textbf{SPI (Serial Peripheral Interface)}, utilizando las líneas \texttt{MOSI}, \texttt{MISO}, \texttt{SCK} y \texttt{SS}.  
+Además, dispone de un pin de \texttt{RESET} y otro de \texttt{IRQ} (interrupción) para un control más preciso de los eventos de lectura.
+
+\begin{table}[H]
+    \centering
+    \caption{Principales pines del módulo RC522 y su función.}
+    \label{tab:rc522_pines}
+    \begin{tabular}{ll}
+        \toprule
+        \textbf{Pin} & \textbf{Función} \\
+        \midrule
+        \texttt{VCC} & Alimentación (3.3 V) \\
+        \texttt{RST} & Reinicio del módulo \\
+        \texttt{GND} & Tierra común \\
+        \texttt{MISO} & Datos desde el lector hacia el microcontrolador \\
+        \texttt{MOSI} & Datos desde el microcontrolador hacia el lector \\
+        \texttt{SCK} & Señal de reloj SPI \\
+        \texttt{SS/SDA} & Selección del dispositivo SPI (Chip Select) \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.35\textwidth]{figuras/rc522_pinout.png}
+    \caption{Diagrama de pines del módulo lector RFID RC522.}
+    \label{fig:rc522_pinout}
+\end{figure}
+
+\subsubsection*{Aplicación en el proyecto}
+
+En el presente trabajo, el módulo RC522 fue utilizado para la \textbf{lectura y validación de tarjetas RFID}, las cuales permiten la identificación de usuarios en el sistema.  
+El microcontrolador \texttt{ATmega328P} se comunica con el RC522 a través de la interfaz SPI, interpretando el UID leído y ejecutando las acciones correspondientes, como habilitar o denegar el acceso según la programación establecida.
 
