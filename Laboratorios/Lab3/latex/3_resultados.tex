@@ -25,11 +25,6 @@ El uso de la función \texttt{execute\_path\_mirrored()} resultó especialmente 
 
 % Figuras trazadas (salida experimental): Flor murcielago circulo cruz triangulo
 
-\subsubsection{Conclusiones parciales}
-
-En conclusión, el módulo cumplió su propósito demostrativo de integración entre control secuencial, generación de trayectorias y detección de límites. No obstante, las deficiencias mecánicas del sistema limitaron la calidad del dibujo, evidenciando la importancia de una estructura más rígida y un solenoide de precisión para futuros desarrollos.
-
-
 
 
 \subsection{Temperatura}
@@ -105,8 +100,6 @@ Las curvas obtenidas mostraron la evolución del error y la respuesta del motor,
 
 % Figura sugerida: Gráfica de telemetría en Python mostrando referencia, posición real, PWM y dirección de giro en tiempo real.
 
-\subsubsection{Conclusión del módulo}
-Este módulo demostró un funcionamiento estable y predecible. La interacción entre la adquisición analógica, la modulación PWM y la visualización en tiempo real permitió evaluar de manera completa la respuesta del sistema. La zona muerta y el PWM mínimo mejoraron la precisión del control, mientras que la telemetría ofreció una representación clara del comportamiento dinámico, validando el diseño propuesto.
 
 % Figura sugerida: Foto general del montaje del módulo motor (microcontrolador, potenciómetros, motor y conexión UART al PC).
 
@@ -138,13 +131,6 @@ La interacción del usuario con el sistema fue fluida gracias a la gestión por 
 
 El procesamiento del evento, combinado con el control de temporización por \texttt{Timer0}, evitó rebotes eléctricos y permitió una experiencia de control continua, donde cada pulsación producía un cambio de color perceptible y estable.
 
-
-\subsubsection{Conclusión del módulo}
-El módulo \textit{Matriz} integró de manera exitosa la lectura analógica, el control de temporización precisa y la interacción con el usuario. A pesar del leve \textit{drift} en los potenciómetros del joystick, el control por saturación compensó eficazmente el error, logrando un desplazamiento acorde a la intención del usuario.  
-
-\vspace{1em}
-
-La implementación en ensamblador \texttt{inline} demostró ser una solución eficiente para la generación del protocolo WS2812, y la combinación de interrupciones y antirrebote software proporcionó un funcionamiento estable. En conjunto, el sistema cumplió su objetivo de construir una interfaz visual interactiva controlada completamente por hardware y firmware del microcontrolador.
 
 % Figura sugerida: Foto general del montaje completo del módulo Matriz (microcontrolador, joystick, botón y matriz WS2812).
 

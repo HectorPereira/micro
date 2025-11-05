@@ -5,4 +5,95 @@ La carpeta de Google Drive correspondiente a este laboratorio puede encontrarse 
 
 \subsection{Fragmentos de codigo}
 
+<<<<<<< HEAD
 
+=======
+\paragraph{Configuracion de USART}\label{anexo:PMW_Temperatura}---\\
+\begin{lstlisting}[language=C, caption={Configuracion de PMW para la temperatura}]
+// D6 (PD6/OC0A) con Timer0
+// D11 (PB3/OC2A) con Timer2
+void Init_pwm(void){
+	// --- Salidas PWM ---
+	DDRD |= (1 << DDD6);   // D6 = OC0A
+	DDRB |= (1 << DDB3);   // D11 = OC2A
+	//PORTB |= (1 << PORTB3);
+
+	// ---- Timer0: Fast PWM 8-bit, no inversor en OC0A, N=64 (~976 Hz) ----
+	TCCR0A = (1 << WGM01) | (1 << WGM00)| (1 << COM0A1);               // OC0A no inversor (D6)
+	TCCR0B = (1 << CS01)  | (1 << CS00);  // N=64
+	OCR0A  = 0;                           // duty D6
+
+	// ---- Timer2: Fast PWM 8-bit, no inversor en OC2A, N=64 (~976 Hz) ----
+	TCCR2A = (1 << WGM21) | (1 << WGM20)| (1 << COM2A1);               // OC2A no inversor (D11/PB3)
+	TCCR2B = (1 << CS22);                 // CS22:CS21:CS20 = 100 => N=64
+	OCR2A  = 0;                           // duty D11
+}
+\end{lstlisting}
+
+
+\paragraph{Configuracion de USART}\label{anexo:DeltaTemp_Ventilador}---\\
+\begin{lstlisting}[language=C, caption={Control de velocidad del ventilador}]
+		uint8_t d_t   = (int8_t)tC - (int8_t)(tC3);
+		uint8_t pwm2;
+		if(d_t > 0){
+			
+			if (d_t > 20)       pwm2 = 255;
+			else if (d_t > 10)  pwm2 = 125;
+			else if (d_t > 5)   pwm2 = 50;
+			else                pwm2 = 25;
+
+			OCR2A = pwm2;   
+		}
+		
+\end{lstlisting}
+
+\paragraph{Configuracion de USART}\label{anexo:Py_monitor_serial}---\\
+\begin{lstlisting}[language=C, caption={Toma de datos por pyserial}]
+# ----------------- Hilos -----------------
+def lector(ser):
+    global temp_mode, temp_vals
+    while True:
+        try:
+            raw = ser.readline()
+            if not raw:
+                continue
+
+            s = raw.decode("utf-8", errors="replace").strip()
+            print(s)  # eco en consola
+
+            grabando.set()
+
+            # --- Protocolo 'temp': tomar 2 numeros y promediar ---
+            if s.lower() == "temp":
+                temp_mode = True
+                temp_vals = []
+                continue
+
+            if temp_mode:
+                # intenta parsear numero para los dos siguientes renglones
+                try:
+                    v = float(s.replace(",", "."))
+                    temp_vals.append(v)
+                    if len(temp_vals) >= 2:
+                        avg = (temp_vals[0] + temp_vals[1]) / 2.0
+                        buf2.append(avg)              # Canal 2 = promedio
+                        temp_mode = False
+                        temp_vals = []
+                except ValueError:
+                    # si no es numero, simplemente lo ignoramos y seguimos esperando
+                    pass
+                continue  # no permitir que estos numeros caigan al canal normal
+
+            # --- Caso normal: un numero por linea -> Canal 1 ---
+            if grabando.is_set():
+                try:
+                    v = float(s.replace(",", "."))
+                    buf.append(v)
+                except ValueError:
+                    pass
+
+        except Exception as e:
+            print(f"\n[Lectura] {e}")
+            break
+\end{lstlisting}
+>>>>>>> 59b9f766c718759cb73d39bdabae2d9daa3154c4
