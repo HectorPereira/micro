@@ -1,14 +1,14 @@
 #define F_CPU 16000000UL
-#include <avr/io.h>
-#include <util/delay.h>
-#include <avr/interrupt.h>
-#include <string.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdio.h>
+#include <avr/io.h>          
+#include <util/delay.h>      
+#include <avr/interrupt.h>   
+#include <string.h>          
+#include <stdint.h>          
+#include <stdbool.h>         
+#include <stdio.h>           
 
 // ----------------------------------
-// Definiciones
+// Definiciones 
 // ----------------------------------
 
 #define BAUD 9600UL
@@ -31,10 +31,10 @@
 #define T1_PRELOAD   (uint16_t)(65536UL - (F_CPU/1024UL))
 
 // ----------------------------------
-// Variables
+// Variables 
 // ----------------------------------
 
-char string_to_send[4] = "";
+char string_to_send[4] = ""; 
 uint16_t valor = 0;
 uint8_t contolar = 0;
 
@@ -47,7 +47,7 @@ volatile uint8_t rxReadPos  = 0;
 volatile uint8_t rxWritePos = 0;
 
 // ----------------------------------
-// Prototipos
+// Prototipos 
 // ----------------------------------
 
 // Inicialización general
@@ -81,7 +81,7 @@ uint16_t adc_read_blocking_adif(void);   // Realiza lectura ADC bloqueante (espe
 void enviar_temperatura(uint16_t tmin, uint16_t tmax); // Envía límites de temperatura por UART
 void cambiar_rango(uint16_t *tmin, uint16_t *tmax);    // Permite modificar los límites de temperatura
 void pedir_u16_linea(const char *prompt, uint16_t *out,
-uint16_t vmin, uint16_t vmax); // Solicita un valor numérico por UART y valida el rango
+                            uint16_t vmin, uint16_t vmax); // Solicita un valor numérico por UART y valida el rango
 
 
 // ----------------------------------
@@ -122,21 +122,21 @@ int main(void) {
 				enviar_temperatura(tC2, tC3);
 			}
 		}
-		
+	    
 		// Si se activa la bandera de medición (cada 1 s)
 		if (contolar) {
 			string_to_send[0] = '\0';
-			uint8_t div = 10;
+			uint16_t div = 1;
 
 			adc = adc_read_blocking_adif();     // Lee ADC
 			tC = (adc * 500.0f) / 1023.0f;      // Convierte a °C (LM35)
 			valor = tC;
 
-
-			for (div ; div > 0; div /= 10) {
-				uint8_t d = (valor / div) % 10;
-				add_string(string_to_send, Number_to_ascii(d));
+			// Calcula divisor para conversión a caracteres
+			while (valor / div >= 10) {
+				div *= 10;
 			}
+
 
 			uart_print("\r\n");
 			uart_print(string_to_send);
@@ -150,7 +150,7 @@ int main(void) {
 			if (tC <= tC2) {
 				heater_on = 1;             // Por debajo del mínimo -> encender
 				Ventilador_off();
-			}
+			} 
 			else if (tC >= tC3) {
 				heater_on = 0;             // Por encima del máximo -> apagar
 				Ventilador_on();
@@ -184,16 +184,16 @@ int main(void) {
 // ----------------------------------
 
 void Init_pwm(void){
-	DDRD |= (1 << DDD6);
+    DDRD |= (1 << DDD6);
 
 	// Fast PWM (modo 3, TOP=255), salida no inversora en OC0A
-	TCCR0A = (1 << WGM01) | (1 << WGM00) | (1 << COM0A1); // COM0A1=1, COM0A0=0
-	TCCR0B = (1 << CS01) | (1 << CS00); // Prescaler = 64  (? 976 Hz @16MHz)
+    TCCR0A = (1 << WGM01) | (1 << WGM00) | (1 << COM0A1); // COM0A1=1, COM0A0=0
+    TCCR0B = (1 << CS01) | (1 << CS00); // Prescaler = 64  (? 976 Hz @16MHz)
 
 	// Para PB3 (Para el FAN)
 	DDRB |= (1 << DDB3);
-	TCCR2A = (1 << WGM21) | (1 << WGM20) | (1 << COM2A1);
-	TCCR2B = (1 << CS22);
+    TCCR2A = (1 << WGM21) | (1 << WGM20) | (1 << COM2A1);
+    TCCR2B = (1 << CS22);
 }
 void Init_adc(void){
 	ADMUX  = 0b01000001;
@@ -426,6 +426,6 @@ ISR(USART_RX_vect){
 	}
 }
 ISR(TIMER1_OVF_vect) {
-	TCNT1 = T1_PRELOAD;
-	medicion();
+	TCNT1 = T1_PRELOAD;         
+	medicion();                 
 }
