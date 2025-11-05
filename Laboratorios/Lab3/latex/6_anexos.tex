@@ -5,12 +5,6 @@ La carpeta de Google Drive correspondiente a este laboratorio puede encontrarse 
 
 \subsection{Fragmentos de codigo}
 
-\subsubsection{\textbf{Plotter}}---
-\paragraph{Configuracion de USART}\label{anexo:config_USART}---\\
-\begin{lstlisting}[language=C, caption={Configuracion de USART}]
-// Code here
-\end{lstlisting}
-
 \paragraph{Configuracion de USART}\label{anexo:PMW_Temperatura}---\\
 \begin{lstlisting}[language=C, caption={Configuracion de PMW para la temperatura}]
 // D6 (PD6/OC0A) con Timer0
@@ -66,14 +60,14 @@ def lector(ser):
 
             grabando.set()
 
-            # --- Protocolo 'temp': tomar 2 números y promediar ---
+            # --- Protocolo 'temp': tomar 2 numeros y promediar ---
             if s.lower() == "temp":
                 temp_mode = True
                 temp_vals = []
                 continue
 
             if temp_mode:
-                # intenta parsear número para los dos siguientes renglones
+                # intenta parsear numero para los dos siguientes renglones
                 try:
                     v = float(s.replace(",", "."))
                     temp_vals.append(v)
@@ -83,11 +77,11 @@ def lector(ser):
                         temp_mode = False
                         temp_vals = []
                 except ValueError:
-                    # si no es número, simplemente lo ignoramos y seguimos esperando
+                    # si no es numero, simplemente lo ignoramos y seguimos esperando
                     pass
-                continue  # no permitir que estos números caigan al canal normal
+                continue  # no permitir que estos numeros caigan al canal normal
 
-            # --- Caso normal: un número por línea -> Canal 1 ---
+            # --- Caso normal: un numero por linea -> Canal 1 ---
             if grabando.is_set():
                 try:
                     v = float(s.replace(",", "."))
