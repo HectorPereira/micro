@@ -1,2 +1,309 @@
 \section{Marco teórico}
 
+\subsection{Modulación por Ancho de Pulso (PWM)}
+
+La \textbf{Modulación por Ancho de Pulso (PWM, por sus siglas en inglés)} es una técnica utilizada para controlar la potencia entregada a una carga mediante una señal digital.  
+Consiste en variar el \textit{ciclo de trabajo} (\textit{duty cycle}) de una onda cuadrada de frecuencia fija.  
+El ciclo de trabajo se define como la proporción de tiempo que la señal permanece en nivel alto durante un período completo (\( D = \frac{t_{ON}}{T} \times 100\% \)).  
+De esta manera, el valor medio de la tensión aplicada a la carga depende directamente del ciclo de trabajo.
+
+\subsubsection{PWM en el ATmega328P}
+
+El microcontrolador \textbf{ATmega328P} posee tres temporizadores capaces de generar señales PWM por hardware:
+
+\begin{itemize}
+    \item \textbf{Timer0:} de 8 bits — pines de salida \texttt{OC0A} (PD6) y \texttt{OC0B} (PD5).
+    \item \textbf{Timer1:} de 16 bits — pines de salida \texttt{OC1A} (PB1) y \texttt{OC1B} (PB2).
+    \item \textbf{Timer2:} de 8 bits — pines de salida \texttt{OC2A} (PB3) y \texttt{OC2B} (PD3).
+\end{itemize}
+
+Cada uno de estos temporizadores puede configurarse en distintos modos de operación definidos por los bits \texttt{WGMn[3:0]} (Waveform Generation Mode).  
+Los modos más utilizados para la generación de PWM son:
+
+\begin{enumerate}
+    \item \textbf{Modo Fast PWM:} genera una señal de frecuencia constante y permite variar el ciclo de trabajo modificando el registro \texttt{OCRnx}. Este modo es ideal para control de motores, servos o regulación de brillo en LEDs.
+    \item \textbf{Modo Phase Correct PWM:} genera una onda simétrica, variando su ciclo de trabajo de manera que la frecuencia de la señal se reduce a la mitad de la del modo Fast PWM. Se utiliza cuando se requiere una salida con menor distorsión.
+    \item \textbf{Modo Normal:} el temporizador simplemente cuenta desde cero hasta su valor máximo (255 u 65535) y reinicia, sin generar una forma de onda PWM.
+\end{enumerate}
+
+\subsubsection{Configuración de registros}
+
+El funcionamiento del PWM depende principalmente de tres registros:
+
+\begin{itemize}
+    \item \textbf{\texttt{TCCRnA} y \texttt{TCCRnB}}: determinan el modo de operación (bits \texttt{WGMn}) y la conexión de la salida de comparación (\texttt{COMnx}).
+    \item \textbf{\texttt{OCRnx}}: define el valor de comparación que fija el ciclo de trabajo.
+    \item \textbf{\texttt{TCNTn}}: contiene el valor actual del contador del temporizador.
+\end{itemize}
+
+En modo \textbf{Fast PWM}, la salida cambia de estado cuando el contador \texttt{TCNTn} iguala el valor de \texttt{OCRnx}, reiniciándose al alcanzar su valor máximo.  
+En el modo \textbf{Normal}, el contador simplemente incrementa sin modificar ninguna salida, siendo útil para mediciones o temporizaciones.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.35\textwidth]{anexos/Marco Teorico/Fast PMW.png}
+    \caption{Diagrama de funcionamiento del modo Fast PWM en el ATmega328P. La señal de salida cambia cuando el contador alcanza el valor de comparación.}
+    \label{fig:fast_pwm}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.35\textwidth]{anexos/Marco Teorico/Phase Correct.png}
+    \caption{Modo Normal de operación del temporizador. El contador incrementa hasta su valor máximo y luego se reinicia, sin modificar las salidas.}
+    \label{fig:normal_mode}
+\end{figure}
+
+\subsubsection{Aplicaciones}
+
+La modulación PWM es ampliamente utilizada en sistemas embebidos, especialmente para:
+\begin{itemize}
+    \item Control de velocidad de motores de corriente continua.
+    \item Regulación de intensidad luminosa en LEDs.
+    \item Control de servomotores (por ejemplo, SG90).
+    \item Conversión digital-analógica por filtrado de la señal PWM.
+\end{itemize}
+
+En este trabajo práctico, el modo \textbf{Fast PWM} del \texttt{Timer0} se empleó para controlar tanto la potencia disipada en los transistores TIP31 como la velocidad del ventilador mediante el ajuste dinámico del ciclo de trabajo.
+
+\subsection{Sensor de temperatura LM35}
+
+El \textbf{LM35} es un sensor de temperatura de precisión fabricado, que entrega una señal de salida \textbf{linealmente proporcional} a la temperatura ambiente. El LM35 genera una tensión de salida proporcional a la temperatura según la relación:
+\[
+V_{OUT} = 10~\text{mV}/^\circ\text{C} \times T
+\]
+donde \( T \) representa la temperatura en grados Celsius.  
+
+Por ejemplo, a \( 25~^\circ\text{C} \), la tensión de salida es de aproximadamente \( 250~\text{mV} \).  
+El sensor puede funcionar típicamente en un rango de \(-55~^\circ\text{C}\) a \(150~^\circ\text{C}\), con una exactitud de ±0.5°C a temperatura ambiente.
+
+
+El LM35 requiere una conexión de tres terminales:
+
+\begin{itemize}
+    \item \textbf{V\textsubscript{CC}} — alimentación (4 a 20 V).
+    \item \textbf{V\textsubscript{OUT}} — salida analógica (conectada a una entrada ADC del microcontrolador).
+    \item \textbf{GND} — referencia a tierra común.
+\end{itemize}
+
+Vease figura \ref{fig:lm35_pinout}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{anexos/Marco Teorico/LM35.png}
+    \caption{Diagrama de pines y conexión típica del sensor LM35.}
+    \label{fig:lm35_pinout}
+\end{figure}
+
+\subsection{Transistor de potencia TIP31}
+
+El \textbf{TIP31} es un transistor \textbf{NPN de propósito general} diseñado para aplicaciones de conmutación y amplificación de potencia.  
+Posee una capacidad de corriente continua máxima de \(3~\text{A}\) y una disipación de potencia de hasta \(40~\text{W}\), dependiendo del sistema de refrigeración empleado. Se puede ver en la figura \ref{fig:tip31_pinout}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{anexos/Marco Teorico/TIP31.png}
+    \caption{Transistor TIP31.}
+    \label{fig:tip31_pinout}
+\end{figure}
+
+
+\subsubsection{Características principales}
+
+\begin{itemize}
+    \item Tipo: NPN de silicio.
+    \item Corriente máxima de colector: \(I_C = 3~\text{A}\).
+    \item Voltaje máximo colector-emisor: \(V_{CE(max)} = 40~\text{V}\).
+    \item Ganancia de corriente (hFE): entre 10 y 50.
+    \item Encapsulado: TO-220.
+\end{itemize}
+
+
+\subsubsection{Principio de funcionamiento}
+
+En el TIP31, una pequeña corriente de base \(I_B\) controla una corriente mucho mayor de colector \(I_C\).  
+El transistor actúa como un interruptor controlado por señal:  
+\begin{itemize}
+    \item Cuando \(V_{BE} > 0.7~\text{V}\), el transistor entra en saturación y permite el paso de corriente entre colector y emisor.
+    \item Cuando \(V_{BE} < 0.7~\text{V}\), el transistor se encuentra en corte y no conduce.
+\end{itemize}
+
+Al aplicar una señal PWM en la base, el transistor conmuta rápidamente entre los estados de saturación y corte, produciendo un efecto de \textbf{control proporcional de potencia} en la carga conectada (por ejemplo, un calefactor o resistor de potencia).
+
+
+\subsection{Entradas ADC del ATmega328P}
+
+El \textbf{Conversor Analógico-Digital (ADC)} incorporado en el microcontrolador \textbf{ATmega328P} permite transformar una señal analógica continua en una representación digital discreta.  
+Este proceso es fundamental para medir variables físicas, como temperatura, luz o voltaje, a partir de sensores que entregan señales analógicas.
+
+\subsubsection*{Características principales}
+
+El ADC del ATmega328P posee las siguientes características técnicas:
+
+    \begin{itemize}
+        \item Resolución de \textbf{10 bits}, lo que permite representar \( 2^{10} = 1024 \) niveles distintos.
+        \item Entradas analógicas: \textbf{6 canales} disponibles (de \texttt{ADC0} a \texttt{ADC5}), ubicados en los pines \texttt{PC0} a \texttt{PC5}.
+        \item Rango de tensión de entrada: entre \( 0~\text{V} \) y el valor de referencia seleccionado (\(V_{REF}\)).
+        \item Tiempo típico de conversión: \( 13~\text{a}~260~\mu s \) según el prescaler utilizado.
+        \item Fuente de referencia seleccionable: tensión de alimentación.
+    
+
+
+
+\subsection{Librerías utilizadas en Python}
+
+Para el desarrollo del software de adquisición y visualización de datos, se emplearon distintas librerías de \textbf{Python 3.3} que facilitaron la comunicación con el microcontrolador, el manejo de datos y la generación de gráficos.  
+A continuación, se describen brevemente las principales:
+
+\paragraph*{PySerial}
+Es una librería que permite la \textbf{comunicación serie} entre Python y dispositivos externos, como microcontroladores o sensores.  
+Proporciona funciones para abrir, leer y escribir datos a través de un puerto serial, siendo ampliamente utilizada en proyectos con \textit{Arduino} o \textit{ATmega328P}.
+
+\paragraph*{Matplotlib}
+Corresponde a una de las bibliotecas más utilizadas en Python para la \textbf{generación de gráficos y visualización de datos}.  
+Permite crear gráficos en dos dimensiones (2D) de manera sencilla y personalizable, siendo ideal para representar la evolución temporal de variables como la temperatura.
+
+\paragraph*{Threading}
+Es una librería que ofrece herramientas para la \textbf{ejecución de tareas concurrentes} mediante hilos de ejecución (\textit{threads}).  
+Se utiliza para realizar procesos en paralelo, por ejemplo, leer datos del puerto serial mientras se actualiza la gráfica en tiempo real.
+
+\paragraph*{Collections}
+Proporciona tipos de datos adicionales y estructuras más eficientes que las nativas de Python, como \texttt{deque}, \texttt{Counter} o \texttt{namedtuple}.  
+En este proyecto se empleó la estructura \texttt{deque} para almacenar los datos recibidos del puerto serie de forma dinámica y eficiente, facilitando el manejo de ventanas de tiempo en las gráficas en tiempo real.
+
+
+\subsection{Tecnología RFID y módulo RC522}
+
+La \textbf{Identificación por Radiofrecuencia (RFID, por sus siglas en inglés)} es una tecnología utilizada para la \textbf{identificación automática de objetos o personas} mediante el intercambio de información inalámbrica entre un \textit{lector} y una \textit{etiqueta} o \textit{tarjeta}.  
+Su funcionamiento se basa en la inducción electromagnética: el lector genera un campo de radiofrecuencia que activa la etiqueta, la cual responde enviando su código de identificación único (\textit{UID}).
+
+\subsubsection*{Principio de funcionamiento}
+
+Un sistema RFID se compone principalmente de tres elementos:
+
+\begin{itemize}
+    \item \textbf{Etiqueta o tarjeta RFID:} contiene un chip con memoria y una antena integrada, que almacena el identificador único (UID). Puede ser de tipo \textit{pasiva} (sin fuente de energía) o \textit{activa} (con alimentación propia).
+    \item \textbf{Lector RFID:} genera el campo electromagnético que energiza la etiqueta y recibe los datos transmitidos.
+    \item \textbf{Controlador o microcontrolador:} procesa la información recibida por el lector y toma decisiones según la aplicación (por ejemplo, habilitar un acceso o registrar un usuario).
+\end{itemize}
+
+Se puede ver un esquema basico de su funcionamiento en la figura \ref{fig:rfid_system}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.35\textwidth]{anexos/Marco Teorico/RFID.png}
+    \caption{Esquema general del funcionamiento de un sistema RFID.}
+    \label{fig:rfid_system}
+\end{figure}
+
+\subsubsection*{Módulo RC522}
+
+El \textbf{RC522} es un módulo lector de RFID de bajo costo ampliamente utilizado en sistemas embebidos y proyectos académicos.  
+Opera a una frecuencia de \textbf{13.56 MHz} y es compatible con tarjetas RFID del tipo \textbf{MIFARE}, las cuales utilizan el protocolo ISO/IEC 14443A.
+
+Este módulo se comunica con el microcontrolador mediante el protocolo \textbf{SPI (Serial Peripheral Interface)}, utilizando las líneas \texttt{MOSI}, \texttt{MISO}, \texttt{SCK} y \texttt{SS}.  
+Además, dispone de un pin de \texttt{RESET} y otro de \texttt{IRQ} (interrupción) para un control más preciso de los eventos de lectura. Vease la figura \ref{fig:rc522_pinout}.
+
+\begin{table}[H]
+    \centering
+    \caption{Principales pines del módulo RC522 y su función.}
+    \label{tab:rc522_pines}
+    \begin{tabular}{ll}
+        \toprule
+        \textbf{Pin} & \textbf{Función} \\
+        \midrule
+        \texttt{VCC} & Alimentación (3.3 V) \\
+        \texttt{RST} & Reinicio del módulo \\
+        \texttt{GND} & Tierra común \\
+        \texttt{MISO} & Datos desde el lector hacia el microcontrolador \\
+        \texttt{MOSI} & Datos desde el microcontrolador hacia el lector \\
+        \texttt{SCK} & Señal de reloj SPI \\
+        \texttt{SS/SDA} & Selección del dispositivo SPI (Chip Select) \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.35\textwidth]{anexos/Marco Teorico/RC522.png}
+    \caption{Diagrama de pines del módulo lector RFID RC522.}
+    \label{fig:rc522_pinout}
+\end{figure}
+
+
+
+\subsection{Protocolo de comunicación SPI}
+
+El protocolo \textbf{SPI (Serial Peripheral Interface)} es un estándar de comunicación serial síncrona desarrollado por Motorola, ampliamente utilizado en sistemas embebidos para la transmisión de datos de alta velocidad entre un \textit{microcontrolador} y uno o varios \textit{periféricos}.  
+A diferencia de otros protocolos como \textit{I\textsuperscript{2}C} o \textit{UART}, el SPI permite una comunicación completamente dúplex y ofrece una estructura simple y eficiente.
+
+\subsubsection*{Principio de funcionamiento}
+
+SPI opera bajo un esquema de tipo \textbf{maestro–esclavo}, en el cual el dispositivo maestro (por ejemplo, el \texttt{ATmega328P}) controla el reloj y sincroniza la transferencia de datos con los dispositivos esclavos.  
+Cada ciclo de transferencia se produce en sincronía con la señal de reloj (\texttt{SCK}), que coordina el envío y recepción de bits entre ambos extremos.
+
+Los datos se transmiten de forma \textbf{serial}, bit a bit, a través de dos líneas principales:  
+una para los datos enviados desde el maestro al esclavo (\texttt{MOSI}) y otra para los datos que viajan en sentido contrario (\texttt{MISO}). Vease la figura \ref{fig:spi_diagrama}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.35\textwidth]{anexos/Marco Teorico/SPI.png}
+    \caption{Esquema de conexión típica del protocolo SPI entre un maestro y un esclavo.}
+    \label{fig:spi_diagrama}
+\end{figure}
+
+\subsubsection*{Líneas de comunicación}
+
+El bus SPI está compuesto por cuatro señales principales:
+
+\begin{itemize}
+    \item \textbf{MOSI (Master Out Slave In):} línea por la cual el maestro envía datos hacia el esclavo.
+    \item \textbf{MISO (Master In Slave Out):} línea utilizada por el esclavo para enviar datos de vuelta al maestro.
+    \item \textbf{SCK (Serial Clock):} señal de reloj generada por el maestro, que sincroniza la transmisión de datos.
+    \item \textbf{SS (Slave Select)} o \textbf{CS (Chip Select):} línea que habilita la comunicación con un esclavo específico; su nivel activo es bajo (\textit{active low}).
+\end{itemize}
+
+\subsubsection*{Modos de operación}
+
+El protocolo SPI permite diferentes configuraciones según la polaridad y fase del reloj, determinadas por los bits \texttt{CPOL} y \texttt{CPHA}.  
+Estas combinaciones definen los cuatro modos posibles de SPI:
+
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Modos de operación del protocolo SPI.}
+    \label{tab:spi_modes}
+    \begin{tabular}{@{}cccc@{}}
+        \toprule
+        \textbf{Modo} & \textbf{CPOL} & \textbf{CPHA} & \textbf{Descripción} \\
+        \midrule
+        0 & 0 & 0 & Flanco de subida, reloj en reposo bajo. \\
+        1 & 0 & 1 & Flanco de bajada, reloj en reposo bajo. \\
+        2 & 1 & 0 & Flanco de bajada, reloj en reposo alto. \\
+        3 & 1 & 1 & Flanco de subida, reloj en reposo alto. \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\subsubsection*{SPI en el ATmega328P}
+
+El microcontrolador \texttt{ATmega328P} incluye un módulo de hardware SPI, cuyas líneas están asignadas a los siguientes pines del puerto \texttt{B}:
+
+\begin{itemize}
+    \item \texttt{PB2 (SS)} — Selección del esclavo.
+    \item \texttt{PB3 (MOSI)} — Salida de datos del maestro.
+    \item \texttt{PB4 (MISO)} — Entrada de datos hacia el maestro.
+    \item \texttt{PB5 (SCK)} — Señal de reloj.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.35\textwidth]{anexos/Marco Teorico/SPI Tiempo.png}
+    \caption{Diagrama temporal de transferencia de datos en el protocolo SPI.}
+    \label{fig:spi_timing}
+\end{figure}
+
+
+
+
+
