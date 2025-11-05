@@ -186,6 +186,8 @@ Un sistema RFID se compone principalmente de tres elementos:
     \item \textbf{Controlador o microcontrolador:} procesa la información recibida por el lector y toma decisiones según la aplicación (por ejemplo, habilitar un acceso o registrar un usuario).
 \end{itemize}
 
+Se puede ver un esquema basico de su funcionamiento en la figura \ref{fig:rfid_system}.
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.35\textwidth]{anexos/Marco Teorico/RFID.png}
@@ -199,7 +201,7 @@ El \textbf{RC522} es un módulo lector de RFID de bajo costo ampliamente utiliza
 Opera a una frecuencia de \textbf{13.56 MHz} y es compatible con tarjetas RFID del tipo \textbf{MIFARE}, las cuales utilizan el protocolo ISO/IEC 14443A.
 
 Este módulo se comunica con el microcontrolador mediante el protocolo \textbf{SPI (Serial Peripheral Interface)}, utilizando las líneas \texttt{MOSI}, \texttt{MISO}, \texttt{SCK} y \texttt{SS}.  
-Además, dispone de un pin de \texttt{RESET} y otro de \texttt{IRQ} (interrupción) para un control más preciso de los eventos de lectura.
+Además, dispone de un pin de \texttt{RESET} y otro de \texttt{IRQ} (interrupción) para un control más preciso de los eventos de lectura. Vease la figura \ref{fig:rc522_pinout}.
 
 \begin{table}[H]
     \centering
@@ -222,7 +224,7 @@ Además, dispone de un pin de \texttt{RESET} y otro de \texttt{IRQ} (interrupci�
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.35\textwidth]{figuras/rc522_pinout.png}
+    \includegraphics[width=0.35\textwidth]{anexos/Marco Teorico/RC522.png}
     \caption{Diagrama de pines del módulo lector RFID RC522.}
     \label{fig:rc522_pinout}
 \end{figure}
