@@ -9,7 +9,13 @@
 
 Durante las pruebas del sistema de trazado, se observaron diversas limitaciones mecánicas y de precisión en el módulo \textit{Plotter}. El conjunto presentaba un notable juego estructural en los ejes, lo que afectó la exactitud de los trazos desde las primeras ejecuciones. En particular, el solenoide encargado de accionar el lápiz mostraba holgura en el mecanismo, generando líneas imprecisas y desplazamientos no deseados al cambiar de dirección.
 
-% Figura del módulo completo: foto del plotter montado (con el solenoide, ejes y motores visibles).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{anexos/1 Plotter/Plotter.jpg}
+    \caption{Vista general del plotter ensamblado con todos los módulos y conexiones.}
+    \label{fig:plotter_completo}
+\end{figure}
+
 
 \vspace{1em}
 
@@ -19,11 +25,22 @@ Los motores paso a paso tendieron a trabarse de forma intermitente durante las t
 
 El intérprete desarrollado en Python logró convertir con éxito las trayectorias del formato discreto antiguo al nuevo formato estructurado \texttt{Move}. Esto permitió ejecutar los dibujos sin modificaciones manuales en el código fuente y facilitó la experimentación con distintos valores de escala para ajustar el tamaño de las figuras. Sin embargo, los resultados visuales finales, aunque funcionales, mostraron limitaciones en la precisión geométrica debido a las condiciones mecánicas del sistema anteriormente mencionadas.
 
-% Figura comparativa antes/después del intérprete Python:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{anexos/1 Plotter/Interprete.png}
+    \caption{Comparativa del sistema de trazado antes y después de la implementación del intérprete Python.}
+    \label{fig:comparativa_python}
+\end{figure}
+
 
 El uso de la función \texttt{execute\_path\_mirrored()} resultó especialmente eficiente, ya que permitió reducir a la mitad la cantidad de datos almacenados en memoria Flash para figuras simétricas como el murciélago. En este caso, se eliminó manualmente una de las mitades de la trayectoria luego de la conversión realizada por el intérprete, logrando un ahorro significativo de espacio sin afectar la forma general del trazado.
 
-% Figuras trazadas (salida experimental): Flor murcielago circulo cruz triangulo
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{anexos/1 Plotter/Dibujos.jpg}
+    \caption{Figuras trazadas experimentalmente por el plotter: flor, murciélago, círculo, cruz y triángulo.}
+    \label{fig:figuras_trazadas}
+\end{figure}
 
 
 
@@ -81,6 +98,13 @@ Este procedimiento permitió observar variaciones suaves y coherentes en las med
 \subsubsection{Simulación}
 La simulación del módulo motor permitió verificar el correcto funcionamiento lógico del sistema antes de su implementación física. En el entorno virtual se probaron las rutinas de lectura analógica, control de dirección y generación de la señal PWM, observándose que el motor respondía adecuadamente a las variaciones del potenciómetro de referencia. Las salidas por \texttt{USART} mostraron valores coherentes con el comportamiento esperado, confirmando la adecuada comunicación y ejecución del algoritmo de control.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{anexos/3 Motor/Simulacion.png}
+    \caption{Simulación del módulo motor en Proteus, mostrando el microcontrolador ATmega328P, los potenciómetros de referencia y posición, así como las señales de control PWM y UART.}
+    \label{fig:sim_motor_proteus}
+\end{figure}
+
 \vspace{1em}
 
 Como limitación, el entorno no permitió vincular de manera directa el potenciómetro del eje con el motor para emular el acoplamiento físico. Sin embargo, al manipular ambos potenciómetros de forma independiente se reprodujo satisfactoriamente el comportamiento dinámico del sistema, validando la estabilidad del control y la correspondencia entre las señales de referencia, posición y dirección.
@@ -90,6 +114,14 @@ Durante las pruebas del sistema se comprobó el correcto funcionamiento del mód
 
 \subsubsection{Respuesta del control de dirección y PWM}
 El control de dirección y la modulación por ancho de pulso (PWM) operaron de forma adecuada. Cuando la diferencia entre los valores de referencia y los medidos aumentaba, el sistema aplicaba una señal PWM de mayor amplitud, produciendo un giro más rápido del motor para corregir el error. A medida que el valor real se aproximaba al de referencia, el ciclo útil disminuía gradualmente, reduciendo la velocidad hasta alcanzar el punto de equilibrio.  
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{anexos/3 Motor/Circuito.jpg}
+    \caption{Montaje experimental del módulo motor, incluyendo microcontrolador, potenciómetros de control y eje, conexión UART al PC y el motor DC.}
+    \label{fig:montaje_motor}
+\end{figure}
+
 
 \vspace{1em}
 
@@ -109,12 +141,16 @@ El módulo de comunicación UART transmitió de manera confiable los valores de 
 
 \vspace{1em}
 
-Las curvas obtenidas mostraron la evolución del error y la respuesta del motor, confirmando la sincronía entre el muestreo del microcontrolador (cada 50~ms) y la actualización del gráfico en Python. Esta integración hardware–software proporcionó una herramienta útil para el análisis dinámico del sistema y la validación experimental del control implementado.
+Las curvas obtenidas mostraron la evolución del error y la respuesta del motor, confirmando la sincronía entre el muestreo del microcontrolador (cada 50~ms) y la actualización del gráfico en Python. Esta integración hardware-software proporcionó una herramienta útil para el análisis dinámico del sistema y la validación experimental del control implementado.
 
-% Figura sugerida: Gráfica de telemetría en Python mostrando referencia, posición real, PWM y dirección de giro en tiempo real.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{anexos/3 Motor/Grafica.jpg}
+    \caption{Visualización en tiempo real de las variables de referencia, posición real, señal PWM y dirección de giro obtenidas mediante el programa \texttt{serial\_python.py}.}
+    \label{fig:telemetria_python_motor}
+\end{figure}
 
 
-% Figura sugerida: Foto general del montaje del módulo motor (microcontrolador, potenciómetros, motor y conexión UART al PC).
 
 
 
@@ -145,8 +181,12 @@ La interacción del usuario con el sistema fue fluida gracias a la gestión por 
 El procesamiento del evento, combinado con el control de temporización por \texttt{Timer0}, evitó rebotes eléctricos y permitió una experiencia de control continua, donde cada pulsación producía un cambio de color perceptible y estable.
 
 
-% Figura sugerida: Foto general del montaje completo del módulo Matriz (microcontrolador, joystick, botón y matriz WS2812).
-
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{anexos/4 Matriz/Color 3.jpg}
+    \caption{Montaje completo del módulo Matriz, mostrando el microcontrolador ATmega328P, el joystick analógico, el pulsador de control y la matriz de LEDs WS2812.}
+    \label{fig:montaje_modulo_matriz}
+\end{figure}
 
 \subsection{Cerradura}
 
