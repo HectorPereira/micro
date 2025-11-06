@@ -1,17 +1,30 @@
 \section{Introducción}
 
+El Laboratorio 3 aborda el desarrollo e integración de distintos módulos funcionales basados en el microcontrolador \texttt{ATmega328P}.  Cada módulo se centra en la aplicación de un principio técnico específico, permitiendo construir un sistema mecatrónico completo compuesto por etapas de adquisición de datos, control, visualización y comunicación.  
+El trabajo se divide en cinco módulos principales: un \textit{Plotter} cartesiano, un sistema de \textit{Control de Temperatura}, un módulo de \textit{Control de Motor DC}, una \textit{Matriz RGB} direccionable y una \textit{Cerradura RFID}.  Cada uno combina elementos de hardware, firmware y software de monitoreo, utilizando los periféricos internos del microcontrolador para resolver tareas concretas de automatización y control.
+
+\vspace{1em}
 
 \subsection{Objetivos}
 
 \textbf{Objetivo general:}
-
+\begin{quote}
+Desarrollar y documentar un conjunto de cinco módulos embebidos que integren lectura de sensores, control de actuadores y comunicación digital, aplicando las herramientas vistas en el curso de Microcontroladores.
+\end{quote}
 
 \textbf{Objetivos específicos:}
+\begin{itemize}
+    \item Implementar distintos sistemas físicos y simulados que empleen los periféricos \texttt{ADC}, \texttt{PWM}, \texttt{SPI}, \texttt{UART}, \texttt{I2C} y \texttt{EEPROM}.
+    \item Diseñar rutinas en lenguaje C que controlen sensores, transistores, servomotores y módulos de comunicación.
+    \item Utilizar Python para la adquisición y visualización de datos provenientes del microcontrolador.
+    \item Evaluar el comportamiento de cada módulo a partir de simulaciones y pruebas experimentales.
+\end{itemize}
 
+\vspace{1em}
 
 \subsection{Descripción general de los módulos}
 
-El laboratorio se divide en cinco modulos:
+El laboratorio se compone de cinco módulos temáticos, resumidos en la Tabla \ref{tab:implementacion_lab3}.
 
 \begin{table}[H]
 \centering
@@ -28,10 +41,28 @@ E & Cerradura RFID & Simulada y Física \\ \bottomrule
 \label{tab:implementacion_lab3}
 \end{table}
 
-\subsubsection{Plotter}
-\subsubsection{Temperatura}
-\subsubsection{Motor}
-\subsubsection{Matriz}
-\subsubsection{Cerradura}
+\vspace{1em}
 
+\subsubsection{Plotter}
+Implementación de un sistema cartesiano capaz de reproducir trayectorias bidimensionales mediante motores paso a paso controlados por señales digitales. El módulo ejecuta rutas almacenadas en memoria \texttt{PROGMEM} y emplea finales de carrera para calibración de los ejes.
+
+\vspace{1em}
+
+\subsubsection{Temperatura}
+Diseño de un sistema de control térmico basado en el sensor \texttt{LM35} y un transistor \texttt{TIP31C} como etapa de potencia. El control se realiza por modulación PWM, activando un ventilador o resistencia calefactora según la temperatura medida.
+
+\vspace{1em}
+
+\subsubsection{Motor}
+Módulo de control de velocidad para motor DC mediante señal \texttt{PWM} y control de dirección. Incluye lectura de referencia analógica y monitoreo serial de variables de estado.
+
+\vspace{1em}
+
+\subsubsection{Matriz}
+Implementación de una matriz de \texttt{LEDs WS2812} controlada digitalmente, capaz de generar animaciones o patrones de color según datos recibidos desde un joystick o comandos seriales.
+
+\vspace{1em}
+
+\subsubsection{Cerradura}
+Sistema de autenticación que emplea el lector \texttt{RFID RC522} y almacenamiento de credenciales en \texttt{EEPROM}. Permite verificar usuarios registrados y mostrar el estado del sistema mediante una pantalla \texttt{LCD I2C}.
 
