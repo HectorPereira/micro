@@ -1,33 +1,35 @@
 \section{Conclusiones}
-\subsection{Reflexiónes individuales}
 
-    \subsubsection{Plotter}
-    % El plotter funciono bien
-    % La cagada fue el juego de la estructura
-    % A veces se trancaba y hacia cualquier cosa
-    % Hubiera estado bueno tener USART para poder tener feedback del sistema
-    % Mejoras: 
-    %   Optimizar el programa de trazos para que ocupe menos espacio
-    %   Aumentar la velocidad de dibujo sin comprometer el trazado de las figuras.
-    %   Reparar la estructura del plotter para evitar trancasos.
-    
-    \subsubsection{Temperatura}
+\subsection{Reflexiones individuales}
 
-   % La implementacion del control de Temperatura ocn el modulo que incluia un calentador y el ventilador, fue stisfactoria. Se cumplieron correectamente los objetivos buscados. Se puede mejorar incluyendo un control pmw segun la diferencia de temperatura al calentador, no solo en el ventilador. 
-  %  Asi como incluir en la grafica el estado de los perifericos del sistema, el ventilador y el calentador, si esta encendido o no. 
-    teamohector
-    \subsubsection{Motor}
-    % El motor funciono bien, tuvo una buena respuesta a movimientos suaves y bruzcos, y lograba estabilizarse correctamente sin oscilaciones.
-    % Lo que se pudo haber mejorado era reducir la zona muerta para tener una mejor precision
-    % al momento de realizar movimientos pequeños. 
-    
-    \subsubsection{Matriz}
-    % La matriz funciono bien, reconoció bien las entradas del joystick. Al trabajar solamente con la saturacion de los potenciometros, lo que se pudo haber mejorado era que el punto se moviera a diferentes velocidades dependiendo de la posición del joystick.
+\subsubsection{Plotter}
 
-    \subsubsection{Cerradura}
+El módulo \textit{Plotter} permitió validar la integración entre el control electrónico y la ejecución mecánica de trayectorias preprogramadas. Su funcionamiento demostró la correcta interpretación de las instrucciones del intérprete Python y la capacidad del microcontrolador para ejecutar secuencias complejas de movimiento. Sin embargo, las limitaciones mecánicas del conjunto, como el juego estructural y los atascos intermitentes en los ejes, afectaron la precisión de los trazos y la repetibilidad de las figuras generadas. A pesar de ello, el sistema logró plasmar correctamente las trayectorias básicas, cumpliendo los objetivos de la consigna.
 
-   % Funciono correctamente, teniendo una correta comunicacion via spi entre el esclavo (RC522) y el maestro(Arduino), permitio entender correctamente como funciona ese tipo de comunicacion. A su vez tambien una correcta sincronizacion con la pantalla LCD via I2C. Se podria haber hecho mas satisfactorio y enriquecedor, ncluyendo la opcion de modificar las tarjetas RFID.
+Como mejora futura, sería conveniente optimizar el algoritmo de trazado para reducir el espacio de memoria ocupado en la Flash, además de implementar comunicación \texttt{USART} para obtener retroalimentación del sistema en tiempo real. La reconstrucción del soporte mecánico, reduciendo holguras y mejorando la rigidez estructural, permitiría incrementar notablemente la calidad de los dibujos y aumentar la velocidad de ejecución sin comprometer la estabilidad del movimiento.
 
+\subsubsection{Temperatura}
 
-\subsection{Reflexión general}
+La implementación del módulo de control de temperatura resultó satisfactoria, evidenciando un funcionamiento estable del sensor, el ADC y el lazo de control a través de la interfaz Python. El sistema logró mantener un registro continuo de las mediciones y transmitir los datos de manera confiable mediante \texttt{USART}, lo que permitió observar la evolución térmica del sistema con buena resolución temporal. Esto demuestra la correcta integración entre el hardware del microcontrolador y el software de visualización.
+
+No obstante, el diseño podría enriquecerse mediante un control más preciso del calentador, aplicando modulación PWM proporcional a la diferencia entre la temperatura actual y la de referencia, y no únicamente sobre el ventilador. Asimismo, sería interesante incorporar en la gráfica el estado de los actuadores (calentador y ventilador), de modo que el usuario pueda correlacionar visualmente las acciones del sistema con las variaciones térmicas observadas.
+
+\subsubsection{Motor}
+
+El módulo del motor demostró un desempeño satisfactorio, logrando un control proporcional estable que respondió adecuadamente ante variaciones suaves y bruscas en el potenciómetro de referencia. La lectura analógica fue confiable, la modulación PWM mostró una respuesta coherente y la dirección del giro se mantuvo sincronizada con el error de posición. En conjunto, el sistema validó la efectividad del control de lazo cerrado diseñado y la robustez del algoritmo implementado.
+
+Sin embargo, se identificó que la zona muerta definida en el código podría reducirse para mejorar la precisión del control en movimientos pequeños. Ajustar este umbral permitiría que el motor responda con mayor sensibilidad sin generar oscilaciones, incrementando así la fidelidad del posicionamiento. Como extensión, sería interesante implementar un control proporcional-integral que suavice aún más las transiciones y mejore el comportamiento dinámico del sistema.
+
+\subsubsection{Matriz}
+
+El módulo \textit{Matriz} presentó un funcionamiento estable y preciso. El microcontrolador logró leer correctamente las señales analógicas del joystick y representar los cambios de posición en la matriz WS2812 en tiempo real, evidenciando una adecuada conversión ADC y un control correcto del protocolo temporal de los LEDs. La implementación en lenguaje C con secciones en ensamblador \texttt{inline} garantizó el cumplimiento de los tiempos críticos exigidos por el dispositivo, lo que representa un logro técnico relevante.
+
+Como posible mejora, se podría incorporar un control de velocidad variable del punto luminoso en función de la magnitud del desplazamiento del joystick, generando una respuesta más natural y proporcional al movimiento del usuario. Asimismo, podría añadirse una interfaz de visualización externa o comunicación con PC para registrar los patrones de color y posición, potenciando el carácter interactivo y didáctico del módulo.
+
+\subsubsection{Cerradura}
+
+El módulo \textit{Cerradura} cumplió con éxito los objetivos de la práctica, logrando establecer una comunicación confiable mediante el protocolo SPI entre el microcontrolador maestro y el lector RFID RC522. El sistema demostró un manejo correcto de la memoria EEPROM, conservando el identificador de la tarjeta incluso tras reinicios, y gestionando adecuadamente la autenticación mediante los indicadores LED y el buzzer. Esta experiencia permitió comprender en profundidad la estructura del protocolo SPI y su sincronización con otros periféricos como el LCD vía I2C.
+
+Como propuesta de mejora, sería enriquecedor implementar una interfaz que permita registrar y eliminar múltiples tarjetas RFID, ampliando la funcionalidad y escalabilidad del sistema. Además, la posibilidad de integrar un teclado o comunicación serial para administrar las credenciales desde software externo abriría el camino hacia un sistema de control de acceso más versátil y cercano a una aplicación real.
+
 

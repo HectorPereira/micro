@@ -107,6 +107,7 @@ extern uint8_t EEMEM ee_uid[UID_LEN];
 void Sonar_Buzzer(void);
 void EEPROM_write(uint16_t address, uint8_t data);
 uint8_t EEPROM_read(uint16_t address);
+void I2C_init(void);
 
 // Manejo de UID (RFID)
 static inline uint8_t uid_es_vacio(const uint8_t u[UID_LEN]);
@@ -137,7 +138,6 @@ void mfrc522_write(uint8_t reg, uint8_t value);
 uint8_t mfrc522_read(uint8_t reg);
 void mfrc522_setBitMask(uint8_t reg, uint8_t mask);
 void mfrc522_clearBitMask(uint8_t reg, uint8_t mask);
-void mfrc522_printRegister(const char* name, uint8_t reg);
 void mfrc522_reset(void);
 void mfrc522_init(void);
 void mfrc522_standard(uint8_t *card_uid);
@@ -200,11 +200,6 @@ ISR(USART_UDRE_vect){
 }
 
 
-void I2C_init(void) {
-	TWSR = 0x00;            // Prescaler = 1
-	TWBR = ((F_CPU / 100000UL) - 16) / 2;  // 100 kHz
-	TWCR = (1<<TWEN);       // Habilitar TWI
-}
 
 
 // --------------------------------------
@@ -334,6 +329,11 @@ int main(void)
 // --------------------------------------
 
 
+void I2C_init(void) {
+	TWSR = 0x00;            // Prescaler = 1
+	TWBR = ((F_CPU / 100000UL) - 16) / 2;  // 100 kHz
+	TWCR = (1<<TWEN);       // Habilitar TWI
+}
 
 void Sonar_Buzzer(){
 	DDRC |= (1<<PORTC3);  // PC3 salida
@@ -442,12 +442,7 @@ void mfrc522_clearBitMask(uint8_t reg, uint8_t mask) {
 	uint8_t tmp = mfrc522_read(reg);
 	mfrc522_write(reg, tmp & (~mask));
 }
-void mfrc522_printRegister(const char* name, uint8_t reg) {
-	uart_print(name);
-	uart_print(": ");
-	uart_print_hex(mfrc522_read(reg));
-	uart_print("\r\n");
-}
+
 
 void mfrc522_reset() {
 	uart_print("Soft Reset...\r\n");

@@ -38,69 +38,69 @@
 \subsection{Procedimiento general}
 
 \vspace{1em}
-
 \subsubsection{\textbf{Plotter}}
 
 \paragraph*{\textbf{Idea general}}---
-El módulo Plotter implementa un sistema de dibujo automatizado de dos ejes cartesianos (X e Y), controlado por motores paso a paso y un solenoide que acciona el lápiz. Su funcionamiento se basa en la ejecución secuencial de trayectorias predefinidas almacenadas en la memoria de programa, las cuales describen figuras como el murciélago, círculo, flor, cruz y triángulo. El sistema integra control de límites mecánicos mediante interrupciones externas y un mecanismo de antirrebote por temporizador, garantizando precisión y seguridad en los movimientos. Además, se incorpora un intérprete en Python que permite convertir trayectorias del formato discreto anterior (basado en direcciones simbólicas) al nuevo formato estructurado \texttt{Move}, expresado en desplazamientos reales en milímetros. En conjunto, el módulo constituye una plataforma didáctica de control secuencial capaz de trazar figuras complejas de manera autónoma y reproducible.
+El módulo Plotter implementa un sistema de dibujo automatizado de dos ejes cartesianos (X e Y), controlado por motores paso a paso y un solenoide que acciona el lápiz. Su funcionamiento se basa en la ejecución secuencial de trayectorias predefinidas almacenadas en la memoria de programa, las cuales describen figuras como el murciélago, círculo, flor, cruz y triángulo. El sistema integra control de límites mecánicos mediante interrupciones externas y un mecanismo de antirrebote por temporizador, garantizando precisión y seguridad en los movimientos. Además, se incorpora un intérprete en Python que permite convertir trayectorias del formato discreto anterior (basado en direcciones simbólicas) al nuevo formato estructurado \texttt{Move}, expresado en desplazamientos reales en milímetros. En conjunto, el módulo constituye una plataforma didáctica de control secuencial capaz de trazar figuras complejas de manera autónoma y reproducible. (Ver Anexos~\ref{anexo:P1_move_struct}–\ref{anexo:P8_interpreter})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Estructura de datos para trayectorias}}---
-Se define una estructura \texttt{Move} que almacena el tipo de comando (\texttt{'U'} para levantar lápiz, \texttt{'D'} para bajarlo) y los desplazamientos relativos en los ejes X e Y (\texttt{dx\_mm}, \texttt{dy\_mm}). Esta representación permite describir trayectorias como secuencias vectoriales de movimientos continuos, en lugar de simples direcciones discretas, otorgando mayor resolución y control sobre la forma final trazada.
+Se define una estructura \texttt{Move} que almacena el tipo de comando (\texttt{'U'} para levantar lápiz, \texttt{'D'} para bajarlo) y los desplazamientos relativos en los ejes X e Y (\texttt{dx\_mm}, \texttt{dy\_mm}). Esta representación permite describir trayectorias como secuencias vectoriales de movimientos continuos, en lugar de simples direcciones discretas, otorgando mayor resolución y control sobre la forma final trazada. (Ver Anexo~\ref{anexo:P1_move_struct})
+
 \vspace{1em}
 
 \paragraph*{\textbf{Gestión de límites y seguridad}}---
-El sistema incorpora un esquema completo de protección mecánica mediante los finales de carrera superior e inferior, conectados a las interrupciones externas \texttt{INT0} y \texttt{INT1} (pines PD2 y PD3). Ambas señales se procesan con un antirrebote temporal implementado por software, utilizando el \texttt{Timer0} en modo \texttt{CTC} para generar una base de tiempo en milisegundos (\texttt{g\_ms}). Cada sensor dispone de un intervalo de “muerto” controlado por variables \texttt{deadline}, lo que garantiza la validación únicamente tras un periodo estable. Si durante el desplazamiento se activa un límite, la variable \texttt{g\_limit\_hit} detiene inmediatamente la ejecución, y la rutina \texttt{emergency\_stop()} deshabilita los drivers y levanta el lápiz, asegurando una detención segura ante colisiones o bloqueos mecánicos.
+El sistema incorpora un esquema completo de protección mecánica mediante los finales de carrera superior e inferior, conectados a las interrupciones externas \texttt{INT0} y \texttt{INT1} (pines PD2 y PD3). Ambas señales se procesan con un antirrebote temporal implementado por software, utilizando el \texttt{Timer0} en modo \texttt{CTC} para generar una base de tiempo en milisegundos (\texttt{g\_ms}). Cada sensor dispone de un intervalo de “muerto” controlado por variables \texttt{deadline}, lo que garantiza la validación únicamente tras un periodo estable. Si durante el desplazamiento se activa un límite, la variable \texttt{g\_limit\_hit} detiene inmediatamente la ejecución, y la rutina \texttt{emergency\_stop()} deshabilita los drivers y levanta el lápiz, asegurando una detención segura ante colisiones o bloqueos mecánicos. (Ver Anexo~\ref{anexo:P2_plotter_init})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Inicialización de periféricos}}---
-Las funciones \texttt{plotter\_init()}, \texttt{limits\_init()} y \texttt{debounce\_timer\_init()} configuran los pines de los motores paso a paso, el solenoide y las entradas digitales de los límites. En ellas se establecen las direcciones de los pines, los modos de interrupción, las resistencias \texttt{pull-up} y las condiciones iniciales del sistema, preparando el hardware para la ejecución autónoma del trazado.
+Las funciones \texttt{plotter\_init()}, \texttt{limits\_init()} y \texttt{debounce\_timer\_init()} configuran los pines de los motores paso a paso, el solenoide y las entradas digitales de los límites. En ellas se establecen las direcciones de los pines, los modos de interrupción, las resistencias \texttt{pull-up} y las condiciones iniciales del sistema, preparando el hardware para la ejecución autónoma del trazado. (Ver Anexo~\ref{anexo:P2_plotter_init})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Control de actuadores}}---
-Cada eje (X e Y) cuenta con líneas independientes de dirección y paso (\texttt{DIR\_X/Y}, \texttt{STEP\_X/Y}), además de una señal de habilitación (\texttt{EN\_X/Y}). La función \texttt{move\_axis()} genera trenes de pulsos que determinan el número de pasos de cada motor, aplicando una escala establecida por \texttt{STEP\_SCALE} (pasos/mm). El control del lápiz se realiza mediante el solenoide, conmutado a través de las funciones \texttt{pen\_up()} y \texttt{pen\_down()}.
+Cada eje (X e Y) cuenta con líneas independientes de dirección y paso (\texttt{DIR\_X/Y}, \texttt{STEP\_X/Y}), además de una señal de habilitación (\texttt{EN\_X/Y}). La función \texttt{move\_axis()} genera trenes de pulsos que determinan el número de pasos de cada motor, aplicando una escala establecida por \texttt{STEP\_SCALE} (pasos/mm). El control del lápiz se realiza mediante el solenoide, conmutado a través de las funciones \texttt{pen\_up()} y \texttt{pen\_down()}. (Ver Anexos~\ref{anexo:P3_pen_control} y~\ref{anexo:P4_move_axis})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Ejecución de trayectorias programadas}}---
-La función \texttt{execute\_path()} recorre las trayectorias almacenadas en memoria de programa (\texttt{PROGMEM}), interpretando cada estructura \texttt{Move}. Calcula los desplazamientos escalados en ambos ejes y genera los pulsos correspondientes, alternando los movimientos horizontales y verticales según los valores \texttt{dx\_mm} y \texttt{dy\_mm}.
+La función \texttt{execute\_path()} recorre las trayectorias almacenadas en memoria de programa (\texttt{PROGMEM}), interpretando cada estructura \texttt{Move}. Calcula los desplazamientos escalados en ambos ejes y genera los pulsos correspondientes, alternando los movimientos horizontales y verticales según los valores \texttt{dx\_mm} y \texttt{dy\_mm}. (Ver Anexo~\ref{anexo:P5_execute_path})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Reflexión de trayectorias}}---
-La función \texttt{execute\_path\_mirrored()} ejecuta una trayectoria completa y luego su reflejo vertical, reutilizando los mismos datos pero invirtiendo el signo de las coordenadas del eje Y. Esto permite duplicar figuras simétricas, como el murciélago, sin necesidad de almacenar datos adicionales, optimizando la memoria del sistema.
+La función \texttt{execute\_path\_mirrored()} ejecuta una trayectoria completa y luego su reflejo vertical, reutilizando los mismos datos pero invirtiendo el signo de las coordenadas del eje Y. Esto permite duplicar figuras simétricas, como el murciélago, sin necesidad de almacenar datos adicionales, optimizando la memoria del sistema. (Ver Anexo~\ref{anexo:P6_execute_mirror})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Secuencia automática de figuras}}---
-En la función principal \texttt{main()}, el sistema ejecuta de manera secuencial las trayectorias definidas en \texttt{path\_data.h}, correspondientes a las figuras murciélago, círculo, flor, cruz y triángulo. Entre cada figura se realizan desplazamientos de reposicionamiento y levantamiento del lápiz para evitar trazos no deseados, completando un ciclo automático de dibujo.
+En la función principal \texttt{main()}, el sistema ejecuta de manera secuencial las trayectorias definidas en \texttt{path\_data.h}, correspondientes a las figuras murciélago, círculo, flor, cruz y triángulo. Entre cada figura se realizan desplazamientos de reposicionamiento y levantamiento del lápiz para evitar trazos no deseados, completando un ciclo automático de dibujo. (Ver Anexo~\ref{anexo:P7_main})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Conversión de trayectorias mediante intérprete en Python}}---
-Se desarrolló un intérprete en Python que convierte las trayectorias del formato discreto original del plotter (basado en direcciones simbólicas como \texttt{LEFT}, \texttt{DOWNRIGHT}, etc.) al nuevo formato estructurado \texttt{Move}. Este proceso genera coordenadas reales en milímetros, permitiendo la creación de nuevas figuras y su integración directa al firmware, sin necesidad de codificación manual.
+Se desarrolló un intérprete en Python que convierte las trayectorias del formato discreto original del plotter (basado en direcciones simbólicas como \texttt{LEFT}, \texttt{DOWNRIGHT}, etc.) al nuevo formato estructurado \texttt{Move}. Este proceso genera coordenadas reales en milímetros, permitiendo la creación de nuevas figuras y su integración directa al firmware, sin necesidad de codificación manual. (Ver Anexo~\ref{anexo:P8_interpreter})
+
 
 
 \vspace{1em}
-
 
 \subsubsection{\textbf{Temperatura}}
 
 \paragraph*{\textbf{Idea general}}---
-El módulo de Control de temperatura implementa un sistema de adquisición y regulación térmica basado en el microcontrolador ATmega328P. El circuito mide la temperatura ambiente mediante un sensor analógico LM35 y controla un ventilador a través de una señal PWM, manteniendo la temperatura dentro de un rango configurable. La comunicación serial (UART) permite transmitir los valores medidos hacia una interfaz en Python, donde se grafican en tiempo real junto con los límites establecidos. Además, el sistema puede recibir comandos desde el monitor serial para encender el control o modificar los valores de referencia, ofreciendo una interacción bidireccional entre el microcontrolador y el entorno de visualización.
+El módulo de Control de temperatura implementa un sistema de adquisición y regulación térmica basado en el microcontrolador ATmega328P. El circuito mide la temperatura ambiente mediante un sensor analógico LM35 y controla un ventilador a través de una señal PWM, manteniendo la temperatura dentro de un rango configurable. La comunicación serial (UART) permite transmitir los valores medidos hacia una interfaz en Python, donde se grafican en tiempo real junto con los límites establecidos. Además, el sistema puede recibir comandos desde el monitor serial para encender el control o modificar los valores de referencia, ofreciendo una interacción bidireccional entre el microcontrolador y el entorno de visualización. (Ver Anexo~\ref{anexo:T1_adc_pwm_init})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Medición analógica de temperatura}}---
-El sensor LM35 está conectado al canal analógico A1 del microcontrolador. Su salida, proporcional a la temperatura (10 mV/°C), es digitalizada mediante el módulo ADC configurado con un prescaler de 128. La función \texttt{adc\_read\_blocking\_adif()} realiza una lectura bloqueante controlada por el flag \texttt{ADIF}, asegurando la finalización correcta de la conversión antes de procesar el valor obtenido.
+El sensor LM35 está conectado al canal analógico A1 del microcontrolador. Su salida, proporcional a la temperatura (10 mV/°C), es digitalizada mediante el módulo ADC configurado con un prescaler de 128. La función \texttt{adc\_read\_blocking\_adif()} realiza una lectura bloqueante controlada por el flag \texttt{ADIF}, asegurando la finalización correcta de la conversión antes de procesar el valor obtenido. (Ver Anexo~\ref{anexo:T2_adc_read_blocking})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Control del ventilador mediante PWM}}---
-El ventilador es accionado mediante una señal PWM generada en el pin D6 (OC0A), utilizando el Timer0 configurado en modo Fast PWM. El ciclo de trabajo se ajusta modificando el valor del registro \texttt{OCR0A} entre 0 y 255, en función de la temperatura medida por los sensores LM35.
+El ventilador es accionado mediante una señal PWM generada en el pin D6 (OC0A), utilizando el Timer0 configurado en modo Fast PWM. El ciclo de trabajo se ajusta modificando el valor del registro \texttt{OCR0A} entre 0 y 255, en función de la temperatura medida por los sensores LM35. (Ver Anexo~\ref{anexo:T3_control_pwm_fan})
 
 \vspace{1em}
 
@@ -109,27 +109,28 @@ El sistema controla el ventilador de acuerdo con la temperatura: lo activa o des
 \vspace{1em}
 
 \paragraph*{\textbf{Límites de temperatura ajustables}}---
-Los valores mínimo y máximo (\texttt{tC2} y \texttt{tC3}) definen el rango de histéresis del control. El usuario puede modificarlos en tiempo real enviando el comando \texttt{'1'} por UART. El microcontrolador solicita los nuevos valores, los valida dentro del rango de 0 °C a 150 °C y los reenvía a la interfaz Python mediante la etiqueta \texttt{temp}, permitiendo su visualización inmediata.
+Los valores mínimo y máximo (\texttt{tC2} y \texttt{tC3}) definen el rango de histéresis del control. El usuario puede modificarlos en tiempo real enviando el comando \texttt{'1'} por UART. El microcontrolador solicita los nuevos valores, los valida dentro del rango de 0 °C a 150 °C y los reenvía a la interfaz Python mediante la etiqueta \texttt{temp}, permitiendo su visualización inmediata. (Ver Anexo~\ref{anexo:T4_uart_buffers})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Control secuencial con temporización}}---
-El \texttt{Timer1} se configura en modo normal con prescaler 1024 para generar interrupciones cada segundo. En cada desbordamiento se ejecuta la rutina \texttt{medicion()}, que activa una bandera encargada de iniciar una nueva lectura de temperatura y aplicar el control térmico en el ciclo principal.
+El \texttt{Timer1} se configura en modo normal con prescaler 1024 para generar interrupciones cada segundo. En cada desbordamiento se ejecuta la rutina \texttt{medicion()}, que activa una bandera encargada de iniciar una nueva lectura de temperatura y aplicar el control térmico en el ciclo principal. (Ver Anexo~\ref{anexo:T5_main_loop_temp})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Comunicación UART}}---
-La comunicación serial se establece a 9600 bps, permitiendo el envío de datos y comandos de texto. El sistema transmite la palabra clave \texttt{"temp"} seguida por los valores de límite inferior y superior, y reporta periódicamente la temperatura medida en grados Celsius. La recepción se maneja mediante interrupciones (\texttt{USART\_RX\_vect}) y buffers circulares, asegurando un intercambio continuo y no bloqueante.
+La comunicación serial se establece a 9600 bps, permitiendo el envío de datos y comandos de texto. El sistema transmite la palabra clave \texttt{"temp"} seguida por los valores de límite inferior y superior, y reporta periódicamente la temperatura medida en grados Celsius. La recepción se maneja mediante interrupciones (\texttt{USART\_RX\_vect}) y buffers circulares, asegurando un intercambio continuo y no bloqueante. (Ver Anexo~\ref{anexo:T4_uart_buffers})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Interfaz Python para lectura en tiempo real}}---
-El script \texttt{Leer Monitor.py} se encarga de abrir el puerto serie, procesar los datos y graficar en tiempo real la evolución térmica. Detecta la palabra clave \texttt{"temp"} para capturar los límites actuales y utiliza las librerías \texttt{matplotlib.animation} y \texttt{threading} para actualizar el gráfico continuamente sin interferir con la lectura.
+El script \texttt{Leer Monitor.py} se encarga de abrir el puerto serie, procesar los datos y graficar en tiempo real la evolución térmica. Detecta la palabra clave \texttt{"temp"} para capturar los límites actuales y utiliza las librerías \texttt{matplotlib.animation} y \texttt{threading} para actualizar el gráfico continuamente sin interferir con la lectura. (Ver Anexo~\ref{anexo:T6_leer_monitor})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Procesamiento de datos almacenados}}---
-El script \texttt{Graficar Simulacion.py} permite analizar registros guardados en el archivo \texttt{Datos.txt}. A partir de ellos, se reconstruyen las bandas de temperatura (\texttt{tmin}, \texttt{tmax}) y se calcula una serie promedio comparada con las mediciones experimentales, generando un gráfico estático que muestra la evolución térmica y la respuesta del sistema de control.
+El script \texttt{Graficar Simulacion.py} permite analizar registros guardados en el archivo \texttt{Datos.txt}. A partir de ellos, se reconstruyen las bandas de temperatura (\texttt{tmin}, \texttt{tmax}) y se calcula una serie promedio comparada con las mediciones experimentales, generando un gráfico estático que muestra la evolución térmica y la respuesta del sistema de control. (Ver Anexos~\ref{anexo:T7_graficar_simulacion} y~\ref{anexo:T8_datos_txt})
+
 
 
 \vspace{1em}
@@ -146,6 +147,8 @@ El módulo implementa el control de posición de un motor de corriente continua 
 \paragraph*{\textbf{Adquisición analógica dual}}---
 El sistema realiza lecturas simultáneas de dos canales del convertidor analógico-digital: el canal 3 para la retroalimentación del motor (posición actual) y el canal 4 para la señal de referencia. Cada conversión se realiza con una resolución de 10 bits, lo que permite un control preciso sobre el desplazamiento angular del potenciómetro y, por extensión, sobre la posición del eje del motor.
 
+% mencionar codigo de lectura de los ADC
+
 \vspace{1em}
 
 \paragraph*{\textbf{Cálculo del error y zona muerta}}---
@@ -156,6 +159,8 @@ La rutina \texttt{usart\_task()} calcula la diferencia entre la posición desead
 \paragraph*{\textbf{Control de dirección y modulación PWM}}---
 Según el signo del error calculado, el microcontrolador establece el sentido de giro mediante la activación de los pines \texttt{IN1} o \texttt{IN2}. La magnitud del error se convierte en una señal PWM proporcional generada por el canal \texttt{OC1A} del \texttt{Timer1}, configurado en modo Fast PWM. El valor aplicado a \texttt{OCR1A} se limita entre \texttt{MIN\_PWM} y \texttt{MAX\_PWM}, manteniendo la linealidad y evitando la saturación del actuador.
 
+% mencionar funcion de control PWM
+
 \vspace{1em}
 
 \paragraph*{\textbf{Comunicación serie con buffer circular}}---
@@ -165,6 +170,8 @@ El sistema reutiliza la librería de comunicación USART desarrollada previament
 
 \paragraph*{\textbf{Telemetría y visualización en tiempo real}}---
 Durante la operación, el microcontrolador envía de forma continua los valores de referencia, posición real, ciclo PWM y dirección de giro a través de la interfaz UART, utilizando un formato ASCII simple y separado por espacios para facilitar su interpretación. El script \texttt{serial\_python.py} recibe los datos, los procesa y los grafica en tiempo real mediante \texttt{matplotlib}, utilizando estructuras \texttt{deque} para mantener una ventana deslizante de muestras. La frecuencia de muestreo del microcontrolador, de aproximadamente 50 ms por ciclo, está sincronizada con la tasa de actualización de la interfaz Python, logrando una visualización casi instantánea del comportamiento dinámico del sistema. Esta integración hardware–software permite analizar fenómenos transitorios como sobreimpulsos, retardos y estabilidad del control en tiempo real.
+
+% mencionar anexo de codigo de telemetría en python.
 
 
 
@@ -186,30 +193,44 @@ El joystick está conectado a los canales ADC2 y ADC3, permitiendo medir las pos
 \paragraph*{\textbf{Control de posición del píxel}}---
 La rutina principal analiza las lecturas del ADC y actualiza las coordenadas \texttt{x\_pos} y \texttt{y\_pos}. Cada posición se traduce en un índice dentro del arreglo de LEDs mediante la relación \texttt{index = y\_pos × 8 + x\_pos}, que determina qué píxel se ilumina en la matriz. Esta lógica garantiza un desplazamiento coherente y visualmente fluido en ambas direcciones.
 
+% mencionar anexo codigo de control de posición
+
 \vspace{1em}
 
 \paragraph*{\textbf{Cambio de color por interrupción}}---
 El botón está conectado al pin \texttt{PC4} y configurado como interrupción por cambio de estado (\texttt{PCINT1\_vect}). Cada vez que se detecta una pulsación válida, el sistema genera nuevos valores aleatorios de color RGB mediante la función \texttt{rand()} y los aplica al píxel activo. Para evitar rebotes mecánicos, se establece un retardo de bloqueo de aproximadamente 300 ms.
+
+% mencionar anexo codigo de cambio de color aleatorio
+
 
 \vspace{1em}
 
 \paragraph*{\textbf{Antirrebote por temporización}}---
 El antirrebote se implementa en software mediante un contador global de tiempo en milisegundos (\texttt{millis\_counter}), incrementado en cada desbordamiento del \texttt{Timer0}. La función \texttt{debounce\_task()} re-habilita las interrupciones del botón únicamente una vez transcurrido el tiempo definido por \texttt{DEBOUNCE\_MS}, garantizando una respuesta estable y libre de falsas detecciones.
 
+% mencionar anexo codigo antirrebote
+
 \vspace{1em}
 
 \paragraph*{\textbf{Generación precisa de señal WS2812}}---
 El protocolo WS2812 requiere una señal con precisión de microsegundos en cada bit transmitido. Para cumplir con esta restricción temporal, se implementan rutinas en ensamblador \texttt{inline} (\texttt{asm volatile}) que generan los niveles lógicos con los tiempos exactos especificados por el fabricante. Las funciones \texttt{send\_bit()}, \texttt{send\_byte()} y \texttt{ws2812\_send\_pixel()} conforman la base de la transmisión, asegurando una codificación estable y sincronizada.
+
+% mencionar anexo codigo de asm volatile para tiempos de señal
 
 \vspace{1em}
 
 \paragraph*{\textbf{Organización de datos RGB}}---
 Los valores de color se almacenan en el arreglo \texttt{leds[]} en formato \texttt{GRB}, conforme al protocolo WS2812. Cada píxel se actualiza individualmente mediante la función \texttt{ws2812\_set\_pixel()}, y la función \texttt{ws2812\_show\_all()} envía los datos de todos los LEDs en una secuencia protegida por desactivación temporal de interrupciones (\texttt{cli()/sei()}), asegurando la integridad de la señal.
 
+% mencionar anexo almacenamiento de datos rgb
+
 \vspace{1em}
 
 \paragraph*{\textbf{Temporizador y función millis()}}---
 El \texttt{Timer0} se configura en modo normal para generar desbordamientos periódicos. Cada interrupción incrementa el contador global \texttt{millis\_counter}, utilizado como referencia temporal en todo el sistema. La función \texttt{millis\_now()} devuelve el tiempo actual en milisegundos y sirve como base para el antirrebote y otras tareas periódicas dependientes del tiempo.
+
+% mencionar anexo funcion millis
+
 
 
 
@@ -226,25 +247,36 @@ El módulo implementa un sistema de control de acceso mediante RFID con visualiz
 \paragraph*{\textbf{Comunicación SPI con el módulo MFRC522}}---
 El lector RFID se comunica con el microcontrolador mediante el bus SPI, utilizando las líneas MOSI, MISO, SCK y SS. El bus se inicializa a una frecuencia de 2 MHz (divisor 8), y la selección del esclavo se controla mediante las macros \texttt{SS\_LOW()} y \texttt{SS\_HIGH()}. La rutina \texttt{mfrc522\_init()} configura los registros internos del lector, ajustando la modulación ASK, la ganancia de recepción y los parámetros de temporización para asegurar una comunicación estable y confiable.
 
+% mencionar anexo funcion de comunicacion spi
+
 \vspace{1em}
 
 \paragraph*{\textbf{Lectura y procesamiento de UID}}---
 La detección de tarjetas se realiza mediante la rutina \texttt{mfrc522\_standard()}, que ejecuta los comandos \texttt{REQA} y \texttt{ANTICOLL}. Cuando se identifica una tarjeta válida, el sistema extrae su UID y lo almacena en un arreglo global. Este identificador se muestra en formato hexadecimal tanto en la terminal UART como en la pantalla LCD, facilitando la verificación y el registro.
+
+% mencionar anexo de funcion de lectura
 
 \vspace{1em}
 
 \paragraph*{\textbf{Gestión persistente con EEPROM}}---
 Los UIDs autorizados se almacenan en la memoria EEPROM del microcontrolador mediante las funciones \texttt{EEPROM\_write()} y \texttt{EEPROM\_read()}. Esta memoria no volátil garantiza la conservación de los registros incluso tras un reinicio. La verificación se realiza mediante la función \texttt{uid\_iguales()}, que compara byte a byte los identificadores almacenados y leídos.
 
+% mencionar anexo de codigo EEPROM
+
 \vspace{1em}
 
 \paragraph*{\textbf{Interfaz de usuario LCD (I2C – PCF8574)}}---
 La pantalla LCD 16×2 se maneja mediante el expansor I2C PCF8574, detectado automáticamente por la rutina \texttt{pcf8574\_autodetect()}. A nivel bajo, las funciones \texttt{lcd\_write4()}, \texttt{lcd\_cmd()} y \texttt{lcd\_data()} gestionan la transmisión de datos en modo de 4 bits, mientras que las funciones de nivel alto \texttt{lcd\_msg2()} y \texttt{lcd\_print()} permiten mostrar mensajes informativos y estados del sistema de manera amigable para el usuario.
 
+% mencionar anexo de manejo de interfaz de usuario
+
 \vspace{1em}
 
 \paragraph*{\textbf{Interacción mediante UART y botones físicos}}---
 El sistema puede ser controlado tanto por comandos seriales enviados desde la PC como por tres pulsadores físicos conectados al puerto C (pines PC0–PC2). Las interrupciones \texttt{PCINT1\_vect} y la rutina \texttt{poll\_switch\_portc()} detectan las pulsaciones y asignan un valor equivalente al carácter recibido por UART, unificando el control por hardware y software bajo una misma lógica de operación.
+
+% mencionar anexo manejo de uart
+
 
 \vspace{1em}
 
@@ -261,10 +293,15 @@ El sistema cuenta con tres modos principales:
 \paragraph*{\textbf{Indicadores visuales y acústicos}}---
 El sistema cuenta con dos LEDs indicadores: verde (acceso concedido) y rojo (acceso denegado), conectados a los pines PD6 y PD7. Además, un buzzer piezoeléctrico ubicado en PC3 emite un tono breve de aproximadamente 2 kHz durante un segundo mediante la función \texttt{Sonar\_Buzzer()}, proporcionando una señal auditiva de confirmación o error.
 
+% mencionar anexo codigo de control de indicadores visuales
+
 \vspace{1em}
 
 \paragraph*{\textbf{Comunicación UART con buffers circulares}}---
 La comunicación serial reutiliza la librería no bloqueante desarrollada en módulos anteriores, basada en interrupciones (\texttt{USART\_RX\_vect} y \texttt{USART\_UDRE\_vect}) y en buffers circulares \texttt{serialBuffer} y \texttt{rxBuffer}. Este diseño permite transmitir y registrar eventos o mensajes sin interrumpir las operaciones del lector RFID ni de la pantalla LCD, garantizando un flujo continuo de información entre el microcontrolador y el entorno de supervisión.
+
+
+
 
 
 
