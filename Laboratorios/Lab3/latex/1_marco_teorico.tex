@@ -3,96 +3,96 @@
 
 \subsection{Sensor de temperatura LM35}
 
-El sensor LM35 es un dispositivo semiconductor diseñado para medir temperatura con alta precisión y respuesta lineal. Su principio de funcionamiento se basa en la relación directa entre la tensión de salida y la temperatura ambiente, con una sensibilidad de \(10~\text{mV}/^\circ\text{C}\), expresada por la ecuación \( V_{OUT} = 10~\text{mV}/^\circ\text{C} \times T \). Por ejemplo, a \(25~^\circ\text{C}\), la salida del sensor es de aproximadamente \(250~\text{mV}\).
+El sensor LM35 es un dispositivo semiconductor diseñado para medir temperatura con alta precisión y respuesta lineal. Su principio de funcionamiento se basa en la relación directa entre la tensión de salida y la temperatura ambiente, con una sensibilidad de \(10~\text{mV}/^\circ\text{C}\), expresada por la ecuación \( V_{OUT} = 10~\text{mV}/^\circ\text{C} \times T \). Por ejemplo, a \(25~^\circ\text{C}\), la salida del sensor es de aproximadamente \(250~\text{mV}\) \cite{ti_lm35_datasheet, ramos_lm35_characterization_2017}.
 
 \vspace{1em}
 
-El dispositivo opera en un rango de \(-55~^\circ\text{C}\) a \(150~^\circ\text{C}\), y su salida se encuentra calibrada directamente en grados Celsius, lo que simplifica el procesamiento de la señal y elimina la necesidad de compensaciones externas. 
+El dispositivo opera en un rango de \(-55~^\circ\text{C}\) a \(150~^\circ\text{C}\), y su salida se encuentra calibrada directamente en grados Celsius, lo que simplifica el procesamiento de la señal y elimina la necesidad de compensaciones externas \cite{ti_lm35_datasheet}.
 
 \vspace{1em}
 
-El LM35 requiere tres conexiones: alimentación (V\textsubscript{CC}), salida analógica (V\textsubscript{OUT}) y referencia a tierra (GND). La señal de salida se conecta a una entrada analógica del microcontrolador, donde es convertida a un valor digital mediante el módulo ADC. En la figura \ref{fig:lm35_pinout} se observa su disposición de pines y una conexión típica del sensor.
+El LM35 requiere tres conexiones: alimentación (V\textsubscript{CC}), salida analógica (V\textsubscript{OUT}) y referencia a tierra (GND). La señal de salida se conecta a una entrada analógica del microcontrolador, donde es convertida a un valor digital mediante el módulo ADC. En la figura \ref{fig:lm35_pinout} se observa su disposición de pines y una conexión típica del sensor \cite{ramos_lm35_characterization_2017}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.3\textwidth]{anexos/Marco Teorico/LM35.png}
-    \caption{Diagrama de pines y conexión típica del sensor LM35.}
+    \caption{Diagrama de pines y conexión típica del sensor LM35. Fuente: \url{https://electronicsprojects.in/components/lm35-temperature-sensor-pinout-and-projects/}}
     \label{fig:lm35_pinout}
 \end{figure}
 
+
 \subsection{Transistor de potencia TIP31}
 
-El transistor \textbf{TIP31} es un dispositivo \textbf{NPN de propósito general} utilizado ampliamente en aplicaciones de conmutación y amplificación de potencia. Su función principal dentro de un circuito de control consiste en actuar como un elemento intermediario entre el microcontrolador y la carga, permitiendo manejar corrientes elevadas sin sobrecargar las salidas del dispositivo lógico. En este proyecto, el TIP31 se emplea como etapa de potencia para accionar el ventilador o el elemento calefactor, conmutando la corriente proveniente de la fuente de alimentación principal bajo la señal de control proveniente del microcontrolador.
+El transistor \textbf{TIP31} es un dispositivo \textbf{NPN de propósito general} utilizado ampliamente en aplicaciones de conmutación y amplificación de potencia. Su función principal dentro de un circuito de control consiste en actuar como un elemento intermediario entre el microcontrolador y la carga, permitiendo manejar corrientes elevadas sin sobrecargar las salidas del dispositivo lógico. En este proyecto, el TIP31 se emplea como etapa de potencia para accionar el ventilador o el elemento calefactor, conmutando la corriente proveniente de la fuente de alimentación principal bajo la señal de control proveniente del microcontrolador \cite{blikai_tip31_article, tip31_datasheet}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.3\textwidth]{anexos/Marco Teorico/TIP31.png}
-    \caption{Transistor TIP31.}
+    \caption{Transistor TIP31. Fuente: \url{https://repetto.com.uy/product/tip31c/}}
     \label{fig:tip31_pinout}
 \end{figure}
 
-Desde el punto de vista eléctrico, el TIP31 puede conducir corrientes de colector de hasta \(3~\text{A}\) y disipar potencias de hasta \(40~\text{W}\), siempre que cuente con una adecuada disipación térmica. Su encapsulado tipo TO-220 facilita el montaje en disipadores, permitiendo su uso en sistemas de potencia moderada. Estas características lo hacen ideal para aplicaciones de control por modulación de ancho de pulso (PWM), donde el transistor trabaja repetidamente entre los estados de saturación y corte.
+Desde el punto de vista eléctrico, el TIP31 puede conducir corrientes de colector de hasta \(3~\text{A}\) y disipar potencias de hasta \(40~\text{W}\), siempre que cuente con una adecuada disipación térmica. Su encapsulado tipo TO-220 facilita el montaje en disipadores, permitiendo su uso en sistemas de potencia moderada. Estas características lo hacen ideal para aplicaciones de control por modulación de ancho de pulso (PWM), donde el transistor trabaja repetidamente entre los estados de saturación y corte \cite{tip31_datasheet}.
 
 \vspace{1em}
 
-El principio de funcionamiento se basa en el control de una corriente de colector \(I_C\) mediante una pequeña corriente de base \(I_B\). Cuando la unión base-emisor alcanza aproximadamente \(0.7~\text{V}\), el transistor entra en saturación, permitiendo el paso de corriente entre colector y emisor. Si el voltaje de base cae por debajo de ese umbral, el dispositivo se encuentra en corte y no conduce. Este comportamiento binario lo convierte en un interruptor controlado electrónicamente, ideal para regular potencia mediante señales digitales.
+El principio de funcionamiento se basa en el control de una corriente de colector \(I_C\) mediante una pequeña corriente de base \(I_B\). Cuando la unión base-emisor alcanza aproximadamente \(0.7~\text{V}\), el transistor entra en saturación, permitiendo el paso de corriente entre colector y emisor. Si el voltaje de base cae por debajo de ese umbral, el dispositivo se encuentra en corte y no conduce. Este comportamiento binario lo convierte en un interruptor controlado electrónicamente, ideal para regular potencia mediante señales digitales \cite{blikai_tip31_article}.
 
 \vspace{1em}
 
 Al aplicar una señal PWM en la base, el transistor conmuta rápidamente entre los estados de saturación y corte, produciendo un control proporcional sobre la potencia entregada a la carga. De esta forma, el TIP31 permite regular la velocidad del ventilador o la potencia disipada en un resistor calefactor en función de la temperatura medida por el sensor LM35, integrándose así al lazo de control térmico implementado. En la figura \ref{fig:tip31_pinout} se muestra su aspecto físico y disposición de pines.
 
 
-
 \subsection{Python y librerías utilizadas}
 
 Para el desarrollo del software de adquisición y visualización de datos, se emplearon distintas librerías de \textbf{Python 3.3} que facilitaron la comunicación con el microcontrolador, el manejo de datos y la generación de gráficos.  
-A continuación, se describen brevemente las principales:
+A continuación, se describen brevemente las principales \cite{python_docs, pyserial_docs, matplotlib_docs}:
 
 \paragraph*{PySerial}
 Es una librería que permite la \textbf{comunicación serie} entre Python y dispositivos externos, como microcontroladores o sensores.  
-Proporciona funciones para abrir, leer y escribir datos a través de un puerto serial, siendo ampliamente utilizada en proyectos con \textit{Arduino} o \textit{ATmega328P}.
+Proporciona funciones para abrir, leer y escribir datos a través de un puerto serial, siendo ampliamente utilizada en proyectos con \textit{Arduino} o \textit{ATmega328P} \cite{pyserial_docs}.
 
 \paragraph*{Matplotlib}
 Corresponde a una de las bibliotecas más utilizadas en Python para la \textbf{generación de gráficos y visualización de datos}.  
-Permite crear gráficos en dos dimensiones (2D) de manera sencilla y personalizable, siendo ideal para representar la evolución temporal de variables como la temperatura.
+Permite crear gráficos en dos dimensiones (2D) de manera sencilla y personalizable, siendo ideal para representar la evolución temporal de variables como la temperatura \cite{matplotlib_docs}.
 
 \paragraph*{Threading}
 Es una librería que ofrece herramientas para la \textbf{ejecución de tareas concurrentes} mediante hilos de ejecución (\textit{threads}).  
-Se utiliza para realizar procesos en paralelo, por ejemplo, leer datos del puerto serial mientras se actualiza la gráfica en tiempo real.
+Se utiliza para realizar procesos en paralelo, por ejemplo, leer datos del puerto serial mientras se actualiza la gráfica en tiempo real \cite{python_docs}.
 
 \paragraph*{Collections}
 Proporciona tipos de datos adicionales y estructuras más eficientes que las nativas de Python, como \texttt{deque}, \texttt{Counter} o \texttt{namedtuple}.  
-En este proyecto se empleó la estructura \texttt{deque} para almacenar los datos recibidos del puerto serie de forma dinámica y eficiente, facilitando el manejo de ventanas de tiempo en las gráficas en tiempo real.
-
+En este proyecto se empleó la estructura \texttt{deque} para almacenar los datos recibidos del puerto serie de forma dinámica y eficiente, facilitando el manejo de ventanas de tiempo en las gráficas en tiempo real \cite{python_docs}.
 
 
 \subsection{Tecnología RFID y módulo RC522}
 
-La \textbf{Identificación por Radiofrecuencia (RFID)} es una tecnología empleada para la identificación automática de objetos o personas mediante el intercambio inalámbrico de datos entre un lector y una etiqueta. Su principio de funcionamiento se basa en la inducción electromagnética: el lector genera un campo de radiofrecuencia que energiza la etiqueta, la cual responde enviando su código de identificación único (\textit{UID}). Este mecanismo permite una comunicación sin contacto, rápida y confiable, utilizada ampliamente en sistemas de control de acceso y trazabilidad.
+La \textbf{Identificación por Radiofrecuencia (RFID)} es una tecnología empleada para la identificación automática de objetos o personas mediante el intercambio inalámbrico de datos entre un lector y una etiqueta. Su principio de funcionamiento se basa en la inducción electromagnética: el lector genera un campo de radiofrecuencia que energiza la etiqueta, la cual responde enviando su código de identificación único (\textit{UID}). Este mecanismo permite una comunicación sin contacto, rápida y confiable, utilizada ampliamente en sistemas de control de acceso y trazabilidad \cite{sfu_rfid_report_2019, syamsuddin_rfid_intro_2018}.
 
 \vspace{1em}
 
-Un sistema RFID está compuesto por tres elementos fundamentales: la \textit{etiqueta o tarjeta}, el \textit{lector} y el \textit{controlador}. La etiqueta contiene un pequeño chip con memoria y una antena integrada, encargada de transmitir el identificador único cuando es energizada por el campo del lector. Este último, por su parte, se encarga de generar dicho campo y recibir la información de respuesta, que es posteriormente procesada por el microcontrolador. En la figura \ref{fig:rfid_system} se ilustra de manera general la interacción entre estos componentes.
+Un sistema RFID está compuesto por tres elementos fundamentales: la \textit{etiqueta o tarjeta}, el \textit{lector} y el \textit{controlador}. La etiqueta contiene un pequeño chip con memoria y una antena integrada, encargada de transmitir el identificador único cuando es energizada por el campo del lector. Este último, por su parte, se encarga de generar dicho campo y recibir la información de respuesta, que es posteriormente procesada por el microcontrolador. En la figura \ref{fig:rfid_system} se ilustra de manera general la interacción entre estos componentes \cite{sfu_rfid_report_2019}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.45\textwidth]{anexos/Marco Teorico/RFID.png}
-    \caption{Esquema general del funcionamiento de un sistema RFID.}
+    \caption{Esquema general del funcionamiento de un sistema RFID. Fuente: \url{https://www.sciencedirect.com/science/article/pii/S2096249525000419}}
     \label{fig:rfid_system}
 \end{figure}
 
-El módulo \textbf{RC522} es un lector RFID de bajo costo y alta integración, diseñado específicamente para trabajar con tarjetas del tipo \textbf{MIFARE}, que operan bajo el estándar ISO/IEC 14443A. Funciona a una frecuencia de \textbf{13.56 MHz} y permite la lectura o escritura de etiquetas pasivas en un rango de pocos centímetros. Su arquitectura compacta y bajo consumo lo convierten en una solución ideal para aplicaciones embebidas, especialmente en sistemas de control de acceso, autenticación o registro electrónico.
+El módulo \textbf{RC522} es un lector RFID de bajo costo y alta integración, diseñado específicamente para trabajar con tarjetas del tipo \textbf{MIFARE}, que operan bajo el estándar ISO/IEC 14443A. Funciona a una frecuencia de \textbf{13.56 MHz} y permite la lectura o escritura de etiquetas pasivas en un rango de pocos centímetros. Su arquitectura compacta y bajo consumo lo convierten en una solución ideal para aplicaciones embebidas, especialmente en sistemas de control de acceso, autenticación o registro electrónico \cite{nxp_mfrc522_datasheet, syamsuddin_rfid_intro_2018}.
 
 \vspace{1em}
 
-En el contexto de este proyecto, el RC522 se comunica con el microcontrolador \textbf{ATmega328P} a través del protocolo \textbf{SPI}, utilizando las líneas \texttt{MOSI}, \texttt{MISO}, \texttt{SCK} y \texttt{SS}, además de las señales auxiliares \texttt{RST} e \texttt{IRQ}. Este enlace permite una transmisión rápida y confiable de los datos del UID detectado, que luego son comparados y almacenados en la memoria EEPROM. En la figura \ref{fig:rc522_pinout} se muestra la disposición de pines del módulo RC522 y su correspondencia funcional con el microcontrolador.
+En el contexto de este proyecto, el RC522 se comunica con el microcontrolador \textbf{ATmega328P} a través del protocolo \textbf{SPI}, utilizando las líneas \texttt{MOSI}, \texttt{MISO}, \texttt{SCK} y \texttt{SS}, además de las señales auxiliares \texttt{RST} e \texttt{IRQ}. Este enlace permite una transmisión rápida y confiable de los datos del UID detectado, que luego son comparados y almacenados en la memoria EEPROM. En la figura \ref{fig:rc522_pinout} se muestra la disposición de pines del módulo RC522 y su correspondencia funcional con el microcontrolador \cite{nxp_mfrc522_datasheet}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.35\textwidth]{anexos/Marco Teorico/RC522.png}
-    \caption{Diagrama de pines del módulo lector RFID RC522.}
+    \caption{Diagrama de pines del módulo lector RFID RC522. Fuente: \url{https://www.facebook.com/p/Telecomunicaciones-RyR-100063984642582/}}
     \label{fig:rc522_pinout}
 \end{figure}
+
 
 
 
@@ -100,27 +100,27 @@ En el contexto de este proyecto, el RC522 se comunica con el microcontrolador \t
 \subsection{Protocolo de comunicación SPI}
 
 El protocolo \textbf{SPI (Serial Peripheral Interface)} es un estándar de comunicación serial síncrona desarrollado por Motorola, ampliamente utilizado en sistemas embebidos para la transmisión de datos de alta velocidad entre un \textit{microcontrolador} y uno o varios \textit{periféricos}.  
-A diferencia de otros protocolos como \textit{I\textsuperscript{2}C} o \textit{UART}, el SPI permite una comunicación completamente dúplex y ofrece una estructura simple y eficiente.
+A diferencia de otros protocolos como \textit{I\textsuperscript{2}C} o \textit{UART}, el SPI permite una comunicación completamente dúplex y ofrece una estructura simple y eficiente \cite{horowitz_art_of_electronics_2022, labrosse_embedded_2013}.
 
 \subsubsection*{Principio de funcionamiento}
 
 SPI opera bajo un esquema de tipo \textbf{maestro–esclavo}, en el cual el dispositivo maestro (por ejemplo, el \texttt{ATmega328P}) controla el reloj y sincroniza la transferencia de datos con los dispositivos esclavos.  
-Cada transferencia se sincroniza mediante la señal de reloj (\texttt{SCK}), que coordina el envío y recepción de bits entre el maestro y el esclavo.
+Cada transferencia se sincroniza mediante la señal de reloj (\texttt{SCK}), que coordina el envío y recepción de bits entre el maestro y el esclavo \cite{atmega328p_datasheet}.
 
 \vspace{1em}
 
-Los datos se transmiten de forma \textbf{serial}, bit a bit, a través de dos líneas principales: una para los datos enviados desde el maestro al esclavo (\texttt{MOSI}) y otra para los datos que viajan en sentido contrario (\texttt{MISO}). Véase la figura \ref{fig:spi_diagrama}.
+Los datos se transmiten de forma \textbf{serial}, bit a bit, a través de dos líneas principales: una para los datos enviados desde el maestro al esclavo (\texttt{MOSI}) y otra para los datos que viajan en sentido contrario (\texttt{MISO}). Véase la figura \ref{fig:spi_diagrama} \cite{avr_libc_manual_2_2_0}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.35\textwidth]{anexos/Marco Teorico/SPI.png}
-    \caption{Esquema de conexión típica del protocolo SPI entre un maestro y un esclavo.}
+    \caption{Esquema de conexión típica del protocolo SPI entre un maestro y un esclavo. Fuente: \url{https://es.wikipedia.org/wiki/Serial_Peripheral_Interface}}
     \label{fig:spi_diagrama}
 \end{figure}
 
 \subsubsection*{Líneas de comunicación}
 
-El bus SPI está compuesto por cuatro señales principales:
+El bus SPI está compuesto por cuatro señales principales \cite{atmega328p_datasheet}:
 
 \begin{itemize}
     \item \textbf{MOSI (Master Out Slave In):} línea por la cual el maestro envía datos hacia el esclavo.
@@ -132,7 +132,7 @@ El bus SPI está compuesto por cuatro señales principales:
 \subsubsection*{Modos de operación}
 
 El protocolo SPI permite diferentes configuraciones según la polaridad y la fase del reloj, determinadas por los bits \texttt{CPOL} y \texttt{CPHA}.  
-Estas combinaciones definen los cuatro modos posibles de funcionamiento del SPI:
+Estas combinaciones definen los cuatro modos posibles de funcionamiento del SPI \cite{horowitz_art_of_electronics_2022, atmega328p_datasheet}:
 
 \begin{table}[H]
     \centering
@@ -153,7 +153,7 @@ Estas combinaciones definen los cuatro modos posibles de funcionamiento del SPI:
 
 \subsubsection*{SPI en el ATmega328P}
 
-El microcontrolador \texttt{ATmega328P} incluye un módulo de hardware SPI, cuyas líneas están asignadas a los siguientes pines del puerto \texttt{B}:
+El microcontrolador \texttt{ATmega328P} incluye un módulo de hardware SPI, cuyas líneas están asignadas a los siguientes pines del puerto \texttt{B} \cite{atmega328p_datasheet}:
 
 \begin{itemize}
     \item \texttt{PB2 (SS)} — Selección del esclavo.
@@ -162,12 +162,12 @@ El microcontrolador \texttt{ATmega328P} incluye un módulo de hardware SPI, cuya
     \item \texttt{PB5 (SCK)} — Señal de reloj.
 \end{itemize}
 
-Véase la figura \ref{fig:spi_timing}, donde se representa el diagrama temporal de una transferencia de datos típica en el protocolo SPI.
+Véase la figura \ref{fig:spi_timing}, donde se representa el diagrama temporal de una transferencia de datos típica en el protocolo SPI \cite{labrosse_embedded_2013}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.35\textwidth]{anexos/Marco Teorico/SPI Tiempo.png}
-    \caption{Diagrama temporal de transferencia de datos en el protocolo SPI.}
+    \caption{Diagrama temporal de transferencia de datos en el protocolo SPI. Fuente: \url{https://www.prometec.net/nuevo-tutorial-sobre-el-bus-spi/}}
     \label{fig:spi_timing}
 \end{figure}
 
