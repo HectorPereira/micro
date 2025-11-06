@@ -160,10 +160,15 @@ int main(void)
 		 
 		static uint8_t heater_on = 0;   // 1 = encendido, 0 = apagado
 
-		if (tC <= tC2) {
+		if (tC <= (tC2 + (tC2 / 12))) {
 			heater_on = 1;              // por debajo del m�nimo -> encender
 			Ventilador_off();
-			} else if (tC >= tC3) {
+			} 
+		else if (tC > tC2 && tC < tC3){
+			heater_on = 0;
+			Ventilador_off();
+		}
+		else if (tC > (tC3 - (tC3 / 12))) {
 			heater_on = 0; 
 			Ventilador_on();             // por encima del m�ximo -> apagar
 		}
