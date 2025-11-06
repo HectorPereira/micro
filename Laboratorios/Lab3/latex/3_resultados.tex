@@ -188,27 +188,67 @@ El procesamiento del evento, combinado con el control de temporización por \tex
     \label{fig:montaje_modulo_matriz}
 \end{figure}
 
+ 
+
 \subsection{Cerradura}
-
-La implementación final del sistema de cerradura con lector de tarjetas RFID puede observarse en el video correspondiente (%hacer referencia).
-En la demostración se aprecia cómo el identificador de la tarjeta se almacena correctamente en la memoria EEPROM del microcontrolador, permitiendo el desbloqueo del sistema únicamente cuando se utiliza la tarjeta registrada.
-
-
-\subsubsection{Comunicación via SPI}
-
-La configuración del sistema de lectura RFID se realizó correctamente, como se muestra en la Figura (%hacer referencia).
-En dicha figura se puede observar la forma en que los datos de identificación (UID) de la tarjeta son transmitidos al lector RC522, estableciendo la comunicación mediante el protocolo SPI con el microcontrolador.
-
-
-\subsubsection{Indicaciones del sistema}
-
-Asimismo, cuando se desea registrar una nueva tarjeta, el sistema sobrescribe correctamente el espacio de memoria que contenía la anterior, garantizando un funcionamiento confiable del proceso de actualización
-
-Cuenta con un buzzer de alerta que se activa en caso de que la tarjeta presentada no coincida con la registrada y los dos leds indicativos del estado del sistema.
-
 
 \subsubsection{Simulación}
 
+La simulación del módulo \textit{Cerradura} se realizó empleando el protocolo de comunicación \textbf{SPI}, debido a las limitaciones del entorno virtual para emular el lector RFID RC522. En este caso, los datos del identificador de tarjeta (\texttt{UID}) se introdujeron manualmente para verificar el funcionamiento lógico del sistema.
+\vspace{1em}
 
-Para la simulación se empleo la comunicación via spi, ya que no se encontro forma de hacerlo por RFID. A diferencia de la implementación real, solo se pasan los datos de forma manual en lugar de que el lector escanee la tarjeta. Se puede ver una imagen en la figura %hacer referencia).
+A pesar de no disponer del escaneo físico del lector, la simulación permitió comprobar el proceso completo de transmisión de datos, validación de credenciales y activación de los indicadores luminosos, confirmando la correcta interpretación de las órdenes por parte del microcontrolador.
 
+% \begin{figure}[H]
+% \centering
+% \includegraphics[width=0.8\linewidth]{anexos/5 Cerradura/Simulacion_SPI.png}
+% \caption{Simulación del módulo \textit{Cerradura} en Proteus, empleando comunicación SPI para la transmisión del UID.}
+% \label{fig:cerradura_spi}
+% \end{figure}
+
+\subsubsection{Almacenamiento no volátil}
+
+El sistema demostró un funcionamiento confiable en el almacenamiento persistente del identificador autorizado dentro de la memoria \textbf{EEPROM} del \texttt{ATmega328P}.
+Durante las pruebas, se verificó que tras registrar una tarjeta, su \texttt{UID} permanecía grabado incluso después de un reinicio o desconexión de la alimentación.
+\vspace{1em}
+
+Esta característica garantiza la autenticidad del proceso de validación, permitiendo que el sistema reconozca únicamente la tarjeta registrada y deniegue el acceso a cualquier otra.
+
+% \begin{figure}[H]
+% \centering
+% \includegraphics[width=0.7\linewidth]{anexos/5 Cerradura/EEPROM.png}
+% \caption{Lectura del identificador de la tarjeta almacenado en la memoria EEPROM del microcontrolador.}
+% \label{fig:cerradura_eeprom}
+% \end{figure}
+
+\subsubsection{Comunicación vía SPI}
+
+La interfaz SPI implementada entre el \texttt{ATmega328P} y el módulo RC522 permitió la transferencia confiable de los bytes correspondientes al identificador de la tarjeta.
+En la simulación, los datos se visualizaron correctamente en las líneas \texttt{MOSI}, \texttt{MISO}, \texttt{SCK} y \texttt{SS}, comprobando la secuencia esperada de reloj y la integridad de los paquetes enviados.
+\vspace{1em}
+
+Este resultado confirmó la correcta configuración de los registros \texttt{SPCR} y \texttt{SPSR}, así como la sincronización maestro–esclavo en el intercambio de información.
+
+% \begin{figure}[H]
+% \centering
+% \includegraphics[width=0.8\linewidth]{anexos/5 Cerradura/SPI_Senal.png}
+% \caption{Captura de la transmisión SPI entre el microcontrolador y el módulo RC522, mostrando la secuencia de bits del identificador de tarjeta.}
+% \label{fig:cerradura_spi_senal}
+% \end{figure}
+
+\subsubsection{Indicaciones del sistema}
+
+El sistema cuenta con un conjunto de señales visuales y sonoras que facilitan la interacción con el usuario.
+Los \textbf{LEDs verde y rojo} indican el estado de autenticación: el primero se enciende cuando la tarjeta es reconocida, mientras que el segundo se activa al detectar una tarjeta no registrada.
+Además, el \textbf{buzzer de alerta} emite un tono característico en los intentos fallidos de acceso, reforzando la retroalimentación auditiva del sistema.
+\vspace{1em}
+
+Al registrar una nueva tarjeta, el microcontrolador sobrescribe el valor anterior almacenado en EEPROM, garantizando la actualización segura de la credencial.
+Este comportamiento evidencia la robustez del manejo de memoria no volátil y la fiabilidad del algoritmo de control implementado.
+
+% \begin{figure}[H]
+% \centering
+% \includegraphics[width=0.75\linewidth]{anexos/5 Cerradura/Montaje.jpg}
+% \caption{Montaje físico del módulo \textit{Cerradura}, con LEDs indicadores, buzzer y lector RFID RC522.}
+% \label{fig:montaje_cerradura}
+% \end{figure}
