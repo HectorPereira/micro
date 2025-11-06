@@ -9,7 +9,13 @@
 
 Durante las pruebas del sistema de trazado, se observaron diversas limitaciones mecánicas y de precisión en el módulo \textit{Plotter}. El conjunto presentaba un notable juego estructural en los ejes, lo que afectó la exactitud de los trazos desde las primeras ejecuciones. En particular, el solenoide encargado de accionar el lápiz mostraba holgura en el mecanismo, generando líneas imprecisas y desplazamientos no deseados al cambiar de dirección.
 
-% Figura del módulo completo: foto del plotter montado (con el solenoide, ejes y motores visibles).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{anexos/1 Plotter/Plotter.jpg}
+    \caption{Vista general del plotter ensamblado con todos los módulos y conexiones.}
+    \label{fig:plotter_completo}
+\end{figure}
+
 
 \vspace{1em}
 
@@ -19,56 +25,68 @@ Los motores paso a paso tendieron a trabarse de forma intermitente durante las t
 
 El intérprete desarrollado en Python logró convertir con éxito las trayectorias del formato discreto antiguo al nuevo formato estructurado \texttt{Move}. Esto permitió ejecutar los dibujos sin modificaciones manuales en el código fuente y facilitó la experimentación con distintos valores de escala para ajustar el tamaño de las figuras. Sin embargo, los resultados visuales finales, aunque funcionales, mostraron limitaciones en la precisión geométrica debido a las condiciones mecánicas del sistema anteriormente mencionadas.
 
-% Figura comparativa antes/después del intérprete Python:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{anexos/1 Plotter/Interprete.png}
+    \caption{Comparativa del sistema de trazado antes y después de la implementación del intérprete Python.}
+    \label{fig:comparativa_python}
+\end{figure}
+
 
 El uso de la función \texttt{execute\_path\_mirrored()} resultó especialmente eficiente, ya que permitió reducir a la mitad la cantidad de datos almacenados en memoria Flash para figuras simétricas como el murciélago. En este caso, se eliminó manualmente una de las mitades de la trayectoria luego de la conversión realizada por el intérprete, logrando un ahorro significativo de espacio sin afectar la forma general del trazado.
 
-% Figuras trazadas (salida experimental): Flor murcielago circulo cruz triangulo
-
-\subsubsection{Conclusiones parciales}
-
-En conclusión, el módulo cumplió su propósito demostrativo de integración entre control secuencial, generación de trayectorias y detección de límites. No obstante, las deficiencias mecánicas del sistema limitaron la calidad del dibujo, evidenciando la importancia de una estructura más rígida y un solenoide de precisión para futuros desarrollos.
-
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{anexos/1 Plotter/Dibujos.jpg}
+    \caption{Figuras trazadas experimentalmente por el plotter: flor, murciélago, círculo, cruz y triángulo.}
+    \label{fig:figuras_trazadas}
+\end{figure}
 
 
 
 \subsection{Temperatura}
-El circuito final de esta consigna del laboratorio se puede ver en la imagen correspondiente. 
+
+El circuito final correspondiente a esta consigna del laboratorio se muestra en la figura adjunta, donde se aprecia la disposición del sensor de temperatura, el microcontrolador y la interfaz de comunicación con el entorno Python.
 
 \subsubsection{Envío de datos por USART}
 
-En la Figura \ref{fig:Tem_USART} se puede observar la forma en la que se enviaban los datos por puerto serial entre el \texttt{ATmega328P} y el código de Python. 
+En la Figura \ref{fig:Tem_USART} se observa el proceso de transmisión de datos entre el \texttt{ATmega328P} y el script de Python mediante el puerto serial.
+El sistema enviaba de forma periódica los valores de temperatura convertidos por el ADC, asegurando una comunicación confiable y sin pérdidas de paquetes.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.35\textwidth]{anexos/2 Temperatura/USART Temperatura.png}
-    \caption{Comunicación de datos vía USART entre el microcontrolador y Python.}
-    \label{fig:Tem_USART}
+\centering
+\includegraphics[width=0.35\textwidth]{anexos/2 Temperatura/USART Temperatura.png}
+\caption{Comunicación de datos vía USART entre el microcontrolador y Python.}
+\label{fig:Tem_USART}
 \end{figure}
 
 \subsubsection{Gráfica en tiempo real}
 
-El resultado de la gráfica en tiempo real se muestra en la Figura \ref{fig:Grafica1}. En ella se observa cómo el eje X representa la evolución temporal de la ejecución (hora de registro en tiempo real), mientras que en el eje Y se visualizan los valores de temperatura obtenidos cada segundo.  
-Además, se incluye una línea de referencia que indica la temperatura media esperada.
+El resultado de la representación gráfica en tiempo real se muestra en la Figura \ref{fig:Grafica1}.
+En el eje X se visualiza la evolución temporal de la ejecución, mientras que el eje Y presenta los valores de temperatura adquiridos cada segundo.
+La línea de referencia corresponde al valor medio esperado, lo que permitió evaluar la estabilidad de las mediciones y la respuesta térmica del sistema.
 
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.35\textwidth]{anexos/2 Temperatura/Grafica tiempo real.png}
-    \caption{Gráfica de temperatura en tiempo real.}
-    \label{fig:Grafica1}
+\centering
+\includegraphics[width=0.35\textwidth]{anexos/2 Temperatura/Grafica tiempo real.png}
+\caption{Gráfica de temperatura en tiempo real.}
+\label{fig:Grafica1}
 \end{figure}
 
 \subsubsection{Simulación}
 
-Véase la Figura  para una representación del montaje de la simulación, la cual fue realizada en el entorno \textbf{Proteus}. En dicha figura se puede observar la disposición de los componentes utilizados y las conexiones correspondientes al sistema de control térmico.
+La simulación fue realizada en el entorno \textbf{Proteus}, donde se reprodujo el montaje del sistema de control térmico.
+En la figura correspondiente se ilustra la disposición de los componentes, las conexiones del sensor con las entradas analógicas del microcontrolador y el enlace serial utilizado para la transmisión de datos.
 
 \subsubsection{Gráfica de la simulación}
 
-Para realizar la visualización en tiempo real de las mediciones, se empleó un script desarrollado en Python, utilizando la biblioteca PySerial para la comunicación con el microcontrolador a través del puerto serie.
+Para la visualización en tiempo real de los valores simulados, se desarrolló un script en Python basado en la biblioteca \texttt{PySerial}.
+Durante la inicialización, el microcontrolador enviaba únicamente los valores numéricos de temperatura separados por saltos de línea.
+Al detectar la palabra clave \texttt{Temp}, el programa de Python registraba dos mediciones consecutivas y calculaba su promedio, mostrando el resultado en una gráfica actualizada dinámicamente.
 
-Con el fin de simplificar la lectura de datos, durante la inicialización del sistema el microcontrolador enviaba únicamente los valores numéricos de temperatura, cada uno separado por un salto de línea.
+\vspace{1em}
 
-Para indicar al programa de Python el momento en que debía calcular la temperatura media, el microcontrolador transmitía la palabra clave “Temp” a través del monitor serial. Al detectar esta palabra, el script leía dos líneas consecutivas con los valores de temperatura y calculaba la media correspondiente, la cual era luego graficada en tiempo real.
+Este procedimiento permitió observar variaciones suaves y coherentes en las mediciones, confirmando la correcta lectura, transmisión y procesamiento de los datos de temperatura.
 
 
 
@@ -77,11 +95,33 @@ Para indicar al programa de Python el momento en que debía calcular la temperat
 
 \subsection{Motor}
 
+\subsubsection{Simulación}
+La simulación del módulo motor permitió verificar el correcto funcionamiento lógico del sistema antes de su implementación física. En el entorno virtual se probaron las rutinas de lectura analógica, control de dirección y generación de la señal PWM, observándose que el motor respondía adecuadamente a las variaciones del potenciómetro de referencia. Las salidas por \texttt{USART} mostraron valores coherentes con el comportamiento esperado, confirmando la adecuada comunicación y ejecución del algoritmo de control.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\linewidth]{anexos/3 Motor/Simulacion.png}
+    \caption{Simulación del módulo motor en Proteus, mostrando el microcontrolador ATmega328P, los potenciómetros de referencia y posición, así como las señales de control PWM y UART.}
+    \label{fig:sim_motor_proteus}
+\end{figure}
+
+\vspace{1em}
+
+Como limitación, el entorno no permitió vincular de manera directa el potenciómetro del eje con el motor para emular el acoplamiento físico. Sin embargo, al manipular ambos potenciómetros de forma independiente se reprodujo satisfactoriamente el comportamiento dinámico del sistema, validando la estabilidad del control y la correspondencia entre las señales de referencia, posición y dirección.
+
 \subsubsection{Adquisición analógica}
 Durante las pruebas del sistema se comprobó el correcto funcionamiento del módulo ADC del microcontrolador ATmega328P. Los dos canales analógicos configurados permitieron medir de manera estable las tensiones provenientes del potenciómetro de referencia y del potenciómetro acoplado al eje del motor. Las lecturas fueron consistentes y sin fluctuaciones significativas, lo que aseguró una retroalimentación confiable del sistema de posición.
 
 \subsubsection{Respuesta del control de dirección y PWM}
 El control de dirección y la modulación por ancho de pulso (PWM) operaron de forma adecuada. Cuando la diferencia entre los valores de referencia y los medidos aumentaba, el sistema aplicaba una señal PWM de mayor amplitud, produciendo un giro más rápido del motor para corregir el error. A medida que el valor real se aproximaba al de referencia, el ciclo útil disminuía gradualmente, reduciendo la velocidad hasta alcanzar el punto de equilibrio.  
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{anexos/3 Motor/Circuito.jpg}
+    \caption{Montaje experimental del módulo motor, incluyendo microcontrolador, potenciómetros de control y eje, conexión UART al PC y el motor DC.}
+    \label{fig:montaje_motor}
+\end{figure}
+
 
 \vspace{1em}
 
@@ -101,14 +141,16 @@ El módulo de comunicación UART transmitió de manera confiable los valores de 
 
 \vspace{1em}
 
-Las curvas obtenidas mostraron la evolución del error y la respuesta del motor, confirmando la sincronía entre el muestreo del microcontrolador (cada 50~ms) y la actualización del gráfico en Python. Esta integración hardware–software proporcionó una herramienta útil para el análisis dinámico del sistema y la validación experimental del control implementado.
+Las curvas obtenidas mostraron la evolución del error y la respuesta del motor, confirmando la sincronía entre el muestreo del microcontrolador (cada 50~ms) y la actualización del gráfico en Python. Esta integración hardware-software proporcionó una herramienta útil para el análisis dinámico del sistema y la validación experimental del control implementado.
 
-% Figura sugerida: Gráfica de telemetría en Python mostrando referencia, posición real, PWM y dirección de giro en tiempo real.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{anexos/3 Motor/Grafica.jpg}
+    \caption{Visualización en tiempo real de las variables de referencia, posición real, señal PWM y dirección de giro obtenidas mediante el programa \texttt{serial\_python.py}.}
+    \label{fig:telemetria_python_motor}
+\end{figure}
 
-\subsubsection{Conclusión del módulo}
-Este módulo demostró un funcionamiento estable y predecible. La interacción entre la adquisición analógica, la modulación PWM y la visualización en tiempo real permitió evaluar de manera completa la respuesta del sistema. La zona muerta y el PWM mínimo mejoraron la precisión del control, mientras que la telemetría ofreció una representación clara del comportamiento dinámico, validando el diseño propuesto.
 
-% Figura sugerida: Foto general del montaje del módulo motor (microcontrolador, potenciómetros, motor y conexión UART al PC).
 
 
 
@@ -139,15 +181,12 @@ La interacción del usuario con el sistema fue fluida gracias a la gestión por 
 El procesamiento del evento, combinado con el control de temporización por \texttt{Timer0}, evitó rebotes eléctricos y permitió una experiencia de control continua, donde cada pulsación producía un cambio de color perceptible y estable.
 
 
-\subsubsection{Conclusión del módulo}
-El módulo \textit{Matriz} integró de manera exitosa la lectura analógica, el control de temporización precisa y la interacción con el usuario. A pesar del leve \textit{drift} en los potenciómetros del joystick, el control por saturación compensó eficazmente el error, logrando un desplazamiento acorde a la intención del usuario.  
-
-\vspace{1em}
-
-La implementación en ensamblador \texttt{inline} demostró ser una solución eficiente para la generación del protocolo WS2812, y la combinación de interrupciones y antirrebote software proporcionó un funcionamiento estable. En conjunto, el sistema cumplió su objetivo de construir una interfaz visual interactiva controlada completamente por hardware y firmware del microcontrolador.
-
-% Figura sugerida: Foto general del montaje completo del módulo Matriz (microcontrolador, joystick, botón y matriz WS2812).
-
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\linewidth]{anexos/4 Matriz/Color 3.jpg}
+    \caption{Montaje completo del módulo Matriz, mostrando el microcontrolador ATmega328P, el joystick analógico, el pulsador de control y la matriz de LEDs WS2812.}
+    \label{fig:montaje_modulo_matriz}
+\end{figure}
 
 \subsection{Cerradura}
 
@@ -171,5 +210,5 @@ Cuenta con un buzzer de alerta que se activa en caso de que la tarjeta presentad
 \subsubsection{Simulación}
 
 
-Para la simulación se empleo la comunicación via spi, ya que no se encontro forma de hacerlo por RFID. A diferencia de la implementación real, solo se pasan los datos de forma manual en lugar de que el lector escanee la tarjeta. Se puede ver una imagen en la figura (%hacer referencia).
+Para la simulación se empleo la comunicación via spi, ya que no se encontro forma de hacerlo por RFID. A diferencia de la implementación real, solo se pasan los datos de forma manual en lugar de que el lector escanee la tarjeta. Se puede ver una imagen en la figura %hacer referencia).
 

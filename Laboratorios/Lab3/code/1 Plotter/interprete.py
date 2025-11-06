@@ -1,9 +1,8 @@
-import math
 
-# === Configuración ===
-step_mm = 1.0          # tamaño de paso (puedes ajustar)
+# Configuracion
+step_mm = 1.0          # tamaño de paso 
 scale = 1.0            # factor de escala general
-radius = 20.0          # radio aproximado, opcional si es circular
+radius = 20.0          # radio aproximado
 
 # Direcciones y desplazamientos relativos
 DIRS = {
@@ -17,7 +16,7 @@ DIRS = {
     "DOWNRIGHT": (1, -1),
 }
 
-# === Ejemplo de entrada (desde tu C) ===
+# Datos de entrada
 input_data = [
     "SOLENOID_DOWN","DOWNLEFT","LEFT","DOWNLEFT","LEFT","DOWNLEFT","LEFT","DOWNLEFT",
     "LEFT","DOWNLEFT","LEFT","DOWNLEFT","LEFT","DOWNLEFT","LEFT","DOWNLEFT",
@@ -29,7 +28,7 @@ input_data = [
     "SOLENOID_UP"
 ]
 
-# === Conversión a coordenadas acumuladas ===
+# Conversión a coordenadas 
 x, y = 0.0, 0.0
 moves = []
 pen = 'U'
@@ -51,7 +50,7 @@ for token in input_data:
     else:
         print(f"Advertencia: dirección desconocida '{token}'")
 
-# === Exportar como formato C ===
+#  Exportar como formato C 
 print("const Move generated_path[] = {")
 print("    {'U', 0.000f, 0.000f},")
 for m in moves:
