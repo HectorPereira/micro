@@ -135,148 +135,112 @@ El script \texttt{Graficar Simulacion.py} permite analizar registros guardados e
 
 \vspace{1em}
 
-
-
 \subsubsection{\textbf{Motor}}
 
 \paragraph*{\textbf{Idea general}}---
-El módulo implementa el control de posición de un motor de corriente continua con retroalimentación analógica utilizando el microcontrolador ATmega328P. El sistema compara en tiempo real dos señales analógicas adquiridas por el ADC: una correspondiente a la posición deseada (referencia) y otra proveniente del potenciómetro acoplado al eje del motor (posición real). En función del error entre ambas, el microcontrolador determina la dirección de giro mediante los pines \texttt{IN1} e \texttt{IN2}, y ajusta la velocidad aplicando una señal PWM proporcional en el pin \texttt{OC1A}. Se incorpora una zona muerta para evitar oscilaciones alrededor del punto de equilibrio y se establecen límites mínimo y máximo para el ciclo de trabajo. Los datos de referencia, posición actual y señal PWM se envían por UART hacia una interfaz en Python, donde se grafican en tiempo real para analizar la respuesta dinámica del sistema y la acción correctiva del controlador.
+El módulo implementa el control de posición de un motor de corriente continua con retroalimentación analógica utilizando el microcontrolador ATmega328P. El sistema compara en tiempo real dos señales analógicas adquiridas por el ADC: una correspondiente a la posición deseada (referencia) y otra proveniente del potenciómetro acoplado al eje del motor (posición real). En función del error entre ambas, el microcontrolador determina la dirección de giro mediante los pines \texttt{IN1} e \texttt{IN2}, y ajusta la velocidad aplicando una señal PWM proporcional en el pin \texttt{OC1A}. Se incorpora una zona muerta para evitar oscilaciones alrededor del punto de equilibrio y se establecen límites mínimo y máximo para el ciclo de trabajo. Los datos de referencia, posición actual y señal PWM se envían por UART hacia una interfaz en Python, donde se grafican en tiempo real para analizar la respuesta dinámica del sistema y la acción correctiva del controlador. (Ver Anexos~\ref{anexo:M1_init_usart_adc_pwm}–\ref{anexo:M5_serial_python})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Adquisición analógica dual}}---
-El sistema realiza lecturas simultáneas de dos canales del convertidor analógico-digital: el canal 3 para la retroalimentación del motor (posición actual) y el canal 4 para la señal de referencia. Cada conversión se realiza con una resolución de 10 bits, lo que permite un control preciso sobre el desplazamiento angular del potenciómetro y, por extensión, sobre la posición del eje del motor.
-
-% mencionar codigo de lectura de los ADC
+El sistema realiza lecturas simultáneas de dos canales del convertidor analógico-digital: el canal 3 para la retroalimentación del motor (posición actual) y el canal 4 para la señal de referencia. Cada conversión se realiza con una resolución de 10 bits, lo que permite un control preciso sobre el desplazamiento angular del potenciómetro y, por extensión, sobre la posición del eje del motor. (Ver Anexo~\ref{anexo:M2_usart_utils})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Cálculo del error y zona muerta}}---
-La rutina \texttt{usart\_task()} calcula la diferencia entre la posición deseada y la posición real del motor. Cuando este error se encuentra dentro de la banda de tolerancia definida por \texttt{DEAD\_ZONE}, el sistema detiene el motor y desactiva la señal PWM, evitando así oscilaciones o inestabilidad en torno al punto de equilibrio.
+La rutina \texttt{usart\_task()} calcula la diferencia entre la posición deseada y la posición real del motor. Cuando este error se encuentra dentro de la banda de tolerancia definida por \texttt{DEAD\_ZONE}, el sistema detiene el motor y desactiva la señal PWM, evitando así oscilaciones o inestabilidad en torno al punto de equilibrio. (Ver Anexo~\ref{anexo:M3_usart_task})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Control de dirección y modulación PWM}}---
-Según el signo del error calculado, el microcontrolador establece el sentido de giro mediante la activación de los pines \texttt{IN1} o \texttt{IN2}. La magnitud del error se convierte en una señal PWM proporcional generada por el canal \texttt{OC1A} del \texttt{Timer1}, configurado en modo Fast PWM. El valor aplicado a \texttt{OCR1A} se limita entre \texttt{MIN\_PWM} y \texttt{MAX\_PWM}, manteniendo la linealidad y evitando la saturación del actuador.
-
-% mencionar funcion de control PWM
+Según el signo del error calculado, el microcontrolador establece el sentido de giro mediante la activación de los pines \texttt{IN1} o \texttt{IN2}. La magnitud del error se convierte en una señal PWM proporcional generada por el canal \texttt{OC1A} del \texttt{Timer1}, configurado en modo Fast PWM. El valor aplicado a \texttt{OCR1A} se limita entre \texttt{MIN\_PWM} y \texttt{MAX\_PWM}, manteniendo la linealidad y evitando la saturación del actuador. (Ver Anexos~\ref{anexo:M1_init_usart_adc_pwm} y~\ref{anexo:M3_usart_task})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Comunicación serie con buffer circular}}---
-El sistema reutiliza la librería de comunicación USART desarrollada previamente, implementada con buffers circulares y rutinas de interrupción (\texttt{USART\_RX\_vect} y \texttt{USART\_UDRE\_vect}). Este mecanismo permite transmitir y recibir información sin bloqueo, garantizando que el lazo de control funcione de manera continua mientras se intercambian datos con el ordenador.
+El sistema reutiliza la librería de comunicación USART desarrollada previamente, implementada con buffers circulares y rutinas de interrupción (\texttt{USART\_RX\_vect} y \texttt{USART\_UDRE\_vect}). Este mecanismo permite transmitir y recibir información sin bloqueo, garantizando que el lazo de control funcione de manera continua mientras se intercambian datos con el ordenador. (Ver Anexo~\ref{anexo:M4_main_isr})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Telemetría y visualización en tiempo real}}---
-Durante la operación, el microcontrolador envía de forma continua los valores de referencia, posición real, ciclo PWM y dirección de giro a través de la interfaz UART, utilizando un formato ASCII simple y separado por espacios para facilitar su interpretación. El script \texttt{serial\_python.py} recibe los datos, los procesa y los grafica en tiempo real mediante \texttt{matplotlib}, utilizando estructuras \texttt{deque} para mantener una ventana deslizante de muestras. La frecuencia de muestreo del microcontrolador, de aproximadamente 50 ms por ciclo, está sincronizada con la tasa de actualización de la interfaz Python, logrando una visualización casi instantánea del comportamiento dinámico del sistema. Esta integración hardware–software permite analizar fenómenos transitorios como sobreimpulsos, retardos y estabilidad del control en tiempo real.
-
-% mencionar anexo de codigo de telemetría en python.
+Durante la operación, el microcontrolador envía de forma continua los valores de referencia, posición real, ciclo PWM y dirección de giro a través de la interfaz UART, utilizando un formato ASCII simple y separado por espacios para facilitar su interpretación. El script \texttt{serial\_python.py} recibe los datos, los procesa y los grafica en tiempo real mediante \texttt{matplotlib}, utilizando estructuras \texttt{deque} para mantener una ventana deslizante de muestras. La frecuencia de muestreo del microcontrolador, de aproximadamente 50 ms por ciclo, está sincronizada con la tasa de actualización de la interfaz Python, logrando una visualización casi instantánea del comportamiento dinámico del sistema. Esta integración hardware–software permite analizar fenómenos transitorios como sobreimpulsos, retardos y estabilidad del control en tiempo real. (Ver Anexo~\ref{anexo:M5_serial_python})
 
 
 
 \vspace{1em}
-
-
 \subsubsection{\textbf{Matriz}}
 
 \paragraph*{\textbf{Idea general}}---
-El módulo implementa un sistema de control interactivo de una matriz de LEDs WS2812 (64 píxeles dispuestos en una cuadrícula de 8×8) utilizando el microcontrolador ATmega328P, un joystick analógico y un botón con antirrebote por software. El joystick permite mover un píxel activo dentro de la matriz en las coordenadas \texttt{x\_pos} y \texttt{y\_pos}, mientras que el botón produce un cambio aleatorio de color mediante una interrupción externa con debounce. Para generar las señales de tiempo exactas requeridas por los LEDs WS2812, se emplean rutinas en ensamblador \texttt{inline} con \texttt{asm volatile}, asegurando precisión de ciclos por bit. Además, el sistema incorpora un contador de milisegundos basado en el \texttt{Timer0} para temporización general y control del antirrebote. En conjunto, este módulo combina control analógico, comunicación serial y temporización precisa para implementar una interfaz visual dinámica e interactiva.
+El módulo implementa un sistema de control interactivo de una matriz de LEDs WS2812 (64 píxeles dispuestos en una cuadrícula de 8×8) utilizando el microcontrolador ATmega328P, un joystick analógico y un botón con antirrebote por software. El joystick permite mover un píxel activo dentro de la matriz en las coordenadas \texttt{x\_pos} y \texttt{y\_pos}, mientras que el botón produce un cambio aleatorio de color mediante una interrupción externa con debounce. Para generar las señales de tiempo exactas requeridas por los LEDs WS2812, se emplean rutinas en ensamblador \texttt{inline} con \texttt{asm volatile}, asegurando precisión de ciclos por bit. Además, el sistema incorpora un contador de milisegundos basado en el \texttt{Timer0} para temporización general y control del antirrebote. En conjunto, este módulo combina control analógico, comunicación serial y temporización precisa para implementar una interfaz visual dinámica e interactiva. (Ver Anexos~\ref{anexo:MA1_init_adc_timer_joystick}–\ref{anexo:MA7_pcint_color})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Lectura analógica del joystick}}---
-El joystick está conectado a los canales ADC2 y ADC3, permitiendo medir las posiciones horizontales y verticales. Los valores digitalizados (\texttt{x\_coord} y \texttt{y\_coord}) se interpretan para desplazar el píxel activo dentro de la cuadrícula de 8×8. Cuando los valores alcanzan los extremos (0 o 1023), se aplican límites de saturación para mantener el movimiento dentro del rango válido.
+El joystick está conectado a los canales ADC2 y ADC3, permitiendo medir las posiciones horizontales y verticales. Los valores digitalizados (\texttt{x\_coord} y \texttt{y\_coord}) se interpretan para desplazar el píxel activo dentro de la cuadrícula de 8×8. Cuando los valores alcanzan los extremos (0 o 1023), se aplican límites de saturación para mantener el movimiento dentro del rango válido. (Ver Anexo~\ref{anexo:MA1_init_adc_timer_joystick})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Control de posición del píxel}}---
-La rutina principal analiza las lecturas del ADC y actualiza las coordenadas \texttt{x\_pos} y \texttt{y\_pos}. Cada posición se traduce en un índice dentro del arreglo de LEDs mediante la relación \texttt{index = y\_pos × 8 + x\_pos}, que determina qué píxel se ilumina en la matriz. Esta lógica garantiza un desplazamiento coherente y visualmente fluido en ambas direcciones.
-
-% mencionar anexo codigo de control de posición
+La rutina principal analiza las lecturas del ADC y actualiza las coordenadas \texttt{x\_pos} y \texttt{y\_pos}. Cada posición se traduce en un índice dentro del arreglo de LEDs mediante la relación \texttt{index = y\_pos × 8 + x\_pos}, que determina qué píxel se ilumina en la matriz. Esta lógica garantiza un desplazamiento coherente y visualmente fluido en ambas direcciones. (Ver Anexo~\ref{anexo:MA2_joystick_control})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Cambio de color por interrupción}}---
-El botón está conectado al pin \texttt{PC4} y configurado como interrupción por cambio de estado (\texttt{PCINT1\_vect}). Cada vez que se detecta una pulsación válida, el sistema genera nuevos valores aleatorios de color RGB mediante la función \texttt{rand()} y los aplica al píxel activo. Para evitar rebotes mecánicos, se establece un retardo de bloqueo de aproximadamente 300 ms.
-
-% mencionar anexo codigo de cambio de color aleatorio
-
+El botón está conectado al pin \texttt{PC4} y configurado como interrupción por cambio de estado (\texttt{PCINT1\_vect}). Cada vez que se detecta una pulsación válida, el sistema genera nuevos valores aleatorios de color RGB mediante la función \texttt{rand()} y los aplica al píxel activo. Para evitar rebotes mecánicos, se establece un retardo de bloqueo de aproximadamente 300 ms. (Ver Anexo~\ref{anexo:MA7_pcint_color})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Antirrebote por temporización}}---
-El antirrebote se implementa en software mediante un contador global de tiempo en milisegundos (\texttt{millis\_counter}), incrementado en cada desbordamiento del \texttt{Timer0}. La función \texttt{debounce\_task()} re-habilita las interrupciones del botón únicamente una vez transcurrido el tiempo definido por \texttt{DEBOUNCE\_MS}, garantizando una respuesta estable y libre de falsas detecciones.
-
-% mencionar anexo codigo antirrebote
+El antirrebote se implementa en software mediante un contador global de tiempo en milisegundos (\texttt{millis\_counter}), incrementado en cada desbordamiento del \texttt{Timer0}. La función \texttt{debounce\_task()} re-habilita las interrupciones del botón únicamente una vez transcurrido el tiempo definido por \texttt{DEBOUNCE\_MS}, garantizando una respuesta estable y libre de falsas detecciones. (Ver Anexo~\ref{anexo:MA6_debounce_task})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Generación precisa de señal WS2812}}---
-El protocolo WS2812 requiere una señal con precisión de microsegundos en cada bit transmitido. Para cumplir con esta restricción temporal, se implementan rutinas en ensamblador \texttt{inline} (\texttt{asm volatile}) que generan los niveles lógicos con los tiempos exactos especificados por el fabricante. Las funciones \texttt{send\_bit()}, \texttt{send\_byte()} y \texttt{ws2812\_send\_pixel()} conforman la base de la transmisión, asegurando una codificación estable y sincronizada.
-
-% mencionar anexo codigo de asm volatile para tiempos de señal
+El protocolo WS2812 requiere una señal con precisión de microsegundos en cada bit transmitido. Para cumplir con esta restricción temporal, se implementan rutinas en ensamblador \texttt{inline} (\texttt{asm volatile}) que generan los niveles lógicos con los tiempos exactos especificados por el fabricante. Las funciones \texttt{send\_bit()}, \texttt{send\_byte()} y \texttt{ws2812\_send\_pixel()} conforman la base de la transmisión, asegurando una codificación estable y sincronizada. (Ver Anexo~\ref{anexo:MA4_ws2812_send})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Organización de datos RGB}}---
-Los valores de color se almacenan en el arreglo \texttt{leds[]} en formato \texttt{GRB}, conforme al protocolo WS2812. Cada píxel se actualiza individualmente mediante la función \texttt{ws2812\_set\_pixel()}, y la función \texttt{ws2812\_show\_all()} envía los datos de todos los LEDs en una secuencia protegida por desactivación temporal de interrupciones (\texttt{cli()/sei()}), asegurando la integridad de la señal.
-
-% mencionar anexo almacenamiento de datos rgb
+Los valores de color se almacenan en el arreglo \texttt{leds[]} en formato \texttt{GRB}, conforme al protocolo WS2812. Cada píxel se actualiza individualmente mediante la función \texttt{ws2812\_set\_pixel()}, y la función \texttt{ws2812\_show\_all()} envía los datos de todos los LEDs en una secuencia protegida por desactivación temporal de interrupciones (\texttt{cli()/sei()}), asegurando la integridad de la señal. (Ver Anexo~\ref{anexo:MA5_ws2812_show_all})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Temporizador y función millis()}}---
-El \texttt{Timer0} se configura en modo normal para generar desbordamientos periódicos. Cada interrupción incrementa el contador global \texttt{millis\_counter}, utilizado como referencia temporal en todo el sistema. La función \texttt{millis\_now()} devuelve el tiempo actual en milisegundos y sirve como base para el antirrebote y otras tareas periódicas dependientes del tiempo.
-
-% mencionar anexo funcion millis
-
+El \texttt{Timer0} se configura en modo normal para generar desbordamientos periódicos. Cada interrupción incrementa el contador global \texttt{millis\_counter}, utilizado como referencia temporal en todo el sistema. La función \texttt{millis\_now()} devuelve el tiempo actual en milisegundos y sirve como base para el antirrebote y otras tareas periódicas dependientes del tiempo. (Ver Anexo~\ref{anexo:MA6_debounce_task})
 
 
 
 \vspace{1em}
-
 
 \subsubsection{\textbf{Cerradura}}
 
 \paragraph*{\textbf{Idea general}}---
-El módulo implementa un sistema de control de acceso mediante RFID con visualización en pantalla LCD e interfaz serial, utilizando el microcontrolador ATmega328P y el módulo MFRC522 para la lectura de tarjetas. El sistema permite verificar, registrar y borrar credenciales electrónicas tanto por comandos enviados desde la terminal UART como mediante botones físicos. Los identificadores únicos (UID) de las tarjetas se almacenan de manera persistente en la memoria EEPROM interna y se comparan con los valores leídos en tiempo real. La interfaz de usuario combina una pantalla LCD controlada por I2C (mediante el expansor PCF8574), indicadores LED y un buzzer que brinda retroalimentación sonora. En conjunto, el sistema integra múltiples periféricos del ATmega328P —SPI, I2C, UART, EEPROM e interrupciones— para conformar un módulo de autenticación electrónica robusto, autónomo y de respuesta inmediata.
+El módulo implementa un sistema de control de acceso mediante RFID con visualización en pantalla LCD e interfaz serial, utilizando el microcontrolador ATmega328P y el módulo MFRC522 para la lectura de tarjetas. El sistema permite verificar, registrar y borrar credenciales electrónicas tanto por comandos enviados desde la terminal UART como mediante botones físicos. Los identificadores únicos (UID) de las tarjetas se almacenan de manera persistente en la memoria EEPROM interna y se comparan con los valores leídos en tiempo real. La interfaz de usuario combina una pantalla LCD controlada por I2C (mediante el expansor PCF8574), indicadores LED y un buzzer que brinda retroalimentación sonora. En conjunto, el sistema integra múltiples periféricos del ATmega328P —SPI, I2C, UART, EEPROM e interrupciones— para conformar un módulo de autenticación electrónica robusto, autónomo y de respuesta inmediata. (Ver Anexos~\ref{anexo:C1_definiciones_generales}–\ref{anexo:C9_main})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Comunicación SPI con el módulo MFRC522}}---
-El lector RFID se comunica con el microcontrolador mediante el bus SPI, utilizando las líneas MOSI, MISO, SCK y SS. El bus se inicializa a una frecuencia de 2 MHz (divisor 8), y la selección del esclavo se controla mediante las macros \texttt{SS\_LOW()} y \texttt{SS\_HIGH()}. La rutina \texttt{mfrc522\_init()} configura los registros internos del lector, ajustando la modulación ASK, la ganancia de recepción y los parámetros de temporización para asegurar una comunicación estable y confiable.
-
-% mencionar anexo funcion de comunicacion spi
+El lector RFID se comunica con el microcontrolador mediante el bus SPI, utilizando las líneas MOSI, MISO, SCK y SS. El bus se inicializa a una frecuencia de 2 MHz (divisor 8), y la selección del esclavo se controla mediante las macros \texttt{SS\_LOW()} y \texttt{SS\_HIGH()}. La rutina \texttt{mfrc522\_init()} configura los registros internos del lector, ajustando la modulación ASK, la ganancia de recepción y los parámetros de temporización para asegurar una comunicación estable y confiable. (Ver Anexos~\ref{anexo:C2_init_interfaces} y~\ref{anexo:C5_mfrc522_spi})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Lectura y procesamiento de UID}}---
-La detección de tarjetas se realiza mediante la rutina \texttt{mfrc522\_standard()}, que ejecuta los comandos \texttt{REQA} y \texttt{ANTICOLL}. Cuando se identifica una tarjeta válida, el sistema extrae su UID y lo almacena en un arreglo global. Este identificador se muestra en formato hexadecimal tanto en la terminal UART como en la pantalla LCD, facilitando la verificación y el registro.
-
-% mencionar anexo de funcion de lectura
+La detección de tarjetas se realiza mediante la rutina \texttt{mfrc522\_standard()}, que ejecuta los comandos \texttt{REQA} y \texttt{ANTICOLL}. Cuando se identifica una tarjeta válida, el sistema extrae su UID y lo almacena en un arreglo global. Este identificador se muestra en formato hexadecimal tanto en la terminal UART como en la pantalla LCD, facilitando la verificación y el registro. (Ver Anexo~\ref{anexo:C6_uid_check})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Gestión persistente con EEPROM}}---
-Los UIDs autorizados se almacenan en la memoria EEPROM del microcontrolador mediante las funciones \texttt{EEPROM\_write()} y \texttt{EEPROM\_read()}. Esta memoria no volátil garantiza la conservación de los registros incluso tras un reinicio. La verificación se realiza mediante la función \texttt{uid\_iguales()}, que compara byte a byte los identificadores almacenados y leídos.
-
-% mencionar anexo de codigo EEPROM
+Los UIDs autorizados se almacenan en la memoria EEPROM del microcontrolador mediante las funciones \texttt{EEPROM\_write()} y \texttt{EEPROM\_read()}. Esta memoria no volátil garantiza la conservación de los registros incluso tras un reinicio. La verificación se realiza mediante la función \texttt{uid\_iguales()}, que compara byte a byte los identificadores almacenados y leídos. (Ver Anexo~\ref{anexo:C3_eeprom_rw})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Interfaz de usuario LCD (I2C – PCF8574)}}---
-La pantalla LCD 16×2 se maneja mediante el expansor I2C PCF8574, detectado automáticamente por la rutina \texttt{pcf8574\_autodetect()}. A nivel bajo, las funciones \texttt{lcd\_write4()}, \texttt{lcd\_cmd()} y \texttt{lcd\_data()} gestionan la transmisión de datos en modo de 4 bits, mientras que las funciones de nivel alto \texttt{lcd\_msg2()} y \texttt{lcd\_print()} permiten mostrar mensajes informativos y estados del sistema de manera amigable para el usuario.
-
-% mencionar anexo de manejo de interfaz de usuario
+La pantalla LCD 16×2 se maneja mediante el expansor I2C PCF8574, detectado automáticamente por la rutina \texttt{pcf8574\_autodetect()}. A nivel bajo, las funciones \texttt{lcd\_write4()}, \texttt{lcd\_cmd()} y \texttt{lcd\_data()} gestionan la transmisión de datos en modo de 4 bits, mientras que las funciones de nivel alto \texttt{lcd\_msg2()} y \texttt{lcd\_print()} permiten mostrar mensajes informativos y estados del sistema de manera amigable para el usuario. (Ver Anexo~\ref{anexo:C7_lcd_i2c})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Interacción mediante UART y botones físicos}}---
-El sistema puede ser controlado tanto por comandos seriales enviados desde la PC como por tres pulsadores físicos conectados al puerto C (pines PC0–PC2). Las interrupciones \texttt{PCINT1\_vect} y la rutina \texttt{poll\_switch\_portc()} detectan las pulsaciones y asignan un valor equivalente al carácter recibido por UART, unificando el control por hardware y software bajo una misma lógica de operación.
-
-% mencionar anexo manejo de uart
-
+El sistema puede ser controlado tanto por comandos seriales enviados desde la PC como por tres pulsadores físicos conectados al puerto C (pines PC0–PC2). Las interrupciones \texttt{PCINT1\_vect} y la rutina \texttt{poll\_switch\_portc()} detectan las pulsaciones y asignan un valor equivalente al carácter recibido por UART, unificando el control por hardware y software bajo una misma lógica de operación. (Ver Anexo~\ref{anexo:C8_uart_botones})
 
 \vspace{1em}
 
@@ -287,18 +251,17 @@ El sistema cuenta con tres modos principales:
     \item \textbf{Registro de nueva tarjeta:} guarda el UID detectado en la EEPROM tras confirmación visual en el LCD.
     \item \textbf{Borrado de registro:} limpia la EEPROM y notifica la acción tanto en pantalla como por UART.
 \end{enumerate}
+(Ver Anexo~\ref{anexo:C9_main})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Indicadores visuales y acústicos}}---
-El sistema cuenta con dos LEDs indicadores: verde (acceso concedido) y rojo (acceso denegado), conectados a los pines PD6 y PD7. Además, un buzzer piezoeléctrico ubicado en PC3 emite un tono breve de aproximadamente 2 kHz durante un segundo mediante la función \texttt{Sonar\_Buzzer()}, proporcionando una señal auditiva de confirmación o error.
-
-% mencionar anexo codigo de control de indicadores visuales
+El sistema cuenta con dos LEDs indicadores: verde (acceso concedido) y rojo (acceso denegado), conectados a los pines PD6 y PD7. Además, un buzzer piezoeléctrico ubicado en PC3 emite un tono breve de aproximadamente 2 kHz durante un segundo mediante la función \texttt{Sonar\_Buzzer()}, proporcionando una señal auditiva de confirmación o error. (Ver Anexo~\ref{anexo:C4_led_buzzer})
 
 \vspace{1em}
 
 \paragraph*{\textbf{Comunicación UART con buffers circulares}}---
-La comunicación serial reutiliza la librería no bloqueante desarrollada en módulos anteriores, basada en interrupciones (\texttt{USART\_RX\_vect} y \texttt{USART\_UDRE\_vect}) y en buffers circulares \texttt{serialBuffer} y \texttt{rxBuffer}. Este diseño permite transmitir y registrar eventos o mensajes sin interrumpir las operaciones del lector RFID ni de la pantalla LCD, garantizando un flujo continuo de información entre el microcontrolador y el entorno de supervisión.
+La comunicación serial reutiliza la librería no bloqueante desarrollada en módulos anteriores, basada en interrupciones (\texttt{USART\_RX\_vect} y \texttt{USART\_UDRE\_vect}) y en buffers circulares \texttt{serialBuffer} y \texttt{rxBuffer}. Este diseño permite transmitir y registrar eventos o mensajes sin interrumpir las operaciones del lector RFID ni de la pantalla LCD, garantizando un flujo continuo de información entre el microcontrolador y el entorno de supervisión. (Ver Anexo~\ref{anexo:C2_init_interfaces})
 
 
 
