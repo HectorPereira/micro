@@ -12,7 +12,10 @@
     %   Reparar la estructura del plotter para evitar trancasos.
     
     \subsubsection{Temperatura}
-    
+
+   % La implementacion del control de Temperatura ocn el modulo que incluia un calentador y el ventilador, fue stisfactoria. Se cumplieron correectamente los objetivos buscados. Se puede mejorar incluyendo un control pmw segun la diferencia de temperatura al calentador, no solo en el ventilador. 
+  %  Asi como incluir en la grafica el estado de los perifericos del sistema, el ventilador y el calentador, si esta encendido o no. 
+    teamohector
     \subsubsection{Motor}
     % El motor funciono bien, tuvo una buena respuesta a movimientos suaves y bruzcos, y lograba estabilizarse correctamente sin oscilaciones.
     % Lo que se pudo haber mejorado era reducir la zona muerta para tener una mejor precision
@@ -22,6 +25,9 @@
     % La matriz funciono bien, reconoció bien las entradas del joystick. Al trabajar solamente con la saturacion de los potenciometros, lo que se pudo haber mejorado era que el punto se moviera a diferentes velocidades dependiendo de la posición del joystick.
 
     \subsubsection{Cerradura}
+
+   % Funciono correctamente, teniendo una correta comunicacion via spi entre el esclavo (RC522) y el maestro(Arduino), permitio entender correctamente como funciona ese tipo de comunicacion. A su vez tambien una correcta sincronizacion con la pantalla LCD via I2C. Se podria haber hecho mas satisfactorio y enriquecedor, ncluyendo la opcion de modificar las tarjetas RFID.
+
 
 \subsection{Reflexión general}
 
