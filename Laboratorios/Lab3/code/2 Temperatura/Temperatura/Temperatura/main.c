@@ -128,9 +128,36 @@ int main(void) {
 			string_to_send[0] = '\0';
 			uint16_t div = 1;
 
+<<<<<<< HEAD
 			adc = adc_read_blocking_adif();     // Lee ADC
 			tC = (adc * 500.0f) / 1023.0f;      // Convierte a °C (LM35)
 			valor = tC;
+=======
+		if (tC <= (tC2 + (tC2 / 12))) {
+			heater_on = 1;              // por debajo del m�nimo -> encender
+			Ventilador_off();
+			} 
+		else if (tC > tC2 && tC < tC3){
+			heater_on = 0;
+			Ventilador_off();
+		}
+		else if (tC > (tC3 - (tC3 / 12))) {
+			heater_on = 0; 
+			Ventilador_on();             // por encima del m�ximo -> apagar
+		}
+		
+		if (heater_on)  OCR0A = 100;
+		else            OCR0A = 0;
+		
+		uint8_t d_t   = (int8_t)tC - (int8_t)(tC3);
+		uint8_t pwm2;
+		if(d_t > 0){
+			
+			if (d_t > 20)       pwm2 = 255;
+			else if (d_t > 10)  pwm2 = 125;
+			else if (d_t > 5)   pwm2 = 50;
+			else                pwm2 = 25;
+>>>>>>> test
 
 			// Calcula divisor para conversión a caracteres
 			while (valor / div >= 10) {

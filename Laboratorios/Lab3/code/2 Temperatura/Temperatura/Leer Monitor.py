@@ -16,25 +16,30 @@ EOL_ENVIO = "\r\n"  # o "\n"
 plt.style.use('ggplot')
 x_data = []
 y_data = []
-y2_data = []                            # <<< NUEVO
+y2_data = []    
+y3_data = []                        
 
 VENTANA_S = 20  # segundos de ventana visible
 
 
 figure, ax = plt.subplots()
 line1, = ax.plot(x_data, y_data, '-', label='Temperatura Actual')     
-line2, = ax.plot([], [], '-', label='Promedio')             # <<< NUEVO
+line2, = ax.plot([], [], '-', label='Temperatura minima') 
+line3, = ax.plot([], [], '-', label='Temperatura Maxima')         
+
 ax.grid(True)
 ax.legend()   
 ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M:%S'))
 figure.autofmt_xdate()
 
 
-                                             # <<< NUEVO
+
 
 # ===== Buffer numérico compartido =====
 buf  = deque(maxlen=5000)    # Canal 1
 buf2 = deque(maxlen=5000)    # Canal 2 (promedio tras 'temp')
+buf3 = deque(maxlen=5000)    # Canal 2 (promedio tras 'temp')
+
 grabando = threading.Event()
 
 # Estado para capturar los dos números después de 'temp'
@@ -68,8 +73,12 @@ def lector(ser):
                     v = float(s.replace(",", "."))
                     temp_vals.append(v)
                     if len(temp_vals) >= 2:
-                        avg = (temp_vals[0] + temp_vals[1]) / 2.0
-                        buf2.append(avg)              # Canal 2 = promedio
+                        avg = temp_vals[0] 
+                        avg2 = temp_vals[1]
+
+                        buf2.append(avg)  
+                        buf3.append(avg2)            
+                                  
                         temp_mode = False
                         temp_vals = []
                 except ValueError:
@@ -109,12 +118,16 @@ def grafica(_frame=None):
         t = datetime.now()
         y1 = buf.popleft()  if buf  else (y_data[-1]  if y_data  else float('nan'))
         y2 = buf2.popleft() if buf2 else (y2_data[-1] if y2_data else float('nan'))
+        y3 = buf3.popleft() if buf3 else (y3_data[-1] if y3_data else float('nan'))
+
         x_data.append(t)
         y_data.append(y1)
         y2_data.append(y2)
+        y3_data.append(y3)
+
 
     if not x_data:
-        return line1, line2
+        return line1, line2, line3
 
     # --- Ventana deslizante de los últimos VENTANA_S segundos ---
     now = x_data[-1]
@@ -129,17 +142,21 @@ def grafica(_frame=None):
     xv  = x_data[start:]
     yv  = y_data[start:]
     y2v = y2_data[start:]
+    y3v = y3_data[start:]
+
 
     # actualiza curvas
     line1.set_data(xv,  yv)
     line2.set_data(xv,  y2v)
+    line3.set_data(xv,  y3v)
+
 
     # fija X a [t0, now] y autoscale solo en Y
     ax.set_xlim(t0, now)
     ax.relim()
     ax.autoscale_view(scalex=False, scaley=True)
     figure.canvas.draw_idle()
-    return line1, line2
+    return line1, line2, line3
 
 
 serialPort = serial.Serial(
