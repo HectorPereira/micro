@@ -63,16 +63,103 @@ void lcd_twolines(char c, char b);
 
 unsigned char lcd = 0x00;	
 
+// ======================================
+// UART
+// ======================================
+
+// Configuración general del sistema
+
+#define BAUD           9600UL                     // Velocidad UART
+#define UBRR_VALUE     ((F_CPU/16/BAUD) - 1)      // Valor de UBRR según BAUD
+#define TX_BUFFER_SIZE 128                        // Tamaño del buffer TX
+#define RX_BUFFER_SIZE 128                        // Tamaño del buffer RX
+#define precarger      10000                      // Valor de precarga (genérico)
+
+
+// Buffers de comunicación UART
+volatile char    serialBuffer[TX_BUFFER_SIZE];  // Buffer de transmisión UART
+volatile uint8_t serialReadPos  = 0;            // Posición de lectura en buffer TX
+volatile uint8_t serialWritePos = 0;            // Posición de escritura en buffer TX
+
+volatile char    rxBuffer[RX_BUFFER_SIZE];      // Buffer de recepción UART
+volatile uint8_t rxReadPos  = 0;                // Posición de lectura en buffer RX
+volatile uint8_t rxWritePos = 0;                // Posición de escritura en buffer RX
+
+
+// Macros generales
+
+#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))   // Set bit
+#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))  // Clear bit
+#define UART_TIMEOUT_MS 500                          // Tiempo máximo UART en ms
+
+// Comunicación UART
+
+void uart_init(unsigned int ubrr);
+void uart_send(char c);
+void uart_print(const char *s);
+void uart_print_hex(uint8_t val);
+void serialWrite(const char *s);
+char Chardos(void);
+
+// ======================================
+// DHT
+// ======================================
+
+
+
+#define DHT_PIN PD3
+
+void DHT_start(void);
+
+uint8_t DHT_response(void);
+
+uint8_t DHT_read(void);
+
+// ======================================
+// ISR,s
+// ======================================
+
+
+ISR(USART_RX_vect){
+	rxBuffer[rxWritePos] = UDR0;
+	rxWritePos++;
+
+	if (rxWritePos >= RX_BUFFER_SIZE)
+	{
+		rxWritePos = 0;
+	}
+}
+
+ISR(USART_UDRE_vect){
+	if (serialReadPos != serialWritePos){
+		UDR0 = serialBuffer[serialReadPos];
+		serialReadPos = (serialReadPos + 1) % TX_BUFFER_SIZE;
+		} else {
+		UCSR0B &= ~(1 << UDRIE0);  // nada m?s que enviar
+	}
+}
+
 
 
 int main(void)
 {
+	uint8_t Temp = 0;
+	uint8_t Hum = 0;
+	uint8_t Humdec;
+	uint8_t Tdec;
+	
 	sei();
 	
+	uart_init(UBRR_VALUE);
+	
+	// RX por interrupci?n
+	UCSR0B |= (1<<RXCIE0);
+	
 	spi_init();	
-	//pruebra de SPI
+	
+	
 	SS_LOW();
-	spi_transfer(0xF1);
+	spi_transfer(0xF2);
 	SS_HIGH();
 	
 	
@@ -80,10 +167,27 @@ int main(void)
 	twi_lcd_init();
 
 	lcd_twolines("Bienvenido", "A - Encender");
+	uart_print("Inserte A para prender\n\r");
+
     while(1)
     {
-
-       
+		char c = Chardos();
+		if(c == 'A'){
+		DHT_start();
+		if (DHT_response()) {
+			Hum = DHT_read();
+			Humdec = DHT_read();
+			Temp = DHT_read();
+			Tdec = DHT_read();
+			DHT_read();
+			PORTD |= (1 << PORTD3);
+		}
+		uart_print("\n\r");
+		uart_print_hex(Temp);
+		uart_print("\n\r");
+		uart_print_hex(Hum);
+		}
+		       
     }
 }
 
@@ -253,4 +357,93 @@ void lcd_twolines(char c, char b){
 	twi_lcd_msg(c);
 	twi_lcd_cmd(0xC0);
 	twi_lcd_msg(b);
+}
+
+
+// ======================================
+// Funciones UART 
+// ======================================
+
+
+void uart_init(unsigned int ubrr) {
+	UBRR0H = (unsigned char)(ubrr>>8);
+	UBRR0L = (unsigned char)ubrr;
+	UCSR0B = (1<<TXEN0) | (1<<RXEN0);
+	UCSR0C = (1<<UCSZ01) | (1<<UCSZ00);
+}
+void uart_send(char c) {
+	while (!(UCSR0A & (1<<UDRE0)));
+	UDR0 = c;
+}
+void uart_print(const char *s) {
+	while (*s) uart_send(*s++);
+}
+void uart_print_hex(uint8_t val) {
+	char buf[6];
+	sprintf(buf, "0x%02X", val);
+	uart_print(buf);
+}
+
+
+
+void serialWrite(const char *s){
+	for (uint8_t i = 0; i < (uint8_t)strlen(s); i++){
+		serialBuffer[serialWritePos] = s[i];
+		serialWritePos = (serialWritePos + 1) % TX_BUFFER_SIZE;
+	}
+	UCSR0B |= (1 << UDRIE0);   // habilita ISR UDRE
+}
+char Chardos(void)
+{
+	char ret = '\0';
+
+	if (rxReadPos != rxWritePos)
+	{
+		ret = rxBuffer[rxReadPos];
+
+		rxReadPos++;
+
+		if (rxReadPos >= RX_BUFFER_SIZE)
+		{
+			rxReadPos = 0;
+		}
+	}
+
+	return ret;
+}
+
+
+void DHT_start(void) {
+	DDRD |= (1 << DHT_PIN);       // Configurar pin como salida
+	PORTD &= ~(1 << DHT_PIN);     // Enviar señal de inicio (bajo)
+	_delay_ms(18);                // Esperar al menos 18 ms
+	PORTD |= (1 << DHT_PIN);      // Liberar la línea
+	_delay_us(40);                // Esperar 40 µs
+}
+
+uint8_t DHT_response(void) {
+	uint8_t response = 0;
+	DDRD &= ~(1 << DHT_PIN);      // Configurar como entrada
+	_delay_us(40);
+
+	if (!(PIND & (1 << DHT_PIN))) {  // Esperar respuesta baja
+		_delay_us(80);
+		if (PIND & (1 << DHT_PIN)) { // Esperar respuesta alta
+			_delay_us(80);
+			response = 1;            // Respuesta válida
+		}
+	}
+	return response;                // 1 = ok, 0 = sin respuesta
+}
+
+uint8_t DHT_read(void) {
+	uint8_t result = 0;
+	for (int i = 0; i < 8; i++) {
+		while (!(PIND & (1 << DHT_PIN)));  // Esperar pulso alto
+		_delay_us(30);                     // Esperar 30 µs
+		if (PIND & (1 << DHT_PIN))         // Si sigue alto, es 1
+		result |= (1 << (7 - i));
+		while (PIND & (1 << DHT_PIN));     // Esperar pulso bajo
+	}
+	return result;
 }
