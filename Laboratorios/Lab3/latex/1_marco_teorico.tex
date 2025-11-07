@@ -23,7 +23,7 @@ El LM35 requiere tres conexiones: alimentación (V\textsubscript{CC}), salida an
 
 \subsection{Transistor de potencia TIP31}
 
-El transistor \textbf{TIP31} es un dispositivo \textbf{NPN de propósito general} utilizado ampliamente en aplicaciones de conmutación y amplificación de potencia. Su función principal dentro de un circuito de control consiste en actuar como un elemento intermediario entre el microcontrolador y la carga, permitiendo manejar corrientes elevadas sin sobrecargar las salidas del dispositivo lógico. En este proyecto, el TIP31 se emplea como etapa de potencia para accionar el ventilador o el elemento calefactor, conmutando la corriente proveniente de la fuente de alimentación principal bajo la señal de control proveniente del microcontrolador \cite{blikai_tip31_article, tip31_datasheet}.
+El transistor TIP31 es un dispositivo NPN de propósito general utilizado ampliamente en aplicaciones de conmutación y amplificación de potencia. Su función principal dentro de un circuito de control consiste en actuar como un elemento intermediario entre el microcontrolador y la carga, permitiendo manejar corrientes elevadas sin sobrecargar las salidas del dispositivo lógico. En este proyecto, el TIP31 se emplea como etapa de potencia para accionar el ventilador o el elemento calefactor, conmutando la corriente proveniente de la fuente de alimentación principal bajo la señal de control proveniente del microcontrolador \cite{blikai_tip31_article, tip31_datasheet}.
 
 \begin{figure}[H]
     \centering
@@ -40,24 +40,24 @@ El principio de funcionamiento se basa en el control de una corriente de colecto
 
 \vspace{1em}
 
-Al aplicar una señal PWM en la base, el transistor conmuta rápidamente entre los estados de saturación y corte, produciendo un control proporcional sobre la potencia entregada a la carga. De esta forma, el TIP31 permite regular la velocidad del ventilador o la potencia disipada en un resistor calefactor en función de la temperatura medida por el sensor LM35, integrándose así al lazo de control térmico implementado. En la figura \ref{fig:tip31_pinout} se muestra su aspecto físico y disposición de pines.
+Al aplicar una señal PWM en la base, el transistor conmuta rápidamente entre los estados de saturación y corte, produciendo un control proporcional sobre la potencia entregada a la carga. De esta forma, el TIP31 permite regular la potencia disipada en un resistor calefactor en función de la temperatura medida por el sensor LM35, integrándose así al lazo de control térmico implementado. En la figura \ref{fig:tip31_pinout} se muestra su aspecto físico y disposición de pines.
 
 
 \subsection{Python y librerías utilizadas}
 
-Para el desarrollo del software de adquisición y visualización de datos, se emplearon distintas librerías de \textbf{Python 3.3} que facilitaron la comunicación con el microcontrolador, el manejo de datos y la generación de gráficos.  
+Para el desarrollo del software de adquisición y visualización de datos, se emplearon distintas librerías de Python 3.3 que facilitaron la comunicación con el microcontrolador, el manejo de datos y la generación de gráficos.  
 A continuación, se describen brevemente las principales \cite{python_docs, pyserial_docs, matplotlib_docs}:
 
 \paragraph*{PySerial}
-Es una librería que permite la \textbf{comunicación serie} entre Python y dispositivos externos, como microcontroladores o sensores.  
+Es una librería que permite la comunicación serie entre Python y dispositivos externos, como microcontroladores o sensores.  
 Proporciona funciones para abrir, leer y escribir datos a través de un puerto serial, siendo ampliamente utilizada en proyectos con \textit{Arduino} o \textit{ATmega328P} \cite{pyserial_docs}.
 
 \paragraph*{Matplotlib}
-Corresponde a una de las bibliotecas más utilizadas en Python para la \textbf{generación de gráficos y visualización de datos}.  
+Corresponde a una de las bibliotecas más utilizadas en Python para la generación de gráficos y visualización de datos.  
 Permite crear gráficos en dos dimensiones (2D) de manera sencilla y personalizable, siendo ideal para representar la evolución temporal de variables como la temperatura \cite{matplotlib_docs}.
 
 \paragraph*{Threading}
-Es una librería que ofrece herramientas para la \textbf{ejecución de tareas concurrentes} mediante hilos de ejecución (\textit{threads}).  
+Es una librería que ofrece herramientas para la ejecución de tareas concurrentes mediante hilos de ejecución (\textit{threads}).  
 Se utiliza para realizar procesos en paralelo, por ejemplo, leer datos del puerto serial mientras se actualiza la gráfica en tiempo real \cite{python_docs}.
 
 \paragraph*{Collections}
@@ -80,26 +80,23 @@ Un sistema RFID está compuesto por tres elementos fundamentales: la \textit{eti
     \label{fig:rfid_system}
 \end{figure}
 
-El módulo \textbf{RC522} es un lector RFID de bajo costo y alta integración, diseñado específicamente para trabajar con tarjetas del tipo \textbf{MIFARE}, que operan bajo el estándar ISO/IEC 14443A. Funciona a una frecuencia de \textbf{13.56 MHz} y permite la lectura o escritura de etiquetas pasivas en un rango de pocos centímetros. Su arquitectura compacta y bajo consumo lo convierten en una solución ideal para aplicaciones embebidas, especialmente en sistemas de control de acceso, autenticación o registro electrónico \cite{nxp_mfrc522_datasheet, syamsuddin_rfid_intro_2018}.
+El módulo \textit{RC522} es un lector RFID de bajo costo y alta integración, diseñado específicamente para trabajar con tarjetas del tipo \textit{MIFARE}, que operan bajo el estándar ISO/IEC 14443A. Funciona a una frecuencia de \textit{13.56 MHz} y permite la lectura o escritura de etiquetas pasivas en un rango de pocos centímetros. Su arquitectura compacta y bajo consumo lo convierten en una solución ideal para aplicaciones embebidas, especialmente en sistemas de control de acceso, autenticación o registro electrónico \cite{nxp_mfrc522_datasheet, syamsuddin_rfid_intro_2018}.
 
 \vspace{1em}
 
-En el contexto de este proyecto, el RC522 se comunica con el microcontrolador \textbf{ATmega328P} a través del protocolo \textbf{SPI}, utilizando las líneas \texttt{MOSI}, \texttt{MISO}, \texttt{SCK} y \texttt{SS}, además de las señales auxiliares \texttt{RST} e \texttt{IRQ}. Este enlace permite una transmisión rápida y confiable de los datos del UID detectado, que luego son comparados y almacenados en la memoria EEPROM. En la figura \ref{fig:rc522_pinout} se muestra la disposición de pines del módulo RC522 y su correspondencia funcional con el microcontrolador \cite{nxp_mfrc522_datasheet}.
+En el contexto de este proyecto, el RC522 se comunica con el microcontrolador \textit{ATmega328P} a través del protocolo \textit{SPI}, utilizando las líneas \texttt{MOSI}, \texttt{MISO}, \texttt{SCK} y \texttt{SS}, además de las señales auxiliares \texttt{RST} e \texttt{IRQ}. Este enlace permite una transmisión rápida y confiable de los datos del UID detectado, que luego son comparados y almacenados en la memoria EEPROM. En la figura \ref{fig:rc522_pinout} se muestra la disposición de pines del módulo RC522 y su correspondencia funcional con el microcontrolador \cite{nxp_mfrc522_datasheet}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.35\textwidth]{anexos/Marco Teorico/RC522.png}
-    \caption{Diagrama de pines del módulo lector RFID RC522. Fuente: \url{https://www.facebook.com/p/Telecomunicaciones-RyR-100063984642582/}}
+    \includegraphics[width=0.45\textwidth]{anexos/Marco Teorico/RC522.jpg}
+    \caption{Diagrama de pines del módulo lector RFID RC522. Fuente: \url{https://circuitdigest.com/microcontroller-projects/interfacing-rfid-reader-module-with-arduino}}
     \label{fig:rc522_pinout}
 \end{figure}
 
 
-
-
-
 \subsection{Protocolo de comunicación SPI}
 
-El protocolo \textbf{SPI (Serial Peripheral Interface)} es un estándar de comunicación serial síncrona desarrollado por Motorola, ampliamente utilizado en sistemas embebidos para la transmisión de datos de alta velocidad entre un \textit{microcontrolador} y uno o varios \textit{periféricos}.  
+El protocolo \textit{SPI (Serial Peripheral Interface)} es un estándar de comunicación serial síncrona desarrollado por Motorola, ampliamente utilizado en sistemas embebidos para la transmisión de datos de alta velocidad entre un \textit{microcontrolador} y uno o varios \textit{periféricos}.  
 A diferencia de otros protocolos como \textit{I\textsuperscript{2}C} o \textit{UART}, el SPI permite una comunicación completamente dúplex y ofrece una estructura simple y eficiente \cite{horowitz_art_of_electronics_2022, labrosse_embedded_2013}.
 
 \subsubsection*{Principio de funcionamiento}
@@ -108,6 +105,17 @@ SPI opera bajo un esquema de tipo \textbf{maestro–esclavo}, en el cual el disp
 Cada transferencia se sincroniza mediante la señal de reloj (\texttt{SCK}), que coordina el envío y recepción de bits entre el maestro y el esclavo \cite{atmega328p_datasheet}.
 
 \vspace{1em}
+
+Véase la figura \ref{fig:spi_timing}, donde se representa el diagrama temporal de una transferencia de datos típica en el protocolo SPI \cite{labrosse_embedded_2013}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.35\textwidth]{anexos/Marco Teorico/SPI Tiempo.png}
+    \caption{Diagrama temporal de transferencia de datos en el protocolo SPI. Fuente: \url{https://www.prometec.net/nuevo-tutorial-sobre-el-bus-spi/}}
+    \label{fig:spi_timing}
+\end{figure}
+
+
 
 Los datos se transmiten de forma \textbf{serial}, bit a bit, a través de dos líneas principales: una para los datos enviados desde el maestro al esclavo (\texttt{MOSI}) y otra para los datos que viajan en sentido contrario (\texttt{MISO}). Véase la figura \ref{fig:spi_diagrama} \cite{avr_libc_manual_2_2_0}.
 
@@ -162,13 +170,27 @@ El microcontrolador \texttt{ATmega328P} incluye un módulo de hardware SPI, cuya
     \item \texttt{PB5 (SCK)} — Señal de reloj.
 \end{itemize}
 
-Véase la figura \ref{fig:spi_timing}, donde se representa el diagrama temporal de una transferencia de datos típica en el protocolo SPI \cite{labrosse_embedded_2013}.
+\subsection{Protocolo I2C}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.35\textwidth]{anexos/Marco Teorico/SPI Tiempo.png}
-    \caption{Diagrama temporal de transferencia de datos en el protocolo SPI. Fuente: \url{https://www.prometec.net/nuevo-tutorial-sobre-el-bus-spi/}}
-    \label{fig:spi_timing}
-\end{figure}
+El protocolo I2C (Inter-Integrated Circuit) es un estándar de comunicación serial síncrona desarrollado por Philips, diseñado para la interconexión de múltiples dispositivos mediante solo dos líneas: \texttt{SDA} (Serial Data) y \texttt{SCL} (Serial Clock). Permite la conexión de varios esclavos a un único maestro, cada uno identificado por una dirección única. Su simplicidad y bajo consumo lo convierten en un protocolo ideal para sensores, memorias y periféricos de baja velocidad. En el contexto del ATmega328P, el módulo TWI (Two-Wire Interface) implementa el estándar I2C y se utiliza, por ejemplo, para el control de pantallas LCD mediante el expansor PCF8574 \cite{philips_i2c_specification_2000, atmega328p_datasheet}.
 
+
+\subsection{Memoria EEPROM}
+
+La memoria EEPROM (Electrically Erasable Programmable Read-Only Memory) es un tipo de almacenamiento no volátil que conserva la información incluso sin alimentación eléctrica. En el ATmega328P posee una capacidad de 1~KB y permite la lectura y escritura byte a byte mediante las funciones de la librería estándar \texttt{avr/eeprom.h}. Su principal aplicación en este proyecto es el almacenamiento persistente de credenciales RFID, configuraciones o datos de calibración. Gracias a su durabilidad típica de más de 100~000 ciclos de escritura, la EEPROM es ampliamente utilizada en sistemas embebidos para la preservación de parámetros críticos \cite{microchip_eeprom_appnote_2019, atmega328p_datasheet}.
+
+
+\subsection{Comunicación USART}
+
+El módulo USART (Universal Synchronous and Asynchronous Receiver/Transmitter) del ATmega328P permite la comunicación serial tanto síncrona como asíncrona. En su modo asíncrono, opera bajo el estándar RS-232 lógico (niveles TTL), empleando las líneas \texttt{TXD} y \texttt{RXD}. Este periférico posibilita la transmisión y recepción de datos mediante interrupciones o buffers circulares, permitiendo comunicación fluida entre el microcontrolador y un equipo externo, como una PC o una interfaz Python. En los módulos desarrollados, la USART se utiliza principalmente para depuración, registro de eventos y monitoreo en tiempo real \cite{tanenbaum_serial_comm_2011, avr_libc_manual_2_2_0}.
+
+
+\subsection{Conversor analógico-digital (ADC)}
+
+El conversor ADC (Analog-to-Digital Converter) integrado en el ATmega328P es de 10~bits de resolución y admite hasta ocho canales multiplexados. Convierte señales analógicas dentro del rango de 0~a~V\textsubscript{REF} en un valor digital proporcional, lo que permite la lectura de sensores como el LM35 o el joystick analógico. Su funcionamiento depende de un reloj derivado del sistema con prescaladores ajustables para optimizar la precisión de muestreo. En este laboratorio, el ADC se emplea para medir temperatura, posiciones analógicas y referencias de control, siendo fundamental en los módulos de Temperatura, Motor y Matriz \cite{atmega328p_datasheet, mazidi_avr_2014}.
+
+
+\subsection{Modulación por ancho de pulso (PWM)}
+
+La modulación por ancho de pulso (PWM, Pulse Width Modulation) es una técnica de control utilizada para generar señales analógicas a partir de salidas digitales. En el ATmega328P se implementa mediante los temporizadores \texttt{Timer0}, \texttt{Timer1} y \texttt{Timer2}, operando en modos \textit{Fast PWM} o \textit{Phase Correct}. Variando el ciclo de trabajo (duty cycle), se controla la potencia promedio aplicada a una carga, como un motor o un LED. En este proyecto, el PWM es esencial para el control del ventilador (Temperatura), del motor DC (Motor) y de la señal de datos de los LEDs WS2812 (Matriz RGB) \cite{atmega328p_datasheet}.
 
