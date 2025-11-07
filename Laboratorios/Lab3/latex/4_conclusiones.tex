@@ -16,7 +16,7 @@ No obstante, el diseño podría enriquecerse mediante un control más preciso de
 
 \subsubsection{Motor}
 
-fEl módulo del motor demostró un desempeño satisfactorio, logrando un control proporcional estable que respondió adecuadamente ante variaciones suaves y bruscas en el potenciómetro de referencia. La lectura analógica fue confiable, la modulación PWM mostró una respuesta coherente y la dirección del giro se mantuvo sincronizada con el error de posición. En conjunto, el sistema validó la efectividad del control de lazo cerrado diseñado y la robustez del algoritmo implementado.
+El módulo del motor demostró un desempeño satisfactorio, logrando un control proporcional estable que respondió adecuadamente ante variaciones suaves y bruscas en el potenciómetro de referencia. La lectura analógica fue confiable, la modulación PWM mostró una respuesta coherente y la dirección del giro se mantuvo sincronizada con el error de posición. En conjunto, el sistema validó la efectividad del control de lazo cerrado diseñado y la robustez del algoritmo implementado.
 
 Sin embargo, se identificó que la zona muerta definida en el código podría reducirse para mejorar la precisión del control en movimientos pequeños. Ajustar este umbral permitiría que el motor responda con mayor sensibilidad sin generar oscilaciones, incrementando así la fidelidad del posicionamiento. Como extensión, sería interesante implementar un control proporcional-integral que suavice aún más las transiciones y mejore el comportamiento dinámico del sistema.
 

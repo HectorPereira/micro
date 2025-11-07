@@ -12,7 +12,7 @@ Durante las pruebas del sistema de trazado, se observaron diversas limitaciones 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\linewidth]{anexos/1 Plotter/Plotter.jpg}
-    \caption{Vista general del plotter ensamblado con todos los módulos y conexiones.}
+    \caption{Vista general del plotter ensamblado con todos los módulos y conexiones. Fuente: elaboración propia.}
     \label{fig:plotter_completo}
 \end{figure}
 
@@ -28,7 +28,7 @@ El intérprete desarrollado en Python logró convertir con éxito las trayectori
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\linewidth]{anexos/1 Plotter/Interprete.png}
-    \caption{Comparativa del sistema de trazado antes y después de la implementación del intérprete Python.}
+    \caption{Comparativa del sistema de trazado antes y después de la implementación del intérprete Python. Fuente: elaboración propia.}
     \label{fig:comparativa_python}
 \end{figure}
 
@@ -38,7 +38,7 @@ El uso de la función \texttt{execute\_path\_mirrored()} resultó especialmente 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\linewidth]{anexos/1 Plotter/Dibujos.jpg}
-    \caption{Figuras trazadas experimentalmente por el plotter: flor, murciélago, círculo, cruz y triángulo.}
+    \caption{Figuras trazadas experimentalmente por el plotter: flor, murciélago, círculo, cruz y triángulo. Fuente: elaboración propia.}
     \label{fig:figuras_trazadas}
 \end{figure}
 
@@ -51,6 +51,30 @@ El uso de la función \texttt{execute\_path\_mirrored()} resultó especialmente 
 
 El circuito final correspondiente a esta consigna del laboratorio se muestra en la figura adjunta, donde se aprecia la disposición del sensor de temperatura, el microcontrolador y la interfaz de comunicación con el entorno Python.
 
+\subsubsection{Simulación}
+
+La simulación fue realizada en el entorno \textbf{Proteus}, donde se reprodujo el montaje del sistema de control térmico.
+En la figura correspondiente se ilustra la disposición de los componentes, las conexiones del sensor con las entradas analógicas del microcontrolador y el enlace serial utilizado para la transmisión de datos.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.35\textwidth]{anexos/2 Temperatura/simulacion.png}
+\caption{Captura de simulación de módulo de temperatura en Proteus. Fuente: Elaboración propia}
+\label{fig:Simualcion_temperatura}
+\end{figure}
+
+
+\vspace{1em}
+
+Para la visualización en tiempo real de los valores simulados, se desarrolló un script en Python basado en la biblioteca \texttt{PySerial}.
+Durante la inicialización, el microcontrolador enviaba únicamente los valores numéricos de temperatura separados por saltos de línea.
+Al detectar la palabra clave \texttt{Temp}, el programa de Python registraba dos mediciones consecutivas y calculaba su promedio, mostrando el resultado en una gráfica actualizada dinámicamente.
+
+\vspace{1em}
+
+Este procedimiento permitió observar variaciones suaves y coherentes en las mediciones, confirmando la correcta lectura, transmisión y procesamiento de los datos de temperatura.
+
+
 \subsubsection{Envío de datos por USART}
 
 En la Figura \ref{fig:Tem_USART} se observa el proceso de transmisión de datos entre el \texttt{ATmega328P} y el script de Python mediante el puerto serial.
@@ -59,7 +83,7 @@ El sistema enviaba de forma periódica los valores de temperatura convertidos po
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.35\textwidth]{anexos/2 Temperatura/USART Temperatura.png}
-\caption{Comunicación de datos vía USART entre el microcontrolador y Python.}
+\caption{Comunicación de datos vía USART entre el microcontrolador y Python.  Fuente: elaboración propia.}
 \label{fig:Tem_USART}
 \end{figure}
 
@@ -72,24 +96,13 @@ La línea de referencia corresponde al valor medio esperado, lo que permitió ev
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.35\textwidth]{anexos/2 Temperatura/grafica tiempo real.png}
-\caption{Gráfica de temperatura en tiempo real.}
+\caption{Gráfica de temperatura en tiempo real. Fuente: elaboración propia.}
 \label{fig:Grafica1}
 \end{figure}
 
-\subsubsection{Simulación}
 
-La simulación fue realizada en el entorno \textbf{Proteus}, donde se reprodujo el montaje del sistema de control térmico.
-En la figura correspondiente se ilustra la disposición de los componentes, las conexiones del sensor con las entradas analógicas del microcontrolador y el enlace serial utilizado para la transmisión de datos.
 
-\subsubsection{Gráfica de la simulación}
 
-Para la visualización en tiempo real de los valores simulados, se desarrolló un script en Python basado en la biblioteca \texttt{PySerial}.
-Durante la inicialización, el microcontrolador enviaba únicamente los valores numéricos de temperatura separados por saltos de línea.
-Al detectar la palabra clave \texttt{Temp}, el programa de Python registraba dos mediciones consecutivas y calculaba su promedio, mostrando el resultado en una gráfica actualizada dinámicamente.
-
-\vspace{1em}
-
-Este procedimiento permitió observar variaciones suaves y coherentes en las mediciones, confirmando la correcta lectura, transmisión y procesamiento de los datos de temperatura.
 
 
 
@@ -104,7 +117,7 @@ La simulación del módulo motor permitió verificar el correcto funcionamiento 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.85\linewidth]{anexos/3 Motor/Simulacion.png}
-    \caption{Simulación del módulo motor en Proteus, mostrando el microcontrolador ATmega328P, los potenciómetros de referencia y posición, así como las señales de control PWM y UART.}
+    \caption{Simulación del módulo motor en Proteus, mostrando el microcontrolador ATmega328P, los potenciómetros de referencia y posición, así como las señales de control PWM y UART.  Fuente: elaboración propia.}
     \label{fig:sim_motor_proteus}
 \end{figure}
 
@@ -121,7 +134,7 @@ El control de dirección y la modulación por ancho de pulso (PWM) operaron de f
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\linewidth]{anexos/3 Motor/Circuito.jpg}
-    \caption{Montaje experimental del módulo motor, incluyendo microcontrolador, potenciómetros de control y eje, conexión UART al PC y el motor DC.}
+    \caption{Montaje experimental del módulo motor, incluyendo microcontrolador, potenciómetros de control y eje, conexión UART al PC y el motor DC.  Fuente: elaboración propia.}
     \label{fig:montaje_motor}
 \end{figure}
 
@@ -149,7 +162,7 @@ Las curvas obtenidas mostraron la evolución del error y la respuesta del motor,
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\linewidth]{anexos/3 Motor/Grafica.jpg}
-    \caption{Visualización en tiempo real de las variables de referencia, posición real, señal PWM y dirección de giro obtenidas mediante el programa \texttt{serial\_python.py}.}
+    \caption{Visualización en tiempo real de las variables de referencia, posición real, señal PWM y dirección de giro obtenidas mediante el programa \texttt{serial\_python.py}.  Fuente: elaboración propia.}
     \label{fig:telemetria_python_motor}
 \end{figure}
 
@@ -187,7 +200,7 @@ El procesamiento del evento, combinado con el control de temporización por \tex
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\linewidth]{anexos/4 Matriz/Color 3.jpg}
-    \caption{Montaje completo del módulo Matriz, mostrando el microcontrolador ATmega328P, el joystick analógico, el pulsador de control y la matriz de LEDs WS2812.}
+    \caption{Montaje completo del módulo Matriz, mostrando el microcontrolador ATmega328P, el joystick analógico, el pulsador de control y la matriz de LEDs WS2812.  Fuente: elaboración propia.}
     \label{fig:montaje_modulo_matriz}
 \end{figure}
 
@@ -200,7 +213,7 @@ El procesamiento del evento, combinado con el control de temporización por \tex
 
 \subsubsection{Simulación}
 
-La simulación del módulo Cerradura se realizó empleando el protocolo de comunicación SPI, debido a las limitaciones del entorno virtual para emular el lector RFID RC522. En este caso, los datos del identificador de tarjeta (UID) se introdujeron manualmente para verificar el funcionamiento lógico del sistema.
+La simulación del módulo Cerradura se realizó empleando el protocolo de comunicación SPI debugger, debido a las limitaciones del entorno virtual para emular el lector RFID RC522. En este caso, los datos del identificador de tarjeta (UID) se introdujeron manualmente para verificar el funcionamiento lógico del sistema.
 
 \vspace{1em}
 
@@ -256,19 +269,4 @@ Además, el \textbf{buzzer de alerta} emite un tono característico en los inten
 
 Al registrar una nueva tarjeta, el microcontrolador sobrescribe el valor anterior almacenado en EEPROM, garantizando la actualización segura de la credencial.
 Este comportamiento evidencia la robustez del manejo de memoria no volátil y la fiabilidad del algoritmo de control implementado.
-
-
-\subsection{Simulacion en proteus - SPI debuger}
-
-Para la simulación en \textit{Proteus} fue necesario emplear un código alternativo, dado que el entorno no permite la lectura directa del módulo \textit{RFID RC522}. Por esta razón, se optó por simular exclusivamente el protocolo \textit{SPI}, implementando una versión simplificada del programa que solicita y recibe datos a través de dicho bus, omitiendo la configuración inicial del lector. 
-
-Esta variante del código fue desarrollada con fines de verificación y comprensión del funcionamiento maestro–esclavo del protocolo \textit{SPI}, y se encuentra disponible en el repositorio del proyecto para su consulta. La Figura~\ref{fig:a} muestra la simulación implementada en el entorno \textit{Proteus}.
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.75\linewidth]{anexos/Marco Teorico/SImulacion SPI.jpg}
-\caption{Simulacion de contraseñas - SPI debuger.}
-\label{fig:a}
-
-\end{figure}
 
