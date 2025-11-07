@@ -179,8 +179,8 @@ int main(void)
   98:	0e 94 40 00 	call	0x80	; 0x80 <__data_load_end>
 	SS_LOW();
   9c:	0e 94 6b 00 	call	0xd6	; 0xd6 <SS_LOW>
-	spi_transfer(0xF0);
-  a0:	80 ef       	ldi	r24, 0xF0	; 240
+	spi_transfer(0xF1);
+  a0:	81 ef       	ldi	r24, 0xF1	; 241
   a2:	0e 94 61 00 	call	0xc2	; 0xc2 <spi_transfer>
 	SS_HIGH();
   a6:	0e 94 67 00 	call	0xce	; 0xce <SS_HIGH>

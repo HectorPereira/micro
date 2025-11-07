@@ -180,8 +180,8 @@ int main(void)
     {
       uint8_t byte = SPI_slaveReceive();
   92:	0e 94 6c 00 	call	0xd8	; 0xd8 <SPI_slaveReceive>
-	  if(byte == 0xF0){
-  96:	80 3f       	cpi	r24, 0xF0	; 240
+	  if(byte == 0xF1){
+  96:	81 3f       	cpi	r24, 0xF1	; 241
   98:	e1 f7       	brne	.-8      	; 0x92 <main+0x12>
 	  PORTD |= (1 << PORTD7);
   9a:	8b b1       	in	r24, 0x0b	; 11

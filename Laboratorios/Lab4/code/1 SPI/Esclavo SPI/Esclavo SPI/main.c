@@ -39,7 +39,7 @@ int main(void)
     while(1)
     {
       uint8_t byte = SPI_slaveReceive();
-	  if(byte == 0xF0){
+	  if(byte == 0xF1){
 	  PORTD |= (1 << PORTD7);
 	  
 	  }
