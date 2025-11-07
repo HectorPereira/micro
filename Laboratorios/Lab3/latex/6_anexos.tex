@@ -1147,3 +1147,333 @@ int main(void) {
 }
 \end{lstlisting}
 
+
+\paragraph{Programa principal}\label{anexo:codigo_cerradura}---\\
+\begin{lstlisting}[language=C, caption={Programa principal del sistema de cerradura en Proteus.}]
+#define F_CPU 16000000UL
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <util/twi.h>
+
+// ======================================
+// LED FUNCTIONS AND PINS
+// ======================================
+
+#define LED_G PORTC0
+#define LED_R PORTC1
+
+void INIT_LED() {
+    DDRC |= (1 << LED_G) | (1 << LED_R);
+    PORTC |= (1 << LED_G);
+    PORTC &= ~(1 << LED_R);
+}
+
+// ======================================
+// LCD CONTROL VIA I2C (PCF8574)
+// ======================================
+
+#define LCD_EN          0x04   // Enable
+#define LCD_RW          0x02   // Read/Write
+#define LCD_RS          0x01   // Register Select
+#define LCD_BACKLIGHT   0x08   // Backlight
+static uint8_t PCF_ADDR = 0x27;
+
+// ======================================
+// UART CONFIGURATION
+// ======================================
+
+#define BAUD           9600UL
+#define UBRR_VALUE     ((F_CPU/16/BAUD) - 1)
+#define TX_BUFFER_SIZE 128
+#define RX_BUFFER_SIZE 128
+
+volatile char serialBuffer[TX_BUFFER_SIZE];
+volatile uint8_t serialReadPos  = 0;
+volatile uint8_t serialWritePos = 0;
+
+volatile char rxBuffer[RX_BUFFER_SIZE];
+volatile uint8_t rxReadPos  = 0;
+volatile uint8_t rxWritePos = 0;
+
+// ======================================
+// PROTOTYPES
+// ======================================
+
+void uart_init(unsigned int ubrr);
+void uart_send(char c);
+void uart_print(const char *s);
+void uart_print_hex(uint8_t val);
+char Chardos(void);
+
+void spi_init(void);
+uint8_t spi_transfer(uint8_t data);
+void SS_HIGH(void);
+void SS_LOW(void);
+
+// ======================================
+// UART INTERRUPTS
+// ======================================
+
+ISR(USART_RX_vect) {
+    rxBuffer[rxWritePos] = UDR0;
+    rxWritePos++;
+    if (rxWritePos >= RX_BUFFER_SIZE)
+        rxWritePos = 0;
+}
+
+ISR(USART_UDRE_vect) {
+    if (serialReadPos != serialWritePos) {
+        UDR0 = serialBuffer[serialReadPos];
+        serialReadPos = (serialReadPos + 1) % TX_BUFFER_SIZE;
+    } else {
+        UCSR0B &= ~(1 << UDRIE0); // nothing else to send
+    }
+}
+
+// ======================================
+// UART FUNCTIONS
+// ======================================
+
+static inline uint8_t nibble_to_bus(uint8_t nibble) { return (nibble << 4); }
+
+void uart_init(unsigned int ubrr) {
+    UBRR0H = (char)(ubrr >> 8);
+    UBRR0L = (char)ubrr;
+    UCSR0B = (1 << TXEN0) | (1 << RXEN0) | (1 << RXCIE0);
+    UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
+}
+
+void uart_send(char c) {
+    while (!(UCSR0A & (1 << UDRE0)));
+    UDR0 = c;
+}
+
+void uart_print(const char *s) {
+    while (*s) uart_send(*s++);
+}
+
+void uart_print_hex(uint8_t val) {
+    char buf[6];
+    sprintf(buf, "0x%02X ", val);
+    uart_print(buf);
+}
+
+char Chardos(void) {
+    char ret = '\0';
+    if (rxReadPos != rxWritePos) {
+        ret = rxBuffer[rxReadPos];
+        rxReadPos++;
+        if (rxReadPos >= RX_BUFFER_SIZE)
+            rxReadPos = 0;
+    }
+    return ret;
+}
+
+// ======================================
+// SPI FUNCTIONS
+// ======================================
+
+#define CS   PB2
+#define MOSI PB3
+#define MISO PB4
+#define SCK  PB5
+
+void spi_init(void) {
+    DDRB |= (1 << CS) | (1 << MOSI) | (1 << SCK);
+    DDRB &= ~(1 << MISO);
+    SPCR = (1 << SPE) | (1 << MSTR) | (1 << SPR0);
+    SPSR = (1 << SPI2X); // fosc/8
+}
+
+uint8_t spi_transfer(uint8_t data) {
+    SPDR = data;
+    while (!(SPSR & (1 << SPIF)));
+    return SPDR;
+}
+
+void SS_HIGH(void) { PORTB |=  (1 << CS); }
+void SS_LOW(void)  { PORTB &= ~(1 << CS); }
+
+// ======================================
+// I2C BASIC FUNCTIONS
+// ======================================
+
+static inline void I2C_start(void) {
+    TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN);
+    while(!(TWCR & (1<<TWINT)));
+}
+static inline void I2C_stop(void) {
+    TWCR = (1<<TWINT)|(1<<TWSTO)|(1<<TWEN);
+}
+static inline uint8_t I2C_write(uint8_t v) {
+    TWDR = v;
+    TWCR = (1<<TWINT)|(1<<TWEN);
+    while(!(TWCR & (1<<TWINT)));
+    uint8_t s = TWSR & 0xF8;
+    return (s == 0x18 || s == 0x28);
+}
+
+static uint8_t pcf8574_autodetect(void) {
+    for (uint8_t a=0x20; a<=0x27; a++) {
+        I2C_start();
+        uint8_t ok = I2C_write((a<<1) | 0);
+        I2C_stop();
+        if (ok) return a;
+    }
+    for (uint8_t a=0x38; a<=0x3F; a++) {
+        I2C_start();
+        uint8_t ok = I2C_write((a<<1) | 0);
+        I2C_stop();
+        if (ok) return a;
+    }
+    return 0;
+}
+
+static inline void pcf8574_write(uint8_t b) {
+    I2C_start();
+    I2C_write((PCF_ADDR<<1) | 0);
+    I2C_write(b);
+    I2C_stop();
+}
+
+// ======================================
+// LCD FUNCTIONS
+// ======================================
+
+static inline void lcd_strobe(uint8_t data) {
+    pcf8574_write(data | LCD_EN | LCD_BACKLIGHT);
+    _delay_us(1);
+    pcf8574_write((data & ~LCD_EN) | LCD_BACKLIGHT);
+    _delay_us(50);
+}
+
+static inline void lcd_write4(uint8_t nibble, uint8_t rs) {
+    uint8_t bus = nibble_to_bus(nibble) | (rs ? LCD_RS : 0);
+    bus &= ~LCD_RW;
+    pcf8574_write(bus | LCD_BACKLIGHT);
+    lcd_strobe(bus);
+}
+
+static inline void lcd_send(uint8_t value, uint8_t rs) {
+    lcd_write4(value >> 4, rs);
+    lcd_write4(value & 0x0F, rs);
+}
+
+static inline void lcd_cmd(uint8_t c)  { lcd_send(c, 0); }
+static inline void lcd_data(uint8_t d) { lcd_send(d, 1); }
+
+static inline void lcd_clear(void) {
+    lcd_cmd(0x01);
+    _delay_ms(2);
+}
+
+static inline void lcd_set_cursor(uint8_t col, uint8_t row) {
+    static const uint8_t offs[] = {0x00, 0x40, 0x14, 0x54};
+    lcd_cmd(0x80 | (offs[row] + col));
+}
+
+static void lcd_print(const char *s) {
+    while (*s) lcd_data((uint8_t)*s++);
+}
+
+void lcd_init(void) {
+    _delay_ms(50);
+    uint8_t found = pcf8574_autodetect();
+    if (found) PCF_ADDR = found;
+    lcd_write4(0x03, 0); _delay_ms(5);
+    lcd_write4(0x03, 0); _delay_us(150);
+    lcd_write4(0x03, 0); _delay_us(150);
+    lcd_write4(0x02, 0); _delay_us(150);
+    lcd_cmd(0x28);
+    lcd_cmd(0x0C);
+    lcd_cmd(0x06);
+    lcd_clear();
+}
+
+void lcd_msg2(const char* l1, const char* l2) {
+    lcd_clear();
+    lcd_set_cursor(0,0);
+    lcd_print(l1);
+    lcd_set_cursor(0,1);
+    lcd_print(l2);
+}
+
+void I2C_init(void) {
+    TWSR = 0x00;
+    TWBR = ((F_CPU / 100000UL) - 16) / 2;
+    TWCR = (1<<TWEN);
+}
+
+// ======================================
+// MAIN PROGRAM
+// ======================================
+
+int main(void) {
+    INIT_LED();
+    uart_init(UBRR_VALUE);
+    sei();
+    spi_init();
+    I2C_init();
+    lcd_init();
+
+    lcd_msg2("Welcome!", "System ready");
+    uart_print("Options:\r\n");
+    uart_print("1) Read password from SPI\r\n");
+    uart_print("2) Erase current password\r\n");
+    uart_print("3) Unlock system\r\n");
+    uart_print("> ");
+
+    uint8_t pass_saved[5];
+    uint8_t pass_check[5];
+    char c = '\0';
+
+    while (1) {
+        c = Chardos();
+        if (c != '\0') {
+            _delay_ms(1);
+            if (c == '1') {
+                uart_print("Reading SPI...\r\n");
+                lcd_msg2("Reading SPI", "");
+                SS_LOW();
+                for (uint8_t i=0; i<5; i++) pass_saved[i] = spi_transfer(0xFF);
+                SS_HIGH();
+                lcd_msg2("Password", "received");
+                uart_print("Password received: ");
+                for (uint8_t i=0; i<5; i++) uart_print_hex(pass_saved[i]);
+                uart_print("\r\n");
+            }
+            else if (c == '2') {
+                lcd_msg2("Erasing", "Password");
+                uart_print("Erasing password...\r\n");
+                for (uint8_t i=0; i<5; i++) pass_saved[i] = 0x00;
+                uart_print("Password erased.\r\n");
+            }
+            else if (c == '3') {
+                lcd_msg2("Enter", "Password");
+                uart_print("Enter password:\r\n");
+                SS_LOW();
+                for (uint8_t i=0; i<5; i++) pass_check[i] = spi_transfer(0xFF);
+                SS_HIGH();
+                if (memcmp(pass_saved, pass_check, 5) == 0) {
+                    lcd_msg2("Password", "Correct");
+                    uart_print("Access granted.\r\n");
+                    PORTC |= (1 << LED_G);
+                    PORTC &= ~(1 << LED_R);
+                } else {
+                    lcd_msg2("Password", "Wrong");
+                    uart_print("Access denied.\r\n");
+                    PORTC |= (1 << LED_R);
+                    PORTC &= ~(1 << LED_G);
+                }
+            }
+        }
+    }
+}
+
+\end{lstlisting}
+

@@ -264,7 +264,22 @@ El sistema cuenta con dos LEDs indicadores: verde (acceso concedido) y rojo (acc
 La comunicación serial reutiliza la librería no bloqueante desarrollada en módulos anteriores, basada en interrupciones (\texttt{USART\_RX\_vect} y \texttt{USART\_UDRE\_vect}) y en buffers circulares \texttt{serialBuffer} y \texttt{rxBuffer}. Este diseño permite transmitir y registrar eventos o mensajes sin interrumpir las operaciones del lector RFID ni de la pantalla LCD, garantizando un flujo continuo de información entre el microcontrolador y el entorno de supervisión. (Ver Anexo~\ref{anexo:C2_init_interfaces})
 
 
+\subsection{Simulacion de cerraudura - SPI debuger}
 
+
+Se estableció la comunicación \textit{UART} con la misma configuración utilizada en la implementación física del módulo, manteniendo así la compatibilidad con la consola serial empleada para monitoreo y envío de comandos. Esta interfaz permitió visualizar mensajes informativos y facilitar la interacción del usuario con las diferentes funciones del sistema.
+
+El módulo de comunicación \textit{SPI} fue configurado en modo esclavo para que el \texttt{ATmega328P} pudiera tomar datos del dispositivo. Dado que el entorno \textit{Proteus} no permite la lectura directa del lector \textit{RFID RC522}, se utilizó el componente \textit{SPI Debugger}, configurado con una secuencia de bytes predefinida. De esta manera, se pudo reproducir el comportamiento de una tarjeta RFID y comprobar la correcta transmisión y recepción de datos entre el maestro y el esclavo, mediante la funcion spi transfer, validando la lógica del sistema de autenticación.
+
+De forma complementaria, se implementó la comunicación por bus \textit{I\textsuperscript{2}C} para el manejo del display LCD mediante el expansor \textit{PCF8574}. Este componente permitió mostrar mensajes de estado —como “Lectura SPI”, “Contraseña correcta” o “Acceso denegado”— que facilitaron la comprensión del proceso por parte del usuario durante las pruebas.
+
+Durante la ejecución principal, el sistema espera la recepción de comandos a través de \textit{UART}, permitiendo tres operaciones principales: almacenar una nueva contraseña recibida por \textit{SPI}, borrar la contraseña actual y verificar una contraseña ingresada. Cada una de estas acciones se refleja tanto en el monitor serial como en el LCD, y se acompaña del encendido del LED verde o rojo según el resultado de la autenticación.
+
+La comparación entre la contraseña almacenada y la recibida se realiza byte a byte dentro del microcontrolador, garantizando una verificación precisa. Si los datos coinciden, el sistema activa el LED verde y despliega el mensaje de acceso autorizado; en caso contrario, enciende el LED rojo y muestra un mensaje de error.
+
+\begin{flushleft}
+El código fuente completo correspondiente a esta implementación se incluye en el Anexo~\ref{anexo:codigo_cerradura}.
+\end{flushleft}
 
 
 
