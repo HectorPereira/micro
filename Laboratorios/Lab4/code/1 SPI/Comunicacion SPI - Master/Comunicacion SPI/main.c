@@ -46,26 +46,24 @@ uint8_t PCF_ADDR = 0x27; // Direccion predeterminada del modulo I2C
 #define LCD_RW          0x02   // Read/Write
 #define LCD_RS          0x01   // Register Select
 #define LCD_BACKLIGHT   0x08   // Retroiluminación
+#define LCD_1line 0x80
+#define LCD_2line 0xC0
 
 uint8_t nibble_to_bus(uint8_t nibble);
 void pcf8574_autodetect(void);
 void PCF8574_write(uint8_t b);
-
-/* Function to Write to LCD Command Register */
 void twi_lcd_cmd(const unsigned char x);
-
-/* Function to Write to LCD Command Register */
 void twi_lcd_dwr(unsigned char x);
-/* Function to Send String of Data */
 void twi_lcd_msg(const char *c);
-/* Function to Execute Clear LCD Command */
 void twi_lcd_clear();
-/* Function to Write 4-bit data to LCD */
 void twi_lcd_4bit_send(unsigned char x);
-/* Function to Initialize LCD in 4-Bit Mode, Cursor Setting and Row Selection */
 void twi_lcd_init();
 
+void lcd_twolines(char c, char b);
+
 unsigned char lcd = 0x00;	
+
+
 
 int main(void)
 {
@@ -81,14 +79,10 @@ int main(void)
 	I2C_init();
 	twi_lcd_init();
 
-	
-	
+	lcd_twolines("Bienvenido", "A - Encender");
     while(1)
     {
-       //--- Select 2nd Row
-       twi_lcd_cmd(0xC0);
-       //--- Send a String to LCD
-       twi_lcd_msg("Linea 2!!");
+
        
     }
 }
@@ -251,4 +245,12 @@ void twi_lcd_init()
 	_delay_ms(1000);				//--- 1s Delay
 	twi_lcd_clear();				//--- Clear LCD
 	twi_lcd_cmd(0x80);				//--- Row 1 Column 1 Address
+}
+
+
+void lcd_twolines(char c, char b){
+	twi_lcd_cmd(0x80);
+	twi_lcd_msg(c);
+	twi_lcd_cmd(0xC0);
+	twi_lcd_msg(b);
 }
