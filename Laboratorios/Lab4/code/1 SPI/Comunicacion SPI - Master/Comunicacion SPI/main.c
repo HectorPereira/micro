@@ -32,9 +32,16 @@ void SS_LOW(void);
 
 int main(void)
 {
+	sei();
+	
+	spi_init();
+	SS_LOW();
+	spi_transfer(0xF0);
+	SS_HIGH();
+	
     while(1)
     {
-        //TODO:: Please write your application code 
+       
     }
 }
 
