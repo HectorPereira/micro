@@ -44,6 +44,9 @@ El uso de la función \texttt{execute\_path\_mirrored()} resultó especialmente 
 
 
 
+
+
+
 \subsection{Temperatura}
 
 El circuito final correspondiente a esta consigna del laboratorio se muestra en la figura adjunta, donde se aprecia la disposición del sensor de temperatura, el microcontrolador y la interfaz de comunicación con el entorno Python.
@@ -190,21 +193,29 @@ El procesamiento del evento, combinado con el control de temporización por \tex
 
  
 
+
+
+
 \subsection{Cerradura}
 
 \subsubsection{Simulación}
 
-La simulación del módulo \textit{Cerradura} se realizó empleando el protocolo de comunicación \textbf{SPI}, debido a las limitaciones del entorno virtual para emular el lector RFID RC522. En este caso, los datos del identificador de tarjeta (\texttt{UID}) se introdujeron manualmente para verificar el funcionamiento lógico del sistema.
+La simulación del módulo Cerradura se realizó empleando el protocolo de comunicación SPI, debido a las limitaciones del entorno virtual para emular el lector RFID RC522. En este caso, los datos del identificador de tarjeta (UID) se introdujeron manualmente para verificar el funcionamiento lógico del sistema.
+
+\vspace{1em}
+
+Debido a esta limitación, fue necesario adaptar el código específicamente para la simulación, modificando la forma en que se gestionan los datos del identificador. Se implementó una rutina que permite el ingreso y procesamiento del UID a través del módulo SPI, preservando la estructura y la lógica del sistema original, pero sin requerir la lectura física desde el módulo RC522.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{anexos/5 Cerradura/Simulacion.jpg}
+    \caption{Simulación del módulo Cerradura en Proteus, mostrando el intercambio de datos vía SPI. Fuente: Elaboración propia.}
+    \label{fig:cerradura_proteus}
+\end{figure}
+
 \vspace{1em}
 
 A pesar de no disponer del escaneo físico del lector, la simulación permitió comprobar el proceso completo de transmisión de datos, validación de credenciales y activación de los indicadores luminosos, confirmando la correcta interpretación de las órdenes por parte del microcontrolador.
-
-% \begin{figure}[H]
-% \centering
-% \includegraphics[width=0.8\linewidth]{anexos/5 Cerradura/Simulacion_SPI.png}
-% \caption{Simulación del módulo \textit{Cerradura} en Proteus, empleando comunicación SPI para la transmisión del UID.}
-% \label{fig:cerradura_spi}
-% \end{figure}
 
 \subsubsection{Almacenamiento no volátil}
 
@@ -214,41 +225,49 @@ Durante las pruebas, se verificó que tras registrar una tarjeta, su \texttt{UID
 
 Esta característica garantiza la autenticidad del proceso de validación, permitiendo que el sistema reconozca únicamente la tarjeta registrada y deniegue el acceso a cualquier otra.
 
-% \begin{figure}[H]
-% \centering
-% \includegraphics[width=0.7\linewidth]{anexos/5 Cerradura/EEPROM.png}
-% \caption{Lectura del identificador de la tarjeta almacenado en la memoria EEPROM del microcontrolador.}
-% \label{fig:cerradura_eeprom}
-% \end{figure}
-
 \subsubsection{Comunicación vía SPI}
 
 La interfaz SPI implementada entre el \texttt{ATmega328P} y el módulo RC522 permitió la transferencia confiable de los bytes correspondientes al identificador de la tarjeta.
 En la simulación, los datos se visualizaron correctamente en las líneas \texttt{MOSI}, \texttt{MISO}, \texttt{SCK} y \texttt{SS}, comprobando la secuencia esperada de reloj y la integridad de los paquetes enviados.
 \vspace{1em}
 
-Este resultado confirmó la correcta configuración de los registros \texttt{SPCR} y \texttt{SPSR}, así como la sincronización maestro–esclavo en el intercambio de información.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.40\textwidth]{anexos/5 Cerradura/Serial.png}
+    \caption{Visualización en la terminal USART del proceso de detección y validación de tarjetas. Fuente: Elaboración propia.}
+    \label{fig:usart_feedback}
+\end{figure}
 
-% \begin{figure}[H]
-% \centering
-% \includegraphics[width=0.8\linewidth]{anexos/5 Cerradura/SPI_Senal.png}
-% \caption{Captura de la transmisión SPI entre el microcontrolador y el módulo RC522, mostrando la secuencia de bits del identificador de tarjeta.}
-% \label{fig:cerradura_spi_senal}
-% \end{figure}
+Este resultado confirmó la correcta configuración de los registros \texttt{SPCR} y \texttt{SPSR}, así como la sincronización maestro–esclavo en el intercambio de información.
 
 \subsubsection{Indicaciones del sistema}
 
 El sistema cuenta con un conjunto de señales visuales y sonoras que facilitan la interacción con el usuario.
 Los \textbf{LEDs verde y rojo} indican el estado de autenticación: el primero se enciende cuando la tarjeta es reconocida, mientras que el segundo se activa al detectar una tarjeta no registrada.
 Además, el \textbf{buzzer de alerta} emite un tono característico en los intentos fallidos de acceso, reforzando la retroalimentación auditiva del sistema.
-\vspace{1em}
+\vspace{1em} 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.40\textwidth]{anexos/5 Cerradura/Circuito.png}
+    \caption{Circuito completo del sistema Cerradura, incluyendo LEDs, buzzer y lector RFID. Fuente: Elaboración propia.}
+    \label{fig:circuito_completo}
+\end{figure}
 
 Al registrar una nueva tarjeta, el microcontrolador sobrescribe el valor anterior almacenado en EEPROM, garantizando la actualización segura de la credencial.
 Este comportamiento evidencia la robustez del manejo de memoria no volátil y la fiabilidad del algoritmo de control implementado.
 
-% \begin{figure}[H]
-% \centering
-% \includegraphics[width=0.75\linewidth]{anexos/5 Cerradura/Montaje.jpg}
-% \caption{Montaje físico del módulo \textit{Cerradura}, con LEDs indicadores, buzzer y lector RFID RC522.}
-% \label{fig:montaje_cerradura}
-% \end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{anexos/5 Cerradura/LCD.png}
+    \caption{Pantalla LCD indicando la eliminación y registro de una nueva tarjeta autorizada. Fuente: Elaboración propia.}
+    \label{fig:lcd_borrado}
+\end{figure}
+
+
+
+
+
+
+
