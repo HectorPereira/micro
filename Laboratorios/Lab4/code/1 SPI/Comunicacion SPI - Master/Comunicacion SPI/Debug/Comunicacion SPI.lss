@@ -3,216 +3,736 @@ Comunicacion SPI.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  00800100  00000160  2**0
+  0 .data         00000000  00800100  00800100  0000042f  2**0
                   ALLOC, LOAD, DATA
-  1 .text         00000080  00000000  00000000  00000074  2**1
+  1 .text         000000c8  00000000  00000000  000000b4  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .comment      0000002f  00000000  00000000  00000160  2**0
+  2 .comment      0000002f  00000000  00000000  0000042f  2**0
                   CONTENTS, READONLY
-  3 .stack.descriptors.hdr 0000000e  00000000  00000000  0000018f  2**0
+  3 .stack.descriptors.hdr 0000000e  00000000  00000000  0000045e  2**0
                   CONTENTS, READONLY
-  4 .debug_aranges 00000040  00000000  00000000  0000019d  2**0
+  4 .debug_aranges 000000a0  00000000  00000000  0000046c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   0000097e  00000000  00000000  000001dd  2**0
+  5 .debug_info   0000104f  00000000  00000000  0000050c  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000654  00000000  00000000  00000b5b  2**0
+  6 .debug_abbrev 0000077d  00000000  00000000  0000155b  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   00000258  00000000  00000000  000011af  2**0
+  7 .debug_line   000005d1  00000000  00000000  00001cd8  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000064  00000000  00000000  00001408  2**2
+  8 .debug_frame  00000160  00000000  00000000  000022ac  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    00000208  00000000  00000000  0000146c  2**0
+  9 .debug_str    0000022e  00000000  00000000  0000240c  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    0000001f  00000000  00000000  00001674  2**0
+ 10 .debug_loc    000004ae  00000000  00000000  0000263a  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000030  00000000  00000000  00001693  2**0
+ 11 .debug_ranges 00000090  00000000  00000000  00002ae8  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .text         00000004  000000de  000000de  00000152  2**1
+ 12 .text         00000004  0000036c  0000036c  00000420  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 13 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000016c4  2**2
+ 13 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00002b78  2**2
                   CONTENTS, READONLY, DEBUGGING
- 14 .text.spi_init 00000016  00000080  00000080  000000f4  2**1
+ 14 .text.spi_init 00000016  000002f2  000002f2  000003a6  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 15 .text.spi_transfer 0000000c  000000c2  000000c2  00000136  2**1
+ 15 .text.spi_transfer 0000000c  00000340  00000340  000003f4  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 16 .text.SS_HIGH 00000008  000000ce  000000ce  00000142  2**1
+ 16 .text.SS_HIGH 00000008  0000034c  0000034c  00000400  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 17 .text.SS_LOW  00000008  000000d6  000000d6  0000014a  2**1
+ 17 .text.SS_LOW  00000008  00000354  00000354  00000408  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 18 .text.main    00000016  00000096  00000096  0000010a  2**1
+ 18 .text.I2C_init 00000012  0000031e  0000031e  000003d2  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 19 .text.__dummy_fini 00000002  000000e6  000000e6  0000015a  2**1
+ 19 .text.I2C_start 00000010  00000330  00000330  000003e4  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 20 .text.__dummy_funcs_on_exit 00000002  000000e8  000000e8  0000015c  2**1
+ 20 .text.I2C_stop 00000008  0000035c  0000035c  00000410  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 21 .text.__dummy_simulator_exit 00000002  000000ea  000000ea  0000015e  2**1
+ 21 .text.I2C_write 0000002c  00000246  00000246  000002fa  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 22 .text.exit    00000016  000000ac  000000ac  00000120  2**1
+ 22 .text.pcf8574_autodetect 0000004e  000001ca  000001ca  0000027e  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 23 .text._Exit   00000004  000000e2  000000e2  00000156  2**1
+ 23 .text.PCF8574_write 00000020  0000029e  0000029e  00000352  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 24 .text.twi_lcd_4bit_send 00000074  000000e2  000000e2  00000196  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 25 .text.twi_lcd_cmd 00000018  000002da  000002da  0000038e  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 26 .text.twi_lcd_clear 00000008  00000364  00000364  00000418  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 27 .text.twi_lcd_dwr 0000001c  000002be  000002be  00000372  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 28 .text.twi_lcd_msg 0000002c  00000272  00000272  00000326  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 29 .progmemx.data 0000001a  000000c8  000000c8  0000017c  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, PROGMEMX
+ 30 .text.twi_lcd_init 00000074  00000156  00000156  0000020a  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 31 .text.main    0000002e  00000218  00000218  000002cc  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 32 .bss.lcd      00000001  00800100  00800100  0000042f  2**0
+                  ALLOC
+ 33 .data.PCF_ADDR 00000001  00800101  0000037a  0000042e  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+ 34 .text.__dummy_fini 00000002  00000374  00000374  00000428  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 35 .text.__dummy_funcs_on_exit 00000002  00000376  00000376  0000042a  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 36 .text.__dummy_simulator_exit 00000002  00000378  00000378  0000042c  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 37 .text.exit    00000016  00000308  00000308  000003bc  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+ 38 .text._Exit   00000004  00000370  00000370  00000424  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
 
 Disassembly of section .text:
 
 00000000 <__vectors>:
-   0:	0c 94 34 00 	jmp	0x68	; 0x68 <__ctors_end>
-   4:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-   8:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-   c:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  10:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  14:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  18:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  1c:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  20:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  24:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  28:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  2c:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  30:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  34:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  38:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  3c:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  40:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  44:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  48:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  4c:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  50:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  54:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  58:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  5c:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  60:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
-  64:	0c 94 6f 00 	jmp	0xde	; 0xde <__bad_interrupt>
+   0:	0c 94 3a 00 	jmp	0x74	; 0x74 <__ctors_end>
+   4:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+   8:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+   c:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  10:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  14:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  18:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  1c:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  20:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  24:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  28:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  2c:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  30:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  34:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  38:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  3c:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  40:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  44:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  48:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  4c:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  50:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  54:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  58:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  5c:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  60:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
+  64:	0c 94 b6 01 	jmp	0x36c	; 0x36c <__bad_interrupt>
 
-00000068 <__ctors_end>:
-  68:	11 24       	eor	r1, r1
-  6a:	1f be       	out	0x3f, r1	; 63
-  6c:	cf ef       	ldi	r28, 0xFF	; 255
-  6e:	d8 e0       	ldi	r29, 0x08	; 8
-  70:	de bf       	out	0x3e, r29	; 62
-  72:	cd bf       	out	0x3d, r28	; 61
-  74:	0e 94 4b 00 	call	0x96	; 0x96 <main>
-  78:	0c 94 56 00 	jmp	0xac	; 0xac <exit>
+00000068 <.dinit>:
+  68:	01 00       	.word	0x0001	; ????
+  6a:	01 01       	movw	r0, r2
+  6c:	80 01       	movw	r16, r0
+  6e:	01 01       	movw	r0, r2
+  70:	02 00       	.word	0x0002	; ????
+  72:	03 7a       	andi	r16, 0xA3	; 163
 
-0000007c <_exit>:
-  7c:	f8 94       	cli
+00000074 <__ctors_end>:
+  74:	11 24       	eor	r1, r1
+  76:	1f be       	out	0x3f, r1	; 63
+  78:	cf ef       	ldi	r28, 0xFF	; 255
+  7a:	d8 e0       	ldi	r29, 0x08	; 8
+  7c:	de bf       	out	0x3e, r29	; 62
+  7e:	cd bf       	out	0x3d, r28	; 61
 
-0000007e <__stop_program>:
-  7e:	ff cf       	rjmp	.-2      	; 0x7e <__stop_program>
+00000080 <__do_copy_data>:
+  80:	e8 e6       	ldi	r30, 0x68	; 104
+  82:	f0 e0       	ldi	r31, 0x00	; 0
+  84:	40 e0       	ldi	r20, 0x00	; 0
+  86:	17 c0       	rjmp	.+46     	; 0xb6 <__do_clear_bss+0x8>
+  88:	b5 91       	lpm	r27, Z+
+  8a:	a5 91       	lpm	r26, Z+
+  8c:	35 91       	lpm	r19, Z+
+  8e:	25 91       	lpm	r18, Z+
+  90:	05 91       	lpm	r16, Z+
+  92:	07 fd       	sbrc	r16, 7
+  94:	0c c0       	rjmp	.+24     	; 0xae <__do_clear_bss>
+  96:	95 91       	lpm	r25, Z+
+  98:	85 91       	lpm	r24, Z+
+  9a:	ef 01       	movw	r28, r30
+  9c:	f9 2f       	mov	r31, r25
+  9e:	e8 2f       	mov	r30, r24
+  a0:	05 90       	lpm	r0, Z+
+  a2:	0d 92       	st	X+, r0
+  a4:	a2 17       	cp	r26, r18
+  a6:	b3 07       	cpc	r27, r19
+  a8:	d9 f7       	brne	.-10     	; 0xa0 <__do_copy_data+0x20>
+  aa:	fe 01       	movw	r30, r28
+  ac:	04 c0       	rjmp	.+8      	; 0xb6 <__do_clear_bss+0x8>
+
+000000ae <__do_clear_bss>:
+  ae:	1d 92       	st	X+, r1
+  b0:	a2 17       	cp	r26, r18
+  b2:	b3 07       	cpc	r27, r19
+  b4:	e1 f7       	brne	.-8      	; 0xae <__do_clear_bss>
+  b6:	e4 37       	cpi	r30, 0x74	; 116
+  b8:	f4 07       	cpc	r31, r20
+  ba:	31 f7       	brne	.-52     	; 0x88 <__do_copy_data+0x8>
+  bc:	0e 94 0c 01 	call	0x218	; 0x218 <main>
+  c0:	0c 94 84 01 	jmp	0x308	; 0x308 <exit>
+
+000000c4 <_exit>:
+  c4:	f8 94       	cli
+
+000000c6 <__stop_program>:
+  c6:	ff cf       	rjmp	.-2      	; 0xc6 <__stop_program>
 
 Disassembly of section .text:
 
-000000de <__bad_interrupt>:
-  de:	0c 94 00 00 	jmp	0	; 0x0 <__TEXT_REGION_ORIGIN__>
+0000036c <__bad_interrupt>:
+ 36c:	0c 94 00 00 	jmp	0	; 0x0 <__TEXT_REGION_ORIGIN__>
 
 Disassembly of section .text.spi_init:
 
-00000080 <spi_init>:
+000002f2 <spi_init>:
 // FUnciones SPI
 // ======================================
 
 
 void spi_init(void) {
 	DDRB |= (1 << CS) | (1 << MOSI) | (1 << SCK); // SS, MOSI, SCK salidas
-  80:	84 b1       	in	r24, 0x04	; 4
-  82:	8c 62       	ori	r24, 0x2C	; 44
-  84:	84 b9       	out	0x04, r24	; 4
+ 2f2:	84 b1       	in	r24, 0x04	; 4
+ 2f4:	8c 62       	ori	r24, 0x2C	; 44
+ 2f6:	84 b9       	out	0x04, r24	; 4
 	DDRB &= ~(1 << MISO);                         // MISO entrada
-  86:	84 b1       	in	r24, 0x04	; 4
-  88:	8f 7e       	andi	r24, 0xEF	; 239
-  8a:	84 b9       	out	0x04, r24	; 4
+ 2f8:	84 b1       	in	r24, 0x04	; 4
+ 2fa:	8f 7e       	andi	r24, 0xEF	; 239
+ 2fc:	84 b9       	out	0x04, r24	; 4
 
 	SPCR = (1 << SPE) | (1 << MSTR)| (1 << SPR0); // Habilita SPI en modo maestro
-  8c:	81 e5       	ldi	r24, 0x51	; 81
-  8e:	8c bd       	out	0x2c, r24	; 44
+ 2fe:	81 e5       	ldi	r24, 0x51	; 81
+ 300:	8c bd       	out	0x2c, r24	; 44
 	SPSR = (1 << SPI2X);              // fosc/8
-  90:	81 e0       	ldi	r24, 0x01	; 1
-  92:	8d bd       	out	0x2d, r24	; 45
-  94:	08 95       	ret
+ 302:	81 e0       	ldi	r24, 0x01	; 1
+ 304:	8d bd       	out	0x2d, r24	; 45
+ 306:	08 95       	ret
 
 Disassembly of section .text.spi_transfer:
 
-000000c2 <spi_transfer>:
+00000340 <spi_transfer>:
 }
 
 uint8_t spi_transfer(uint8_t data) {
 	SPDR = data;
-  c2:	8e bd       	out	0x2e, r24	; 46
+ 340:	8e bd       	out	0x2e, r24	; 46
 	while (!(SPSR & (1 << SPIF)));
-  c4:	0d b4       	in	r0, 0x2d	; 45
-  c6:	07 fe       	sbrs	r0, 7
-  c8:	fd cf       	rjmp	.-6      	; 0xc4 <spi_transfer+0x2>
+ 342:	0d b4       	in	r0, 0x2d	; 45
+ 344:	07 fe       	sbrs	r0, 7
+ 346:	fd cf       	rjmp	.-6      	; 0x342 <spi_transfer+0x2>
 	return SPDR;
-  ca:	8e b5       	in	r24, 0x2e	; 46
+ 348:	8e b5       	in	r24, 0x2e	; 46
 }
-  cc:	08 95       	ret
+ 34a:	08 95       	ret
 
 Disassembly of section .text.SS_HIGH:
 
-000000ce <SS_HIGH>:
+0000034c <SS_HIGH>:
 
 void SS_HIGH(void) { PORTB |=  (1 << CS); }
-  ce:	85 b1       	in	r24, 0x05	; 5
-  d0:	84 60       	ori	r24, 0x04	; 4
-  d2:	85 b9       	out	0x05, r24	; 5
-  d4:	08 95       	ret
+ 34c:	85 b1       	in	r24, 0x05	; 5
+ 34e:	84 60       	ori	r24, 0x04	; 4
+ 350:	85 b9       	out	0x05, r24	; 5
+ 352:	08 95       	ret
 
 Disassembly of section .text.SS_LOW:
 
-000000d6 <SS_LOW>:
+00000354 <SS_LOW>:
 void SS_LOW(void)  { PORTB &= ~(1 << CS); }
-  d6:	85 b1       	in	r24, 0x05	; 5
-  d8:	8b 7f       	andi	r24, 0xFB	; 251
-  da:	85 b9       	out	0x05, r24	; 5
-  dc:	08 95       	ret
+ 354:	85 b1       	in	r24, 0x05	; 5
+ 356:	8b 7f       	andi	r24, 0xFB	; 251
+ 358:	85 b9       	out	0x05, r24	; 5
+ 35a:	08 95       	ret
+
+Disassembly of section .text.I2C_init:
+
+0000031e <I2C_init>:
+// FUnciones I2c
+// ======================================
+
+
+void I2C_init(void) {
+	TWSR = 0x00;            // Prescaler = 1
+ 31e:	10 92 b9 00 	sts	0x00B9, r1	; 0x8000b9 <__TEXT_REGION_LENGTH__+0x7f80b9>
+	TWBR = ((F_CPU / 100000UL) - 16) / 2;  // 100 kHz
+ 322:	88 e4       	ldi	r24, 0x48	; 72
+ 324:	80 93 b8 00 	sts	0x00B8, r24	; 0x8000b8 <__TEXT_REGION_LENGTH__+0x7f80b8>
+	TWCR = (1<<TWEN);       // Habilitar TWI
+ 328:	84 e0       	ldi	r24, 0x04	; 4
+ 32a:	80 93 bc 00 	sts	0x00BC, r24	; 0x8000bc <__TEXT_REGION_LENGTH__+0x7f80bc>
+ 32e:	08 95       	ret
+
+Disassembly of section .text.I2C_start:
+
+00000330 <I2C_start>:
+}
+
+void I2C_start(void) {
+	TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN); // TWI Interrupt Flag / TWI START Condition Bit / TWI Interrupt Enable
+ 330:	84 ea       	ldi	r24, 0xA4	; 164
+ 332:	80 93 bc 00 	sts	0x00BC, r24	; 0x8000bc <__TEXT_REGION_LENGTH__+0x7f80bc>
+	while(!(TWCR & (1<<TWINT))); // Espera a que salte TWINT
+ 336:	80 91 bc 00 	lds	r24, 0x00BC	; 0x8000bc <__TEXT_REGION_LENGTH__+0x7f80bc>
+ 33a:	88 23       	and	r24, r24
+ 33c:	e4 f7       	brge	.-8      	; 0x336 <I2C_start+0x6>
+}
+ 33e:	08 95       	ret
+
+Disassembly of section .text.I2C_stop:
+
+0000035c <I2C_stop>:
+
+void I2C_stop(void) {
+	TWCR = (1<<TWINT)|(1<<TWSTO)|(1<<TWEN); // TWSTO STOP Condition Bit
+ 35c:	84 e9       	ldi	r24, 0x94	; 148
+ 35e:	80 93 bc 00 	sts	0x00BC, r24	; 0x8000bc <__TEXT_REGION_LENGTH__+0x7f80bc>
+ 362:	08 95       	ret
+
+Disassembly of section .text.I2C_write:
+
+00000246 <I2C_write>:
+}
+
+uint8_t I2C_write(uint8_t v) {
+	TWDR = v;
+ 246:	80 93 bb 00 	sts	0x00BB, r24	; 0x8000bb <__TEXT_REGION_LENGTH__+0x7f80bb>
+	TWCR = (1<<TWINT)|(1<<TWEN);
+ 24a:	84 e8       	ldi	r24, 0x84	; 132
+ 24c:	80 93 bc 00 	sts	0x00BC, r24	; 0x8000bc <__TEXT_REGION_LENGTH__+0x7f80bc>
+	while(!(TWCR & (1<<TWINT)));
+ 250:	80 91 bc 00 	lds	r24, 0x00BC	; 0x8000bc <__TEXT_REGION_LENGTH__+0x7f80bc>
+ 254:	88 23       	and	r24, r24
+ 256:	e4 f7       	brge	.-8      	; 0x250 <I2C_write+0xa>
+	uint8_t s = TWSR & 0xF8;
+ 258:	80 91 b9 00 	lds	r24, 0x00B9	; 0x8000b9 <__TEXT_REGION_LENGTH__+0x7f80b9>
+ 25c:	88 7f       	andi	r24, 0xF8	; 248
+	// 0x18: SLA+W ACK, 0x28: DATA ACK  (Confirmacion  de que se encontro el esclavo o de que se escribio correctamente)
+	return (s == 0x18 || s == 0x28); 
+ 25e:	88 31       	cpi	r24, 0x18	; 24
+ 260:	21 f0       	breq	.+8      	; 0x26a <I2C_write+0x24>
+ 262:	88 32       	cpi	r24, 0x28	; 40
+ 264:	21 f4       	brne	.+8      	; 0x26e <I2C_write+0x28>
+ 266:	81 e0       	ldi	r24, 0x01	; 1
+ 268:	08 95       	ret
+ 26a:	81 e0       	ldi	r24, 0x01	; 1
+ 26c:	08 95       	ret
+ 26e:	80 e0       	ldi	r24, 0x00	; 0
+}
+ 270:	08 95       	ret
+
+Disassembly of section .text.pcf8574_autodetect:
+
+000001ca <pcf8574_autodetect>:
+
+
+// Sirve para detectar las posibles direcciones del modulo I2C
+void pcf8574_autodetect(void) {
+ 1ca:	cf 93       	push	r28
+ 1cc:	df 93       	push	r29
+	for (uint8_t a=0x20; a<=0x27; a++) {
+ 1ce:	c0 e2       	ldi	r28, 0x20	; 32
+ 1d0:	0d c0       	rjmp	.+26     	; 0x1ec <pcf8574_autodetect+0x22>
+		I2C_start();
+ 1d2:	0e 94 98 01 	call	0x330	; 0x330 <I2C_start>
+		uint8_t ok = I2C_write((a<<1) | 0); // write
+ 1d6:	8c 2f       	mov	r24, r28
+ 1d8:	88 0f       	add	r24, r24
+ 1da:	0e 94 23 01 	call	0x246	; 0x246 <I2C_write>
+ 1de:	d8 2f       	mov	r29, r24
+		I2C_stop();
+ 1e0:	0e 94 ae 01 	call	0x35c	; 0x35c <I2C_stop>
+		if (ok) PCF_ADDR = a;
+ 1e4:	d1 11       	cpse	r29, r1
+ 1e6:	c0 93 01 01 	sts	0x0101, r28	; 0x800101 <PCF_ADDR>
+}
+
+
+// Sirve para detectar las posibles direcciones del modulo I2C
+void pcf8574_autodetect(void) {
+	for (uint8_t a=0x20; a<=0x27; a++) {
+ 1ea:	cf 5f       	subi	r28, 0xFF	; 255
+ 1ec:	c8 32       	cpi	r28, 0x28	; 40
+ 1ee:	88 f3       	brcs	.-30     	; 0x1d2 <pcf8574_autodetect+0x8>
+ 1f0:	c8 e3       	ldi	r28, 0x38	; 56
+ 1f2:	0d c0       	rjmp	.+26     	; 0x20e <pcf8574_autodetect+0x44>
+		uint8_t ok = I2C_write((a<<1) | 0); // write
+		I2C_stop();
+		if (ok) PCF_ADDR = a;
+	}
+	for (uint8_t a=0x38; a<=0x3F; a++) {
+		I2C_start();
+ 1f4:	0e 94 98 01 	call	0x330	; 0x330 <I2C_start>
+		uint8_t ok = I2C_write((a<<1) | 0);
+ 1f8:	8c 2f       	mov	r24, r28
+ 1fa:	88 0f       	add	r24, r24
+ 1fc:	0e 94 23 01 	call	0x246	; 0x246 <I2C_write>
+ 200:	d8 2f       	mov	r29, r24
+		I2C_stop();
+ 202:	0e 94 ae 01 	call	0x35c	; 0x35c <I2C_stop>
+		if (ok) PCF_ADDR = a;
+ 206:	d1 11       	cpse	r29, r1
+ 208:	c0 93 01 01 	sts	0x0101, r28	; 0x800101 <PCF_ADDR>
+		I2C_start();
+		uint8_t ok = I2C_write((a<<1) | 0); // write
+		I2C_stop();
+		if (ok) PCF_ADDR = a;
+	}
+	for (uint8_t a=0x38; a<=0x3F; a++) {
+ 20c:	cf 5f       	subi	r28, 0xFF	; 255
+ 20e:	c0 34       	cpi	r28, 0x40	; 64
+ 210:	88 f3       	brcs	.-30     	; 0x1f4 <pcf8574_autodetect+0x2a>
+		uint8_t ok = I2C_write((a<<1) | 0);
+		I2C_stop();
+		if (ok) PCF_ADDR = a;
+	}
+	return 0; // no encontrado
+}
+ 212:	df 91       	pop	r29
+ 214:	cf 91       	pop	r28
+ 216:	08 95       	ret
+
+Disassembly of section .text.PCF8574_write:
+
+0000029e <PCF8574_write>:
+
+void PCF8574_write(uint8_t b) {
+ 29e:	cf 93       	push	r28
+ 2a0:	c8 2f       	mov	r28, r24
+	I2C_start();
+ 2a2:	0e 94 98 01 	call	0x330	; 0x330 <I2C_start>
+	I2C_write((PCF_ADDR<<1) | 0); // Direccion del modulo y 0 de lectura
+ 2a6:	80 91 01 01 	lds	r24, 0x0101	; 0x800101 <PCF_ADDR>
+ 2aa:	88 0f       	add	r24, r24
+ 2ac:	0e 94 23 01 	call	0x246	; 0x246 <I2C_write>
+	I2C_write(b); // Mandar el comando/data y si es escritura o lectura
+ 2b0:	8c 2f       	mov	r24, r28
+ 2b2:	0e 94 23 01 	call	0x246	; 0x246 <I2C_write>
+	I2C_stop();
+ 2b6:	0e 94 ae 01 	call	0x35c	; 0x35c <I2C_stop>
+}
+ 2ba:	cf 91       	pop	r28
+ 2bc:	08 95       	ret
+
+Disassembly of section .text.twi_lcd_4bit_send:
+
+000000e2 <twi_lcd_4bit_send>:
+	twi_lcd_cmd(0x01);
+}
+
+/* Function to Write 4-bit data to LCD */
+void twi_lcd_4bit_send(unsigned char x)
+{
+  e2:	cf 93       	push	r28
+  e4:	c8 2f       	mov	r28, r24
+	unsigned char temp = 0x00;					//--- temp variable for data operation
+	lcd &= 0x0F;								//--- Masking last four bit to prevent the RS, RW, EN, Backlight
+  e6:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+  ea:	8f 70       	andi	r24, 0x0F	; 15
+	temp = (x & 0xF0);							//--- Masking higher 4-Bit of Data and send it LCD
+  ec:	9c 2f       	mov	r25, r28
+  ee:	90 7f       	andi	r25, 0xF0	; 240
+	lcd |= temp;								//--- 4-Bit Data and LCD control Pin
+  f0:	89 2b       	or	r24, r25
+	lcd |= (0x04);								//--- Latching Data to LCD EN = 1
+  f2:	84 60       	ori	r24, 0x04	; 4
+  f4:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
+	PCF8574_write(lcd);							//--- Send Data From PCF8574 to LCD PORT
+  f8:	0e 94 4f 01 	call	0x29e	; 0x29e <PCF8574_write>
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+  fc:	85 e0       	ldi	r24, 0x05	; 5
+  fe:	8a 95       	dec	r24
+ 100:	f1 f7       	brne	.-4      	; 0xfe <twi_lcd_4bit_send+0x1c>
+ 102:	00 00       	nop
+	_delay_us(1);								//--- 1us Delay
+	lcd &= ~(0x04);								//--- Latching Complete
+ 104:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 108:	8b 7f       	andi	r24, 0xFB	; 251
+ 10a:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
+	PCF8574_write(lcd);							//--- Send Data From PCF8574 to LCD PORT
+ 10e:	0e 94 4f 01 	call	0x29e	; 0x29e <PCF8574_write>
+ 112:	8a e1       	ldi	r24, 0x1A	; 26
+ 114:	8a 95       	dec	r24
+ 116:	f1 f7       	brne	.-4      	; 0x114 <twi_lcd_4bit_send+0x32>
+ 118:	00 c0       	rjmp	.+0      	; 0x11a <twi_lcd_4bit_send+0x38>
+	_delay_us(5);								//--- 5us Delay to Complete Latching
+	temp = ((x & 0x0F)<<4);						//--- Masking Lower 4-Bit of Data and send it LCD
+ 11a:	80 e1       	ldi	r24, 0x10	; 16
+ 11c:	c8 9f       	mul	r28, r24
+ 11e:	90 01       	movw	r18, r0
+ 120:	11 24       	eor	r1, r1
+	lcd &= 0x0F;								//--- Masking last four bit to prevent the RS, RW, EN, Backlight
+ 122:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 126:	8f 70       	andi	r24, 0x0F	; 15
+	lcd |= temp;								//--- 4-Bit Data and LCD control Pin
+ 128:	82 2b       	or	r24, r18
+	lcd |= (0x04);								//--- Latching Data to LCD EN = 1
+ 12a:	84 60       	ori	r24, 0x04	; 4
+ 12c:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
+	PCF8574_write(lcd);							//--- Send Data From PCF8574 to LCD PORT
+ 130:	0e 94 4f 01 	call	0x29e	; 0x29e <PCF8574_write>
+ 134:	85 e0       	ldi	r24, 0x05	; 5
+ 136:	8a 95       	dec	r24
+ 138:	f1 f7       	brne	.-4      	; 0x136 <twi_lcd_4bit_send+0x54>
+ 13a:	00 00       	nop
+	_delay_us(1);								//--- 1us Delay
+	lcd &= ~(0x04);								//--- Latching Complete
+ 13c:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 140:	8b 7f       	andi	r24, 0xFB	; 251
+ 142:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
+	PCF8574_write(lcd);							//--- Send Data From PCF8574 to LCD PORT
+ 146:	0e 94 4f 01 	call	0x29e	; 0x29e <PCF8574_write>
+ 14a:	8a e1       	ldi	r24, 0x1A	; 26
+ 14c:	8a 95       	dec	r24
+ 14e:	f1 f7       	brne	.-4      	; 0x14c <twi_lcd_4bit_send+0x6a>
+ 150:	00 c0       	rjmp	.+0      	; 0x152 <twi_lcd_4bit_send+0x70>
+	_delay_us(5);								//--- 5us Delay to Complete Latching
+	
+}
+ 152:	cf 91       	pop	r28
+ 154:	08 95       	ret
+
+Disassembly of section .text.twi_lcd_cmd:
+
+000002da <twi_lcd_cmd>:
+
+
+
+/* Function to Write to LCD Command Register */
+void twi_lcd_cmd(const unsigned char x)
+{
+ 2da:	cf 93       	push	r28
+ 2dc:	c8 2f       	mov	r28, r24
+	lcd = 0x08;									//--- Enable Backlight Pin
+ 2de:	88 e0       	ldi	r24, 0x08	; 8
+ 2e0:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
+	lcd &= ~(0x01);								//--- Select Command Register By RS = 0
+	PCF8574_write(lcd);							//--- Send Data From PCF8574 to LCD PORT
+ 2e4:	0e 94 4f 01 	call	0x29e	; 0x29e <PCF8574_write>
+	twi_lcd_4bit_send(x);						//--- Function to Write 4-bit data to LCD
+ 2e8:	8c 2f       	mov	r24, r28
+ 2ea:	0e 94 71 00 	call	0xe2	; 0xe2 <twi_lcd_4bit_send>
+}
+ 2ee:	cf 91       	pop	r28
+ 2f0:	08 95       	ret
+
+Disassembly of section .text.twi_lcd_clear:
+
+00000364 <twi_lcd_clear>:
+}
+
+/* Function to Execute Clear LCD Command */
+void twi_lcd_clear()
+{
+	twi_lcd_cmd(0x01);
+ 364:	81 e0       	ldi	r24, 0x01	; 1
+ 366:	0e 94 6d 01 	call	0x2da	; 0x2da <twi_lcd_cmd>
+ 36a:	08 95       	ret
+
+Disassembly of section .text.twi_lcd_dwr:
+
+000002be <twi_lcd_dwr>:
+}
+
+
+/* Function to Write to LCD Command Register */
+void twi_lcd_dwr(unsigned char x)
+{
+ 2be:	cf 93       	push	r28
+ 2c0:	c8 2f       	mov	r28, r24
+	lcd |= 0x09;								//--- Enable Backlight Pin & Select Data Register By RS = 1
+ 2c2:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <__DATA_REGION_ORIGIN__>
+ 2c6:	89 60       	ori	r24, 0x09	; 9
+ 2c8:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
+	PCF8574_write(lcd);							//--- Send Data From PCF8574 to LCD PORT
+ 2cc:	0e 94 4f 01 	call	0x29e	; 0x29e <PCF8574_write>
+	twi_lcd_4bit_send(x);						//--- Function to Write 4-bit data to LCD
+ 2d0:	8c 2f       	mov	r24, r28
+ 2d2:	0e 94 71 00 	call	0xe2	; 0xe2 <twi_lcd_4bit_send>
+}
+ 2d6:	cf 91       	pop	r28
+ 2d8:	08 95       	ret
+
+Disassembly of section .text.twi_lcd_msg:
+
+00000272 <twi_lcd_msg>:
+
+/* Function to Send String of Data */
+void twi_lcd_msg(const char *c)
+{
+ 272:	cf 92       	push	r12
+ 274:	df 92       	push	r13
+ 276:	ef 92       	push	r14
+ 278:	6b 01       	movw	r12, r22
+ 27a:	e8 2e       	mov	r14, r24
+	while (*c != '\0')							//--- Check Pointer for Null
+ 27c:	06 c0       	rjmp	.+12     	; 0x28a <twi_lcd_msg+0x18>
+	twi_lcd_dwr(*c++);							//--- Send the String of Data
+ 27e:	9f ef       	ldi	r25, 0xFF	; 255
+ 280:	c9 1a       	sub	r12, r25
+ 282:	d9 0a       	sbc	r13, r25
+ 284:	e9 0a       	sbc	r14, r25
+ 286:	0e 94 5f 01 	call	0x2be	; 0x2be <twi_lcd_dwr>
+}
+
+/* Function to Send String of Data */
+void twi_lcd_msg(const char *c)
+{
+	while (*c != '\0')							//--- Check Pointer for Null
+ 28a:	f6 01       	movw	r30, r12
+ 28c:	84 91       	lpm	r24, Z
+ 28e:	e7 fc       	sbrc	r14, 7
+ 290:	80 81       	ld	r24, Z
+ 292:	81 11       	cpse	r24, r1
+ 294:	f4 cf       	rjmp	.-24     	; 0x27e <twi_lcd_msg+0xc>
+	twi_lcd_dwr(*c++);							//--- Send the String of Data
+}
+ 296:	ef 90       	pop	r14
+ 298:	df 90       	pop	r13
+ 29a:	cf 90       	pop	r12
+ 29c:	08 95       	ret
+
+Disassembly of section .text.twi_lcd_init:
+
+00000156 <twi_lcd_init>:
+}
+
+/* Function to Initialize LCD in 4-Bit Mode, Cursor Setting and Row Selection */
+void twi_lcd_init()
+{
+	pcf8574_autodetect();
+ 156:	0e 94 e5 00 	call	0x1ca	; 0x1ca <pcf8574_autodetect>
+	lcd = 0x04;						//--- EN = 1 for 25us initialize Sequence
+ 15a:	84 e0       	ldi	r24, 0x04	; 4
+ 15c:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <__DATA_REGION_ORIGIN__>
+	PCF8574_write(lcd);
+ 160:	0e 94 4f 01 	call	0x29e	; 0x29e <PCF8574_write>
+ 164:	25 e8       	ldi	r18, 0x85	; 133
+ 166:	2a 95       	dec	r18
+ 168:	f1 f7       	brne	.-4      	; 0x166 <twi_lcd_init+0x10>
+ 16a:	00 00       	nop
+	_delay_us(25);
+	twi_lcd_cmd(0x03);				//--- Initialize Sequence
+ 16c:	83 e0       	ldi	r24, 0x03	; 3
+ 16e:	0e 94 6d 01 	call	0x2da	; 0x2da <twi_lcd_cmd>
+	twi_lcd_cmd(0x03);				//--- Initialize Sequence
+ 172:	83 e0       	ldi	r24, 0x03	; 3
+ 174:	0e 94 6d 01 	call	0x2da	; 0x2da <twi_lcd_cmd>
+	twi_lcd_cmd(0x03);				//--- Initialize Sequence
+ 178:	83 e0       	ldi	r24, 0x03	; 3
+ 17a:	0e 94 6d 01 	call	0x2da	; 0x2da <twi_lcd_cmd>
+	twi_lcd_cmd(0x02);				//--- Return to Home
+ 17e:	82 e0       	ldi	r24, 0x02	; 2
+ 180:	0e 94 6d 01 	call	0x2da	; 0x2da <twi_lcd_cmd>
+	twi_lcd_cmd(0x28);				//--- 4-Bit Mode 2 - Row Select
+ 184:	88 e2       	ldi	r24, 0x28	; 40
+ 186:	0e 94 6d 01 	call	0x2da	; 0x2da <twi_lcd_cmd>
+	twi_lcd_cmd(0x0F);				//--- Cursor on, Blinking on
+ 18a:	8f e0       	ldi	r24, 0x0F	; 15
+ 18c:	0e 94 6d 01 	call	0x2da	; 0x2da <twi_lcd_cmd>
+	twi_lcd_cmd(0x01);				//--- Clear LCD
+ 190:	81 e0       	ldi	r24, 0x01	; 1
+ 192:	0e 94 6d 01 	call	0x2da	; 0x2da <twi_lcd_cmd>
+	twi_lcd_cmd(0x06);				//--- Auto increment Cursor
+ 196:	86 e0       	ldi	r24, 0x06	; 6
+ 198:	0e 94 6d 01 	call	0x2da	; 0x2da <twi_lcd_cmd>
+	twi_lcd_cmd(0x80);				//--- Row 1 Column 1 Address
+ 19c:	80 e8       	ldi	r24, 0x80	; 128
+ 19e:	0e 94 6d 01 	call	0x2da	; 0x2da <twi_lcd_cmd>
+	twi_lcd_msg("Initializing...");	//--- String Send to LCD
+ 1a2:	68 ec       	ldi	r22, 0xC8	; 200
+ 1a4:	70 e0       	ldi	r23, 0x00	; 0
+ 1a6:	80 e0       	ldi	r24, 0x00	; 0
+ 1a8:	0e 94 39 01 	call	0x272	; 0x272 <twi_lcd_msg>
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+ 1ac:	8f ef       	ldi	r24, 0xFF	; 255
+ 1ae:	93 ed       	ldi	r25, 0xD3	; 211
+ 1b0:	20 e3       	ldi	r18, 0x30	; 48
+ 1b2:	81 50       	subi	r24, 0x01	; 1
+ 1b4:	90 40       	sbci	r25, 0x00	; 0
+ 1b6:	20 40       	sbci	r18, 0x00	; 0
+ 1b8:	e1 f7       	brne	.-8      	; 0x1b2 <twi_lcd_init+0x5c>
+ 1ba:	00 c0       	rjmp	.+0      	; 0x1bc <twi_lcd_init+0x66>
+ 1bc:	00 00       	nop
+	_delay_ms(1000);				//--- 1s Delay
+	twi_lcd_clear();				//--- Clear LCD
+ 1be:	0e 94 b2 01 	call	0x364	; 0x364 <twi_lcd_clear>
+	twi_lcd_cmd(0x80);				//--- Row 1 Column 1 Address
+ 1c2:	80 e8       	ldi	r24, 0x80	; 128
+ 1c4:	0e 94 6d 01 	call	0x2da	; 0x2da <twi_lcd_cmd>
+ 1c8:	08 95       	ret
 
 Disassembly of section .text.main:
 
-00000096 <main>:
+00000218 <main>:
 
-
+unsigned char lcd = 0x00;	
 
 int main(void)
 {
 	sei();
-  96:	78 94       	sei
+ 218:	78 94       	sei
 	
-	spi_init();
-  98:	0e 94 40 00 	call	0x80	; 0x80 <__data_load_end>
+	spi_init();	
+ 21a:	0e 94 79 01 	call	0x2f2	; 0x2f2 <spi_init>
+	//pruebra de SPI
 	SS_LOW();
-  9c:	0e 94 6b 00 	call	0xd6	; 0xd6 <SS_LOW>
+ 21e:	0e 94 aa 01 	call	0x354	; 0x354 <SS_LOW>
 	spi_transfer(0xF1);
-  a0:	81 ef       	ldi	r24, 0xF1	; 241
-  a2:	0e 94 61 00 	call	0xc2	; 0xc2 <spi_transfer>
+ 222:	81 ef       	ldi	r24, 0xF1	; 241
+ 224:	0e 94 a0 01 	call	0x340	; 0x340 <spi_transfer>
 	SS_HIGH();
-  a6:	0e 94 67 00 	call	0xce	; 0xce <SS_HIGH>
-  aa:	ff cf       	rjmp	.-2      	; 0xaa <main+0x14>
+ 228:	0e 94 a6 01 	call	0x34c	; 0x34c <SS_HIGH>
+	
+	
+	I2C_init();
+ 22c:	0e 94 8f 01 	call	0x31e	; 0x31e <I2C_init>
+	twi_lcd_init();
+ 230:	0e 94 ab 00 	call	0x156	; 0x156 <twi_lcd_init>
+	
+	
+    while(1)
+    {
+       //--- Select 2nd Row
+       twi_lcd_cmd(0xC0);
+ 234:	80 ec       	ldi	r24, 0xC0	; 192
+ 236:	0e 94 6d 01 	call	0x2da	; 0x2da <twi_lcd_cmd>
+       //--- Send a String to LCD
+       twi_lcd_msg("Linea 2!!");
+ 23a:	68 ed       	ldi	r22, 0xD8	; 216
+ 23c:	70 e0       	ldi	r23, 0x00	; 0
+ 23e:	80 e0       	ldi	r24, 0x00	; 0
+ 240:	0e 94 39 01 	call	0x272	; 0x272 <twi_lcd_msg>
+ 244:	f7 cf       	rjmp	.-18     	; 0x234 <main+0x1c>
 
 Disassembly of section .text.__dummy_fini:
 
-000000e6 <_fini>:
-  e6:	08 95       	ret
+00000374 <_fini>:
+ 374:	08 95       	ret
 
 Disassembly of section .text.__dummy_funcs_on_exit:
 
-000000e8 <__funcs_on_exit>:
-  e8:	08 95       	ret
+00000376 <__funcs_on_exit>:
+ 376:	08 95       	ret
 
 Disassembly of section .text.__dummy_simulator_exit:
 
-000000ea <__simulator_exit>:
-  ea:	08 95       	ret
+00000378 <__simulator_exit>:
+ 378:	08 95       	ret
 
 Disassembly of section .text.exit:
 
-000000ac <exit>:
-  ac:	ec 01       	movw	r28, r24
-  ae:	0e 94 74 00 	call	0xe8	; 0xe8 <__funcs_on_exit>
-  b2:	0e 94 73 00 	call	0xe6	; 0xe6 <_fini>
-  b6:	ce 01       	movw	r24, r28
-  b8:	0e 94 75 00 	call	0xea	; 0xea <__simulator_exit>
-  bc:	ce 01       	movw	r24, r28
-  be:	0e 94 71 00 	call	0xe2	; 0xe2 <_Exit>
+00000308 <exit>:
+ 308:	ec 01       	movw	r28, r24
+ 30a:	0e 94 bb 01 	call	0x376	; 0x376 <__funcs_on_exit>
+ 30e:	0e 94 ba 01 	call	0x374	; 0x374 <_fini>
+ 312:	ce 01       	movw	r24, r28
+ 314:	0e 94 bc 01 	call	0x378	; 0x378 <__simulator_exit>
+ 318:	ce 01       	movw	r24, r28
+ 31a:	0e 94 b8 01 	call	0x370	; 0x370 <_Exit>
 
 Disassembly of section .text._Exit:
 
-000000e2 <_Exit>:
-  e2:	0e 94 3e 00 	call	0x7c	; 0x7c <_exit>
+00000370 <_Exit>:
+ 370:	0e 94 62 00 	call	0xc4	; 0xc4 <_exit>
