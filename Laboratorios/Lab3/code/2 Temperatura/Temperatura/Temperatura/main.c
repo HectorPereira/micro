@@ -67,7 +67,7 @@ void uart_print(const char *s);          // Envía una cadena de texto
 void add_string(char *s, char c);
 
 
-char Chardos(void);                      // Lee un carácter del buffer RX (no bloqueante)
+char Chardos(void);                      // Lee carácter del buffer RX (no bloqueante)
 bool usart_readstring(char *dst, uint8_t cap); // Lee una línea de texto hasta '\n'
 
 // Conversión y utilidades
@@ -80,8 +80,7 @@ uint16_t adc_read_blocking_adif(void);   // Realiza lectura ADC bloqueante (espe
 // Control de temperatura
 void enviar_temperatura(uint16_t tmin, uint16_t tmax); // Envía límites de temperatura por UART
 void cambiar_rango(uint16_t *tmin, uint16_t *tmax);    // Permite modificar los límites de temperatura
-void pedir_u16_linea(const char *prompt, uint16_t *out,
-                            uint16_t vmin, uint16_t vmax); // Solicita un valor numérico por UART y valida el rango
+void pedir_u16_linea(const char *prompt, uint16_t *out, uint16_t vmin, uint16_t vmax); // Solicita un valor numérico por UART y valida el rango
 
 
 // ----------------------------------
@@ -128,11 +127,9 @@ int main(void) {
 			string_to_send[0] = '\0';
 			uint16_t div = 1;
 
-<<<<<<< HEAD
 			adc = adc_read_blocking_adif();     // Lee ADC
 			tC = (adc * 500.0f) / 1023.0f;      // Convierte a °C (LM35)
 			valor = tC;
-=======
 		if (tC <= (tC2 + (tC2 / 12))) {
 			heater_on = 1;              // por debajo del m�nimo -> encender
 			Ventilador_off();
@@ -157,7 +154,6 @@ int main(void) {
 			else if (d_t > 10)  pwm2 = 125;
 			else if (d_t > 5)   pwm2 = 50;
 			else                pwm2 = 25;
->>>>>>> test
 
 			// Calcula divisor para conversión a caracteres
 			while (valor / div >= 10) {
@@ -228,20 +224,20 @@ void Init_adc(void){
 	DIDR0  = (1 << ADC0D); // Desabilitado la entrada Digital
 }
 void init_timer(void) {
-	cli();                      // Deshabilita interrupciones globales (opcional)
+	cli();                      // Deshabilita interrupciones globales 
 	TCCR1A = 0;                 // Modo normal (WGM13:0 = 0)
 	TCCR1B = 0;
 	TCNT1  = T1_PRELOAD;        // Carga inicial para un período de ~1 s
 	TIMSK1 = (1 << TOIE1);      // Habilita interrupción por desbordamiento
 	TCCR1B = (1 << CS12) | (1 << CS10);  // Prescaler = 1024
-	// sei();                   // Habilita interrupciones globales (si se desea aquí)
+	// sei();                   // Habilita interrupciones globales 
 }
 void medicion(void){
 	contolar = 1;
 }
 void Init_ventilador(void) {
 	sbi(VENT_DDR, VENT_PIN);   // como salida
-	sbi(VENT_PORT, VENT_PIN);  // encender (activo en alto)
+	sbi(VENT_PORT, VENT_PIN);  // encender 
 }
 void Ventilador_on(void)  { sbi(VENT_PORT, VENT_PIN); }
 void Ventilador_off(void) { cbi(VENT_PORT, VENT_PIN); }

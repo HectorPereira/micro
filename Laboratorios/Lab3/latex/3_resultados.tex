@@ -192,20 +192,6 @@ El procesamiento del evento, combinado con el control de temporización por \tex
 
 \subsection{Cerradura}
 
-\subsubsection{Simulación}
-
-La simulación del módulo \textit{Cerradura} se realizó empleando el protocolo de comunicación \textbf{SPI}, debido a las limitaciones del entorno virtual para emular el lector RFID RC522. En este caso, los datos del identificador de tarjeta (\texttt{UID}) se introdujeron manualmente para verificar el funcionamiento lógico del sistema.
-\vspace{1em}
-
-A pesar de no disponer del escaneo físico del lector, la simulación permitió comprobar el proceso completo de transmisión de datos, validación de credenciales y activación de los indicadores luminosos, confirmando la correcta interpretación de las órdenes por parte del microcontrolador.
-
-% \begin{figure}[H]
-% \centering
-% \includegraphics[width=0.8\linewidth]{anexos/5 Cerradura/Simulacion_SPI.png}
-% \caption{Simulación del módulo \textit{Cerradura} en Proteus, empleando comunicación SPI para la transmisión del UID.}
-% \label{fig:cerradura_spi}
-% \end{figure}
-
 \subsubsection{Almacenamiento no volátil}
 
 El sistema demostró un funcionamiento confiable en el almacenamiento persistente del identificador autorizado dentro de la memoria \textbf{EEPROM} del \texttt{ATmega328P}.
@@ -214,12 +200,7 @@ Durante las pruebas, se verificó que tras registrar una tarjeta, su \texttt{UID
 
 Esta característica garantiza la autenticidad del proceso de validación, permitiendo que el sistema reconozca únicamente la tarjeta registrada y deniegue el acceso a cualquier otra.
 
-% \begin{figure}[H]
-% \centering
-% \includegraphics[width=0.7\linewidth]{anexos/5 Cerradura/EEPROM.png}
-% \caption{Lectura del identificador de la tarjeta almacenado en la memoria EEPROM del microcontrolador.}
-% \label{fig:cerradura_eeprom}
-% \end{figure}
+
 
 \subsubsection{Comunicación vía SPI}
 
@@ -229,12 +210,6 @@ En la simulación, los datos se visualizaron correctamente en las líneas \textt
 
 Este resultado confirmó la correcta configuración de los registros \texttt{SPCR} y \texttt{SPSR}, así como la sincronización maestro–esclavo en el intercambio de información.
 
-% \begin{figure}[H]
-% \centering
-% \includegraphics[width=0.8\linewidth]{anexos/5 Cerradura/SPI_Senal.png}
-% \caption{Captura de la transmisión SPI entre el microcontrolador y el módulo RC522, mostrando la secuencia de bits del identificador de tarjeta.}
-% \label{fig:cerradura_spi_senal}
-% \end{figure}
 
 \subsubsection{Indicaciones del sistema}
 
@@ -246,9 +221,18 @@ Además, el \textbf{buzzer de alerta} emite un tono característico en los inten
 Al registrar una nueva tarjeta, el microcontrolador sobrescribe el valor anterior almacenado en EEPROM, garantizando la actualización segura de la credencial.
 Este comportamiento evidencia la robustez del manejo de memoria no volátil y la fiabilidad del algoritmo de control implementado.
 
-% \begin{figure}[H]
-% \centering
-% \includegraphics[width=0.75\linewidth]{anexos/5 Cerradura/Montaje.jpg}
-% \caption{Montaje físico del módulo \textit{Cerradura}, con LEDs indicadores, buzzer y lector RFID RC522.}
-% \label{fig:montaje_cerradura}
-% \end{figure}
+
+\subsection{Simulacion en proteus - SPI debuger}
+
+Para la simulación en \textit{Proteus} fue necesario emplear un código alternativo, dado que el entorno no permite la lectura directa del módulo \textit{RFID RC522}. Por esta razón, se optó por simular exclusivamente el protocolo \textit{SPI}, implementando una versión simplificada del programa que solicita y recibe datos a través de dicho bus, omitiendo la configuración inicial del lector. 
+
+Esta variante del código fue desarrollada con fines de verificación y comprensión del funcionamiento maestro–esclavo del protocolo \textit{SPI}, y se encuentra disponible en el repositorio del proyecto para su consulta. La Figura~\ref{fig:a} muestra la simulación implementada en el entorno \textit{Proteus}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\linewidth]{anexos/Marco Teorico/SImulacion SPI.jpg}
+\caption{Simulacion de contraseñas - SPI debuger.}
+\label{fig:a}
+
+\end{figure}
+

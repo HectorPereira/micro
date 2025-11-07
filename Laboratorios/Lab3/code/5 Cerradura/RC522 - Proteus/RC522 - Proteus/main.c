@@ -1,190 +1,106 @@
-char    serialBuffer[TX_BUFFER_SIZE];  // Buffer de transmisi�n UART
-uint8_t serialReadPos  = 0;            // Posici�n de lectura en buffer TX
-uint8_t serialWritePos = 0;            // Posici�n de escritura en buffer TX
-
-char    rxBuffer[RX_BUFFER_SIZE];      // Buffer de recepci�n UART
-uint8_t rxReadPos  = 0;                // Posici�n de lectura en buffer RX
-uint8_t rxWritePos = 0;                // Posici�n de escritura en buffer RX
-
-// Variables generales del sistema
-uint8_t uid[16];             // UID le�do desde la tarjeta RFID
-uint8_t estado = 0;          // Estado general del sistema
-static uint8_t PCF_ADDR = 0x27;  // Direcci�n I2C del expansor PCF8574 (por defecto)
-char c = '\0';               // Variable temporal para lectura UART
-uint8_t C = 0;      // Variable auxiliar, 0..3 seg�n selecci�n (opcional)
+#define F_CPU 16000000UL
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <util/twi.h>
 
 
+// ======================================
+// FUNCIONES Y PINES LED 
+// ======================================
 
-// Declaraci�n externa del UID almacenado en EEPROM
-extern uint8_t EEMEM ee_uid[UID_LEN];
+#define LED_G PORTC0
+#define LED_R PORTC1
+
+void INIT_LED(){
+	DDRC |= (1 << LED_G) | (1 << LED_R);
+	PORTC |= (1 << LED_G);
+	PORTC &= ~(1 << LED_R);
+}
 
 
+// Control LCD I2C (PCF8574)
+#define LCD_EN          0x04   // Enable
+#define LCD_RW          0x02   // Read/Write
+#define LCD_RS          0x01   // Register Select
+#define LCD_BACKLIGHT   0x08   // Retroiluminación
+static uint8_t PCF_ADDR = 0x27;
 
-// --------------------------------------
-// Prototipos
-// --------------------------------------
+// ======================================
+// CONFIGURACIÓN UART
+// ======================================
+#define BAUD           9600UL
+#define UBRR_VALUE     ((F_CPU/16/BAUD) - 1)
+#define TX_BUFFER_SIZE 128
+#define RX_BUFFER_SIZE 128
 
+volatile char    serialBuffer[TX_BUFFER_SIZE];
+volatile uint8_t serialReadPos  = 0;
+volatile uint8_t serialWritePos = 0;
 
+volatile char    rxBuffer[RX_BUFFER_SIZE];
+volatile uint8_t rxReadPos  = 0;
+volatile uint8_t rxWritePos = 0;
 
-
-// Control de estado e indicadores
-void init_leds(void);
-
-// Comunicaci�n SPI
-void spi_init(void);
-
-// Comunicaci�n UART
+// ======================================
+// PROTOTIPOS
+// ======================================
 void uart_init(unsigned int ubrr);
 void uart_send(char c);
 void uart_print(const char *s);
 void uart_print_hex(uint8_t val);
-void serialWrite(const char *s);
 char Chardos(void);
+void serialWrite(const char *s);
 
+void spi_init(void);
+uint8_t spi_transfer(uint8_t data);
+void SS_HIGH(void);
+void SS_LOW(void);
 
-// Comunicaci�n I2C
-void I2C_start(void);
-void I2C_stop(void);
-uint8_t I2C_write(uint8_t v);
+// ======================================
+// INTERRUPCIONES UART
+// ======================================
 
-// Control del LCD (I2C)
-uint8_t nibble_to_bus(uint8_t nibble);
-uint8_t pcf8574_autodetect(void);
-void pcf8574_write(uint8_t b);
-void lcd_strobe(uint8_t data);
-void lcd_write4(uint8_t nibble, uint8_t rs);
-void lcd_send(uint8_t value, uint8_t rs);
-void lcd_cmd(uint8_t c);
-void lcd_data(uint8_t d);
-void lcd_clear(void);
-void lcd_set_cursor(uint8_t col, uint8_t row);
-void lcd_print(const char *s);
-void lcd_init(void);
-void lcd_msg2(const char* l1, const char* l2);
-
-// ---------------------------------------
-// ISRs
-// ---------------------------------------
-
-// Interrupcion para detectar los botones
-
-ISR(PCINT1_vect) {
-	if  ((1<<PORTC0) == 0 ){        // PC0 presionado
-		c = '1';
-		} else if ((1<<PORTC1) == 0 ) { // PC1 presionado
-		c = '2';
-		} else if ((1<<PORTC2) == 0 ) { // PC2 presionado
-		c = '3';
-		} else {
-		c = 0;                          // ninguno
-	}
-}
-
-// Salta cada vez que UDR0 se llena.
-
-ISR(USART_RX_vect){
+// RX Complete
+ISR(USART_RX_vect) {
 	rxBuffer[rxWritePos] = UDR0;
 	rxWritePos++;
-
 	if (rxWritePos >= RX_BUFFER_SIZE)
-	{
-		rxWritePos = 0;
-	}
+	rxWritePos = 0;
 }
 
-ISR(USART_UDRE_vect){
-	if (serialReadPos != serialWritePos){
+
+// UDRE (Data Register Empty)
+ISR(USART_UDRE_vect) {
+	if (serialReadPos != serialWritePos) {
 		UDR0 = serialBuffer[serialReadPos];
 		serialReadPos = (serialReadPos + 1) % TX_BUFFER_SIZE;
 		} else {
-		UCSR0B &= ~(1 << UDRIE0);  // nada mas que enviar
+		UCSR0B &= ~(1 << UDRIE0); // Nada más que enviar
 	}
 }
 
+// ======================================
+// FUNCIONES UART
+// ======================================
 
-// --------------------------------------
-// Programa principal
-// --------------------------------------
-
-
-int main(void){
-	sei();
-	uart_init(UBRR_VALUE);
-	UCSR0B |= (1<<RXCIE0); // Se habilita antes porque el resto de funciones lo utilizan
-
-	I2C_init();
-	spi_init();
-	init_leds();
-	lcd_init();
-	
-	guardar_uid(0);
-	uart_print("\r\n1) Leer y comparar tarjeta\r\n2) Registrar nueva tarjeta\r\n3) Borrar tarjeta\r\n");
-	uart_print("> ");
-	
-	while(1){
-		// esperar un carcter del buffer RX
-		c = '\0';
-		c = Chardos();            // UART no bloqueante
-		if (c != '\0') {
-			_delay_ms(1); // respiro
-			
-			lcd_msg2("Acerque su", "tarjeta");
-			uart_print("Acerce la tarjeta.\r\n");
-			bool ok1 = false;
-			if (c == '1') {
-				lcd_msg2("Acerque su", "tarjeta");
-				uart_print("Acerce la tarjeta.\r\n");
-				SS_LOW();
-				uint8_t datos[4];
-				for(uint8_t i=0;i<4;i++){
-					SPDR=0xFF;
-					while(!(SPSR&(1<<SPIF)));
-					datos[i]=SPDR; // Lectura de mas de un dato, si leo uno solo recibe basura
-				}
-				SS_HIGH();
-				for(uint8_t i=0;i<4;i++){
-					uart_print_hex(datos[i]);
-				}
-			}
-			else if (c == '2') {
-				lcd_msg2("Acerque su", "tarjeta");
-				
-				uart_print("Acerque la tarjeta a registrar...\r\n");
-			}
-			else if (c == '3'){
-				uart_print("se borro exitosamente");
-				lcd_msg2("Se borro", "exitosamente");
-				guardar_uid(0);
-			}
-			uart_print("> ");
-		}
-	}
-}
+static inline uint8_t nibble_to_bus(uint8_t nibble) { return (nibble << 4); } // nibble en P4..P7
 
 
-// --------------------------------------
-// Funciones
-// --------------------------------------
-
-
-
-
-void init_leds(){
-	DDRD |= (1<<DDD6) | (1<<DDD7);                 // PD6 y PD7 salidas
-	PORTD &= ~((1<<PORTD6) | (1<<PORTD7));         // ambos en 0
-	// Estado inicial: NO tarjeta -> PD6 = 1, PD7 = 0
-	PORTD |= (1<<PORTD6);
-}
 
 void uart_init(unsigned int ubrr) {
-	UBRR0H = (char)(ubrr>>8);
+	UBRR0H = (char)(ubrr >> 8);
 	UBRR0L = (char)ubrr;
-	UCSR0B = (1<<TXEN0) | (1<<RXEN0);
-	UCSR0C = (1<<UCSZ01) | (1<<UCSZ00);
+	UCSR0B = (1 << TXEN0) | (1 << RXEN0) | (1 << RXCIE0);
+	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00); // 8 bits
 }
 
 void uart_send(char c) {
-	while (!(UCSR0A & (1<<UDRE0)));
+	while (!(UCSR0A & (1 << UDRE0)));
 	UDR0 = c;
 }
 
@@ -194,70 +110,67 @@ void uart_print(const char *s) {
 
 void uart_print_hex(uint8_t val) {
 	char buf[6];
-	sprintf(buf, "0x%02X", val);
+	sprintf(buf, "0x%02X ", val);
 	uart_print(buf);
 }
 
-void spi_init(void) {
-	DDRB |= (1<<CS)|(1<<MOSI)|(1<<SCK); // SS, MOSI, SCK salidas
-	DDRB &= ~(1<<MISO); // MISO entrada
-
-	SPCR = (1<<SPE)|(1<<MSTR); // Configuracion de maestro para el Arduino
-	SPSR = (1<<SPI2X); // fosc/8
-}
-
-void serialWrite(const char *s){
-	for (uint8_t i = 0; i < (uint8_t)strlen(s); i++){
-		serialBuffer[serialWritePos] = s[i];
-		serialWritePos = (serialWritePos + 1) % TX_BUFFER_SIZE;
-	}
-	UCSR0B |= (1 << UDRIE0);   // habilita ISR UDRE
-}
-
-char Chardos(void){
+char Chardos(void) {
 	char ret = '\0';
-	if (rxReadPos != rxWritePos)
-	{
+	if (rxReadPos != rxWritePos) {
 		ret = rxBuffer[rxReadPos];
 		rxReadPos++;
-		
 		if (rxReadPos >= RX_BUFFER_SIZE)
-		{
-			rxReadPos = 0;
-		}
+		rxReadPos = 0;
 	}
 	return ret;
 }
 
-void I2C_init(void) {
-	TWSR = 0x00;            // Prescaler = 1
-	TWBR = ((F_CPU / 100000UL) - 16) / 2;  // 100 kHz --> 72
-	TWCR = (1<<TWEN);       // Habilitar TWI para usar SDA y SCL
+
+
+// ======================================
+// FUNCIONES SPI
+// ======================================
+
+#define CS   PB2
+#define MOSI PB3
+#define MISO PB4
+#define SCK  PB5
+
+void spi_init(void) {
+	DDRB |= (1 << CS) | (1 << MOSI) | (1 << SCK); // SS, MOSI, SCK salidas
+	DDRB &= ~(1 << MISO);                         // MISO entrada
+
+	SPCR = (1 << SPE) | (1 << MSTR)| (1 << SPR0); // Habilita SPI en modo maestro
+	SPSR = (1 << SPI2X);              // fosc/8
 }
 
-void I2C_start(void) {
-	TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN); // Condicion de start de I2C --> TWSTA
-	while(!(TWCR & (1<<TWINT))); // Esperar a que termine la accion
+uint8_t spi_transfer(uint8_t data) {
+	SPDR = data;
+	while (!(SPSR & (1 << SPIF)));
+	return SPDR;
 }
 
-void I2C_stop(void) {
-	TWCR = (1<<TWINT)|(1<<TWSTO)|(1<<TWEN); // TWSTO para terminar
-}
+void SS_HIGH(void) { PORTB |=  (1 << CS); }
+void SS_LOW(void)  { PORTB &= ~(1 << CS); }
 
-uint8_t I2C_write(uint8_t v) {
-	TWDR = v; // BYTE de datos a transmitir ya echo para escritura
+static inline void I2C_start(void) {
+	TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN);
+	while(!(TWCR & (1<<TWINT)));
+}
+static inline void I2C_stop(void) {
+	TWCR = (1<<TWINT)|(1<<TWSTO)|(1<<TWEN);
+}
+static inline uint8_t I2C_write(uint8_t v) {
+	TWDR = v;
 	TWCR = (1<<TWINT)|(1<<TWEN);
-	while(!(TWCR & (1<<TWINT))); // Esperar a que termine la accion
-	uint8_t s = TWSR & 0xF8; 	// 0x18: SLA+W ACK, 0x28: DATA ACK  (Verifica si el esclavo acepto la escritura o si existe)
-	if (s == 0x18 || s == 0x28){
-		return true;
-	}
-	else{
-		return false;
-	}
+	while(!(TWCR & (1<<TWINT)));
+	uint8_t s = TWSR & 0xF8;
+	// 0x18: SLA+W ACK, 0x28: DATA ACK  (lo suficiente para escritura)
+	return (s == 0x18 || s == 0x28);
 }
 
-uint8_t pcf8574_autodetect(void) { // Funcion para detectar el esclavo
+
+static uint8_t pcf8574_autodetect(void) {
 	for (uint8_t a=0x20; a<=0x27; a++) {
 		I2C_start();
 		uint8_t ok = I2C_write((a<<1) | 0); // write
@@ -272,59 +185,52 @@ uint8_t pcf8574_autodetect(void) { // Funcion para detectar el esclavo
 	}
 	return 0; // no encontrado
 }
-
-void pcf8574_write(uint8_t b) {
+static inline void pcf8574_write(uint8_t b) {
 	I2C_start();
 	I2C_write((PCF_ADDR<<1) | 0);
 	I2C_write(b);
 	I2C_stop();
 }
 
-void lcd_strobe(uint8_t data) {
+static inline void lcd_strobe(uint8_t data) {
 	// Pulso en EN con BL siempre activo
 	pcf8574_write(data | LCD_EN | LCD_BACKLIGHT);
 	_delay_us(1);
 	pcf8574_write((data & ~LCD_EN) | LCD_BACKLIGHT);
 	_delay_us(50); // tiempo m?nimo entre nibbles
 }
-
-void lcd_write4(uint8_t nibble, uint8_t rs) {
+static inline void lcd_write4(uint8_t nibble, uint8_t rs) {
 	uint8_t bus = nibble_to_bus(nibble) | (rs ? LCD_RS : 0);
 	// RW=0 (escritura)
 	bus &= ~LCD_RW;
 	pcf8574_write(bus | LCD_BACKLIGHT);
 	lcd_strobe(bus);
 }
-
-void lcd_send(uint8_t value, uint8_t rs) {
+static inline void lcd_send(uint8_t value, uint8_t rs) {
 	lcd_write4(value >> 4, rs);
 	lcd_write4(value & 0x0F, rs);
 }
+static inline void lcd_cmd(uint8_t c)    { lcd_send(c, 0); }
+static inline void lcd_data(uint8_t d)   { lcd_send(d, 1); }
 
-void lcd_cmd(uint8_t c)    { lcd_send(c, 0); } // Para comandos
-
-void lcd_data(uint8_t d)   { lcd_send(d, 1); } // Para escritura
-
-void lcd_clear(void) {
+static inline void lcd_clear(void) {
 	lcd_cmd(0x01);           // clear
 	_delay_ms(2);            // >1.5ms
 }
-
-void lcd_set_cursor(uint8_t col, uint8_t row) {
+static inline void lcd_set_cursor(uint8_t col, uint8_t row) {
 	static const uint8_t offs[] = {0x00, 0x40, 0x14, 0x54}; // 16x2 / 20x4
 	lcd_cmd(0x80 | (offs[row] + col));
 }
-
-void lcd_print(const char *s) {
+static void lcd_print(const char *s) {
 	while (*s) lcd_data((uint8_t)*s++);
 }
 
 void lcd_init(void) {
-	_delay_ms(50);
-	// Autodetecta direccion
+	_delay_ms(50);                   // power-up
+	// Autodetecta direcci?n (opcional pero ?til)
 	uint8_t found = pcf8574_autodetect();
 	if (found) PCF_ADDR = found;
-	/*PCF_ADDR = 0x27;*/
+	
 	// Secuencia de 4 bits ?oficial?
 	lcd_write4(0x03, 0); _delay_ms(5);
 	lcd_write4(0x03, 0); _delay_us(150);
@@ -336,7 +242,6 @@ void lcd_init(void) {
 	lcd_cmd(0x06);                            // entry mode: inc, no shift
 	lcd_clear();
 }
-
 void lcd_msg2(const char* l1, const char* l2){
 	lcd_clear();
 	lcd_set_cursor(0,0);
@@ -345,4 +250,109 @@ void lcd_msg2(const char* l1, const char* l2){
 	lcd_print(l2);
 }
 
+void I2C_init(void) {
+	TWSR = 0x00;            // Prescaler = 1
+	TWBR = ((F_CPU / 100000UL) - 16) / 2;  // 100 kHz
+	TWCR = (1<<TWEN);       // Habilitar TWI
+}
 
+
+
+
+// ======================================
+// PROGRAMA PRINCIPAL
+// ======================================
+
+
+
+
+
+int main(void) {
+	
+	INIT_LED();
+	uart_init(UBRR_VALUE);
+	
+	
+	sei(); // Habilitar interrupciones globales
+	
+	
+	spi_init();
+	I2C_init();
+	lcd_init();
+
+
+	lcd_msg2("Bienvenido!!", "Sistema listo");
+	
+	uart_print("Opciones disponibles:\r\n");
+	uart_print("1) Tomar contraseña del SPI\r\n");
+	uart_print("2) Borrar contraseña actual\r\n");
+	uart_print("3) Desbloquear sistema\r\n");
+	
+	
+	uart_print("> ");
+	
+	uint8_t Contrasena_Guardar[5];
+	uint8_t Contrasena_comparar[5];
+	
+	
+	char c = '\0';
+	while (1) {
+		c = Chardos(); // Lectura no bloqueante UART
+
+		if (c != '\0') {
+			_delay_ms(1);
+			if (c == '1') {
+				uart_print("Leyendo SPI...\r\n");
+				lcd_msg2("Leyendo SPI", "");
+
+				SS_LOW();
+				
+				for (uint8_t i=0; i<5; i++){
+					Contrasena_Guardar[i] = spi_transfer(0xFF);
+				}
+				SS_HIGH();
+				lcd_msg2("Contraseña", "recibida");
+				uart_print("Contraseña recibida: ");
+				for (uint8_t i=0; i<5; i++){
+					uart_print_hex(Contrasena_Guardar[i]);
+				}
+				uart_print("\r\n");
+			}
+		
+		else if(c == '2'){
+			lcd_msg2("Borrando", "Contraseña");
+				
+			uart_print("Borrando Contraseña....\r\n");
+			for (uint8_t i=0; i<5; i++){
+				Contrasena_Guardar[i] = 0x00;
+			}
+			uart_print("Borrada correctamente\r\n");
+		}
+		else if(c == '3'){
+			lcd_msg2("Inserte", "Contraseña");
+			
+			uart_print("Inserte Contraseña:\r\n");
+			SS_LOW();
+			
+			for (uint8_t i=0; i<5; i++){
+				Contrasena_comparar[i] = spi_transfer(0xFF);
+			}
+			SS_HIGH();
+			
+			if (memcmp(Contrasena_Guardar, Contrasena_comparar, 5) == 0) {
+				lcd_msg2("Contraseña ", "Correcta");
+			
+				uart_print("Sistema desbloqueado Correctamente\r\n");
+				PORTC |= (1 << LED_G);
+				PORTC &= ~(1 << LED_R);
+				} else {
+				uart_print("Contraseña incorrecta\r\n");
+				lcd_msg2("Contraseña ", "incorrecta");
+				
+				PORTC |= (1 << LED_R);
+				PORTC &= ~(1 << LED_G);
+			}
+		}
+		}
+	}
+}

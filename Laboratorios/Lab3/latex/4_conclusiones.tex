@@ -32,7 +32,12 @@ El módulo \textit{Cerradura} cumplió con éxito los objetivos de la práctica,
 
 Como propuesta de mejora, sería enriquecedor implementar una interfaz que permita registrar y eliminar múltiples tarjetas RFID, ampliando la funcionalidad y escalabilidad del sistema. Además, la posibilidad de integrar un teclado o comunicación serial para administrar las credenciales desde software externo abriría el camino hacia un sistema de control de acceso más versátil y cercano a una aplicación real.
 
-En cuanto a la simulación, el uso del modulo SPI de proteus permitio comprender mucho mejor el funcionamiento maestro esclavo, ya que al no contar con librerias que operen ese modulo exlusivamenre. obligo a crearlas, lo que hizo que la comunicacion en una arquitectura maestro esclavo, por protocolo SPI. Quedara mucho mas clara. 
-Hubieron inconvenientes para implementarlo, ya que no se cuenta con documentacion clara del funcionamiento de dicho modulo. Por lo que despues de muchas pruebas y errores, se pudo realizar satisfactoriamente la implementación del mismo.  En concluison en cuanto a la simulación de proteus, es muy importante la correctamente configuración tanto del maestro como del esclavo. 
+\subsection{Conclusiones del módulo Cerradura}
+
+El módulo \textit{Cerradura} cumplió satisfactoriamente con los objetivos planteados, estableciendo una comunicación confiable mediante el protocolo \textit{SPI} entre el microcontrolador maestro y el lector \textit{RFID RC522}. El sistema demostró un manejo correcto de la memoria \textit{EEPROM}, conservando el identificador de la tarjeta incluso tras reinicios, y gestionando de forma adecuada la autenticación mediante los indicadores \textit{LED} y el \textit{buzzer}. Esta experiencia permitió comprender en profundidad la estructura del protocolo \textit{SPI} y su sincronización con otros periféricos, como el \textit{LCD} a través del bus \textit{I\textsuperscript{2}C}.
+
+En cuanto a la simulación, el uso del módulo \textit{SPI} en \textit{Proteus} permitió comprender con mayor profundidad el funcionamiento maestro–esclavo. Dado que no se dispone de librerías prediseñadas para dicho componente, fue necesario desarrollar las rutinas de comunicación desde cero, lo que facilitó una comprensión más sólida del intercambio de datos en una arquitectura \textit{SPI}. 
+
+A pesar de las dificultades iniciales —principalmente por la escasa documentación sobre el funcionamiento interno del módulo—, tras numerosas pruebas(donde los datos se transmitian de forma erronea) y ajustes se logró una implementación exitosa. En conclusión, la simulación en \textit{Proteus} demostró ser una herramienta fundamental, siempre que se realice una configuración precisa tanto del maestro como del esclavo, ya que de ello depende el correcto funcionamiento del sistema.
 
 
