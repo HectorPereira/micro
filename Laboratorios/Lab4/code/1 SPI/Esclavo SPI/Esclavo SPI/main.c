@@ -31,7 +31,8 @@ uint8_t SPI_slaveTransmit();
 // ======================================
 
 
-void Init_pwm_D6(void);
+void Init_pwm(void);
+
 
 
 
@@ -48,8 +49,18 @@ int main(void)
 	
 	sei();
 	spi_init_slave();
-	Init_pwm_D6();
+	Init_pwm();
 	
+	// Peueba despues va en 0x0A
+	 const uint16_t TMIN = 100;  // ~1.0 ms
+	 const uint16_t TCTR = 375;  // ~1.5 ms (center)
+	 const uint16_t TMAX = 620;  // ~2.0 ms
+
+	
+	 uint16_t deg = 0;
+	 uint16_t ticks = TMIN + ( (uint32_t)(TMAX - TMIN) * deg ) / 180;
+	 OCR1A = ticks;
+	 
     while(1)
     {
       uint8_t byte = SPI_slaveReceive();
@@ -60,6 +71,16 @@ int main(void)
 	  if(byte == 0x01){
 		PORTC &= ~(1 << PORTC0);	
 	  }
+	  if(byte == 0x0A){
+		  while(byte != 0xFF){
+		 // uint16_t degrees_ticks = 650 - 90;
+		 // uint8_t  degrees_byte = degrees_ticks/byte;
+		 // OCR1A = degrees_byte;
+		  }
+		  
+	  }
+	  
+	  
 // 	  if(byte > 0 && byte <= 255){ // DHT  cambiar a pwm con ventilador
 // 	  PORTC |= (1 << PORTC0);
 // 	  OCR0A = byte;
@@ -105,11 +126,24 @@ uint8_t SPI_slaveReceive()
 // ======================================
 
 
-void Init_pwm_D6(void){
+void Init_pwm(void){
 	DDRD |= (1 << DDD6);
 
 	// Fast PWM (modo 3, TOP=255), salida no inversora en OC0A
 	TCCR0A = (1 << WGM01) | (1 << WGM00) | (1 << COM0A1); // COM0A1=1, COM0A0=0
 	TCCR0B = (1 << CS01) | (1 << CS00); // Prescaler = 64  (? 976 Hz @16MHz)
+	
+	// --- Servo PWM on PB1 (OC1A)
+	// PB1 (OC1A)
+	DDRB |= (1 << DDB1);
+
+	TCCR1A = (1 << WGM11);
+	TCCR1B = (1 << WGM13) | (1 << WGM12);
+
+		
+	TCCR1A |= (1 << COM1A1);
+	TCCR1B |= (1 << CS11) | (1 << CS10);
+	ICR1 = 4999;
+	OCR1A = 90;  // 90 its 0 degrees and 650 180 , 560 ticks. in 0-255: 2,19 ticks for number
 }
 
