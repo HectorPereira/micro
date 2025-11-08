@@ -37,9 +37,14 @@ void Init_pwm_D6(void);
 
 int main(void)
 {
-	DDRC |= (1 << PORTC0)| (1 << PORTC1)| (1 << PORTC2);
+	DDRC |= (1 << PORTC0)| (1 << PORTC1)| (1 << PORTC2)| (1 << PORTC3)| (1 << PORTC4)| (1 << PORTC5); 
 	PORTC &= ~(1 << PORTC0);
 	PORTC &= ~(1 << PORTC1);
+	PORTC &= ~(1 << PORTC2);
+	PORTC &= ~(1 << PORTC3);
+	PORTC &= ~(1 << PORTC4);
+	PORTC &= ~(1 << PORTC5);
+	
 	
 	sei();
 	spi_init_slave();
@@ -48,17 +53,24 @@ int main(void)
     while(1)
     {
       uint8_t byte = SPI_slaveReceive();
-	  if(byte > 0 && byte <= 255){ // DHT  cambiar a pwm con ventilador
-	  PORTC |= (1 << PORTC0);
-	  OCR0A = byte;
-	  }
-	  else if(byte == 0xAA){
-	  PORTC |= (1 << PORTC1);
-	  }
-	  else if(byte == 0xAB){
-	  PORTC |= (1 << PORTC2);
 	  
+	  if(byte == 0x00){
+		PORTC |= (1 << PORTC0);
 	  }
+	  if(byte == 0x01){
+		PORTC &= ~(1 << PORTC0);	
+	  }
+// 	  if(byte > 0 && byte <= 255){ // DHT  cambiar a pwm con ventilador
+// 	  PORTC |= (1 << PORTC0);
+// 	  OCR0A = byte;
+// 	  }
+// 	  else if(byte == 0xAA){
+// 	  PORTC |= (1 << PORTC1);
+// 	  }
+// 	  else if(byte == 0xAB){
+// 	  PORTC |= (1 << PORTC3);
+// 	  
+// 	  }
     }
 }
 

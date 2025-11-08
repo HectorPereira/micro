@@ -107,7 +107,9 @@ char Chardos(void);
 
 
 
-#define DHT_PIN PD3
+#define DHT_PIN PORTD3
+#define FIRE_PIN PORTD2
+
 
 void DHT_start(void);
 
@@ -120,8 +122,9 @@ char Number_to_ascii(uint8_t val);       // Convierte un número (0–9) en carácte
 bool ascii_to_u16_switch(const char *s, uint16_t *out); // Convierte texto numérico a entero de 16 bits
 void add_string(char *s, char c);
 
-void Init_pwm(void);        // Configura PWM en OC0A (pin D6)
+void Init_pwm(void);        // Configura PWM en OC0A (pin D6),
 void Init_adc(void);        // Configura el ADC (canal A1)
+uint16_t adc_read_AC0(void); 
 
 
 // ======================================
@@ -157,6 +160,9 @@ int main(void)
 	uint8_t Humdec;
 	uint8_t Tdec;
 	
+	DDRD |= (1 << FIRE_PIN);
+	PORTD &= ~(1 << FIRE_PIN);
+	
 	sei();
 	
 	uart_init(UBRR_VALUE);
@@ -169,15 +175,30 @@ int main(void)
 	Init_pwm();
 	
 	
-	I2C_init();
-	twi_lcd_init();
+	//I2C_init();
+	//twi_lcd_init();
 
 	
-	lcd_twolines("Bienvenido", "A - Encender");
+	//lcd_twolines("Bienvenido", "A - Encender");
  	uart_print("Inserte A para prender\n\r");
 
     while(1)
     {
+			
+
+		uint16_t buffer_Ac0 = adc_read_AC0();
+		
+		if(buffer_Ac0 > 250){
+ 			SS_LOW();
+ 			spi_transfer(0x01);
+ 			SS_HIGH();
+		}
+		else {
+			SS_LOW();
+			spi_transfer(0x00);
+			SS_HIGH();
+		}
+		
 		char c = Chardos();
 		if(c == 'A'){
 			
@@ -200,8 +221,8 @@ int main(void)
  		uart_print("\n\r");
  		uart_print_hex(Temp);
 		
-		uint16_t indice = 64; //Cada grado varia en 4 el PWM
-		
+		uint16_t indice = 4; //Cada grado varia en 4 el PWM entonces se va a apreciar entre los 0 y 64
+							// El esclavo va a leer hexa, entonces el hexa a leer debe estar entre 0 y 256
 		uint8_t transferir_dht =	Temp*indice;
 		 
 		SS_LOW();
@@ -210,14 +231,22 @@ int main(void)
 		
 		}
 		if(c == 'B'){
+			// Conectado al sensor de fuego para sonar un buzzer y prender una led
+			
+			uart_print("Mueva el potenciometro para variar \n\r");
+			
+			while (c != 'O')
+			{
+				c = Chardos();
+				
+				
+			}
+			
 
-			SS_LOW();
-			spi_transfer(0xAA);
-			SS_HIGH();
 			
 		}
 		if(c == 'C'){
-
+			// Conectado al sensor de distancia y si se puede variar el color de una rgb
 			SS_LOW();
 			spi_transfer(0xAB);
 			SS_HIGH();
@@ -516,8 +545,22 @@ void Init_pwm(void){
 	TCCR0A = (1 << WGM01) | (1 << WGM00) | (1 << COM0A1); // COM0A1=1, COM0A0=0
 	TCCR0B = (1 << CS01) | (1 << CS00); // Prescaler = 64  (? 976 Hz @16MHz)
 }
-void Init_adc(void){
-	ADMUX  = 0b01000001;
-	ADCSRA = (1 << ADEN)| (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);   // ADPS=111 ? prescaler 128
-	DIDR0  = (1 << ADC0D); // Desabilitado la entrada Digital
+
+
+// ======================================
+// Funciones sensor flama
+// ======================================
+
+
+
+void Init_adc(void) {
+	ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Enable, prescaler 128
+	DIDR0  = (1 << ADC0D);  // Disable digital buffer on ADC0
+}
+
+uint16_t adc_read_AC0(void) {
+	ADMUX  = (1 << REFS0);  // AVcc reference, MUX=0000 (ADC0)
+	ADCSRA |= (1 << ADSC);  // Start conversion
+	while (ADCSRA & (1 << ADSC));  // Wait until finished
+	return ADC;  // Read result
 }
