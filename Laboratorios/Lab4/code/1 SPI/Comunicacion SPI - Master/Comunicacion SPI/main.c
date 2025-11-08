@@ -196,12 +196,16 @@ int main(void)
  		// IMPLEMENTAR Conversion a ascii
  			
  		uart_print("\n\r");
- 		uart_print(Hum);
+ 		uart_print_hex(Hum);
  		uart_print("\n\r");
  		uart_print_hex(Temp);
 		
+		uint16_t indice = 64; //Cada grado varia en 4 el PWM
+		
+		uint8_t transferir_dht =	Temp*indice;
+		 
 		SS_LOW();
-		spi_transfer(0xF2);
+		spi_transfer(transferir_dht);
 		SS_HIGH();
 		
 		}

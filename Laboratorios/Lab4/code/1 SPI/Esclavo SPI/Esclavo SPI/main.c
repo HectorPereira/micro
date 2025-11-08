@@ -26,6 +26,13 @@ void spi_init_slave();
 uint8_t SPI_slaveReceive();
 uint8_t SPI_slaveTransmit();
 
+// ======================================
+// PWM
+// ======================================
+
+
+void Init_pwm_D6(void);
+
 
 
 int main(void)
@@ -36,19 +43,22 @@ int main(void)
 	
 	sei();
 	spi_init_slave();
+	Init_pwm_D6();
 	
     while(1)
     {
       uint8_t byte = SPI_slaveReceive();
-	  if(byte == 0xF2){ // DHT  cambiar a pwm con ventilador
+	  if(byte > 0 && byte <= 255){ // DHT  cambiar a pwm con ventilador
 	  PORTC |= (1 << PORTC0);
+	  OCR0A = byte;
 	  }
 	  else if(byte == 0xAA){
 	  PORTC |= (1 << PORTC1);
 	  }
-	   else if(byte == 0xAB){
-		   PORTC |= (1 << PORTC2);
-	   }
+	  else if(byte == 0xAB){
+	  PORTC |= (1 << PORTC2);
+	  
+	  }
     }
 }
 
@@ -78,5 +88,16 @@ uint8_t SPI_slaveReceive()
 	return SPDR;
 }
 
+// ======================================
+// Funciones para pwm
+// ======================================
 
+
+void Init_pwm_D6(void){
+	DDRD |= (1 << DDD6);
+
+	// Fast PWM (modo 3, TOP=255), salida no inversora en OC0A
+	TCCR0A = (1 << WGM01) | (1 << WGM00) | (1 << COM0A1); // COM0A1=1, COM0A0=0
+	TCCR0B = (1 << CS01) | (1 << CS00); // Prescaler = 64  (? 976 Hz @16MHz)
+}
 
