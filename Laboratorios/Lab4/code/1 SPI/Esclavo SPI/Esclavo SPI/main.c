@@ -30,8 +30,9 @@ uint8_t SPI_slaveTransmit();
 
 int main(void)
 {
-	DDRD |= (1 << PORTD7);
-	PORTD &= ~(1 << PORTD7);
+	DDRC |= (1 << PORTC0)| (1 << PORTC1)| (1 << PORTC2);
+	PORTC &= ~(1 << PORTC0);
+	PORTC &= ~(1 << PORTC1);
 	
 	sei();
 	spi_init_slave();
@@ -39,10 +40,15 @@ int main(void)
     while(1)
     {
       uint8_t byte = SPI_slaveReceive();
-	  if(byte == 0xF1){
-	  PORTD |= (1 << PORTD7);
-	  
+	  if(byte == 0xF2){ // DHT  cambiar a pwm con ventilador
+	  PORTC |= (1 << PORTC0);
 	  }
+	  else if(byte == 0xAA){
+	  PORTC |= (1 << PORTC1);
+	  }
+	   else if(byte == 0xAB){
+		   PORTC |= (1 << PORTC2);
+	   }
     }
 }
 

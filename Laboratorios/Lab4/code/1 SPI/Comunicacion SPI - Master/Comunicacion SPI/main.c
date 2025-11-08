@@ -115,6 +115,15 @@ uint8_t DHT_response(void);
 
 uint8_t DHT_read(void);
 
+// Conversión y utilidades
+char Number_to_ascii(uint8_t val);       // Convierte un número (0–9) en carácter ASCII
+bool ascii_to_u16_switch(const char *s, uint16_t *out); // Convierte texto numérico a entero de 16 bits
+void add_string(char *s, char c);
+
+void Init_pwm(void);        // Configura PWM en OC0A (pin D6)
+void Init_adc(void);        // Configura el ADC (canal A1)
+
+
 // ======================================
 // ISR,s
 // ======================================
@@ -156,36 +165,59 @@ int main(void)
 	UCSR0B |= (1<<RXCIE0);
 	
 	spi_init();	
-	
-	
-	SS_LOW();
-	spi_transfer(0xF2);
-	SS_HIGH();
+	Init_adc();
+	Init_pwm();
 	
 	
 	I2C_init();
 	twi_lcd_init();
 
+	
 	lcd_twolines("Bienvenido", "A - Encender");
-	uart_print("Inserte A para prender\n\r");
+ 	uart_print("Inserte A para prender\n\r");
 
     while(1)
     {
 		char c = Chardos();
 		if(c == 'A'){
-		DHT_start();
-		if (DHT_response()) {
-			Hum = DHT_read();
-			Humdec = DHT_read();
-			Temp = DHT_read();
-			Tdec = DHT_read();
-			DHT_read();
-			PORTD |= (1 << PORTD3);
+			
+ 		lcd_twolines("Leyendo", "Temperatura");
+ 		uart_print("Leyendo Temperatura\n\r");
+ 		
+ 		DHT_start();
+ 		if (DHT_response()) {
+ 			Hum = DHT_read();
+ 			Humdec = DHT_read();
+ 			Temp = DHT_read();
+ 			Tdec = DHT_read();
+ 			PORTD |= (1 << PORTD3);
+ 		}
+ 		
+ 		// IMPLEMENTAR Conversion a ascii
+ 			
+ 		uart_print("\n\r");
+ 		uart_print(Hum);
+ 		uart_print("\n\r");
+ 		uart_print_hex(Temp);
+		
+		SS_LOW();
+		spi_transfer(0xF2);
+		SS_HIGH();
+		
 		}
-		uart_print("\n\r");
-		uart_print_hex(Temp);
-		uart_print("\n\r");
-		uart_print_hex(Hum);
+		if(c == 'B'){
+
+			SS_LOW();
+			spi_transfer(0xAA);
+			SS_HIGH();
+			
+		}
+		if(c == 'C'){
+
+			SS_LOW();
+			spi_transfer(0xAB);
+			SS_HIGH();
+			
 		}
 		       
     }
@@ -446,4 +478,42 @@ uint8_t DHT_read(void) {
 		while (PIND & (1 << DHT_PIN));     // Esperar pulso bajo
 	}
 	return result;
+}
+
+
+char Number_to_ascii(uint8_t val){
+	switch (val) {
+		case 0: return '0';
+		case 1: return '1';
+		case 2: return '2';
+		case 3: return '3';
+		case 4: return '4';
+		case 5: return '5';
+		case 6: return '6';
+		case 7: return '7';
+		case 8: return '8';
+		case 9: return '9';
+		
+		default: return '?';
+	}
+}
+
+void add_string(char *s, char c) {
+	while (*s++);
+	*(s - 1) = c;
+	*s = '\0';
+}
+
+
+void Init_pwm(void){
+	DDRD |= (1 << DDD6);
+
+	// Fast PWM (modo 3, TOP=255), salida no inversora en OC0A
+	TCCR0A = (1 << WGM01) | (1 << WGM00) | (1 << COM0A1); // COM0A1=1, COM0A0=0
+	TCCR0B = (1 << CS01) | (1 << CS00); // Prescaler = 64  (? 976 Hz @16MHz)
+}
+void Init_adc(void){
+	ADMUX  = 0b01000001;
+	ADCSRA = (1 << ADEN)| (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);   // ADPS=111 ? prescaler 128
+	DIDR0  = (1 << ADC0D); // Desabilitado la entrada Digital
 }
