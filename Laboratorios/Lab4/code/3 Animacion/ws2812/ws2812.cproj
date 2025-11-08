@@ -1,20 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0">
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>7.0</ProjectVersion>
     <ToolchainName>com.microchip.xc8</ToolchainName>
-    <ProjectGuid>2285C48D-296E-43FD-A7B6-69885F64CFFD</ProjectGuid>
+    <ProjectGuid>EA52BB98-9C26-420A-987D-870AECE58AD8</ProjectGuid>
     <avrdevice>ATmega328P</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
-    <OutputType>Executable</OutputType>
+    <OutputType>StaticLibrary</OutputType>
     <Language>C</Language>
-    <OutputFileName>$(MSBuildProjectName)</OutputFileName>
-    <OutputFileExtension>.elf</OutputFileExtension>
+    <OutputFileName>lib$(MSBuildProjectName)</OutputFileName>
+    <OutputFileExtension>.a</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
-    <AssemblyName>Control Movimiento</AssemblyName>
-    <Name>Control Movimiento</Name>
-    <RootNamespace>Control Movimiento</RootNamespace>
+    <AssemblyName>ws2812</AssemblyName>
+    <Name>ws2812</Name>
+    <RootNamespace>ws2812</RootNamespace>
     <ToolchainFlavour>XC8_2.36</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
@@ -91,7 +91,7 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="main.c">
+    <Compile Include="library.c">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>
