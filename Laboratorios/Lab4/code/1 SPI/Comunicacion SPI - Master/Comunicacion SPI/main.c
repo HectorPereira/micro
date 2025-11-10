@@ -108,7 +108,7 @@ char Chardos(void);
 
 
 #define DHT_PIN PORTD3
-#define FIRE_PIN PORTD2
+#define LIGHT_PIN PORTD2
 
 
 void DHT_start(void);
@@ -117,10 +117,6 @@ uint8_t DHT_response(void);
 
 uint8_t DHT_read(void);
 
-// Conversión y utilidades
-char Number_to_ascii(uint8_t val);       // Convierte un número (0–9) en carácter ASCII
-bool ascii_to_u16_switch(const char *s, uint16_t *out); // Convierte texto numérico a entero de 16 bits
-void add_string(char *s, char c);
 
 void Init_pwm(void);        // Configura PWM en OC0A (pin D6),
 void Init_adc(void);        // Configura el ADC (canal A1)
@@ -129,8 +125,50 @@ uint16_t adc_read_AC1(void);
 
 
 // ======================================
+// HC-SR04
+// ======================================
+
+#define PIN_T PORTD4
+#define PIN_ECHO PORTB0
+
+uint16_t Distancia_cm = 0;
+
+void Init_timer1();
+
+
+
+// ======================================
 // ISR,s
 // ======================================
+
+
+
+// Conversión y utilidades
+char Number_to_ascii(uint16_t val);       // Convierte un número (0–9) en carácter ASCII
+bool ascii_to_u16_switch(const char *s, uint16_t *out); // Convierte texto numérico a entero de 16 bits
+char* Add_to_string(char *out, uint16_t val);
+
+
+
+uint16_t endd = 0; 
+uint16_t start = 0;
+uint16_t width = 0;
+
+// ISR de Input Capture para PB0(ICP1)
+ISR(TIMER1_CAPT_vect) {
+	if (TCCR1B & (1 << ICES1)) {
+		// Flanco ascendente ? guardar inicio y cambiar a descendente
+		start = ICR1;
+		TCCR1B &= ~(1 << ICES1);  // Detectar próximo flanco descendente
+		} else {
+		// Flanco descendente > guardar fin y calcular duración
+		endd = ICR1;
+		width = endd - start;
+		TCCR1B |= (1 << ICES1);   // Volver a detectar flanco ascendente
+		Distancia_cm = width / 116.0;
+	}
+	
+}
 
 
 ISR(USART_RX_vect){
@@ -161,8 +199,8 @@ int main(void)
 	uint8_t Humdec;
 	uint8_t Tdec;
 	
-	DDRD |= (1 << FIRE_PIN);
-	PORTD &= ~(1 << FIRE_PIN);
+	DDRD |= (1 << LIGHT_PIN)|(1 << PIN_T);
+	PORTD &= ~(1 << PIN_T);
 	
 	sei();
 	
@@ -174,31 +212,43 @@ int main(void)
 	spi_init();	
 	Init_adc();
 	Init_pwm();
+	Init_timer1();
+	
 	
 	
 	//I2C_init();
 	//twi_lcd_init();
 
+
 	
 	//lcd_twolines("Bienvenido", "A - Encender");
- 	uart_print("Inserte A para prender\n\r");
+ 	//uart_print("Inserte A para prender\n\r");
 
     while(1)
     {
 			
+		char d[10];
 
-		uint16_t buffer_Ac0 = adc_read_AC0();
+		PORTD |= (1 << PORTD4);
+		_delay_us(15);
+		PORTD &= ~(1 << PORTD4);
+	
+		Add_to_string(d, Distancia_cm);
+		uart_print(d);
+		uart_print("\n\r");
 		
-		if(buffer_Ac0 > 250){
- 			SS_LOW();
- 			spi_transfer(0x01);
- 			SS_HIGH();
-		}
-		else {
-			SS_LOW();
-			spi_transfer(0x00);
-			SS_HIGH();
-		}
+// 		uint16_t buffer_Ac0 = adc_read_AC0();
+// 		
+// 		if(buffer_Ac0 > 250){
+//  			SS_LOW();
+//  			spi_transfer(0x01);
+//  			SS_HIGH();
+// 		}
+// 		else {
+// 			SS_LOW();
+// 			spi_transfer(0x00);
+// 			SS_HIGH();
+// 		}
 		
 		char c = Chardos();
 		if(c == 'A'){
@@ -488,6 +538,9 @@ char Chardos(void)
 	return ret;
 }
 
+// ======================================
+// Funciones DHT
+// ======================================
 
 void DHT_start(void) {
 	DDRD |= (1 << DHT_PIN);       // Configurar pin como salida
@@ -525,28 +578,6 @@ uint8_t DHT_read(void) {
 }
 
 
-char Number_to_ascii(uint8_t val){
-	switch (val) {
-		case 0: return '0';
-		case 1: return '1';
-		case 2: return '2';
-		case 3: return '3';
-		case 4: return '4';
-		case 5: return '5';
-		case 6: return '6';
-		case 7: return '7';
-		case 8: return '8';
-		case 9: return '9';
-		
-		default: return '?';
-	}
-}
-
-void add_string(char *s, char c) {
-	while (*s++);
-	*(s - 1) = c;
-	*s = '\0';
-}
 
 
 void Init_pwm(void){
@@ -559,9 +590,21 @@ void Init_pwm(void){
 
 
 // ======================================
-// Funciones sensor flama
+// Funciones Sensor Distancia
 // ======================================
 
+
+
+void Init_timer1(void) {
+	TCCR1A = 0;  // Modo normal (WGM11:0 = 0)
+
+	// ICNC1=1 (antirruido), ICES1=1 (flanco ascendente), CS11=1 (prescaler /8)
+	TCCR1B = (1 << ICNC1) | (1 << ICES1) | (1 << CS11);
+
+	TCNT1 = 0;           // Reiniciar contador
+	TIMSK1 = (1 << ICIE1); // Habilitar interrupción de captura
+	sei();                // Habilitar interrupciones globales
+}
 
 
 void Init_adc(void) {
@@ -581,4 +624,85 @@ uint16_t adc_read_AC1(void) {
 	ADCSRA |= (1 << ADSC);       // Start conversion
 	while (ADCSRA & (1 << ADSC));
 	return ADC;
+}
+
+
+char Number_to_ascii(uint16_t val){
+	switch (val) {
+		case 0: return '0';
+		case 1: return '1';
+		case 2: return '2';
+		case 3: return '3';
+		case 4: return '4';
+		case 5: return '5';
+		case 6: return '6';
+		case 7: return '7';
+		case 8: return '8';
+		case 9: return '9';
+		
+		default: return '?';
+	}
+}
+
+char* Add_to_string(char *out, uint16_t val){
+	 if (val == 0) { out[0] = '0'; out[1] = '\0'; return out; }
+
+	 char tmp[5];                 // holds digits in reverse (max 5 for uint16_t)
+	 uint8_t n = 0;
+
+	 while (val) {
+		 uint8_t digit = val % 10;
+		 tmp[n++] = Number_to_ascii(digit);
+		 val /= 10;
+	 }
+
+	 // reverse into out
+	 for (uint8_t i = 0; i < n; ++i) out[i] = tmp[n - 1 - i];
+	 out[n] = '\0';
+	 return out;
+ }
+ 
+bool ascii_to_u16_switch(const char *s, uint16_t *out) {
+	uint8_t digs[5];   // Hasta 5 dígitos posibles (0..65535)
+	uint8_t n = 0;
+
+	// Leer y validar dígitos (detiene en CR o LF)
+	for (; *s && *s != '\r' && *s != '\n'; ++s) {
+		char c = *s;
+		uint8_t d;
+
+		switch (c) {
+			case '0': d = 0; break;
+			case '1': d = 1; break;
+			case '2': d = 2; break;
+			case '3': d = 3; break;
+			case '4': d = 4; break;
+			case '5': d = 5; break;
+			case '6': d = 6; break;
+			case '7': d = 7; break;
+			case '8': d = 8; break;
+			case '9': d = 9; break;
+			default: return false;  // Carácter no numérico
+		}
+
+		if (n >= 5) return false;  // Demasiados dígitos (posible overflow)
+		digs[n++] = d;
+	}
+
+	if (n == 0) return false;      // Cadena vacía
+
+	// Recombinar los dígitos: unidades, decenas, centenas, etc.
+	uint32_t val = 0;
+	uint32_t mult = 1;
+
+	for (int8_t i = (int8_t)n - 1; i >= 0; --i) {
+		val += (uint32_t)digs[i] * mult;
+		mult *= 10;
+	}
+
+	if (val > 65535u) return false;  // Límite de uint16_t superado
+
+	*out = (uint16_t)val;
+	return true;
+
 }
