@@ -125,6 +125,7 @@ void add_string(char *s, char c);
 void Init_pwm(void);        // Configura PWM en OC0A (pin D6),
 void Init_adc(void);        // Configura el ADC (canal A1)
 uint16_t adc_read_AC0(void); 
+uint16_t adc_read_AC1(void);
 
 
 // ======================================
@@ -231,22 +232,32 @@ int main(void)
 		
 		}
 		if(c == 'B'){
-			// Conectado al sensor de fuego para sonar un buzzer y prender una led
+			// Para mover servo
+			SS_LOW();
+			spi_transfer(0xFA);
+			SS_HIGH();
 			
-			uart_print("Mueva el potenciometro para variar \n\r");
 			
-			while (c != 'O')
-			{
-				c = Chardos();
+			uart_print("Mueva el potenciometro para variar el angulo del servo\n\r");
+			
+			while(c != 'X'){
+				uint8_t potenciometro = adc_read_AC1();
 				
-				
+				if(potenciometro > 180){
+					potenciometro = 180;
+				}
+				uart_print("Grados:\n\r");
+				uart_print("\n\r");
+				//Conversor tambien
+				SS_LOW();
+				spi_transfer(potenciometro);
+				SS_HIGH();				
 			}
-			
-
 			
 		}
 		if(c == 'C'){
 			// Conectado al sensor de distancia y si se puede variar el color de una rgb
+			
 			SS_LOW();
 			spi_transfer(0xAB);
 			SS_HIGH();
@@ -555,7 +566,7 @@ void Init_pwm(void){
 
 void Init_adc(void) {
 	ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Enable, prescaler 128
-	DIDR0  = (1 << ADC0D);  // Disable digital buffer on ADC0
+	DIDR0  = (1 << ADC0D) | (1 << ADC1D);
 }
 
 uint16_t adc_read_AC0(void) {
@@ -563,4 +574,11 @@ uint16_t adc_read_AC0(void) {
 	ADCSRA |= (1 << ADSC);  // Start conversion
 	while (ADCSRA & (1 << ADSC));  // Wait until finished
 	return ADC;  // Read result
+}
+
+uint16_t adc_read_AC1(void) {
+	ADMUX  = (1 << REFS1);   // AVcc ref, MUX=0001 (ADC1)
+	ADCSRA |= (1 << ADSC);       // Start conversion
+	while (ADCSRA & (1 << ADSC));
+	return ADC;
 }
