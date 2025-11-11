@@ -13,11 +13,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   4 .debug_aranges 00000038  00000000  00000000  0000022f  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   000009bb  00000000  00000000  00000267  2**0
+  5 .debug_info   000009bc  00000000  00000000  00000267  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 0000068c  00000000  00000000  00000c22  2**0
+  6 .debug_abbrev 0000068c  00000000  00000000  00000c23  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   000002d1  00000000  00000000  000012ae  2**0
+  7 .debug_line   000002d1  00000000  00000000  000012af  2**0
                   CONTENTS, READONLY, DEBUGGING
   8 .debug_frame  00000054  00000000  00000000  00001580  2**2
                   CONTENTS, READONLY, DEBUGGING
@@ -162,7 +162,7 @@ Disassembly of section .text.Init_pwm:
 
 
 void Init_pwm(void){
-	DDRD |= (1 << DDD6);
+	DDRD |= (1 << PORTD6);
   e2:	8a b1       	in	r24, 0x0a	; 10
   e4:	80 64       	ori	r24, 0x40	; 64
   e6:	8a b9       	out	0x0a, r24	; 10
@@ -258,14 +258,14 @@ int main(void)
   ac:	0e 94 96 00 	call	0x12c	; 0x12c <spi_init_slave>
 	Init_pwm();
   b0:	0e 94 71 00 	call	0xe2	; 0xe2 <Init_pwm>
-	 const uint16_t TMAX = 620;  // ~2.0 ms
 
 	
-	 uint16_t deg = 0;
+	 
+	 uint16_t deg = 180;
 	 uint16_t ticks = TMIN + ( (uint32_t)(TMAX - TMIN) * deg ) / 180;
-	 OCR1A = ticks;
-  b4:	84 e6       	ldi	r24, 0x64	; 100
-  b6:	90 e0       	ldi	r25, 0x00	; 0
+	 OCR1A = 65000;
+  b4:	88 ee       	ldi	r24, 0xE8	; 232
+  b6:	9d ef       	ldi	r25, 0xFD	; 253
   b8:	90 93 89 00 	sts	0x0089, r25	; 0x800089 <__TEXT_REGION_LENGTH__+0x7f8089>
   bc:	80 93 88 00 	sts	0x0088, r24	; 0x800088 <__TEXT_REGION_LENGTH__+0x7f8088>
 	 

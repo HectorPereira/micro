@@ -57,9 +57,10 @@ int main(void)
 	 const uint16_t TMAX = 620;  // ~2.0 ms
 
 	
-	 uint16_t deg = 0;
+	 
+	 uint16_t deg = 180;
 	 uint16_t ticks = TMIN + ( (uint32_t)(TMAX - TMIN) * deg ) / 180;
-	 OCR1A = ticks;
+	 OCR1A = 65000;
 	 
     while(1)
     {
@@ -73,6 +74,7 @@ int main(void)
 	  }
 	  if(byte == 0x0A){
 		  while(byte != 0xFF){
+			
 		 // uint16_t degrees_ticks = 650 - 90;
 		 // uint8_t  degrees_byte = degrees_ticks/byte;
 		 // OCR1A = degrees_byte;
@@ -127,7 +129,7 @@ uint8_t SPI_slaveReceive()
 
 
 void Init_pwm(void){
-	DDRD |= (1 << DDD6);
+	DDRD |= (1 << PORTD6);
 
 	// Fast PWM (modo 3, TOP=255), salida no inversora en OC0A
 	TCCR0A = (1 << WGM01) | (1 << WGM00) | (1 << COM0A1); // COM0A1=1, COM0A0=0
