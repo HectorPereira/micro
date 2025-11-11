@@ -229,27 +229,6 @@ int main(void)
 			
 		char d[10];
 
-		 		uart_print("Leyendo Temperatura\n\r");
-		 		
-		 		DHT_start();
-		 		if (DHT_response()) {
-			 		Hum = DHT_read();
-			 		Humdec = DHT_read();
-			 		Temp = DHT_read();
-			 		Tdec = DHT_read();
-			 		PORTD |= (1 << PORTD3);
-			 		// IMPLEMENTAR Conversion a ascii
-			 		uart_print("\n\r");
-			 		uart_print_hex(Hum);
-			 		uart_print("\n\r");
-			 		uart_print_hex(Temp);
-			 		uart_print("\n\r");
-		 		}
-		 		
-		 		
-		 		
-				 _delay_ms(10);
-		 		uart_print("teRMINO");
 // 		PORTD |= (1 << PORTD4);
 // 		_delay_us(15);
 // 		PORTD &= ~(1 << PORTD4);
@@ -275,7 +254,29 @@ int main(void)
 		if(c == 'A'){
 			
  		//lcd_twolines("Leyendo", "Temperatura");
-
+		
+		uart_print("Leyendo Temperatura\n\r");
+		
+		DHT_start();
+		if (DHT_response()) {
+			Hum = DHT_read();
+			Humdec = DHT_read();
+			Temp = DHT_read();
+			Tdec = DHT_read();
+			PORTD |= (1 << PORTD3);
+			// IMPLEMENTAR Conversion a ascii
+			uart_print("\n\r");
+			uart_print_hex(Hum);
+			uart_print("\n\r");
+			uart_print_hex(Temp);
+			uart_print("\n\r");
+		}
+		
+		
+		
+		_delay_ms(10);
+		uart_print("teRMINO");
+		
 		
 		uint16_t indice = 4; //Cada grado varia en 4 el PWM entonces se va a apreciar entre los 0 y 64
 							// El esclavo va a leer hexa, entonces el hexa a leer debe estar entre 0 y 256
