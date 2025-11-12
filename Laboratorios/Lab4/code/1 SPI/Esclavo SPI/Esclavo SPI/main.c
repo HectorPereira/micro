@@ -52,15 +52,12 @@ int main(void)
 	Init_pwm();
 	
 	// Peueba despues va en 0x0A
-	 const uint16_t TMIN = 100;  // ~1.0 ms
-	 const uint16_t TCTR = 375;  // ~1.5 ms (center)
-	 const uint16_t TMAX = 620;  // ~2.0 ms
+	 const uint16_t TMIN = 100;  // Medido
+	 const uint16_t TMAX = 620;  // Medido
 
 	
 	 
-	 uint16_t deg = 180;
-	 uint16_t ticks = TMIN + ( (uint32_t)(TMAX - TMIN) * deg ) / 180;
-	 OCR1A = 65000;
+	
 	 
     while(1)
     {
@@ -69,9 +66,20 @@ int main(void)
 	  if(byte == 0x00){
 		PORTC |= (1 << PORTC0);
 	  }
-	  if(byte == 0x01){
+	  else if(byte == 0x01){
 		PORTC &= ~(1 << PORTC0);	
 	  }
+	  else if(byte == 0xFA){
+	 while(1){
+		uint16_t deg = SPI_slaveReceive();
+		uint16_t ticks = TMIN + ( (uint32_t)(TMAX - TMIN) * deg ) / 180;
+		OCR1A = ticks;
+		
+	  }
+	  }
+	  
+	  
+	  
 	  if(byte == 0x0A){
 		  while(byte != 0xFF){
 			
