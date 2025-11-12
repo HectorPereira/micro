@@ -45,8 +45,8 @@ int main(void)
 	PORTC &= ~(1 << PORTC3);
 	PORTC &= ~(1 << PORTC4);
 	PORTC &= ~(1 << PORTC5);
-	DDRD |= (1 << PORTD2)|(1 << PORTD3)|(1 << PORTD4)|(1 << PORTD5);
-	//PORTD |= (1 << PORTD3)|(1 << PORTD4); //|(1 << PORTD5);
+	DDRD |= (1 << PORTD2)|(1 << PORTD3)|(1 << PORTD4)|(1 << PORTD5)|(1<< PORTD6);
+	PORTD |= (1 << PORTD6); //|(1 << PORTD5);
 	sei();
 	spi_init_slave();
 	Init_pwm();
@@ -122,25 +122,20 @@ int main(void)
 			PORTD |=  (1 << PD5);
 			break;
 
-			default: // ? Apagado
+			default: //  Apagado
 			PORTD &= ~((1 << PD3) | (1 << PD4) | (1 << PD5));
 			break;
 			}
 		 }
 	  }
 	  
-	  
-// 	  if(byte > 0 && byte <= 255){ // DHT  cambiar a pwm con ventilador
-// 	  PORTC |= (1 << PORTC0);
-// 	  OCR0A = byte;
-// 	  }
-// 	  else if(byte == 0xAA){
-// 	  PORTC |= (1 << PORTC1);
-// 	  }
-// 	  else if(byte == 0xAB){
-// 	  PORTC |= (1 << PORTC3);
-// 	  
-// 	  }
+	
+	  if(byte == 0xF0){
+		OCR0A = 250;
+	  }
+	  if(byte == 0xA0){
+		OCR0A = 0;	  
+	  }
     }
 }
 
@@ -182,6 +177,7 @@ void Init_pwm(void){
 	TCCR0A = (1 << WGM01) | (1 << WGM00) | (1 << COM0A1); // COM0A1=1, COM0A0=0
 	TCCR0B = (1 << CS01) | (1 << CS00); // Prescaler = 64  (? 976 Hz @16MHz)
 	
+	OCR0A = 0;
 	// --- Servo PWM on PB1 (OC1A)
 	// PB1 (OC1A)
 	DDRB |= (1 << DDB1);
@@ -193,6 +189,6 @@ void Init_pwm(void){
 	TCCR1A |= (1 << COM1A1);
 	TCCR1B |= (1 << CS11) | (1 << CS10);
 	ICR1 = 4999;
-	OCR1A = 90;  // 90 its 0 degrees and 650 180 , 560 ticks. in 0-255: 2,19 ticks for number
+	OCR1A = 90; 
 }
 

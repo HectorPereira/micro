@@ -110,7 +110,7 @@ char Chardos(void);
 
 
 
-#define DHT_PIN PD3
+#define DHT_PIN PD7
 #define LIGHT_PIN PORTD2
 
 
@@ -219,12 +219,16 @@ int main(void)
 	
 	
 	
-	//I2C_init();
-	//twi_lcd_init();
+	I2C_init();
+	twi_lcd_init();
 
 	
 	
-	//lcd_twolines("Bienvenido", "A - Encender");
+	twi_lcd_cmd(0x80);
+	twi_lcd_msg("BIENVENIDO");
+	
+	
+	
  	uart_print("Inserte A para medir temperatura\n\r");
  	uart_print("Inserte B para mover servo\n\r");
  	uart_print("Inserte C para medir distanciaa\n\r");
@@ -236,22 +240,27 @@ int main(void)
 			
 		char d[10];
 		uint16_t lectura_led = adc_read_AC1();
-		if (lectura_led > 1000)
+		if (lectura_led > 650)
 		{
+			twi_lcd_cmd(0xC0);
+			twi_lcd_msg("LED  - ON");
 			SS_LOW();
-			spi_transfer(0x00);
+			spi_transfer(0xB6);
 			SS_HIGH();
 		}
-		else if(lectura_led < 1000){
+		else if(lectura_led < 650){
+			twi_lcd_cmd(0xC0);
+			twi_lcd_msg("LED - OFF");
 			SS_LOW();
-			spi_transfer(0x01);
+			spi_transfer(0xB7);
 			SS_HIGH();
 		}
-		
+		_delay_ms(100);
+		;
 		char c = Chardos();
 		if (c == 'A') {
 			uart_print("\r\nLeyendo DHT11...\r\n");
-
+		
 			if (dht11_read2(&Temp, &Hum)) {
 				uart_print("Lectura correcta!\r\n");
 
@@ -261,14 +270,18 @@ int main(void)
 				sprintf(buf, "Hum: %u %%\r\n", Hum);
 				uart_print(buf);
 
-				// Enviar al esclavo SPI si querés, por ejemplo:
-				uint8_t transferir_dht = Temp * 4;  // escala (0–255)
+				if(Temp > 26){
 				SS_LOW();
-				spi_transfer(transferir_dht);
+				spi_transfer(0xF0); // Prender ventilador
 				SS_HIGH();
-
 				} else {
-				uart_print("Error de lectura o checksum\r\n");
+				SS_LOW();
+				spi_transfer(0xB5); //Apagar Ventilador
+				SS_HIGH();
+				} 
+				}
+				else {
+				uart_print("Error de lectura\r\n");
 			}
 			
 			_delay_ms(1500);  // el DHT11 necesita 1 s entre lecturas
@@ -278,12 +291,18 @@ int main(void)
 			SS_LOW();
 			spi_transfer(0xFA); //Para activar
 			SS_HIGH();
+			twi_lcd_clear();
+			twi_lcd_cmd(0x80);
+			twi_lcd_msg("Angulo actual:\r\n");
 			
 			
 			uart_print("Mueva el potenciometro para variar el angulo del servo\n\r");
 			
-			while(c != 'X'){
-				
+			while(1){
+				char c = Chardos();
+				if(c == 'X'){
+					break;
+				}
 				uint16_t potenciometro = adc_read_AC0();
 				
 				char b[10];
@@ -301,14 +320,18 @@ int main(void)
 				uart_print("\n\r");
 				
 				_delay_ms(1000);
-			
+				
+				twi_lcd_cmd(0xC0);
+				twi_lcd_msg("                ");
+				twi_lcd_cmd(0xC0);
+				twi_lcd_msg(d);
 				
 				//Transmitimos los grados derecho.
 				SS_LOW();
 				spi_transfer(grados);
 				SS_HIGH();				
 			}
-			
+			uart_print("termino\r\n");
 		}
 		if (c == 'C') { // Sensor de distancia
 		SS_LOW();
@@ -336,17 +359,17 @@ int main(void)
 
 				// ======= 6 niveles de distancia =======
 				if (Distancia_cm < 10)
-				color_code = 0x01;   // rojo intenso
+				color_code = 0xB9;   // rojo intenso
 				else if (Distancia_cm < 40)
-				color_code = 0x02;   // naranja
+				color_code = 0xBA;   // naranja
 				else if (Distancia_cm < 90)
-				color_code = 0x03;   // amarillo
+				color_code = 0xBB;   // amarillo
 				else if (Distancia_cm < 150)
-				color_code = 0x04;   // verde
+				color_code = 0xBC;   // verde
 				else if (Distancia_cm < 300)
-				color_code = 0x05;   // celeste
+				color_code = 0xBD;   // celeste
 				else
-				color_code = 0x06;   // azul o apagado
+				color_code = 0xBF;   // azul o apagado
 
 				// Enviar el código al esclavo
 				SS_LOW();
@@ -371,8 +394,7 @@ void spi_init(void) {
 	DDRB |= (1 << CS) | (1 << MOSI) | (1 << SCK); // SS, MOSI, SCK salidas
 	DDRB &= ~(1 << MISO);                         // MISO entrada
 
-	SPCR = (1 << SPE) | (1 << MSTR)| (1 << SPR0); // Habilita SPI en modo maestro
-	SPSR = (1 << SPI2X);              // fosc/8
+	SPCR = (1 << SPE) | (1 << MSTR); // Habilita SPI en modo maestro   
 }
 
 uint8_t spi_transfer(uint8_t data) {
@@ -597,7 +619,7 @@ uint8_t DHT_read(void);
 
 
 // -----------------------------------------------------------
-// INICIO DE COMUNICACIÓN (start signal)
+// INICIO DE COMUNICACIÓN 
 // -----------------------------------------------------------
 void DHT_start(void) {
 	DDRD |= (1 << DHT_PIN);      // salida
@@ -766,7 +788,7 @@ bool ascii_to_u16_switch(const char *s, uint16_t *out) {
 }
 
 /* ===== DHT11 en PD4 ===== */
-#define DHT_PIN PD4
+#define DHT_PIN PD7
 static bool dht11_read2(uint8_t *t, uint8_t *h){
 	uint8_t d[5]={0};
 	DDRD |= (1<<DHT_PIN); PORTD &= ~(1<<DHT_PIN); _delay_ms(20);
