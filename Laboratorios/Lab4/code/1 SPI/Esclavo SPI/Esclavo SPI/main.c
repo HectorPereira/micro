@@ -45,8 +45,8 @@ int main(void)
 	PORTC &= ~(1 << PORTC3);
 	PORTC &= ~(1 << PORTC4);
 	PORTC &= ~(1 << PORTC5);
-	
-	
+	DDRD |= (1 << PORTD2)|(1 << PORTD3)|(1 << PORTD4)|(1 << PORTD5);
+	PORTD |= (1 << PORTD3)|(1 << PORTD4); //|(1 << PORTD5);
 	sei();
 	spi_init_slave();
 	Init_pwm();
@@ -64,11 +64,12 @@ int main(void)
       uint8_t byte = SPI_slaveReceive();
 	  
 	  if(byte == 0x00){
-		PORTC |= (1 << PORTC0);
+		PORTD |= (1 << PORTD2);
 	  }
 	  else if(byte == 0x01){
-		PORTC &= ~(1 << PORTC0);	
+		PORTD &= ~(1 << PORTD2);	
 	  }
+	  
 	  else if(byte == 0xFA){
 	 while(1){
 		uint16_t deg = SPI_slaveReceive();

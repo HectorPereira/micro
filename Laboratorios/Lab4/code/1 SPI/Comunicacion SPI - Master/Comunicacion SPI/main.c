@@ -235,7 +235,20 @@ int main(void)
     {
 			
 		char d[10];
-		
+		uint16_t lectura_led = adc_read_AC1();
+		if (lectura_led > 1000)
+		{
+			SS_LOW();
+			spi_transfer(0x00);
+			SS_HIGH();
+		}
+		else if(lectura_led < 1000){
+			SS_LOW();
+			spi_transfer(0x01);
+			SS_HIGH();
+		}
+		uart_print("\n\r");
+		uart_print(Add_to_string(d, lectura_led));	
 
 		
 		char c = Chardos();
@@ -660,7 +673,7 @@ uint16_t adc_read_AC0(void) {
 }
 
 uint16_t adc_read_AC1(void) {
-	ADMUX  = (1 << REFS1);   // AVcc ref, MUX=0001 (ADC1)
+	ADMUX  = (1 << REFS0)|(1 << MUX0);   // AVcc ref, MUX=0001 (ADC1)
 	ADCSRA |= (1 << ADSC);       // Start conversion
 	while (ADCSRA & (1 << ADSC));
 	return ADC;
