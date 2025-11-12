@@ -46,7 +46,7 @@ int main(void)
 	PORTC &= ~(1 << PORTC4);
 	PORTC &= ~(1 << PORTC5);
 	DDRD |= (1 << PORTD2)|(1 << PORTD3)|(1 << PORTD4)|(1 << PORTD5);
-	PORTD |= (1 << PORTD3)|(1 << PORTD4); //|(1 << PORTD5);
+	//PORTD |= (1 << PORTD3)|(1 << PORTD4); //|(1 << PORTD5);
 	sei();
 	spi_init_slave();
 	Init_pwm();
@@ -81,14 +81,52 @@ int main(void)
 	  
 	  
 	  
-	  if(byte == 0x0A){
-		  while(byte != 0xFF){
-			
-		 // uint16_t degrees_ticks = 650 - 90;
-		 // uint8_t  degrees_byte = degrees_ticks/byte;
-		 // OCR1A = degrees_byte;
-		  }
-		  
+	  if(byte == 0xAA){
+		 while(1){
+		  uint8_t byte_rgb = SPI_slaveReceive();
+		  switch (byte_rgb) {
+
+			case 0x01: // ?? Rojo
+			PORTD |=  (1 << PD3);   // R ON
+			PORTD &= ~(1 << PD4);   // G OFF
+			PORTD &= ~(1 << PD5);   // B OFF
+			break;
+
+			case 0x02: // ?? Naranja (R+G)
+			PORTD |=  (1 << PD3);
+			PORTD |=  (1 << PD4);
+			PORTD &= ~(1 << PD5);
+			break;
+
+			case 0x03: // ?? Amarillo (igual que naranja)
+			PORTD |=  (1 << PD3);
+			PORTD |=  (1 << PD4);
+			PORTD &= ~(1 << PD5);
+			break;
+
+			case 0x04: // ?? Verde
+			PORTD &= ~(1 << PD3);
+			PORTD |=  (1 << PD4);
+			PORTD &= ~(1 << PD5);
+			break;
+
+			case 0x05: // ?? Celeste (G+B)
+			PORTD &= ~(1 << PD3);
+			PORTD |=  (1 << PD4);
+			PORTD |=  (1 << PD5);
+			break;
+
+			case 0x06: // ?? Azul
+			PORTD &= ~(1 << PD3);
+			PORTD &= ~(1 << PD4);
+			PORTD |=  (1 << PD5);
+			break;
+
+			default: // ? Apagado
+			PORTD &= ~((1 << PD3) | (1 << PD4) | (1 << PD5));
+			break;
+			}
+		 }
 	  }
 	  
 	  

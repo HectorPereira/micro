@@ -247,9 +247,6 @@ int main(void)
 			spi_transfer(0x01);
 			SS_HIGH();
 		}
-		uart_print("\n\r");
-		uart_print(Add_to_string(d, lectura_led));	
-
 		
 		char c = Chardos();
 		if (c == 'A') {
@@ -313,42 +310,50 @@ int main(void)
 			}
 			
 		}
-		if(c == 'C'){ // Funciona aveces hay ruido
-			
-			// Conectado al sensor de distancia y si se puede variar el color de una rgb
-			
-			DDRD |= (1 << PIN_T);
-			
-			uart_print("Segun la dditancia va a variar el rgb en el esclavo\n\r");
-			
-			char c = Chardos();
-			
-			while(c != 'X'){
-				
-				PORTD |= (1 << PORTD4);
+		if (c == 'C') { // Sensor de distancia
+		SS_LOW();
+		spi_transfer(0xAA);
+		SS_HIGH();
+
+			uart_print("Midiendo distancia... (X para salir)\r\n");
+
+			DDRD |= (1 << PIN_T); // Trig como salida
+
+			while ((c = Chardos()) != 'X') {
+				// Disparo del ultrasonido
+				PORTD |= (1 << PIN_T);
 				_delay_us(15);
-				PORTD &= ~(1 << PORTD4);
+				PORTD &= ~(1 << PIN_T);
 
+				// Mostrar distancia por UART
+				char d[10];
 				Add_to_string(d, Distancia_cm);
+				uart_print("Distancia: ");
 				uart_print(d);
-				uart_print("\n\r");
+				uart_print(" cm\r\n");
 
-				uint16_t buffer_Ac0 = adc_read_AC0();
+				uint8_t color_code = 0x00;
 
-				if(buffer_Ac0 > 250){
- 					SS_LOW();
- 					spi_transfer(0x01);
- 					SS_HIGH();
-				}
-				else {
-					SS_LOW();
-					spi_transfer(0x00);
-					SS_HIGH();
-				}
-			
+				// ======= 6 niveles de distancia =======
+				if (Distancia_cm < 10)
+				color_code = 0x01;   // rojo intenso
+				else if (Distancia_cm < 40)
+				color_code = 0x02;   // naranja
+				else if (Distancia_cm < 90)
+				color_code = 0x03;   // amarillo
+				else if (Distancia_cm < 150)
+				color_code = 0x04;   // verde
+				else if (Distancia_cm < 300)
+				color_code = 0x05;   // celeste
+				else
+				color_code = 0x06;   // azul o apagado
+
+				// Enviar el código al esclavo
 				SS_LOW();
-				spi_transfer(0xAB);
+				spi_transfer(color_code);
 				SS_HIGH();
+
+				_delay_ms(300);
 			}
 		}
 		       
