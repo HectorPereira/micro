@@ -1,6 +1,5 @@
 #define F_CPU 16000000UL
 #include <avr/io.h>
-#include <util/delay.h>
 #include <avr/interrupt.h>
 #include <string.h>
 #include <stdint.h>
@@ -58,85 +57,92 @@ int main(void)
 	
 	 
 	
+	      uint16_t deg, ticks;
 	 
     while(1)
     {
-      uint8_t byte = SPI_slaveReceive();
-	  
-	  if(byte == 0x00){
-		PORTD |= (1 << PORTD2);
-	  }
-	  else if(byte == 0x01){
-		PORTD &= ~(1 << PORTD2);	
-	  }
-	  
-	  else if(byte == 0xFA){
-	 while(1){
-		uint16_t deg = SPI_slaveReceive();
-		uint16_t ticks = TMIN + ( (uint32_t)(TMAX - TMIN) * deg ) / 180;
-		OCR1A = ticks;
-		
-	  }
-	  }
-	  
-	  
-	  
-	  if(byte == 0xAA){
-		 while(1){
-		  uint8_t byte_rgb = SPI_slaveReceive();
-		  switch (byte_rgb) {
+      
+	      uint8_t byte = SPI_slaveReceive();
 
-			case 0x01: // ?? Rojo
-			PORTD |=  (1 << PD3);   // R ON
-			PORTD &= ~(1 << PD4);   // G OFF
-			PORTD &= ~(1 << PD5);   // B OFF
-			break;
+	      switch (byte) {
 
-			case 0x02: // ?? Naranja (R+G)
-			PORTD |=  (1 << PD3);
-			PORTD |=  (1 << PD4);
-			PORTD &= ~(1 << PD5);
-			break;
+		      // ------------------------
+		      // Control de PORTD2
+		      // ------------------------
+		      case 0xB6:
+		      PORTD |= (1 << PORTD2);
+		      break;
 
-			case 0x03: // ?? Amarillo (igual que naranja)
-			PORTD |=  (1 << PD3);
-			PORTD |=  (1 << PD4);
-			PORTD &= ~(1 << PD5);
-			break;
+		      case 0xB7:
+		      PORTD &= ~(1 << PORTD2);
+		      break;
 
-			case 0x04: // ?? Verde
-			PORTD &= ~(1 << PD3);
-			PORTD |=  (1 << PD4);
-			PORTD &= ~(1 << PD5);
-			break;
+		     
 
-			case 0x05: // ?? Celeste (G+B)
-			PORTD &= ~(1 << PD3);
-			PORTD |=  (1 << PD4);
-			PORTD |=  (1 << PD5);
-			break;
+		      // ------------------------
+		      // Colores RGB
+		      // ------------------------
+		      case 0xB9: // Rojo
+		      PORTD |=  (1 << PD3);
+		      PORTD &= ~(1 << PD4);
+		      PORTD &= ~(1 << PD5);
+		      break;
 
-			case 0x06: // ?? Azul
-			PORTD &= ~(1 << PD3);
-			PORTD &= ~(1 << PD4);
-			PORTD |=  (1 << PD5);
-			break;
+		      case 0xBA: // Naranja (R+G)
+		      PORTD |=  (1 << PD3);
+		      PORTD |=  (1 << PD4);
+		      PORTD &= ~(1 << PD5);
+		      break;
 
-			default: //  Apagado
-			PORTD &= ~((1 << PD3) | (1 << PD4) | (1 << PD5));
-			break;
-			}
-		 }
-	  }
-	  
-	
-	  if(byte == 0xF0){
-		OCR0A = 250;
-	  }
-	  if(byte == 0xA0){
-		OCR0A = 0;	  
-	  }
-    }
+		      case 0xBB: // Amarillo
+		      PORTD |=  (1 << PD3);
+		      PORTD |=  (1 << PD4);
+		      PORTD &= ~(1 << PD5);
+		      break;
+
+		      case 0xBC: // Verde
+		      PORTD &= ~(1 << PD3);
+		      PORTD |=  (1 << PD4);
+		      PORTD &= ~(1 << PD5);
+		      break;
+
+		      case 0xBD: // Celeste (G+B)
+		      PORTD &= ~(1 << PD3);
+		      PORTD |=  (1 << PD4);
+		      PORTD |=  (1 << PD5);
+		      break;
+
+		      case 0xBF: // Azul
+		      PORTD &= ~(1 << PD3);
+		      PORTD &= ~(1 << PD4);
+		      PORTD |=  (1 << PD5);
+		      break;
+
+		      // ------------------------
+		      // Control PWM (OCR0A)
+		      // ------------------------
+		      case 0xF0:
+		      OCR0A = 250;
+		      break;
+
+		      case 0xB5:
+		      OCR0A = 0;
+		      break;
+			  
+			// ------------------------
+			// Servo (0° a 180°)
+			// ------------------------
+			   
+			  default:
+			  if (byte < 180) {
+				  deg = byte;
+				  ticks = TMIN + ((uint32_t)(TMAX - TMIN) * deg) / 180;
+				  OCR1A = ticks;
+			  }
+			  break;
+	      }
+      }
+
 }
 
 // ======================================
