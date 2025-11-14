@@ -12,12 +12,28 @@
 void Init_I2C();
 uint8_t Confirmation = 0;
 
+void I2C_start(void);
+void I2C_stop(void);
+
+uint8_t I2C_write(uint8_t v);
 
 int main(void)
 {
     while(1)
     {
-        //TODO:: Please write your application code 
+		I2C_start();
+		I2C_write((0x50 << 1)); // Direccion 
+        I2C_write(0xF0);
+		I2C_stop();
+		_delay_ms(1000);
+		
+		I2C_start();
+		I2C_write((0x50 << 1)); // Direccion
+		I2C_write(0xF1);
+		I2C_stop();
+		
+		_delay_ms(1000);
+		
     }
 }
 
@@ -46,5 +62,5 @@ uint8_t I2C_write(uint8_t v) {
 	while(!(TWCR & (1<<TWINT)));
 	Confirmation = TWSR & 0b11111000;
 	
-	return (Confirmation == 0x28);
+	return (Confirmation == 0x28 || Confirmation == 0x18);
 }
