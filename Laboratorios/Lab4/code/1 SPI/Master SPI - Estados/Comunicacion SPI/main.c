@@ -17,6 +17,8 @@
 #define MISO PB4
 #define SCK  PB5
 
+// Variables globales
+uint8_t Hum = 0, Humdec = 0, Temp = 0, Tdec = 0, Checksum = 0;
 
 // ======================================
 // Protocolos SPI
@@ -63,6 +65,7 @@ void lcd_twolines(char c, char b);
 
 unsigned char lcd = 0x00;	
 
+
 // ======================================
 // UART
 // ======================================
@@ -107,26 +110,68 @@ char Chardos(void);
 
 
 
-#define DHT_PIN PD3
+#define DHT_PIN PD7
+#define LIGHT_PIN PORTD2
+
+
 
 void DHT_start(void);
-
-uint8_t DHT_response(void);
-
+bool DHT_response(void);
 uint8_t DHT_read(void);
 
-// Conversión y utilidades
-char Number_to_ascii(uint8_t val);       // Convierte un número (0–9) en carácter ASCII
-bool ascii_to_u16_switch(const char *s, uint16_t *out); // Convierte texto numérico a entero de 16 bits
-void add_string(char *s, char c);
 
-void Init_pwm(void);        // Configura PWM en OC0A (pin D6)
+void Init_pwm(void);        // Configura PWM en OC0A (pin D6),
 void Init_adc(void);        // Configura el ADC (canal A1)
+uint16_t adc_read_AC0(void); 
+uint16_t adc_read_AC1(void);
+
+
+// ======================================
+// HC-SR04
+// ======================================
+
+#define PIN_T PORTD4
+#define PIN_ECHO PORTB0
+
+uint16_t Distancia_cm = 0;
+
+void Init_timer1();
+
+static bool dht11_read2(uint8_t *t, uint8_t *h);
 
 
 // ======================================
 // ISR,s
 // ======================================
+
+
+
+// Conversión y utilidades
+char Number_to_ascii(uint16_t val);       // Convierte un número (0–9) en carácter ASCII
+bool ascii_to_u16_switch(const char *s, uint16_t *out); // Convierte texto numérico a entero de 16 bits
+char* Add_to_string(char *out, uint16_t val);
+
+
+
+uint16_t endd = 0; 
+uint16_t start = 0;
+uint16_t width = 0;
+
+// ISR de Input Capture para PB0(ICP1)
+ISR(TIMER1_CAPT_vect) {
+	if (TCCR1B & (1 << ICES1)) {
+		// Flanco ascendente ? guardar inicio y cambiar a descendente
+		start = ICR1;
+		TCCR1B &= ~(1 << ICES1);  // Detectar próximo flanco descendente
+		} else {
+		// Flanco descendente > guardar fin y calcular duración
+		endd = ICR1;
+		width = endd - start;
+		TCCR1B |= (1 << ICES1);   // Volver a detectar flanco ascendente
+		Distancia_cm = width / 116.0;
+	}
+	
+}
 
 
 ISR(USART_RX_vect){
@@ -157,6 +202,9 @@ int main(void)
 	uint8_t Humdec;
 	uint8_t Tdec;
 	
+	DDRD |= (1 << LIGHT_PIN)|(1 << PIN_T);
+	PORTD &= ~(1 << PIN_T);
+	
 	sei();
 	
 	uart_init(UBRR_VALUE);
@@ -167,61 +215,169 @@ int main(void)
 	spi_init();	
 	Init_adc();
 	Init_pwm();
+	Init_timer1();
+	
 	
 	
 	I2C_init();
 	twi_lcd_init();
 
 	
-	lcd_twolines("Bienvenido", "A - Encender");
- 	uart_print("Inserte A para prender\n\r");
+	
+	twi_lcd_cmd(0x80);
+	twi_lcd_msg("BIENVENIDO");
+	
+	
+	
+ 	uart_print("Inserte A para medir temperatura\n\r");
+ 	uart_print("Inserte B para mover servo\n\r");
+ 	uart_print("Inserte C para medir distanciaa\n\r");
+ 	
+	 
 
     while(1)
     {
-		char c = Chardos();
-		if(c == 'A'){
 			
- 		lcd_twolines("Leyendo", "Temperatura");
- 		uart_print("Leyendo Temperatura\n\r");
- 		
- 		DHT_start();
- 		if (DHT_response()) {
- 			Hum = DHT_read();
- 			Humdec = DHT_read();
- 			Temp = DHT_read();
- 			Tdec = DHT_read();
- 			PORTD |= (1 << PORTD3);
- 		}
- 		
- 		// IMPLEMENTAR Conversion a ascii
- 			
- 		uart_print("\n\r");
- 		uart_print_hex(Hum);
- 		uart_print("\n\r");
- 		uart_print_hex(Temp);
+		char d[10];
+		uint16_t lectura_led = adc_read_AC1();
+		if (lectura_led > 650)
+		{
+			twi_lcd_cmd(0xC0);
+			twi_lcd_msg("LED  - ON");
+			SS_LOW();
+			spi_transfer(0xB6);
+			SS_HIGH();
+		}
+		else if(lectura_led < 650){
+			twi_lcd_cmd(0xC0);
+			twi_lcd_msg("LED - OFF");
+			SS_LOW();
+			spi_transfer(0xB7);
+			SS_HIGH();
+		}
+		_delay_ms(100);
+		;
+		char c = Chardos();
+		if (c == 'A') {
+			uart_print("\r\nLeyendo DHT11...\r\n");
 		
-		uint16_t indice = 64; //Cada grado varia en 4 el PWM
-		
-		uint8_t transferir_dht =	Temp*indice;
-		 
-		SS_LOW();
-		spi_transfer(transferir_dht);
-		SS_HIGH();
-		
+			if (dht11_read2(&Temp, &Hum)) {
+				uart_print("Lectura correcta!\r\n");
+
+				char buf[16];
+				sprintf(buf, "Temp: %u C\r\n", Temp);
+				uart_print(buf);
+				sprintf(buf, "Hum: %u %%\r\n", Hum);
+				uart_print(buf);
+
+				if(Temp > 26){
+				SS_LOW();
+				spi_transfer(0xF0); // Prender ventilador
+				SS_HIGH();
+				} else {
+				SS_LOW();
+				spi_transfer(0xB5); //Apagar Ventilador
+				SS_HIGH();
+				} 
+				}
+				else {
+				uart_print("Error de lectura\r\n");
+			}
+			
+			_delay_ms(1500);  // el DHT11 necesita 1 s entre lecturas
 		}
 		if(c == 'B'){
-
+			// Para mover servo
 			SS_LOW();
-			spi_transfer(0xAA);
+			spi_transfer(0xFA); //Para activar
 			SS_HIGH();
+			twi_lcd_clear();
+			twi_lcd_cmd(0x80);
+			twi_lcd_msg("Angulo actual:\r\n");
 			
+			
+			uart_print("Mueva el potenciometro para variar el angulo del servo\n\r");
+			
+			while(1){
+				char c = Chardos();
+				if(c == 'X'){
+					break;
+				}
+				uint16_t potenciometro = adc_read_AC0();
+				
+				char b[10];
+				
+				float grados = potenciometro*0.17;
+				
+				Add_to_string(d, grados);
+				Add_to_string(b, potenciometro);
+
+
+				uart_print("Grados:\n\r");
+				uart_print(d);
+				uart_print("\n\r");
+				uart_print(b);
+				uart_print("\n\r");
+				
+				_delay_ms(1000);
+				
+				twi_lcd_cmd(0xC0);
+				twi_lcd_msg("                ");
+				twi_lcd_cmd(0xC0);
+				twi_lcd_msg(d);
+				
+				//Transmitimos los grados derecho.
+				SS_LOW();
+				spi_transfer(grados);
+				SS_HIGH();				
+			}
+			uart_print("termino\r\n");
 		}
-		if(c == 'C'){
+		if (c == 'C') { // Sensor de distancia
+		SS_LOW();
+		spi_transfer(0xAA);
+		SS_HIGH();
 
-			SS_LOW();
-			spi_transfer(0xAB);
-			SS_HIGH();
-			
+			uart_print("Midiendo distancia... (X para salir)\r\n");
+
+			DDRD |= (1 << PIN_T); // Trig como salida
+
+			while ((c = Chardos()) != 'X') {
+				// Disparo del ultrasonido
+				PORTD |= (1 << PIN_T);
+				_delay_us(15);
+				PORTD &= ~(1 << PIN_T);
+
+				// Mostrar distancia por UART
+				char d[10];
+				Add_to_string(d, Distancia_cm);
+				uart_print("Distancia: ");
+				uart_print(d);
+				uart_print(" cm\r\n");
+
+				uint8_t color_code = 0x00;
+
+				// ======= 6 niveles de distancia =======
+				if (Distancia_cm < 10)
+				color_code = 0xB9;   // rojo intenso
+				else if (Distancia_cm < 40)
+				color_code = 0xBA;   // naranja
+				else if (Distancia_cm < 90)
+				color_code = 0xBB;   // amarillo
+				else if (Distancia_cm < 150)
+				color_code = 0xBC;   // verde
+				else if (Distancia_cm < 300)
+				color_code = 0xBD;   // celeste
+				else
+				color_code = 0xBF;   // azul o apagado
+
+				// Enviar el código al esclavo
+				SS_LOW();
+				spi_transfer(color_code);
+				SS_HIGH();
+
+				_delay_ms(300);
+			}
 		}
 		       
     }
@@ -238,8 +394,7 @@ void spi_init(void) {
 	DDRB |= (1 << CS) | (1 << MOSI) | (1 << SCK); // SS, MOSI, SCK salidas
 	DDRB &= ~(1 << MISO);                         // MISO entrada
 
-	SPCR = (1 << SPE) | (1 << MSTR)| (1 << SPR0); // Habilita SPI en modo maestro
-	SPSR = (1 << SPI2X);              // fosc/8
+	SPCR = (1 << SPE) | (1 << MSTR); // Habilita SPI en modo maestro   
 }
 
 uint8_t spi_transfer(uint8_t data) {
@@ -448,44 +603,111 @@ char Chardos(void)
 	return ret;
 }
 
+// ======================================
+// Funciones DHT
+// ======================================
+#define F_CPU 16000000UL
+#include <avr/io.h>
+#include <util/delay.h>
+#include <stdbool.h>
 
+#define DHT_PIN PD3  // PIN físico 3 del puerto D
+
+void DHT_start(void);
+bool DHT_response(void);
+uint8_t DHT_read(void);
+
+
+// -----------------------------------------------------------
+// INICIO DE COMUNICACIÓN 
+// -----------------------------------------------------------
 void DHT_start(void) {
-	DDRD |= (1 << DHT_PIN);       // Configurar pin como salida
-	PORTD &= ~(1 << DHT_PIN);     // Enviar señal de inicio (bajo)
-	_delay_ms(18);                // Esperar al menos 18 ms
-	PORTD |= (1 << DHT_PIN);      // Liberar la línea
-	_delay_us(40);                // Esperar 40 µs
+	DDRD |= (1 << DHT_PIN);      // salida
+	PORTD &= ~(1 << DHT_PIN);    // nivel bajo (inicio)
+	_delay_ms(20);               // mantener al menos 18 ms
+	PORTD |= (1 << DHT_PIN);     // subir
+	_delay_us(40);               // breve pulso alto
+	DDRD &= ~(1 << DHT_PIN);     // liberar línea (entrada)
 }
 
-uint8_t DHT_response(void) {
-	uint8_t response = 0;
-	DDRD &= ~(1 << DHT_PIN);      // Configurar como entrada
+// -----------------------------------------------------------
+// ESPERAR RESPUESTA DEL SENSOR
+// -----------------------------------------------------------
+bool DHT_response(void) {
 	_delay_us(40);
-
-	if (!(PIND & (1 << DHT_PIN))) {  // Esperar respuesta baja
-		_delay_us(80);
-		if (PIND & (1 << DHT_PIN)) { // Esperar respuesta alta
-			_delay_us(80);
-			response = 1;            // Respuesta válida
-		}
-	}
-	return response;                // 1 = ok, 0 = sin respuesta
+	if ((PIND & (1 << DHT_PIN))) return false; // debería ponerse en bajo
+	_delay_us(80);
+	if (!(PIND & (1 << DHT_PIN))) return false; // debería subir a alto
+	while (PIND & (1 << DHT_PIN));              // esperar a que baje de nuevo
+	return true;
 }
 
+// -----------------------------------------------------------
+// LEER UN BYTE COMPLETO
+// -----------------------------------------------------------
 uint8_t DHT_read(void) {
 	uint8_t result = 0;
-	for (int i = 0; i < 8; i++) {
-		while (!(PIND & (1 << DHT_PIN)));  // Esperar pulso alto
-		_delay_us(30);                     // Esperar 30 µs
-		if (PIND & (1 << DHT_PIN))         // Si sigue alto, es 1
-		result |= (1 << (7 - i));
-		while (PIND & (1 << DHT_PIN));     // Esperar pulso bajo
+
+	for (uint8_t i = 0; i < 8; i++) {
+		while (!(PIND & (1 << DHT_PIN)));   // esperar a que suba
+		_delay_us(30);                      // esperar ~30 µs
+		if (PIND & (1 << DHT_PIN))
+		result |= (1 << (7 - i));       // bit = 1 si sigue alto
+		while (PIND & (1 << DHT_PIN));      // esperar a que baje
 	}
 	return result;
 }
 
 
-char Number_to_ascii(uint8_t val){
+
+void Init_pwm(void){
+	DDRD |= (1 << DDD6);
+
+	// Fast PWM (modo 3, TOP=255), salida no inversora en OC0A
+	TCCR0A = (1 << WGM01) | (1 << WGM00) | (1 << COM0A1); // COM0A1=1, COM0A0=0
+	TCCR0B = (1 << CS01) | (1 << CS00); // Prescaler = 64  (? 976 Hz @16MHz)
+}
+
+
+// ======================================
+// Funciones Sensor Distancia
+// ======================================
+
+
+
+void Init_timer1(void) {
+	TCCR1A = 0;  // Modo normal (WGM11:0 = 0)
+
+	// ICNC1=1 (antirruido), ICES1=1 (flanco ascendente), CS11=1 (prescaler /8)
+	TCCR1B = (1 << ICNC1) | (1 << ICES1) | (1 << CS11);
+
+	TCNT1 = 0;           // Reiniciar contador
+	TIMSK1 = (1 << ICIE1); // Habilitar interrupción de captura
+	sei();                // Habilitar interrupciones globales
+}
+
+
+void Init_adc(void) {
+	ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0); // Enable, prescaler 128
+	DIDR0  = (1 << ADC0D) | (1 << ADC1D);
+}
+
+uint16_t adc_read_AC0(void) {
+	ADMUX  = (1 << REFS0);  // AVcc reference, MUX=0000 (ADC0)
+	ADCSRA |= (1 << ADSC);  // Start conversion
+	while (ADCSRA & (1 << ADSC));  // Wait until finished
+	return ADC;  // Read result
+}
+
+uint16_t adc_read_AC1(void) {
+	ADMUX  = (1 << REFS0)|(1 << MUX0);   // AVcc ref, MUX=0001 (ADC1)
+	ADCSRA |= (1 << ADSC);       // Start conversion
+	while (ADCSRA & (1 << ADSC));
+	return ADC;
+}
+
+
+char Number_to_ascii(uint16_t val){
 	switch (val) {
 		case 0: return '0';
 		case 1: return '1';
@@ -502,22 +724,85 @@ char Number_to_ascii(uint8_t val){
 	}
 }
 
-void add_string(char *s, char c) {
-	while (*s++);
-	*(s - 1) = c;
-	*s = '\0';
+char* Add_to_string(char *out, uint16_t val){
+	 if (val == 0) { out[0] = '0'; out[1] = '\0'; return out; }
+
+	 char tmp[5];                 // holds digits in reverse (max 5 for uint16_t)
+	 uint8_t n = 0;
+
+	 while (val) {
+		 uint8_t digit = val % 10;
+		 tmp[n++] = Number_to_ascii(digit);
+		 val /= 10;
+	 }
+
+	 // reverse into out
+	 for (uint8_t i = 0; i < n; ++i) out[i] = tmp[n - 1 - i];
+	 out[n] = '\0';
+	 return out;
+ }
+ 
+bool ascii_to_u16_switch(const char *s, uint16_t *out) {
+	uint8_t digs[5];   // Hasta 5 dígitos posibles (0..65535)
+	uint8_t n = 0;
+
+	// Leer y validar dígitos (detiene en CR o LF)
+	for (; *s && *s != '\r' && *s != '\n'; ++s) {
+		char c = *s;
+		uint8_t d;
+
+		switch (c) {
+			case '0': d = 0; break;
+			case '1': d = 1; break;
+			case '2': d = 2; break;
+			case '3': d = 3; break;
+			case '4': d = 4; break;
+			case '5': d = 5; break;
+			case '6': d = 6; break;
+			case '7': d = 7; break;
+			case '8': d = 8; break;
+			case '9': d = 9; break;
+			default: return false;  // Carácter no numérico
+		}
+
+		if (n >= 5) return false;  // Demasiados dígitos (posible overflow)
+		digs[n++] = d;
+	}
+
+	if (n == 0) return false;      // Cadena vacía
+
+	// Recombinar los dígitos: unidades, decenas, centenas, etc.
+	uint32_t val = 0;
+	uint32_t mult = 1;
+
+	for (int8_t i = (int8_t)n - 1; i >= 0; --i) {
+		val += (uint32_t)digs[i] * mult;
+		mult *= 10;
+	}
+
+	if (val > 65535u) return false;  // Límite de uint16_t superado
+
+	*out = (uint16_t)val;
+	return true;
+
 }
 
-
-void Init_pwm(void){
-	DDRD |= (1 << DDD6);
-
-	// Fast PWM (modo 3, TOP=255), salida no inversora en OC0A
-	TCCR0A = (1 << WGM01) | (1 << WGM00) | (1 << COM0A1); // COM0A1=1, COM0A0=0
-	TCCR0B = (1 << CS01) | (1 << CS00); // Prescaler = 64  (? 976 Hz @16MHz)
-}
-void Init_adc(void){
-	ADMUX  = 0b01000001;
-	ADCSRA = (1 << ADEN)| (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);   // ADPS=111 ? prescaler 128
-	DIDR0  = (1 << ADC0D); // Desabilitado la entrada Digital
+/* ===== DHT11 en PD4 ===== */
+#define DHT_PIN PD7
+static bool dht11_read2(uint8_t *t, uint8_t *h){
+	uint8_t d[5]={0};
+	DDRD |= (1<<DHT_PIN); PORTD &= ~(1<<DHT_PIN); _delay_ms(20);
+	PORTD |= (1<<DHT_PIN); _delay_us(40);
+	DDRD &= ~(1<<DHT_PIN); PORTD |= (1<<DHT_PIN);
+	uint16_t to=0;
+	while(PIND&(1<<DHT_PIN)){ if(++to>200) return false; _delay_us(1); }
+	to=0; while(!(PIND&(1<<DHT_PIN))){ if(++to>200) return false; _delay_us(1); }
+	to=0; while(PIND&(1<<DHT_PIN)){ if(++to>200) return false; _delay_us(1); }
+	for(uint8_t i=0;i<40;i++){
+		to=0; while(!(PIND&(1<<DHT_PIN))){ if(++to>200) return false; _delay_us(1); }
+		uint16_t w=0; while(PIND&(1<<DHT_PIN)){ if(++w>255) break; _delay_us(1); }
+		d[i/8]<<=1; if(w>40) d[i/8]|=1;
+	}
+	if((uint8_t)(d[0]+d[1]+d[2]+d[3])!=d[4]) return false;
+	*h=d[0]; *t=d[2]; return true;
 }
