@@ -61,15 +61,87 @@ int main(void)
 	uint16_t TMIN = 100;  // Medido
 	uint16_t TMAX = 620;  // Medido
 
-	
+	DDRD |= (1 << PORTD2)|(1 << PORTD3)|(1 << PORTD4)|(1 << PORTD5)|(1<< PORTD6);
 	
 	while(1)
 	{
+	switch (byte) {
+
+		// ------------------------
+		// Control de PORTD2
+		// ------------------------
+		case 0xB6:
+		PORTD |= (1 << PORTD2);
+		break;
+
+		case 0xB7:
+		PORTD &= ~(1 << PORTD2);
+		break;
+
+	
+
+		// ------------------------
+		// Colores RGB
+		// ------------------------
+		case 0xB9: // Rojo
+		PORTD |=  (1 << PD3);
+		PORTD &= ~(1 << PD4);
+		PORTD &= ~(1 << PD5);
+		break;
+
+		case 0xBA: // Naranja (R+G)
+		PORTD |=  (1 << PD3);
+		PORTD |=  (1 << PD4);
+		PORTD &= ~(1 << PD5);
+		break;
+
+		case 0xBB: // Amarillo
+		PORTD |=  (1 << PD3);
+		PORTD |=  (1 << PD4);
+		PORTD &= ~(1 << PD5);
+		break;
+
+		case 0xBC: // Verde
+		PORTD &= ~(1 << PD3);
+		PORTD |=  (1 << PD4);
+		PORTD &= ~(1 << PD5);
+		break;
+
+		case 0xBD: // Celeste (G+B)
+		PORTD &= ~(1 << PD3);
+		PORTD |=  (1 << PD4);
+		PORTD |=  (1 << PD5);
+		break;
+
+		case 0xBF: // Azul
+		PORTD &= ~(1 << PD3);
+		PORTD &= ~(1 << PD4);
+		PORTD |=  (1 << PD5);
+		break;
+
+		// ------------------------
+		// Control PWM (OCR0A)
+		// ------------------------
+		case 0xF0:
+		OCR0A = 250;
+		break;
+
+		case 0xB5:
+		OCR0A = 0;
+		break;
+	
+		// ------------------------
+		// Servo (0° a 180°)
+		// ------------------------
+	
+		default:
+		if (byte < 180) {
 			deg = byte;
 			ticks = TMIN + ((uint32_t)(TMAX - TMIN) * deg) / 180;
 			OCR1A = ticks;
-
-		//byte = 0;
+		}
+		break;
+	}
 	}
 }
 
