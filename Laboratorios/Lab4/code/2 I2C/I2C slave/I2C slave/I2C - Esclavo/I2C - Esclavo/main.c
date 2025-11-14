@@ -1,86 +1,98 @@
 #define F_CPU 16000000UL
 #include <avr/io.h>
-#include <util/delay.h>
 #include <avr/interrupt.h>
-#include <string.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <util/twi.h>
 
-void Init_I2C();
-uint8_t I2C_Receive();
-uint8_t byte = 0;
-uint8_t status = 0;
-uint8_t respond = 0;
+volatile uint8_t byte = 0;
+void Init_pwm(void);
 
 
-#define D_Slave (0x50 << 1) //Direccion del esclavo
-#define SCL PORTC0
-#define SDA PORTC1
+void I2C_init(void)
+{
+	// SDA = PC4, SCL = PC5 ? ENTRADAS
+	DDRC &= ~((1<<PC4) | (1<<PC5));
 
+	// Pull-ups internos (ayudan, pero IGUAL necesitas 4.7k externas)
+	PORTC |= (1<<PC4) | (1<<PC5);
 
+	// Dirección del esclavo = 0x50
+	TWAR = (0x50 << 1);
 
-// ======================================
-// ISR's
-// ======================================
+	// Habilitar TWI + ACK + interrupción
+	TWCR = (1<<TWEN)|(1<<TWEA)|(1<<TWIE);
+}
 
-// I2C Interruption para gestionar la respuesta I2c del esclavo
-
-ISR(TWI_vect) 
+ISR(TWI_vect)
 {
 	uint8_t status = TWSR & 0xF8;
 
 	switch(status)
 	{
-		case 0x60:  // SLA+W recibido
+		case 0x60: // SLA+W recibido
 		break;
 
-		case 0x80:  // Dato recibido
-		byte = TWDR;   // guardo el dato
+		case 0x80: // Datos desde el maestro
+		byte = TWDR;
 		break;
 
-		case 0xA8:  // SLA+R recibido (maestro quiere leer)
-		// Enviar NACK
-		TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWIE);
-		return;
-
-		case 0xA0:  // STOP
-		case 0xC0:  // NACK del maestro
 		default:
 		break;
 	}
 
-	// Para escritura sí queremos ACK
+	// Continuar con ACK
 	TWCR = (1<<TWINT)|(1<<TWEN)|(1<<TWEA)|(1<<TWIE);
 }
 
 int main(void)
 {
 	sei();
-	DDRD |= (1 << PORTD7);
-			
+	// LED en PD7
+	DDRD |= (1 << PD7);
+
 	I2C_init();
 	
-    while(1)
-    {
-        if (byte == 0xF1)
-        {
-			PORTD |= (1 << PORTD7);
-        }
-		else if(byte == 0xF0){
-			PORTD &= ~(1 << PORTD7);
-			
-		}
-         
-    }
+	Init_pwm();
+	
+	
+	uint8_t deg;
+	uint16_t ticks;
+
+
+
+	uint16_t TMIN = 100;  // Medido
+	uint16_t TMAX = 620;  // Medido
+
+	
+	
+	while(1)
+	{
+			deg = byte;
+			ticks = TMIN + ((uint32_t)(TMAX - TMIN) * deg) / 180;
+			OCR1A = ticks;
+
+		//byte = 0;
+	}
 }
 
-void I2C_init(void) { // Cuando un maestro mande esta dirección, respondé con ACK
-	DDRC |= (0 << PORTC1)|(0 << PORTC0); // Ponemos como entradas por las dudas 
-	
-	TWAR = D_Slave;
-	TWCR = (1 << TWEN) | (1 << TWEA) | (1 << TWIE);
-	
-}
 
+
+void Init_pwm(void){
+	DDRD |= (1 << PORTD6);
+
+	// Fast PWM (modo 3, TOP=255), salida no inversora en OC0A
+	TCCR0A = (1 << WGM01) | (1 << WGM00) | (1 << COM0A1); // COM0A1=1, COM0A0=0
+	TCCR0B = (1 << CS01) | (1 << CS00); // Prescaler = 64  (? 976 Hz @16MHz)
+	
+	OCR0A = 0;
+	// --- Servo PWM on PB1 (OC1A)
+	// PB1 (OC1A)
+	DDRB |= (1 << DDB1);
+
+	TCCR1A = (1 << WGM11);
+	TCCR1B = (1 << WGM13) | (1 << WGM12);
+
+	
+	TCCR1A |= (1 << COM1A1);
+	TCCR1B |= (1 << CS11) | (1 << CS10);
+	ICR1 = 4999;
+	OCR1A = 90;
+}
