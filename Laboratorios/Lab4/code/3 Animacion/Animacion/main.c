@@ -4,6 +4,20 @@
 #include <avr/interrupt.h>
 #include <stdlib.h>
 
+#define MAX_STARS 20   // máximo número de estrellas activas
+
+typedef struct {
+	int8_t x;
+	int8_t y;
+	uint8_t brightness;
+	uint8_t speed;
+	uint8_t alive;
+} Star;
+
+Star stars[MAX_STARS];
+
+
+
 // ------------------------------------------------------------------
 // Configuración general
 // ------------------------------------------------------------------
@@ -30,6 +44,14 @@ void send_bit(uint8_t bitVal);
 void send_byte(uint8_t byte);
 void turn_led(uint8_t led_x, uint8_t led_y);
 
+uint8_t wheel_color(uint8_t pos, uint8_t color);
+void anim_rainbow_diagonal(void);
+void anim_barber_pole(void);
+
+
+	
+
+
 // ------------------------------------------------------------------
 // MAIN
 // ------------------------------------------------------------------
@@ -38,16 +60,198 @@ int main(void){
 	_delay_ms(1);     // estable
 	ws2812_show();    // reset largo inicial
 
-	ws2812_clear();
-	for (uint8_t i=0; i<255; i++) ws2812_set_pixel(i, 0, 255, 0);
-	ws2812_show_all();
-
-	while(1){}
+	while (1)
+	{
+		anim_barber_pole();
+	}
 }
 
 // ------------------------------------------------------------------
 // FUNCIONES WS2812
 // ------------------------------------------------------------------
+
+
+uint16_t serpentine_index(uint8_t x, uint8_t y) {
+	if (y % 2 == 0) {
+		return y * 16 + x;         // fila normal
+		} else {
+		return y * 16 + (15 - x);  // fila invertida
+	}
+}
+
+uint8_t wheel_color(uint8_t pos, uint8_t color) {
+	if (pos < 85)
+	return (pos * 3 * (color == 0)) + ((255 - pos*3) * (color == 2));
+	else if (pos < 170)
+	return ((pos-85) * 3 * (color == 1)) + ((255 - (pos-85)*3) * (color == 0));
+	else
+	return ((pos-170) * 3 * (color == 2)) + ((255 - (pos-170)*3) * (color == 1));
+}
+
+void anim_rainbow_diagonal(void) {
+
+	for(uint16_t j = 0; j < 255; j++){
+
+		for(uint8_t y = 0; y < 16; y++){
+			for(uint8_t x = 0; x < 16; x++){
+
+				uint16_t index = serpentine_index(x, y);
+
+				// --- MUCHOS COLORES EN PANTALLA ---
+				uint8_t pos = (x * 8 + y * 5 + j * 2) % 255;
+
+				uint8_t r = wheel_color(pos, 0);
+				uint8_t g = wheel_color(pos, 1);
+				uint8_t b = wheel_color(pos, 2);
+
+				ws2812_set_pixel(index, r, g, b);
+			}
+		}
+
+		ws2812_show_all();
+	}x
+}
+
+
+
+void draw_yellow_frame(int8_t radius) {
+
+	const uint8_t r = 255;
+	const uint8_t g = 200;
+	const uint8_t b = 20;
+
+	int8_t x_start = 8 - radius;
+	int8_t x_end   = 8 + radius;
+	
+	
+	// Curvatura exterior
+	
+	for (int8_t x = x_start; x < x_start + radius*2+1; x++) {
+		ws2812_set_pixel(serpentine_index(x, 1), r, g, b);
+	}
+	
+	for (int8_t x = x_start+2; x < x_start + radius*2-1; x++) {
+		ws2812_set_pixel(serpentine_index(x, 0), r, g, b);
+	}
+	
+	for (int8_t x = x_start; x < x_start + radius*2+1; x++) {
+		ws2812_set_pixel(serpentine_index(x, 14), r, g, b);
+	}
+	
+	for (int8_t x = x_start+2; x < x_start + radius*2-1; x++) {
+		ws2812_set_pixel(serpentine_index(x, 15), r, g, b);
+	}
+	
+	
+	// --- Fila superior (y = 0) ---
+	for (int8_t x = x_start; x < x_start + 2; x++) {
+		if (x >= 0 && x < 16)
+		ws2812_set_pixel(serpentine_index(x, 2), r, g, b);
+	}
+	for (int8_t x = x_end - 1; x <= x_end; x++) {
+		if (x >= 0 && x < 16)
+		ws2812_set_pixel(serpentine_index(x, 2), r, g, b);
+	}
+	
+	// --- Fila superior (y = 0) ---
+	for (int8_t x = x_start; x < x_start + 2; x++) {
+		if (x >= 0 && x < 16)
+		ws2812_set_pixel(serpentine_index(x, 0), 0, 0, 0);
+	}
+	for (int8_t x = x_end - 1; x <= x_end; x++) {
+		if (x >= 0 && x < 16)
+		ws2812_set_pixel(serpentine_index(x, 0), 0, 0, 0);
+	}
+
+	// --- Fila inferior (y = 15) ---
+	for (int8_t x = x_start; x < x_start + 2; x++) {
+		if (x >= 0 && x < 16)
+		ws2812_set_pixel(serpentine_index(x, 13), r, g, b);
+	}
+	for (int8_t x = x_end - 1; x <= x_end; x++) {
+		if (x >= 0 && x < 16)
+		ws2812_set_pixel(serpentine_index(x, 13), r, g, b);
+	}
+	
+	for (int8_t x = x_start; x < x_start + 2; x++) {
+		if (x >= 0 && x < 16)
+		ws2812_set_pixel(serpentine_index(x, 15), 0, 0, 0);
+	}
+	for (int8_t x = x_end - 1; x <= x_end; x++) {
+		if (x >= 0 && x < 16)
+		ws2812_set_pixel(serpentine_index(x, 15), 0, 0, 0);
+	}
+}
+
+
+
+
+void anim_barber_pole(void) {
+
+	const int8_t radius = 3;
+	const uint8_t stripe_width = 9;
+	const uint8_t period = stripe_width * 3;
+
+	uint16_t t = 0;
+
+	while (1) {
+
+		ws2812_clear();
+
+		for (uint8_t y = 0; y < 16; y++) {
+			for (uint8_t x = 0; x < 16; x++) {
+
+				int8_t dx = x - 8;
+				if (dx < -radius || dx > radius) {
+					continue;
+				}
+
+				int8_t adx = dx < 0 ? -dx : dx;
+				int8_t dist = radius - adx;
+				if (dist < 0) dist = 0;
+
+				uint8_t base = (uint8_t)(40 + dist * 35);
+				if (base > 255) base = 255;
+
+				int16_t phase = (int16_t)(dx * 2 + y * 3 + (t / 2));
+				while (phase < 0) phase += period;
+				uint8_t p = (uint8_t)(phase % period);
+
+				uint8_t r, g, b;
+
+				if (p < stripe_width) {
+					r = base;
+					g = base / 5;
+					b = base / 10;
+				}
+				else if (p < 2 * stripe_width) {
+					r = base;
+					g = base;
+					b = base;
+				}
+				else {
+					r = base / 10;
+					g = base / 5;
+					b = base;
+				}
+
+				ws2812_set_pixel(serpentine_index(x, y), r, g, b);
+			}
+		}
+
+		// ??? Marco ajustado al ancho del cilindro ???
+		draw_yellow_frame(radius);
+
+		ws2812_show_all();
+		t++;
+		_delay_ms(30);
+	}
+}
+
+
+
+
+
 
 void ws2812_init(void) {
 	LED_DDR |= (1 << LED_PIN); // Configura pin de salida
@@ -60,7 +264,7 @@ void send_bit(uint8_t bitVal) {
 		"nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"
 		"nop\n\t""nop\n\t""nop\n\t""nop\n\t");
 		PORTD &= ~(1 << LED_PIN);
-		asm volatile ("nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+		asm volatile ("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
 		} else {
 		PORTD |= (1 << LED_PIN);
 		asm volatile ("nop\n\t""nop\n\t""nop\n\t");
@@ -70,6 +274,7 @@ void send_bit(uint8_t bitVal) {
 		"nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
 	}
 }
+
 
 void send_byte(uint8_t byte) {
 	cli();
@@ -87,7 +292,7 @@ void ws2812_send_pixel(uint8_t r, uint8_t g, uint8_t b) {
 }
 
 void ws2812_show(void) {
-	_delay_us(60);  // tiempo de reset (>50us)
+	_delay_us(30);  // tiempo de reset (>50us)
 }
 
 void ws2812_fill(uint8_t r, uint8_t g, uint8_t b, uint16_t n) {
@@ -116,15 +321,15 @@ void ws2812_show_all(void) {
 }
 
 void ws2812_clear(void) {
-	for (uint16_t i = 0; i < NUM_LEDS * 3; i++) leds[i] = 0;
-	ws2812_show_all();
+	for (uint16_t i = 0; i < NUM_LEDS * 3; i++)
+	leds[i] = 0;
 }
 
 // Encender LED en coordenadas (x, y)
 void turn_led(uint8_t led_x, uint8_t led_y) {
 	uint8_t index = led_y * 8 + led_x;
 	ws2812_clear();
-	ws2812_set_pixel(index, 255, 0, 0); // rojo
+	ws2812_set_pixel(index, 0, 0, 0); // rojo
 	ws2812_show_all();
 }
 
