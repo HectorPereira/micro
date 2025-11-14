@@ -123,11 +123,11 @@ int main(void)
 		// Control PWM (OCR0A)
 		// ------------------------
 		case 0xF0:
-		OCR0A = 250;
+		PORTD |= (1 << PORTD6);
 		break;
 
 		case 0xB5:
-		OCR0A = 0;
+		PORTD  &=  ~(1 << PORTD6);
 		break;
 	
 		// ------------------------
@@ -148,13 +148,6 @@ int main(void)
 
 
 void Init_pwm(void){
-	DDRD |= (1 << PORTD6);
-
-	// Fast PWM (modo 3, TOP=255), salida no inversora en OC0A
-	TCCR0A = (1 << WGM01) | (1 << WGM00) | (1 << COM0A1); // COM0A1=1, COM0A0=0
-	TCCR0B = (1 << CS01) | (1 << CS00); // Prescaler = 64  (? 976 Hz @16MHz)
-	
-	OCR0A = 0;
 	// --- Servo PWM on PB1 (OC1A)
 	// PB1 (OC1A)
 	DDRB |= (1 << DDB1);

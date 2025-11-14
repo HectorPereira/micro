@@ -16,11 +16,14 @@ char Number_to_ascii(uint16_t val);
 uint16_t adc_read_AC0(void);
 void Init_adc(void);
 
+static bool dht11_read2(uint8_t *t, uint8_t *h);
+
 
 void I2C_init(void);
 void I2C_start(void);
 void I2C_stop(void);
 uint8_t I2C_write(uint8_t data);
+uint16_t adc_read_AC1(void);
 
 
 // ======================================
@@ -83,13 +86,27 @@ ISR(TIMER1_CAPT_vect) {
 
 }
 
+uint8_t count_t2 = 0;
+uint8_t leer_dht = 0;
+
+ISR(TIMER2_COMPA_vect) {
+	count_t2++;
+	if (count_t2 >= 92) {   // ~1.5 s
+		count_t2 = 0;
+		leer_dht = 1;
+	}
+}
+
 
 int main(void)
 {
 	
+	
 	DDRD |= (1 << PORTD4);
 	
 	sei();
+	
+	
 	
 	DDRD |= (1 << PIN_T);
 	PORTD &= ~(1 << PIN_T);
@@ -98,9 +115,33 @@ int main(void)
 	Init_adc();
 	twi_lcd_init();
 	Init_timer1();
+	char str_led[10];
 	
 	while(1)
 	{
+		uint16_t lectura_led = adc_read_AC1();
+		if (lectura_led > 650)
+		{
+			I2C_start();
+			I2C_write(0x50 << 1);   // dirección esclavo + Write
+			I2C_write(0xB6);
+			I2C_stop();
+			
+			//str_led[0] = '\0';
+			//strcat(str_led, "Prendido");
+			//escribirLCD = 0;
+		}
+		else if(lectura_led < 650){
+			I2C_start();
+			I2C_write(0x50 << 1);   // dirección esclavo + Write
+			I2C_write(0xB7);
+			I2C_stop();
+			
+			//str_led[0] = '\0';
+			//strcat(str_led, "Apagado");
+			//uint8_t escribirLCD = 1;
+		}
+		
 		uint16_t potenciometro = adc_read_AC0();
 		
 		char b[10];
@@ -167,23 +208,50 @@ int main(void)
 		I2C_write(color_code);
 		I2C_stop();
 		
+		uint8_t Tem, Hum;
+		//Tem = 0;
+		
+		
+		if (dht11_read2(&Tem, &Hum)) {
+			leer_dht = 0;
+			if(Tem > 26){
+				I2C_start();
+				I2C_write(0x50 << 1);   // dirección esclavo + Write
+				I2C_write(0xF0);
+				I2C_stop();
+				} else {
+				I2C_start();
+				I2C_write(0x50 << 1);   // dirección esclavo + Write
+				I2C_write(0xB5);
+				I2C_stop();
+			}
+		}
+		else {
+			
+		}
 		
 		_delay_us(100);
 		
 		Buffer1[0]= '\0';
 		Buffer2[0]= '\0';
+		char baba[10];
 		
+		Add_to_string(baba , Tem);
 		//if(escribirLCD){
 		strcat(Buffer1, "G");
 		strcat(Buffer1, str_grados);
+		strcat(Buffer1, "    ");
+		
+		strcat(Buffer1, "T ");
+		strcat(Buffer1, baba);
 		strcat(Buffer1, "   ");
 		
 		char d[10];
 		strcat(Buffer2, "D");
 		strcat(Buffer2, str_dist);	
-		strcat(Buffer2, "  ");
+		strcat(Buffer2, " cm  ");
 		strcat(Buffer2, Add_to_string(d, Distancia_cm));
-		strcat(Buffer2, "  ");
+		strcat(Buffer2, " ");
 		twi_lcd_cmd(0x80);
 		twi_lcd_msg(Buffer1);
 		twi_lcd_cmd(0xC0);
@@ -401,4 +469,42 @@ void Init_timer1(void) {
 	TCNT1 = 0;           // Reiniciar contador
 	TIMSK1 = (1 << ICIE1); // Habilitar interrupción de captura
 	sei();                // Habilitar interrupciones globales
+}
+
+
+
+uint16_t adc_read_AC1(void) {
+	ADMUX  = (1 << REFS0)|(1 << MUX0);   // AVcc ref, MUX=0001 (ADC1)
+	ADCSRA |= (1 << ADSC);       // Start conversion
+	while (ADCSRA & (1 << ADSC));
+	return ADC;
+}
+
+
+/* ===== DHT11 en PD4 ===== */
+#define DHT_PIN PD7
+static bool dht11_read2(uint8_t *t, uint8_t *h){
+	uint8_t d[5]={0};
+	DDRD |= (1<<DHT_PIN); PORTD &= ~(1<<DHT_PIN); _delay_ms(20);
+	PORTD |= (1<<DHT_PIN); _delay_us(40);
+	DDRD &= ~(1<<DHT_PIN); PORTD |= (1<<DHT_PIN);
+	uint16_t to=0;
+	while(PIND&(1<<DHT_PIN)){ if(++to>200) return false; _delay_us(1); }
+	to=0; while(!(PIND&(1<<DHT_PIN))){ if(++to>200) return false; _delay_us(1); }
+	to=0; while(PIND&(1<<DHT_PIN)){ if(++to>200) return false; _delay_us(1); }
+	for(uint8_t i=0;i<40;i++){
+		to=0; while(!(PIND&(1<<DHT_PIN))){ if(++to>200) return false; _delay_us(1); }
+		uint16_t w=0; while(PIND&(1<<DHT_PIN)){ if(++w>255) break; _delay_us(1); }
+		d[i/8]<<=1; if(w>40) d[i/8]|=1;
+	}
+	if((uint8_t)(d[0]+d[1]+d[2]+d[3])!=d[4]) return false;
+	*h=d[0]; *t=d[2]; return true;
+}
+
+
+void timer2_init(void) {
+	TCCR2A = (1 << WGM21);              // Modo CTC
+	TCCR2B = (1 << CS22) | (1 << CS21) | (1 << CS20); // Prescaler 1024
+	OCR2A  = 255;                       // Comparar al máximo (cada 16.384 ms)
+	TIMSK2 = (1 << OCIE2A);             // Habilitar interrupción Compare Match A
 }
