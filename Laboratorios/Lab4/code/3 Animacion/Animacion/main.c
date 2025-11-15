@@ -4,17 +4,26 @@
 #include <avr/interrupt.h>
 #include <stdlib.h>
 
-#define MAX_STARS 20   // máximo número de estrellas activas
+// ------------------------------------------------------------------
+// USART - Recepción Asíncrona
+// ------------------------------------------------------------------
+volatile uint8_t uart_rx = 0;
+volatile uint8_t new_data = 0;
 
-typedef struct {
-	int8_t x;
-	int8_t y;
-	uint8_t brightness;
-	uint8_t speed;
-	uint8_t alive;
-} Star;
+void uart_init(uint16_t baud) {
+	uint16_t ubrr = (F_CPU / (16UL * baud)) - 1;
 
-Star stars[MAX_STARS];
+	UBRR0H = (uint8_t)(ubrr >> 8);
+	UBRR0L = (uint8_t)(ubrr & 0xFF);
+
+	UCSR0B = (1 << RXEN0) | (1 << RXCIE0);  // RX + Interrupt
+	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00); // 8N1
+}
+
+ISR(USART_RX_vect) {
+	uart_rx = UDR0;
+	new_data = 1;
+}
 
 
 
@@ -57,14 +66,26 @@ void anim_barber_pole(void);
 // ------------------------------------------------------------------
 int main(void){
 	ws2812_init();
-	_delay_ms(1);     // estable
-	ws2812_show();    // reset largo inicial
+	uart_init(9600);
+	sei();                 // habilitar interrupciones globales
+
+	ws2812_show();         // reset inicial
 
 	while (1)
 	{
-		anim_barber_pole();
+		if (new_data) {
+			new_data = 0;
+
+			if (uart_rx == '1') {
+				anim_barber_pole();
+			}
+			else if (uart_rx == '2') {
+				anim_rainbow_diagonal();
+			}
+		}
 	}
 }
+
 
 // ------------------------------------------------------------------
 // FUNCIONES WS2812
@@ -93,8 +114,7 @@ void anim_rainbow_diagonal(void) {
 	for(uint16_t j = 0; j < 255; j++){
 
 		for(uint8_t y = 0; y < 16; y++){
-			for(uint8_t x = 0; x < 16; x++){
-
+			for(uint8_t x = 0; x < 16; x++){	
 				uint16_t index = serpentine_index(x, y);
 
 				// --- MUCHOS COLORES EN PANTALLA ---
@@ -109,7 +129,7 @@ void anim_rainbow_diagonal(void) {
 		}
 
 		ws2812_show_all();
-	}x
+	}
 }
 
 
@@ -117,8 +137,8 @@ void anim_rainbow_diagonal(void) {
 void draw_yellow_frame(int8_t radius) {
 
 	const uint8_t r = 255;
-	const uint8_t g = 200;
-	const uint8_t b = 20;
+	const uint8_t g = 255;
+	const uint8_t b = 0;
 
 	int8_t x_start = 8 - radius;
 	int8_t x_end   = 8 + radius;
@@ -195,7 +215,7 @@ void anim_barber_pole(void) {
 	uint16_t t = 0;
 
 	while (1) {
-
+		if (new_data) return;
 		ws2812_clear();
 
 		for (uint8_t y = 0; y < 16; y++) {
@@ -221,7 +241,7 @@ void anim_barber_pole(void) {
 
 				if (p < stripe_width) {
 					r = base;
-					g = base / 5;
+					g = base / 10;
 					b = base / 10;
 				}
 				else if (p < 2 * stripe_width) {
