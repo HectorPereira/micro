@@ -1,9 +1,20 @@
 #ifndef MEGALIB_H_
 #define MEGALIB_H_
 
+
+
+// ======================================
+// Si no esta definidia la frecuencia
+// ======================================
+
 #ifndef F_CPU
 #define F_CPU 16000000UL
 #endif
+
+
+// ======================================
+// Librerias
+// ======================================
 
 #include <avr/io.h>
 #include <util/delay.h>
@@ -24,7 +35,7 @@
 #define MISO PB4
 #define SCK  PB5
 
-// DHT, luz, ultrasonido
+// DHT, luz, HCR
 #define DHT_PIN   PD7
 #define LIGHT_PIN PD2
 #define PIN_T     PD4
@@ -47,7 +58,7 @@
 #endif
 
 // ======================================
-// Variables globales visibles desde main
+// Variables globales
 // ======================================
 
 extern uint16_t Distancia_cm;

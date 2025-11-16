@@ -4,7 +4,7 @@
 // Variables globales internas
 // ======================================
 
-// DHT crudo (si en algún momento los querés usar)
+// DHT 
 uint8_t Hum = 0, Humdec = 0, Temp = 0, Tdec = 0, Checksum = 0;
 
 // LCD / I2C
@@ -30,7 +30,7 @@ uint16_t width = 0;
 // ISRs
 // ======================================
 
-// Captura de pulso del HC-SR04 (entrada en ICP1 / PB0 si corresponde)
+// Captura de pulso del HC-SR04 (entrada en ICP1 / PB0 )
 ISR(TIMER1_CAPT_vect) {
 	if (TCCR1B & (1 << ICES1)) {
 		// Flanco ascendente: guardar inicio y cambiar a descendente
@@ -296,7 +296,6 @@ void Init_pwm(void){
 void Init_timer1(void) {
 	TCCR1A = 0;  // Modo normal
 
-	// ICNC1=1 (antirruido), ICES1=1 (flanco ascendente), CS11=1 (prescaler /8)
 	TCCR1B = (1 << ICNC1) | (1 << ICES1) | (1 << CS11);
 
 	TCNT1  = 0;
@@ -413,7 +412,7 @@ bool ascii_to_u16_switch(const char *s, uint16_t *out) {
 }
 
 // ======================================
-// DHT11 (versión compacta en PD7)
+// DHT11 
 // ======================================
 
 bool dht11_read2(uint8_t *t, uint8_t *h){

@@ -90,7 +90,7 @@ int main(void)
 				uart_print("Error de lectura\r\n");
 			}
 
-			_delay_ms(1500);  // DHT11 necesita >1s entre lecturas
+			_delay_ms(1500);  // DHT11 1s entre lecturas
 		}
 
 		// ============================
