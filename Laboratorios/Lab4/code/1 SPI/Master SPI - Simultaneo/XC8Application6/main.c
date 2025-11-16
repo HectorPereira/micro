@@ -46,7 +46,7 @@ int main(void)
 		SS_LOW(); spi_transfer(0xFA); SS_HIGH();
 
 		uint16_t pot = adc_read_AC0();
-		float grados = pot * 0.17;
+		float grados = pot * 0.17; // el 0.17 sale de 180/1024 - grados/adc
 		Add_to_string(str_grados, (uint16_t)grados);
 		SS_LOW(); spi_transfer((uint8_t)grados); SS_HIGH();
 

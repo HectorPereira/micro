@@ -32,11 +32,13 @@ LIB_DEP:=
 LINKER_SCRIPT_DEP:=
 
 # Every subdirectory with source files must be described here
-SUBDIRS := 
+SUBDIRS :=  \
+../Liberia
 
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
+../Liberia/Liberia.c \
 ../main.c
 
 
@@ -47,15 +49,19 @@ ASM_SRCS +=
 
 
 OBJS +=  \
+Liberia/Liberia.o \
 main.o
 
 OBJS_AS_ARGS +=  \
+Liberia/Liberia.o \
 main.o
 
 C_DEPS +=  \
+Liberia/Liberia.d \
 main.d
 
 C_DEPS_AS_ARGS +=  \
+Liberia/Liberia.d \
 main.d
 
 OUTPUT_FILE_PATH +=Comunicacion\ I2C.elf
@@ -72,6 +78,13 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
+Liberia/Liberia.o: ../Liberia/Liberia.c
+	@echo Building file: $<
+	@echo Invoking: XC8 C Compiler : 2.36
+	$(QUOTE)C:\Program Files\Microchip\xc8\v2.36\bin\xc8-cc.exe$(QUOTE)  -mcpu=ATmega328P  -mdfp="C:\Program Files (x86)\Atmel\Studio\7.0\Packs\Atmel\ATmega_DFP\2.1.506\xc8"  -c -x c -funsigned-char -funsigned-bitfields -mext=cci -D__ATmega328P__ -DDEBUG  -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
 ./main.o: .././main.c
 	@echo Building file: $<
 	@echo Invoking: XC8 C Compiler : 2.36

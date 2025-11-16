@@ -303,31 +303,36 @@ bool ascii_to_u16_switch(const char *s,uint16_t *out){
 bool dht11_read2(uint8_t *t,uint8_t *h){
 	uint8_t d[5]={0};
 		
+	// Señal para datos	
 	DDRD|=(1<<DHT_PIN);
 	PORTD&=~(1<<DHT_PIN); 
 	_delay_ms(20);
 	PORTD|=(1<<DHT_PIN);
 	 _delay_us(40);
 	 
-	DDRD&=~(1<<DHT_PIN);  //Como entrada
+	// Entrada para datos, mismo pin
+	DDRD&=~(1<<DHT_PIN); 
 	
 	PORTD|=(1<<DHT_PIN);
 	
 	uint16_t to=0;
 	
-	while(PIND&(1<<DHT_PIN)){ 
+	// Espera a la señal
+	while(PIND&(1<<DHT_PIN)){ //Primer alto
 		if(++to>200) 
 		return false;
 		_delay_us(1);
 		}
 		to=0;
-	 while(!(PIND&(1<<DHT_PIN))){
+		
+	 while(!(PIND&(1<<DHT_PIN))){ // Primer bajo
 		  if(++to>200)return false; 
 		  _delay_us(1);}
 		to=0; 
-		while(PIND&(1<<DHT_PIN)){
-			 if(++to>200)return false;
-			  _delay_us(1);}
+	while(PIND&(1<<DHT_PIN)){ // Segundo alto
+		 if(++to>200)return false;
+		_delay_us(1);}
+	// Toma datos
 	for(uint8_t i=0;i<40;i++){
 		to=0; 
 		while(!(PIND&(1<<DHT_PIN))){ 
@@ -335,10 +340,15 @@ bool dht11_read2(uint8_t *t,uint8_t *h){
 			_delay_us(1);}
 		uint16_t w=0; while(PIND&(1<<DHT_PIN)){ 
 			if(++w>255)break;
-			_delay_us(1);}
-		d[i/8]<<=1; if(w>40) d[i/8]|=1;
+			_delay_us(1);
+			}
+		// Para ir guardando el bit 1 a 1 en d[i/8](8/8 = 1, 16/8 = 2, etc)
+		d[i/8]<<=1; 
+		if(w>40) 
+		d[i/8]|=1;
 	}
-	if((uint8_t)(d[0]+d[1]+d[2]+d[3])!=d[4]) return false;
-	*h=d[0]; *t=d[2];
+	if((uint8_t)(d[0]+d[1]+d[2]+d[3])!=d[4]) 
+	return false;
+	*h=d[0]; *t=d[2]; // Guardar Temperatura y Guardar Humedad
 	return true;
 }
