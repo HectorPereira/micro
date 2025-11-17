@@ -4,7 +4,11 @@
 
 
 #define mp 10000
-#define Pin_M PORTB2
+#define Pin_M PORTB1
+#define max_degrees 4000
+#define Min_degrees 2000
+
+
 
 double dutyCycle = 0;
 
@@ -42,15 +46,20 @@ void motor_init(void){
 
 
 //PWM para el control del motor paso a paso 
-void init_motor2(){
-	DDRB |= (1<<Pin_M);
-	
-	TCCR0A |= (1 << WGM11) | (1<<COM1A1);
-	TCCR0B |= (1 << WGM13) | (1 << WGM12) | (1 << CS11); // clk/8
-	ICR1 = 39999;
-	
-	OCR0A = (dutyCycle/100)*255;
+void init_pwm(void)
+{
+		DDRB |= (1 << Pin_M);
+
+		TCCR1A = (1<<COM1A1) | (1<<WGM11);
+		TCCR1B = (1<<WGM13) | (1<<WGM12) | (1<<CS11);
+
+
+		ICR1 = 39999;   // TOP
+
+
+		OCR1A = Min_degrees;  // ~1 ms ? servo en 0 grados
 }
+
 
 void left(){
 	PORTD |= (1<<PORTD6);
@@ -72,10 +81,10 @@ void stop(){
 	PORTD &= ~(1<<PORTD6);
 }
 
-void punch(){
-	for(uint8_t i = 0; i < 100; i++){
-		OCR1A +=20;
-	}
+void kick(){
+	OCR1A = 4000; // Medio para probar
+	_delay_ms(500); // desues lo cambio probando con el servo
+	OCR1A = 2000;
 }
 
 void uart_println(char c) {
@@ -89,10 +98,9 @@ void uart_println(char c) {
 int main(void) {
 	uart_init();
 	//motor_init();
-	init_motor2();
+	init_pwm();
 	
 	while (1) {
-		punch();
 		// If data available (RX complete flag)
 		if (UCSR0A & (1 << RXC0)) {
 			char val = uart_rx();
@@ -100,7 +108,7 @@ int main(void) {
 			if (val == 'F') forward();
 			if (val == 'L') left();
 			if (val == 'R') right();
-			if (val == 'P') punch();
+			if (val == 'P') kick();
 			if (val == '0') stop();
 		}
 	}

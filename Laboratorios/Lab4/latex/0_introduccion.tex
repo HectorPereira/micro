@@ -4,16 +4,19 @@
 
 \textbf{Objetivo general:}
 \begin{quote}
-% Escribe aquí el objetivo general
+Integrar comunicación SPI, I²C y UART en sistemas basados en el microcontrolador ATmega328P para la adquisición de datos de sensores, el control de actuadores y la gestión de una matriz LED RGB con animaciones interactivas.
 \end{quote}
 
 \textbf{Objetivos específicos:}
 \begin{itemize}
-    \item % Objetivo específico 1
-    \item % Objetivo específico 2
-    \item % Objetivo específico 3
-    \item % Objetivo específico 4
+    \item Implementar un sistema maestro–esclavo mediante comunicación SPI entre dos ATmega328P para la lectura de sensores y el control de actuadores.
+    \item Implementar un sistema maestro–esclavo utilizando comunicación I²C entre dos ATmega328P, replicando y comparando el funcionamiento del sistema basado en SPI.
+    \item Controlar el movimiento de un punto luminoso en una matriz LED RGB mediante un giroscopio y acelerómetro MPU6050.
+    \item Diseñar y programar animaciones en una matriz LED RGB, con selección dinámica mediante comunicación UART.
+    \item Desarrollar un vehículo controlado por comunicación Bluetooth empleando un ATmega328P como unidad de control principal.
+    \item Visualizar la comunicación I2C y SPI mediante un osciloscopio.
 \end{itemize}
+
 
 \vspace{1em}
 
@@ -37,20 +40,28 @@ E & Microcontroladores & Física \\ \bottomrule
 \end{table}
 
 \vspace{1em}
-
 \subsubsection{SPI}
+
+Sistema de comunicación maestro–esclavo basado en el protocolo SPI entre dos microcontroladores ATmega328P. El maestro recibe señales de sensores y envía comandos al esclavo, que controla los actuadores correspondientes.
 
 \vspace{1em}
 
 \subsubsection{I2C}
 
+Arquitectura maestro–esclavo utilizando el bus I\textsuperscript{2}C. El maestro gestiona las lecturas de sensores y transmite instrucciones al esclavo, encargado de la operación de los actuadores asignados.
+
 \vspace{1em}
 
 \subsubsection{Animación}
 
+Matriz LED RGB de 16×16 capaz de reproducir dos animaciones distintas almacenadas en memoria. La selección de la animación se realiza mediante comandos enviados por comunicación UART, permitiendo alternar entre ellas en tiempo real.
+
 \vspace{1em}
 
 \subsubsection{Giroscopio}
+
+Sistema interactivo que utiliza el sensor MPU6050 para detectar la inclinación de la placa o protoboard. Un punto luminoso se desplaza dentro de la matriz LED según la orientación medida, y un botón físico permite cambiar su color sin superar los límites de la matriz.
+
 
 \vspace{1em}
 

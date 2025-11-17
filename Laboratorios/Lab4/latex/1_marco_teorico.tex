@@ -1,2 +1,67 @@
 \section{Marco teórico}
 
+\subsubsection{DHT11}
+
+El DHT11 es un sensor digital utilizado para medir temperatura y humedad relativa en aplicaciones de monitoreo ambiental. Integra un sensor capacitivo para la medición de humedad, un termistor tipo NTC para la temperatura y un microcontrolador interno encargado de procesar y enviar los datos mediante una interfaz digital de un solo hilo \cite{dht11_datasheet_mouser}. Su simplicidad de conexión y bajo costo lo convierten en un dispositivo ampliamente empleado en sistemas educativos, prototipos y proyectos básicos de IoT \cite{smarthon_hwlibre}.
+
+\textbf{Principales características técnicas:}
+\begin{itemize}
+    \item Alimentación típica entre 3~V y 5.5~V.
+    \item Rango de medición de temperatura aproximado entre 0~°C y 50~°C, con resolución de 1~°C.
+    \item Rango de medición de humedad relativa entre 20~\% y 90~\%, con resolución de 1~\%.
+    \item Comunicación mediante una interfaz digital de un solo bus.
+    \item Frecuencia de muestreo típica cercana a 0.5~Hz (una lectura cada dos segundos) \cite{dht11_datasheet_mouser}.
+\end{itemize}
+
+Se puede ver el módulo en la figura \ref{fig:S1}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{anexos/1 SPI/DHT11.png}
+    \caption{Pulsos DHT11 \url{https://www.alldatasheet.com/html-pdf/2193416/OSEPP/DHT11/1067/6/DHT11.html}}
+    \label{fig:S1}
+\end{figure}
+
+
+
+\subsubsection{Protocolo de Comunicación}
+
+Dicho sensor emplea un protocolo de comunicación digital específico definido por el fabricante como “single‐wire bi–directional serial communication protocol” \cite{dht11_datasheet_mouser}. Este protocolo propietario se basa en una secuencia de pulsos temporizados en un único hilo de datos. La comunicación comienza cuando el microcontrolador envía una señal de inicio consistente en un pulso bajo prolongado, seguido de un pulso alto de corta duración. Tras esta petición, el DHT11 responde con una secuencia característica de pulsos que indican su disponibilidad y comienza a transmitir los datos.
+
+La información enviada por el sensor se compone de 40 bits organizados en 5 bytes consecutivos: humedad entera, humedad decimal, temperatura entera, temperatura decimal y un byte de verificación (checksum), el cual corresponde a la suma de los cuatro valores anteriores \cite{dht11_datasheet_mouser}. Cada bit es codificado mediante la duración del pulso alto: un pulso corto representa un ‘0’, mientras que un pulso alto más prolongado representa un ‘1’. Todo el intercambio se realiza por la misma línea de datos. Véase la figura \ref{fig:S1} para observar la gráfica de pulsos.
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{anexos/1 SPI/Señal DHT1.png}
+    \caption{Pulsos DHT11 \url{https://www.alldatasheet.com/html-pdf/2193416/OSEPP/DHT11/1067/6/DHT11.html}}
+    \label{fig:S1}
+\end{figure}
+
+
+
+\subsection{Módulo Bluetooth HC05}
+
+El HC-05 es un módulo de comunicación inalámbrica basado en Bluetooth 2.0 diseñado para establecer enlaces serie mediante UART \cite{hc05_naylamp_at_commands}. Permite configurarse tanto en modo maestro como esclavo, lo que facilita la conexión con dispositivos externos como computadoras, teléfonos o microcontroladores. Su simplicidad de uso y compatibilidad con niveles de 3.3~V y 5~V lo convierten en una opción común para proyectos de robótica, domótica y sistemas embebidos que requieren transmisión de datos sin cables.
+
+En la figura \ref{fig:HC05} se puede ver una imagen del módulo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{anexos/5 Futbol/HC05.png}
+    \caption{HC-05 \url{https://blog.naver.com/PostView.nhn?blogId=khc3544&logNo=220865625673}}
+    \label{fig:HC05}
+\end{figure}
+
+
+
+\subsection{MPU6050}
+
+El MPU6050 es un módulo inercial de seis ejes que integra un acelerómetro de tres ejes y un giroscopio de tres ejes en un único chip MEMS con resolución de 16 bits. Este sensor permite medir aceleración lineal, velocidad angular y cambios de orientación del dispositivo, incorporando además un procesador digital de movimiento (DMP) que facilita el procesamiento interno de datos para reducir la carga computacional del microcontrolador \cite{mpu6050_circuitdigest}. Su comunicación mediante el bus I\textsuperscript{2}C permite una integración sencilla con plataformas como el ATmega328P, haciéndolo adecuado para aplicaciones de control, navegación, robótica y sistemas interactivos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{anexos/4 Giroscopio/MCu.png}
+    \caption{MPU6050 \url{https://circuitdigest.com/microcontroller-projects/interfacing-mpu6050-module-with-arduino}}
+    \label{fig:MCU6050}
+\end{figure}
