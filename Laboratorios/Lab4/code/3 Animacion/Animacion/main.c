@@ -56,6 +56,8 @@ void turn_led(uint8_t led_x, uint8_t led_y);
 uint8_t wheel_color(uint8_t pos, uint8_t color);
 void anim_rainbow_diagonal(void);
 void anim_barber_pole(void);
+void draw_raibow_mask(void);
+
 
 
 	
@@ -70,12 +72,13 @@ int main(void){
 	sei();                 // habilitar interrupciones globales
 
 	ws2812_show();         // reset inicial
-
+	
+	
 	while (1)
 	{
 		if (new_data) {
 			new_data = 0;
-
+	
 			if (uart_rx == '1') {
 				anim_barber_pole();
 			}
@@ -110,25 +113,92 @@ uint8_t wheel_color(uint8_t pos, uint8_t color) {
 }
 
 void anim_rainbow_diagonal(void) {
+	while (1)
+	{
+		for(uint16_t j = 0; j < 255; j++){
+			for(uint8_t y = 0; y < 16; y++){
+				for(uint8_t x = 0; x < 16; x++){
+					if (new_data) return;
+					uint16_t index = serpentine_index(15-y, x);
 
-	for(uint16_t j = 0; j < 255; j++){
+					// --- MUCHOS COLORES EN PANTALLA ---
+					uint8_t pos = (x * 9 + y * 6 + j * 3) % 255;
 
-		for(uint8_t y = 0; y < 16; y++){
-			for(uint8_t x = 0; x < 16; x++){	
-				uint16_t index = serpentine_index(x, y);
+					uint8_t r = wheel_color(pos, 0);
+					uint8_t g = wheel_color(pos, 1);
+					uint8_t b = wheel_color(pos, 2);
 
-				// --- MUCHOS COLORES EN PANTALLA ---
-				uint8_t pos = (x * 8 + y * 5 + j * 2) % 255;
-
-				uint8_t r = wheel_color(pos, 0);
-				uint8_t g = wheel_color(pos, 1);
-				uint8_t b = wheel_color(pos, 2);
-
-				ws2812_set_pixel(index, r, g, b);
+					ws2812_set_pixel(index, r, g, b);
+				}
 			}
+			draw_raibow_mask();
+			ws2812_show_all();
 		}
+	}
+}
 
-		ws2812_show_all();
+void draw_raibow_mask(void) {
+	const uint8_t r = 0;
+	const uint8_t g = 0;
+	const uint8_t b = 0;
+	
+	for (int8_t x = 0; x < 10; x++) {
+		ws2812_set_pixel(serpentine_index(x, 0), r, g, b);
+	}
+	for (int8_t x = 0; x < 7; x++) {
+		ws2812_set_pixel(serpentine_index(x, 1), r, g, b);
+	}
+	for (int8_t x = 0; x < 5; x++) {
+		ws2812_set_pixel(serpentine_index(x, 2), r, g, b);
+	}
+	for (int8_t x = 0; x < 4; x++) {
+		ws2812_set_pixel(serpentine_index(x, 3), r, g, b);
+	}
+	for (int8_t x = 0; x < 3; x++) {
+		ws2812_set_pixel(serpentine_index(x, 4), r, g, b);
+	}
+	for (int8_t x = 0; x < 2; x++) {
+		ws2812_set_pixel(serpentine_index(x, 5), r, g, b);
+	}
+	for (int8_t x = 0; x < 2; x++) {
+		ws2812_set_pixel(serpentine_index(x, 6), r, g, b);
+	}
+	for (int8_t x = 0; x < 1; x++) {
+		ws2812_set_pixel(serpentine_index(x, 7), r, g, b);
+	}
+	for (int8_t x = 0; x < 1; x++) {
+		ws2812_set_pixel(serpentine_index(x, 8), r, g, b);
+	}
+	for (int8_t x = 0; x < 1; x++) {
+		ws2812_set_pixel(serpentine_index(x, 9), r, g, b);
+	}
+	
+	for (int8_t x = 0; x < 3; x++) {
+		ws2812_set_pixel(serpentine_index(15-x, 7), r, g, b);
+	}
+	for (int8_t x = 0; x < 5; x++) {
+		ws2812_set_pixel(serpentine_index(15-x, 8), r, g, b);
+	}
+	for (int8_t x = 0; x < 6; x++) {
+		ws2812_set_pixel(serpentine_index(15-x, 9), r, g, b);
+	}
+	for (int8_t x = 0; x < 7; x++) {
+		ws2812_set_pixel(serpentine_index(15-x, 10), r, g, b);
+	}
+	for (int8_t x = 0; x < 7; x++) {
+		ws2812_set_pixel(serpentine_index(15-x, 11), r, g, b);
+	}
+	for (int8_t x = 0; x < 8; x++) {
+		ws2812_set_pixel(serpentine_index(15-x, 12), r, g, b);
+	}
+	for (int8_t x = 0; x < 8; x++) {
+		ws2812_set_pixel(serpentine_index(15-x, 13), r, g, b);
+	}
+	for (int8_t x = 0; x < 8; x++) {
+		ws2812_set_pixel(serpentine_index(15-x, 14), r, g, b);
+	}
+	for (int8_t x = 0; x < 8; x++) {
+		ws2812_set_pixel(serpentine_index(15-x, 15), r, g, b);
 	}
 }
 
