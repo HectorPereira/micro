@@ -82,8 +82,8 @@ void stop(){
 }
 
 void kick(){
-	OCR1A = 4000; // Medio para probar
-	_delay_ms(500); // desues lo cambio probando con el servo
+	OCR1A = 3000; // Medio para probar
+	_delay_ms(100); // desues lo cambio probando con el servo
 	OCR1A = 2000;
 }
 

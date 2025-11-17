@@ -311,11 +311,11 @@ Disassembly of section .text.kick:
 }
 
 void kick(){
-	OCR1A = 4000; // Medio para probar
+	OCR1A = 3000; // Medio para probar
  12c:	e8 e8       	ldi	r30, 0x88	; 136
  12e:	f0 e0       	ldi	r31, 0x00	; 0
- 130:	80 ea       	ldi	r24, 0xA0	; 160
- 132:	9f e0       	ldi	r25, 0x0F	; 15
+ 130:	88 eb       	ldi	r24, 0xB8	; 184
+ 132:	9b e0       	ldi	r25, 0x0B	; 11
  134:	91 83       	std	Z+1, r25	; 0x01
  136:	80 83       	st	Z, r24
 	#else
@@ -325,15 +325,15 @@ void kick(){
 
 	__builtin_avr_delay_cycles(__ticks_dc);
  138:	2f ef       	ldi	r18, 0xFF	; 255
- 13a:	89 e6       	ldi	r24, 0x69	; 105
- 13c:	98 e1       	ldi	r25, 0x18	; 24
+ 13a:	81 ee       	ldi	r24, 0xE1	; 225
+ 13c:	94 e0       	ldi	r25, 0x04	; 4
  13e:	21 50       	subi	r18, 0x01	; 1
  140:	80 40       	sbci	r24, 0x00	; 0
  142:	90 40       	sbci	r25, 0x00	; 0
  144:	e1 f7       	brne	.-8      	; 0x13e <kick+0x12>
  146:	00 c0       	rjmp	.+0      	; 0x148 <kick+0x1c>
  148:	00 00       	nop
-	_delay_ms(500); // desues lo cambio probando con el servo
+	_delay_ms(100); // desues lo cambio probando con el servo
 	OCR1A = 2000;
  14a:	80 ed       	ldi	r24, 0xD0	; 208
  14c:	97 e0       	ldi	r25, 0x07	; 7
