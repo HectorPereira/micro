@@ -88,6 +88,7 @@ Para la visualización de los datos en la pantalla LCD se emplean dos búferes, 
 
 Para ver el main del esclavo, vease ~\ref{anexo:RE}. Se implemento la recepcion mediante una unica funcion SPI slaveReceive, y luego se evalua con un switch el valor del mismo. Teniendo reservado valores para cada accion a realizar. Las cuales se pueden ver en la tabla \ref{tab:tabspi} y \ref{tab:tabspi2}.
 
+
 \begin{table}[h]
     \centering
     \caption{\textbf{TABLE I.} \textit{Comandos de Control de Salidas (GPIO y RGB)}}
@@ -128,6 +129,13 @@ Para ver el main del esclavo, vease ~\ref{anexo:RE}. Se implemento la recepcion 
     \label{tab:tabspi2}
 \end{table}
 
+\begin{equation} \label{eq:servomapfinal}
+\text{ticks} = T_{MIN} + \frac{(T_{MAX} - T_{MIN}) \times \text{deg}}{180}
+\end{equation}
+
+La Ecuación \ref{eq:servomapfinal} realiza un \textbf{mapeo lineal} que convierte el ángulo deseado ($\text{deg}$) en el rango $[0^\circ, 180^\circ]$ a un valor de registro de comparación PWM ($\text{ticks}$) dentro del rango $[T_{MIN}, T_{MAX}]$. Este valor de $\text{ticks}$ establece la amplitud del pulso necesaria para la posición del servomotor (típicamente entre $1 \text{ ms}$ y $2 \text{ ms}$).
+
+El término $T_{MIN}$ representa el valor base del pulso ($1 \text{ ms}$ o $0^\circ$), y el segundo término de la ecuación, $\frac{(T_{MAX} - T_{MIN}) \times \text{deg}}{180}$, calcula la \textbf{cantidad de *ticks* que deben ser sumados} al valor base para alcanzar la amplitud de pulso requerida por el ángulo específico.
 
 
 \subsection{Maestro Esclavo - I2c}
