@@ -138,5 +138,25 @@ La Ecuación \ref{eq:servomapfinal} realiza un \textbf{mapeo lineal} que convier
 El término $T_{MIN}$ representa el valor base del pulso ($1 \text{ ms}$ o $0^\circ$), y el segundo término de la ecuación, $\frac{(T_{MAX} - T_{MIN}) \times \text{deg}}{180}$, calcula la \textbf{cantidad de *ticks* que deben ser sumados} al valor base para alcanzar la amplitud de pulso requerida por el ángulo específico.
 
 
+\subsubsection{Inicialización de Periféricos y Comunicación}
+
+\paragraph{Inicialización I2C (TWI) y Pantalla LCD (PCF8574)}
+Se configura la interfaz \textbf{Two Wire Interface (TWI)}, utilizada para la comunicación con el expansor I/O \textbf{PCF8574}, que a su vez controla la pantalla LCD. La rutina \texttt{I2C\_init} establece la frecuencia de reloj del bus a $100 \text{ kHz}$. La función \texttt{pcf8574\_autodetect} escanea las direcciones comunes para identificar la correcta (\texttt{PCF\_ADDR}), y \texttt{twi\_lcd\_init} realiza la secuencia de comandos necesaria para el modo de 4 bits. Vease anexo~\ref{anexo:LCDspi}.
+
+
+\paragraph{Inicialización de Temporizadores y ADC}
+Se configuran varios temporizadores y el conversor analógico-digital (ADC) para la adquisición de datos y generación de señales:
+\begin{itemize}
+    \item \textbf{ADC}: Se habilita el conversor (\texttt{Init\_adc}), se establece el \textit{prescaler} y se deshabilita el \textit{buffer} digital en los pines analógicos.
+    \item \textbf{Timer 1}: Inicializado para la función de \textbf{Captura de Entrada} (\texttt{ICIE1}), crucial para la medición del pulso del sensor de distancia (HC-SR04).
+    \item \textbf{Timer 2}: Configurado en modo CTC para generar una \textbf{interrupción periódica} (\texttt{OCIE2A}), la cual temporiza las lecturas del sensor DHT11.
+\end{itemize}
+
+
+En anexo ~\ref{anexo:initsSPI}, se puede ver estas inicializaciónes. 
+
 \subsection{Maestro Esclavo - I2c}
+
+
+
 
