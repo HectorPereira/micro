@@ -4,3 +4,202 @@
 La carpeta de Google Drive correspondiente a este laboratorio puede encontrarse en \url{https://drive.google.com/drive/folders/1zlPwmZ6XGEYrSYWA3p0l1uxA-KCTYJkX?usp=drive_link}. Allí encontrará evidencias del trabajo realizado durante esta actividad.
 
 \subsection{Fragmentos de código}
+
+
+\paragraph{SPI Init Maestro}\label{anexo:MasterSPIIn}---\\
+\begin{lstlisting}[language=C, caption={Inicializacion SPI Maestro}]
+void spi_init(void) {
+	DDRB |= (1 << CS) | (1 << MOSI) | (1 << SCK); //Pines de comunicación
+	DDRB &= ~(1 << MISO); // Entrada en Master in slave out
+	SPCR = (1 << SPE) | (1 << MSTR); // SPI enable y Modo maestro
+}
+\end{lstlisting}
+
+\paragraph{SPI Init Esclavo}\label{anexo:SlaveSPIIn}---\\
+\begin{lstlisting}[language=C, caption={Inicializacion SPI Esclavo}]
+void spi_init_slave(){
+		DDRB |= (1 << MISO); // MISO salida
+		DDRB &= ~(1 << MOSI); // MOSI entrada
+		DDRB &= ~(1 << SCK); // Reloj de entrada, lo dicta el maestro	
+		DDRB &= ~(1 << CS); // direccion habilitada por el maestro
+		
+		SPCR |= (1 << SPE); // Habilita SPI en modo maestro y no es necesario configurarle el prescaler, porque SCK se adapta al del maestro
+}
+\end{lstlisting}
+
+\paragraph{Transferencia via SPI}\label{anexo:Transfer_spi}---\\
+\begin{lstlisting}[language=C, caption={Transferencia SPI Maestro}]
+uint8_t spi_transfer(uint8_t data) {
+	SPDR = data;
+	while (!(SPSR & (1 << SPIF)));
+	return SPDR;
+}
+\end{lstlisting}
+
+\paragraph{Recepcion del esclavo}\label{anexo:Reception_spi}---\\
+\begin{lstlisting}[language=C, caption={Recepcion SPI Esclavo}]
+uint8_t SPI_slaveReceive()
+{
+	// Register Clean
+	SPDR = 0xFF;
+
+	// Wait for reception complete SPIF(SPI Interrupt Flag)
+	while(!(SPSR & (1 << SPIF)));
+
+	// return Data Register, when is read SPIF is clean
+	return SPDR;
+}
+\end{lstlisting}
+
+\paragraph{Transferencia foto resistor}\label{anexo:fotoresistor}---\\
+\begin{lstlisting}[language=C, caption={Transferencia foto resistor}]
+uint8_t SPI_slaveReceive()
+uint16_t lectura_led = adc_read_AC1();
+		if (lectura_led > 650){
+			SS_LOW(); spi_transfer(0xB6); SS_HIGH();
+			strcpy(str_led,"Prendido");
+			} else {
+			SS_LOW(); spi_transfer(0xB7); SS_HIGH();
+			strcpy(str_led,"Apagado");
+		}
+\end{lstlisting}
+
+
+\paragraph{Transferencia de angulo del potenciometro}\label{anexo:potenciometro}---\\
+\begin{lstlisting}[language=C, caption={Transferencia potenciometro}]
+uint16_t pot = adc_read_AC0();
+		float grados = pot * 0.17; // el 0.17 sale de 180/1024 - grados/adc
+		Add_to_string(str_grados, (uint16_t)grados);
+		SS_LOW(); spi_transfer((uint8_t)grados); SS_HIGH();
+\end{lstlisting}
+
+\paragraph{Transferencia de distancia}\label{anexo:distancia}---\\
+\begin{lstlisting}[language=C, caption={Transferencia distancia}]
+
+		PORTD |= (1<<PIN_T);
+		_delay_us(15);
+		PORTD &= ~(1<<PIN_T);
+
+		if (Distancia_cm < 10){
+			strcpy(str_dist,"Rojo");
+			SS_LOW(); spi_transfer(0xB9); SS_HIGH();
+		}
+		else if (Distancia_cm < 40){
+			strcpy(str_dist,"Naranja");
+			SS_LOW(); spi_transfer(0xBA); SS_HIGH();
+		}
+		else if (Distancia_cm < 90){
+			strcpy(str_dist,"Amarillo");
+			SS_LOW(); spi_transfer(0xBB); SS_HIGH();
+		}
+		else if (Distancia_cm < 150){
+			strcpy(str_dist,"Verde");
+			SS_LOW(); spi_transfer(0xBC); SS_HIGH();
+		}
+		else if (Distancia_cm < 300){
+			strcpy(str_dist,"Celeste");
+			SS_LOW(); spi_transfer(0xBD); SS_HIGH();
+		}
+		else {
+			strcpy(str_dist,"Azul");
+			SS_LOW(); spi_transfer(0xBF); SS_HIGH();
+		}
+
+
+\end{lstlisting}
+
+
+\paragraph{Interrupcion por comparacion - hc-sr04}\label{anexo:hc-sr04}---\\
+\begin{lstlisting}[language=C, caption={hc-sr04}]
+
+
+ISR(TIMER1_CAPT_vect) {
+	if (TCCR1B & (1 << ICES1)) {
+		start = ICR1;
+		TCCR1B &= ~(1 << ICES1);
+		} else {
+		endd = ICR1;
+		width = endd - start;
+		TCCR1B |= (1 << ICES1);
+		Distancia_cm = width / 116.0;
+	}
+}
+
+\end{lstlisting}
+
+\paragraph{Lectura DHT11}\label{anexo:DHT11}---\\
+\begin{lstlisting}[language=C, caption={DHT11}]
+
+
+bool dht11_read2(uint8_t *t,uint8_t *h){
+	uint8_t d[5]={0};
+		
+	// Señal para datos	
+	DDRD|=(1<<DHT_PIN);
+	PORTD&=~(1<<DHT_PIN); 
+	_delay_ms(20);
+	PORTD|=(1<<DHT_PIN);
+	 _delay_us(40);
+	 
+	// Entrada para datos, mismo pin
+	DDRD&=~(1<<DHT_PIN); 
+	
+	PORTD|=(1<<DHT_PIN);
+	
+	uint16_t to=0;
+	
+	// Espera a la señal
+	while(PIND&(1<<DHT_PIN)){ //Primer alto
+		if(++to>200) 
+		return false;
+		_delay_us(1);
+		}
+		to=0;
+		
+	 while(!(PIND&(1<<DHT_PIN))){ // Primer bajo
+		  if(++to>200)return false; 
+		  _delay_us(1);}
+		to=0; 
+	while(PIND&(1<<DHT_PIN)){ // Segundo alto
+		 if(++to>200)return false;
+		_delay_us(1);}
+	// Toma datos
+	for(uint8_t i=0;i<40;i++){
+		to=0; 
+		while(!(PIND&(1<<DHT_PIN))){ 
+			if(++to>200)return false; 
+			_delay_us(1);}
+		uint16_t w=0; while(PIND&(1<<DHT_PIN)){ 
+			if(++w>255)break;
+			_delay_us(1);
+			}
+		// Para ir guardando el bit 1 a 1 en d[i/8](8/8 = 1, 16/8 = 2, etc)
+		d[i/8]<<=1; 
+		if(w>40) 
+		d[i/8]|=1;
+	}
+	if((uint8_t)(d[0]+d[1]+d[2]+d[3])!=d[4]) 
+	return false;
+	*h=d[0]; *t=d[2]; // Guardar Temperatura y Guardar Humedad
+	return true;
+}
+
+
+\end{lstlisting}
+
+
+\paragraph{Transferencia DHT11}\label{anexo:DHT11T}---\\
+\begin{lstlisting}[language=C, caption={DHT11T}]
+		if(dht11_read2(&Temp,&Hum) && leer_dht){
+			leer_dht=0;
+			if(Temp>26){
+				SS_LOW(); spi_transfer(0xF0); SS_HIGH();
+				} else {
+				SS_LOW(); spi_transfer(0xB5); SS_HIGH();
+			}
+		}
+
+		Add_to_string(str_temp, Temp);
+		Add_to_string(str_hum, Hum);
+
+\end{lstlisting}
