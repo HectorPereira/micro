@@ -109,8 +109,8 @@ uint16_t pot = adc_read_AC0();
 \end{lstlisting}
 
 
-\paragraph{Interrupcion por comparacion - hc-sr04}\label{anexo:hc-sr04}---\\
-\begin{lstlisting}[language=C, caption={hc-sr04}]
+\paragraph{Interrupcion por comparacion hcsr04}\label{anexo:hcsr04}---\\
+\begin{lstlisting}[language=C, caption={hcsr04}]
 
 
 ISR(TIMER1_CAPT_vect) {
@@ -203,3 +203,94 @@ bool dht11_read2(uint8_t *t,uint8_t *h){
 		Add_to_string(str_hum, Hum);
 
 \end{lstlisting}
+
+
+
+\paragraph{Recepcion Esclavo}\label{anexo:RE}---\\
+\begin{lstlisting}[language=C, caption={Recepcion Eclavo}]
+    while(1)
+    {
+      
+	      uint8_t byte = SPI_slaveReceive();
+
+	      switch (byte) {
+
+		      // ------------------------
+		      // Control de PORTD2
+		      // ------------------------
+		      case 0xB6:
+		      PORTD |= (1 << PORTD2);
+		      break;
+
+		      case 0xB7:
+		      PORTD &= ~(1 << PORTD2);
+		      break;
+
+		     
+
+		      // ------------------------
+		      // Colores RGB
+		      // ------------------------
+		      case 0xB9: // Rojo
+		      PORTD |=  (1 << PD3);
+		      PORTD &= ~(1 << PD4);
+		      PORTD &= ~(1 << PD5);
+		      break;
+
+		      case 0xBA: // Naranja (R+G)
+		      PORTD |=  (1 << PD3);
+		      PORTD |=  (1 << PD4);
+		      PORTD &= ~(1 << PD5);
+		      break;
+
+		      case 0xBB: // Amarillo
+		      PORTD |=  (1 << PD3);
+		      PORTD |=  (1 << PD4);
+		      PORTD &= ~(1 << PD5);
+		      break;
+
+		      case 0xBC: // Verde
+		      PORTD &= ~(1 << PD3);
+		      PORTD |=  (1 << PD4);
+		      PORTD &= ~(1 << PD5);
+		      break;
+
+		      case 0xBD: // Celeste (G+B)
+		      PORTD &= ~(1 << PD3);
+		      PORTD |=  (1 << PD4);
+		      PORTD |=  (1 << PD5);
+		      break;
+
+		      case 0xBF: // Azul
+		      PORTD &= ~(1 << PD3);
+		      PORTD &= ~(1 << PD4);
+		      PORTD |=  (1 << PD5);
+		      break;
+
+		      // ------------------------
+		      // Control PWM (OCR0A)
+		      // ------------------------
+		      case 0xF0:
+		      OCR0A = 250;
+		      break;
+
+		      case 0xB5:
+		      OCR0A = 0;
+		      break;
+			  
+			// ------------------------
+			// Servo (0° a 180°)
+			// ------------------------
+			   
+			  default:
+			  if (byte < 180) {
+				  deg = byte;
+				  ticks = TMIN + ((uint32_t)(TMAX - TMIN) * deg) / 180;
+				  OCR1A = ticks;
+			  }
+			  break;
+	      }
+      }
+
+\end{lstlisting}
+

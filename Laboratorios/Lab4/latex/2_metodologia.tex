@@ -81,7 +81,53 @@ Una vez adquirida la medición, el sistema compara la temperatura registrada con
 
 \subsubsection{Escritura en LCD}
 
-Para la visualización de los datos en la pantalla LCD se emplean dos búferes, \texttt{L1} y \texttt{L2}, en los cuales se concatenan los valores obtenidos durante la ejecución mediante la función \texttt{strcat}. De esta forma, cada cadena se construye dinámicamente con la información correspondiente y luego es enviada al módulo LCD para su actualización en pantalla.
+Para la visualización de los datos en la pantalla LCD se emplean dos búferes, \texttt{L1} y \texttt{L2}, en los cuales se concatenan los valores obtenidos durante la ejecución mediante la función \texttt{strcat}. De esta forma, cada cadena se construye dinámicamente con la información correspondiente y luego es enviada al módulo LCD para su actualización en pantalla. L1 para la primer linea y L2 para la segunda.
+
+
+\subsubsection{Recepcion de datos en esclavo}
+
+Para ver el main del esclavo, vease ~\ref{anexo:RE}. Se implemento la recepcion mediante una unica funcion SPI slaveReceive, y luego se evalua con un switch el valor del mismo. Teniendo reservado valores para cada accion a realizar. Las cuales se pueden ver en la tabla \ref{tab:tabspi} y \ref{tab:tabspi2}.
+
+\begin{table}[h]
+    \centering
+    \caption{\textbf{TABLE I.} \textit{Comandos de Control de Salidas (GPIO y RGB)}}
+    \label{tab:comandos_spi_salidas_estrecha}
+    \begin{tabular}{c|p{4.5cm}} % Eliminadas las barras verticales excepto en la división de encabezado
+        \hline
+        \textbf{Comando (Hex/Dec)} & \textbf{Acción y Pines Afectados} \\
+        \hline
+        \texttt{0xB6} / 182 & \textbf{Activa} \texttt{PORTD2}. \\
+        \texttt{0xB7} / 183 & \textbf{Desactiva} \texttt{PORTD2}. \\
+        \hline
+        \texttt{0xB9} / 185 & \textbf{Rojo} (\texttt{PD3}=1). \\
+        \texttt{0xBA} / 186 & \textbf{Naranja} (\texttt{PD3}=1, \texttt{PD4}=1). \\
+        \texttt{0xBB} / 187 & \textbf{Amarillo} (\texttt{PD3}=1, \texttt{PD4}=1). \\
+        \texttt{0xBC} / 188 & \textbf{Verde} (\texttt{PD4}=1). \\
+        \texttt{0xBD} / 189 & \textbf{Celeste} (\texttt{PD4}=1, \texttt{PD5}=1). \\
+        \texttt{0xBF} / 191 & \textbf{Azul} (\texttt{PD5}=1). \\
+        \hline
+    \end{tabular}
+    \label{tab:tabspi}
+\end{table}
+
+
+\begin{table}[h]
+    \centering
+    \caption{\textbf{TABLE II.} \textit{Comandos de Control de Tiempos (PWM y Servo)}}
+    \label{tab:comandos_spi_tiempos_estrecha}
+    \begin{tabular}{c|p{4.5cm}} % Eliminadas las barras verticales excepto en la división de encabezado
+        \hline
+        \textbf{Comando (Hex/Dec)} & \textbf{Acción y Registros Afectados} \\
+        \hline
+        \texttt{0xF0} / 240 & PWM (\texttt{OCR0A}): \textbf{Máximo (250)}. \\
+        \texttt{0xB5} / 181 & PWM (\texttt{OCR0A}): \textbf{Apagado (0)}. \\
+        \hline
+        \textbf{\texttt{0x00}-\texttt{0xB4} / 0-180} & Posición del \textbf{Servo} ($0^\circ$ a $180^\circ$). Mapeado a \texttt{OCR1A}. \\
+        \hline
+    \end{tabular}
+    \label{tab:tabspi2}
+\end{table}
+
 
 
 \subsection{Maestro Esclavo - I2c}

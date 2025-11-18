@@ -300,7 +300,7 @@ bool ascii_to_u16_switch(const char *s,uint16_t *out){
 	return true;
 }
 
-bool dht11_read2(uint8_t *t,uint8_t *h){
+bool dht11_read2(uint8_t *t){
 	uint8_t d[5]={0};
 		
 	// Señal para datos	
@@ -349,6 +349,6 @@ bool dht11_read2(uint8_t *t,uint8_t *h){
 	}
 	if((uint8_t)(d[0]+d[1]+d[2]+d[3])!=d[4]) 
 	return false;
-	*h=d[0]; *t=d[2]; // Guardar Temperatura y Guardar Humedad
+	*t=d[2]; // Guardar Temperatura y Guardar Humedad
 	return true;
 }
