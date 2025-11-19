@@ -41,7 +41,7 @@ char uart_rx(void) {
 }
 
 void motor_init(void){
-	DDRD |= (1<<PORTD6) | (1<<PORTD7);
+	DDRD |= (1<<PORTD6) | (1<<PORTD7)| (1<<PORTD4) | (1<<PORTD5);
 }
 
 
@@ -57,35 +57,66 @@ void init_pwm(void)
 		ICR1 = 39999;   // TOP
 
 
-		OCR1A = Min_degrees;  // ~1 ms ? servo en 0 grados
+		OCR1A = 2000;  // ~1 ms ? servo en 0 grados
 }
 
 
 void left(){
 	PORTD |= (1<<PORTD6);
 	PORTD &= ~(1<<PORTD7);
+	PORTD &= ~(1<<PORTD4);
+	PORTD &= ~(1<<PORTD5);
 }
 
 void right(){
 	PORTD |= (1<<PORTD7);
 	PORTD &= ~(1<<PORTD6);
+	PORTD &= ~(1<<PORTD4);
+	PORTD &= ~(1<<PORTD5);
 }
 
 void forward(){
 	PORTD |= (1<<PORTD7);
 	PORTD |= (1<<PORTD6);
+	PORTD &= ~(1<<PORTD4);
+	PORTD &= ~(1<<PORTD5);
+}
+
+void BACK(){
+	PORTD |= (1<<PORTD4);
+	PORTD |= (1<<PORTD5);
+	PORTD &= ~(1<<PORTD6);
+	PORTD &= ~(1<<PORTD7);
 }
 
 void stop(){
 	PORTD &= ~(1<<PORTD7);
 	PORTD &= ~(1<<PORTD6);
+	PORTD &= ~(1<<PORTD4);
+	PORTD &= ~(1<<PORTD5);
 }
 
 void kick(){
-	OCR1A = 3000; // Medio para probar
+	OCR1A = 2000; // Medio para probar
 	_delay_ms(100); // desues lo cambio probando con el servo
-	OCR1A = 2000;
+	OCR1A = 3000;
 }
+
+void kick1(){
+	OCR1A = 4000; // Medio para probar
+	_delay_ms(100); // desues lo cambio probando con el servo
+	OCR1A = 3000;
+}
+
+void kick2(){
+	OCR1A = 2000; // Medio para probar
+	_delay_ms(100); // desues lo cambio probando con el servo
+	OCR1A = 4000;
+	_delay_ms(300); // desues lo cambio probando con el servo
+	OCR1A = 3000;
+}
+
+
 
 void uart_println(char c) {
 	uart_tx(c);
@@ -97,7 +128,7 @@ void uart_println(char c) {
 
 int main(void) {
 	uart_init();
-	//motor_init();
+	motor_init();
 	init_pwm();
 	
 	while (1) {
@@ -109,6 +140,10 @@ int main(void) {
 			if (val == 'L') left();
 			if (val == 'R') right();
 			if (val == 'P') kick();
+			if (val == 'S') kick1();
+			if (val == 'B') BACK();
+			//if (val == 'G') kick2();
+			
 			if (val == '0') stop();
 		}
 	}
