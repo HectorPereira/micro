@@ -157,6 +157,53 @@ En anexo ~\ref{anexo:initsSPI}, se puede ver estas inicializaciónes.
 
 \subsection{Maestro Esclavo - I2c}
 
+\subsection{Maestro – I2C}
+
+En esta sección se describe el funcionamiento del programa principal ejecutado por el microcontrolador maestro. Este módulo es el encargado de adquirir las señales provenientes de los distintos sensores, procesarlas y enviarlas al microcontrolador esclavo mediante el bus I2C. Además, gestiona la actualización de la pantalla LCD y coordina el funcionamiento de los temporizadores y periféricos necesarios para el sistema. Todas las funciones empleadas pertenecen a la misma librería descripta anteriormente, con excepción de las rutinas I2C, que se detallan en este apartado.
+
+Cada transmisión de datos al esclavo se realiza siguiendo la secuencia estándar del protocolo: \texttt{I2C\_start()}, envío de la dirección del esclavo, escritura del comando correspondiente y finalización con \texttt{I2C\_stop()}.
+
+\subsubsection{Inicialización - I2C}
+Al inicio del programa se configuran los pines correspondientes como salidas digitales y se habilitan las interrupciones globales mediante \texttt{sei()}. Luego se inicializa la comunicación I2C con la función \texttt{I2C\_init()}, estableciendo el bus a una frecuencia de 100~kHz. De forma complementaria, se habilita el conversor analógico-digital a través de \texttt{Init\_adc()}, y se inicializa la pantalla LCD I2C mediante \texttt{twi\_lcd\_init()}, utilizando el expansor PCF8574. Finalmente, se configura el Timer~1 en modo Input Capture para permitir la medición del pulso del sensor ultrasónico HC-SR04. Con estas configuraciones iniciales, el sistema queda preparado para iniciar el ciclo principal.
+
+
+
+\subsubsection{Fotoresistor - I2C}
+
+La primera operación dentro del lazo consiste en la lectura del fotoresistor mediante \texttt{adc\_read\_AC1()}. Según el valor obtenido, el maestro envía uno de dos comandos al esclavo utilizando el bus I2C: el código \texttt{0xB6} cuando el nivel de luz es elevado y el código \texttt{0xB7} cuando la iluminación es baja. 
+
+\subsubsection{Potenciometro - I2C}
+Posteriormente, se realiza la lectura del potenciómetro utilizando \texttt{adc\_read\_AC0()}. El valor analógico obtenido se convierte en un ángulo entre 0° y 180° mediante la relación lineal \(\text{grados} = \frac{\text{ADC}}{5.88}\). Este valor es enviado directamente al esclavo, donde será transformado en un pulso PWM para posicionar el servomotor SG90 según la ecuación previamente presentada. De esta manera, el potenciómetro actúa como un control analógico del ángulo del servo.
+
+\subsubsection{HC - SR04 - I2C}
+
+Para la medición de distancia mediante el sensor HC-SR04, el maestro genera un pulso de disparo en el pin \texttt{PIN\_T}. La distancia resultante se almacena en la variable global \texttt{Distancia\_cm}, actualizada por la rutina de servicio de interrupción asociada al Timer~1. En función del rango de distancia detectado, el sistema asigna un código de color específico que es enviado al esclavo. Dichos códigos determinan el color del LED RGB y están asociados a los valores presentados anteriormente, tales como \texttt{0xB9} para rojo o \texttt{0xBF} para azul. Además, se genera una cadena descriptiva del color utilizando concatenaciones con \texttt{strcat()}, que luego será mostrada en la pantalla LCD.
+
+\subsubsection{DHT11 - I2c}
+
+La lectura de temperatura y humedad se realiza mediante la función \texttt{dht11\_read2()}, que actualiza las variables globales correspondientes y permite evaluar si la medición es válida. Si la temperatura supera el umbral de 26~°C, el maestro envía al esclavo el comando \texttt{0xF0} para activar el ventilador. En caso contrario, se envía el código \texttt{0xB5} para mantenerlo apagado. Este mecanismo implementa una lógica de control térmico simple basada en la comunicación I2C.
+
+Finalmente, se construyen dos cadenas para la visualización en la pantalla LCD. La primera línea muestra el ángulo del servo y la temperatura, mientras que la segunda presenta
+
+
+\subsubsection{Funciones de Comunicación I2C (TWI)}
+A continuación se describen las funciones utilizadas para implementar la comunicación I2C entre el microcontrolador maestro y el periférico esclavo. Todas ellas interactúan directamente con los registros del módulo TWI integrado en el ATmega328P.
+
+Vease ~\ref{anexo:I2C} para ver todas sus implementaciones.
+
+\subsubsection{I2C\_init()}
+La función \texttt{I2C\_init()} inicializa el módulo TWI configurando el registro \texttt{TWSR} con un prescaler igual a uno y asignando al registro \texttt{TWBR} un valor adecuado para establecer la frecuencia del bus I2C en modo estándar (100~kHz). Finalmente, se habilita la interfaz TWI mediante el bit \texttt{TWEN} en el registro \texttt{TWCR}, dejando el hardware listo para comenzar una comunicación en calidad de maestro.
+
+\subsubsection{I2C\_start()}
+La rutina \texttt{I2C\_start()} genera la condición de inicio en el bus I2C. Para ello, se escriben los bits \texttt{TWINT}, \texttt{TWSTA} y \texttt{TWEN} en el registro \texttt{TWCR}. Una vez iniciada la operación, el microcontrolador espera a que el bit \texttt{TWINT} vuelva a establecerse, lo que indica que la condición \textit{START} fue transmitida correctamente y que el maestro puede proceder a enviar la dirección del esclavo.
+
+\subsubsection{I2C\_stop()}
+La función \texttt{I2C\_stop()} genera la condición de parada en el bus I2C. Para ello, se activa el bit \texttt{TWSTO} en conjunto con \texttt{TWEN} y \texttt{TWINT}. El hardware se encarga de completar la operación y liberar el bus, permitiendo que otros dispositivos puedan iniciar nuevas comunicaciones.
+
+\subsubsection{I2C\_write()}
+La función \texttt{I2C\_write()} envía un byte por el bus I2C, ya sea una dirección o un dato. El valor se carga en el registro \texttt{TWDR} y se inicia la transmisión escribiendo los bits \texttt{TWINT} y \texttt{TWEN} en el registro \texttt{TWCR}. El programa espera hasta que el bit \texttt{TWINT} se active nuevamente, indicando que la transmisión ha finalizado. Luego se consulta el registro \texttt{TWSR} para verificar si el esclavo respondió con una señal de reconocimiento (\textit{ACK}). La función devuelve un valor distinto de cero cuando el envío es exitoso y devuelve cero en caso de que no se reciba confirmación o la transmisión falle.
+
+Como solo se esta escribiendo en el esclavo se limita a la recepcion de (status == 0x18 || status == 0x28), que son los valores representativos; 0x18 = El esclavo se encuentra apto para ser leido y 0x28 = se transmitio correctamente el dato.
 
 
 
