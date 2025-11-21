@@ -1,2 +1,68 @@
 \section{Resultados}
 
+\subsection{Comunicación Maestro–Esclavo mediante SPI}
+
+La implementación final del circuito SPI se presenta en la Figura~\ref{fig:circuitoSPi}. El sistema operó de forma correcta, obteniéndose el comportamiento esperado. Inicialmente se evaluó mostrar los datos de los sensores mediante USART, pero finalmente se optó por prescindir de ella con el fin de maximizar la velocidad de transmisión y asegurar una respuesta inmediata por parte de los actuadores.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.25\textwidth]{anexos/1 SPI/WhatsApp Image 2025-11-19 at 19.38.24_0c64da37.jpg}
+    \caption{Implementación física del circuito SPI.}
+    \label{fig:circuitoSPi}
+\end{figure}
+
+\subsection{Simulación}
+
+La simulación del sistema se realizó en Proteus, donde se probo el comportamiento del enlace maestro–esclavo. La Figura~\ref{fig:SImcircuitoSPI} muestra la disposición simulada del circuito y la correcta interacción entre los dispositivos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{anexos/1 SPI/aad.png}
+    \caption{Implementación simulada del circuito SPI.}
+    \label{fig:SImcircuitoSPI}
+\end{figure}
+
+
+\subsection{Comunicación Maestro–Esclavo mediante I2C}
+
+La implementación final del circuito I2C Maestro–Esclavo puede observarse en la Figura~\ref{fig:circuitoI2C}. El sistema funcionó correctamente, logrando una transmisión de datos estable y eficiente. Todos los sensores respondieron de forma adecuada, garantizando una actualización inmediata en el dispositivo esclavo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{anexos/2 I2C/I2C.png}
+    \caption{Implementación física del circuito I2C.}
+    \label{fig:circuitoI2C}
+\end{figure}
+
+\subsubsection{Simulación}
+
+La simulación del sistema se realizó en Proteus, donde se testeo el comportamiento del enlace maestro–esclavo. La Figura~\ref{fig:SImcircuitoI2C} muestra la disposición simulada del circuito y la correcta interacción entre los dispositivos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{anexos/2 I2C/image.png}
+    \caption{Implementación simulada del circuito I2C.}
+    \label{fig:SImcircuitoI2C}
+\end{figure}
+
+\subsubsection{Visualización de la señal – I2C}
+
+En la Figura~\ref{fig:SigmcircuitoI2C} se presenta la señal capturada mediante el osciloscopio del protocolo I2C. Se observa la transferencia de datos sincronizada con la línea de reloj (SCL). Además, se adjunta en el repositorio del laboratorio un video demostrativo donde se aprecia la comunicación en tiempo real.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{anexos/2 I2C/I2Csigna.jpg}
+    \caption{Captura de la señal del bus I2C.}
+    \label{fig:SigmcircuitoI2C}
+\end{figure}
+
+
+\subsection{Auto - Futbol}
+
+La implementación final de auto se puede ver en la figura    . Se uso una extension de MDF para el golpe del motor, un Power-bank para la alimentacion y dos motores de corriente continua para el movimiento. 
+
+
+Funcionó correctamente y no hubo problemas en su implementación.
+\subsubsection{Comunicación Bluetooth}
+
+Para la comunicación Bluetooth se uso la aplicacion, se puede ver una imagen de la interfaz y los comandos mandados en las fguras y , respectivamente.

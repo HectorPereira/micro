@@ -11,13 +11,13 @@ void I2C_init(void)
 	// SDA = PC4, SCL = PC5 ? ENTRADAS
 	DDRC &= ~((1<<PC4) | (1<<PC5));
 
-	// Pull-ups internos (ayudan, pero IGUAL necesitas 4.7k externas)
+	// Pull-ups internos 
 	PORTC |= (1<<PC4) | (1<<PC5);
 
-	// Dirección del esclavo = 0x50
+	// Direcciï¿½n del esclavo = 0x50
 	TWAR = (0x50 << 1);
 
-	// Habilitar TWI + ACK + interrupción
+	// Habilitar TWI + ACK + interrupciï¿½n
 	TWCR = (1<<TWEN)|(1<<TWEA)|(1<<TWIE);
 }
 
@@ -131,7 +131,7 @@ int main(void)
 		break;
 	
 		// ------------------------
-		// Servo (0° a 180°)
+		// Servo (0ï¿½ a 180ï¿½)
 		// ------------------------
 	
 		default:

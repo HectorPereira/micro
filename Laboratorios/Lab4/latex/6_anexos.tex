@@ -4,3 +4,779 @@
 La carpeta de Google Drive correspondiente a este laboratorio puede encontrarse en \url{https://drive.google.com/drive/folders/1zlPwmZ6XGEYrSYWA3p0l1uxA-KCTYJkX?usp=drive_link}. Allí encontrará evidencias del trabajo realizado durante esta actividad.
 
 \subsection{Fragmentos de código}
+
+
+\paragraph{SPI Init Maestro}\label{anexo:MasterSPIIn}---\\
+\begin{lstlisting}[language=C, caption={Inicializacion SPI Maestro}]
+void spi_init(void) {
+	DDRB |= (1 << CS) | (1 << MOSI) | (1 << SCK); //Pines de comunicación
+	DDRB &= ~(1 << MISO); // Entrada en Master in slave out
+	SPCR = (1 << SPE) | (1 << MSTR); // SPI enable y Modo maestro
+}
+\end{lstlisting}
+
+\paragraph{SPI Init Esclavo}\label{anexo:SlaveSPIIn}---\\
+\begin{lstlisting}[language=C, caption={Inicializacion SPI Esclavo}]
+void spi_init_slave(){
+		DDRB |= (1 << MISO); // MISO salida
+		DDRB &= ~(1 << MOSI); // MOSI entrada
+		DDRB &= ~(1 << SCK); // Reloj de entrada, lo dicta el maestro	
+		DDRB &= ~(1 << CS); // direccion habilitada por el maestro
+		
+		SPCR |= (1 << SPE); // Habilita SPI en modo maestro y no es necesario configurarle el prescaler, porque SCK se adapta al del maestro
+}
+\end{lstlisting}
+
+\paragraph{Transferencia via SPI}\label{anexo:Transfer_spi}---\\
+\begin{lstlisting}[language=C, caption={Transferencia SPI Maestro}]
+uint8_t spi_transfer(uint8_t data) {
+	SPDR = data;
+	while (!(SPSR & (1 << SPIF)));
+	return SPDR;
+}
+\end{lstlisting}
+
+\paragraph{Recepcion del esclavo}\label{anexo:Reception_spi}---\\
+\begin{lstlisting}[language=C, caption={Recepcion SPI Esclavo}]
+uint8_t SPI_slaveReceive()
+{
+	// Register Clean
+	SPDR = 0xFF;
+
+	// Wait for reception complete SPIF(SPI Interrupt Flag)
+	while(!(SPSR & (1 << SPIF)));
+
+	// return Data Register, when is read SPIF is clean
+	return SPDR;
+}
+\end{lstlisting}
+
+\paragraph{Transferencia foto resistor}\label{anexo:fotoresistor}---\\
+\begin{lstlisting}[language=C, caption={Transferencia foto resistor}]
+uint8_t SPI_slaveReceive()
+uint16_t lectura_led = adc_read_AC1();
+		if (lectura_led > 650){
+			SS_LOW(); spi_transfer(0xB6); SS_HIGH();
+			strcpy(str_led,"Prendido");
+			} else {
+			SS_LOW(); spi_transfer(0xB7); SS_HIGH();
+			strcpy(str_led,"Apagado");
+		}
+\end{lstlisting}
+
+
+\paragraph{Transferencia de angulo del potenciometro}\label{anexo:potenciometro}---\\
+\begin{lstlisting}[language=C, caption={Transferencia potenciometro}]
+uint16_t pot = adc_read_AC0();
+		float grados = pot * 0.17; // el 0.17 sale de 180/1024 - grados/adc
+		Add_to_string(str_grados, (uint16_t)grados);
+		SS_LOW(); spi_transfer((uint8_t)grados); SS_HIGH();
+\end{lstlisting}
+
+\paragraph{Transferencia de distancia}\label{anexo:distancia}---\\
+\begin{lstlisting}[language=C, caption={Transferencia distancia}]
+
+		PORTD |= (1<<PIN_T);
+		_delay_us(15);
+		PORTD &= ~(1<<PIN_T);
+
+		if (Distancia_cm < 10){
+			strcpy(str_dist,"Rojo");
+			SS_LOW(); spi_transfer(0xB9); SS_HIGH();
+		}
+		else if (Distancia_cm < 40){
+			strcpy(str_dist,"Naranja");
+			SS_LOW(); spi_transfer(0xBA); SS_HIGH();
+		}
+		else if (Distancia_cm < 90){
+			strcpy(str_dist,"Amarillo");
+			SS_LOW(); spi_transfer(0xBB); SS_HIGH();
+		}
+		else if (Distancia_cm < 150){
+			strcpy(str_dist,"Verde");
+			SS_LOW(); spi_transfer(0xBC); SS_HIGH();
+		}
+		else if (Distancia_cm < 300){
+			strcpy(str_dist,"Celeste");
+			SS_LOW(); spi_transfer(0xBD); SS_HIGH();
+		}
+		else {
+			strcpy(str_dist,"Azul");
+			SS_LOW(); spi_transfer(0xBF); SS_HIGH();
+		}
+
+
+\end{lstlisting}
+
+
+\paragraph{Interrupcion por comparacion hcsr04}\label{anexo:hcsr04}---\\
+\begin{lstlisting}[language=C, caption={hcsr04}]
+
+
+ISR(TIMER1_CAPT_vect) {
+	if (TCCR1B & (1 << ICES1)) {
+		start = ICR1;
+		TCCR1B &= ~(1 << ICES1);
+		} else {
+		endd = ICR1;
+		width = endd - start;
+		TCCR1B |= (1 << ICES1);
+		Distancia_cm = width / 116.0;
+	}
+}
+
+\end{lstlisting}
+
+\paragraph{Lectura DHT11}\label{anexo:DHT11}---\\
+\begin{lstlisting}[language=C, caption={DHT11}]
+
+
+bool dht11_read2(uint8_t *t,uint8_t *h){
+	uint8_t d[5]={0};
+		
+	// Señal para datos	
+	DDRD|=(1<<DHT_PIN);
+	PORTD&=~(1<<DHT_PIN); 
+	_delay_ms(20);
+	PORTD|=(1<<DHT_PIN);
+	 _delay_us(40);
+	 
+	// Entrada para datos, mismo pin
+	DDRD&=~(1<<DHT_PIN); 
+	
+	PORTD|=(1<<DHT_PIN);
+	
+	uint16_t to=0;
+	
+	// Espera a la señal
+	while(PIND&(1<<DHT_PIN)){ //Primer alto
+		if(++to>200) 
+		return false;
+		_delay_us(1);
+		}
+		to=0;
+		
+	 while(!(PIND&(1<<DHT_PIN))){ // Primer bajo
+		  if(++to>200)return false; 
+		  _delay_us(1);}
+		to=0; 
+	while(PIND&(1<<DHT_PIN)){ // Segundo alto
+		 if(++to>200)return false;
+		_delay_us(1);}
+	// Toma datos
+	for(uint8_t i=0;i<40;i++){
+		to=0; 
+		while(!(PIND&(1<<DHT_PIN))){ 
+			if(++to>200)return false; 
+			_delay_us(1);}
+		uint16_t w=0; while(PIND&(1<<DHT_PIN)){ 
+			if(++w>255)break;
+			_delay_us(1);
+			}
+		// Para ir guardando el bit 1 a 1 en d[i/8](8/8 = 1, 16/8 = 2, etc)
+		d[i/8]<<=1; 
+		if(w>40) 
+		d[i/8]|=1;
+	}
+	if((uint8_t)(d[0]+d[1]+d[2]+d[3])!=d[4]) 
+	return false;
+	*h=d[0]; *t=d[2]; // Guardar Temperatura y Guardar Humedad
+	return true;
+}
+
+
+\end{lstlisting}
+
+
+\paragraph{Transferencia DHT11}\label{anexo:DHT11T}---\\
+\begin{lstlisting}[language=C, caption={DHT11T}]
+		if(dht11_read2(&Temp,&Hum) && leer_dht){
+			leer_dht=0;
+			if(Temp>26){
+				SS_LOW(); spi_transfer(0xF0); SS_HIGH();
+				} else {
+				SS_LOW(); spi_transfer(0xB5); SS_HIGH();
+			}
+		}
+
+		Add_to_string(str_temp, Temp);
+		Add_to_string(str_hum, Hum);
+
+\end{lstlisting}
+
+
+
+\paragraph{Recepcion Esclavo}\label{anexo:RE}---\\
+\begin{lstlisting}[language=C, caption={Recepcion Eclavo}]
+    while(1)
+    {
+      
+	      uint8_t byte = SPI_slaveReceive();
+
+	      switch (byte) {
+
+		      // ------------------------
+		      // Control de PORTD2
+		      // ------------------------
+		      case 0xB6:
+		      PORTD |= (1 << PORTD2);
+		      break;
+
+		      case 0xB7:
+		      PORTD &= ~(1 << PORTD2);
+		      break;
+
+		     
+
+		      // ------------------------
+		      // Colores RGB
+		      // ------------------------
+		      case 0xB9: // Rojo
+		      PORTD |=  (1 << PD3);
+		      PORTD &= ~(1 << PD4);
+		      PORTD &= ~(1 << PD5);
+		      break;
+
+		      case 0xBA: // Naranja (R+G)
+		      PORTD |=  (1 << PD3);
+		      PORTD |=  (1 << PD4);
+		      PORTD &= ~(1 << PD5);
+		      break;
+
+		      case 0xBB: // Amarillo
+		      PORTD |=  (1 << PD3);
+		      PORTD |=  (1 << PD4);
+		      PORTD &= ~(1 << PD5);
+		      break;
+
+		      case 0xBC: // Verde
+		      PORTD &= ~(1 << PD3);
+		      PORTD |=  (1 << PD4);
+		      PORTD &= ~(1 << PD5);
+		      break;
+
+		      case 0xBD: // Celeste (G+B)
+		      PORTD &= ~(1 << PD3);
+		      PORTD |=  (1 << PD4);
+		      PORTD |=  (1 << PD5);
+		      break;
+
+		      case 0xBF: // Azul
+		      PORTD &= ~(1 << PD3);
+		      PORTD &= ~(1 << PD4);
+		      PORTD |=  (1 << PD5);
+		      break;
+
+		      // ------------------------
+		      // Control PWM (OCR0A)
+		      // ------------------------
+		      case 0xF0:
+		      OCR0A = 250;
+		      break;
+
+		      case 0xB5:
+		      OCR0A = 0;
+		      break;
+			  
+			// ------------------------
+			// Servo (0 a 180)
+			// ------------------------
+			   
+			  default:
+			  if (byte < 180) {
+				  deg = byte;
+				  ticks = TMIN + ((uint32_t)(TMAX - TMIN) * deg) / 180;
+				  OCR1A = ticks;
+			  }
+			  break;
+	      }
+      }
+
+\end{lstlisting}
+
+
+\paragraph{I2c en codigo de spi (Para LCD)}\label{anexo:LCDspi}---\\
+\begin{lstlisting}[language=C, caption={I2c en spi}]
+
+void I2C_init(void) {
+	TWSR = 0x00;
+	TWBR = ((F_CPU / 100000UL) - 16) / 2;
+	TWCR = (1<<TWEN);
+}
+
+void I2C_start(void) {
+	TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN);
+	while(!(TWCR&(1<<TWINT)));
+}
+
+void I2C_stop(void) {
+	TWCR = (1<<TWINT)|(1<<TWSTO)|(1<<TWEN);
+}
+
+uint8_t I2C_write(uint8_t v) {
+	TWDR = v;
+	TWCR = (1<<TWINT)|(1<<TWEN);
+	while(!(TWCR & (1<<TWINT)));
+	uint8_t s = TWSR & 0xF8;
+	return (s == 0x18 || s == 0x28);
+}
+
+void pcf8574_autodetect(void) {
+	for (uint8_t a=0x20; a<=0x27; a++) {
+		I2C_start(); uint8_t ok = I2C_write((a<<1)|0); I2C_stop();
+		if (ok) PCF_ADDR = a;
+	}
+	for (uint8_t a=0x38; a<=0x3F; a++) {
+		I2C_start(); uint8_t ok = I2C_write((a<<1)|0); I2C_stop();
+		if (ok) PCF_ADDR = a;
+	}
+}
+
+void PCF8574_write(uint8_t b) {
+	I2C_start();
+	I2C_write((PCF_ADDR<<1)|0);
+	I2C_write(b);
+	I2C_stop();
+}
+
+void twi_lcd_cmd(const unsigned char x) {
+	lcd = 0x08;
+	lcd &= ~(0x01);
+	PCF8574_write(lcd);
+	twi_lcd_4bit_send(x);
+}
+
+void twi_lcd_dwr(unsigned char x) {
+	lcd |= 0x09;
+	PCF8574_write(lcd);
+	twi_lcd_4bit_send(x);
+}
+
+void twi_lcd_msg(const char *c) {
+	while (*c) twi_lcd_dwr(*c++);
+}
+
+void twi_lcd_clear(void) {
+	twi_lcd_cmd(0x01);
+}
+
+void twi_lcd_4bit_send(unsigned char x) {
+	unsigned char temp = x & 0xF0;
+	lcd &= 0x0F;
+	lcd |= temp;
+	lcd |= 0x04;
+	PCF8574_write(lcd);
+	_delay_us(1);
+	lcd &= ~0x04;
+	PCF8574_write(lcd);
+	_delay_us(5);
+
+	temp = (x & 0x0F)<<4;
+	lcd &= 0x0F;
+	lcd |= temp;
+	lcd |= 0x04;
+	PCF8574_write(lcd);
+	_delay_us(1);
+	lcd &= ~0x04;
+	PCF8574_write(lcd);
+	_delay_us(5);
+}
+
+void twi_lcd_init(void) {
+	pcf8574_autodetect();
+	lcd = 0x04;
+	PCF8574_write(lcd);
+	_delay_us(25);
+	twi_lcd_cmd(0x03);
+	twi_lcd_cmd(0x03);
+	twi_lcd_cmd(0x03);
+	twi_lcd_cmd(0x02);
+	twi_lcd_cmd(0x28);
+	twi_lcd_cmd(0x0F);
+	twi_lcd_cmd(0x01);
+	twi_lcd_cmd(0x06);
+	twi_lcd_cmd(0x80);
+	twi_lcd_msg("Initializing...");
+	_delay_ms(1000);
+	twi_lcd_clear();
+	twi_lcd_cmd(0x80);
+}
+
+void lcd_twolines(const char *c, const char *b){
+	twi_lcd_cmd(0x80);
+	twi_lcd_msg(c);
+	twi_lcd_cmd(0xC0);
+	twi_lcd_msg(b);
+}
+
+\end{lstlisting}
+
+\paragraph{Inicializaciones}\label{anexo:initsSPI}---\\
+\begin{lstlisting}[language=C, caption={Inits en spi}]
+
+
+void Init_timer1(void) {
+	TCCR1A=0;
+	TCCR1B=(1<<ICNC1)|(1<<ICES1)|(1<<CS11);
+	TCNT1=0;
+	TIMSK1=(1<<ICIE1);
+	sei();
+}
+
+void timer2_init(void){
+	TCCR2A = (1 << WGM21);
+	TCCR2B = (1 << CS22)|(1<<CS21)|(1<<CS20);
+	OCR2A  = 255;
+	TIMSK2 = (1 << OCIE2A);
+}
+
+void Init_adc(void) {
+	ADCSRA=(1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0);
+	DIDR0=(1<<ADC0D)|(1<<ADC1D);
+}
+
+uint16_t adc_read_AC0(void) {
+	ADMUX=(1<<REFS0);
+	ADCSRA|=(1<<ADSC);
+	while(ADCSRA&(1<<ADSC));
+	return ADC;
+}
+
+uint16_t adc_read_AC1(void) {
+	ADMUX=(1<<REFS0)|(1<<MUX0);
+	ADCSRA|=(1<<ADSC);
+	while(ADCSRA&(1<<ADSC));
+	return ADC;
+}
+
+
+\end{lstlisting}
+
+
+\paragraph{Funciones I2C Maestro}\label{anexo:I2c}---\\
+\begin{lstlisting}[language=C, caption={Funciones I2C}]
+
+
+
+void I2C_init(void) {
+	TWSR = 0x00;
+	TWBR = ((F_CPU / 100000UL) - 16) / 2;
+	TWCR = (1 << TWEN);
+}
+
+void I2C_start(void) {
+	TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN);
+	while(!(TWCR & (1<<TWINT)));
+}
+
+void I2C_stop(void) {
+	TWCR = (1<<TWINT)|(1<<TWSTO)|(1<<TWEN);
+}
+
+uint8_t I2C_write(uint8_t data) {
+	TWDR = data;
+	TWCR = (1<<TWINT)|(1<<TWEN);
+	while(!(TWCR & (1<<TWINT)));
+	uint8_t status = TWSR & 0xF8;
+	return (status == 0x18 || status == 0x28);
+}
+
+\end{lstlisting}
+
+\paragraph{USART del Auto}\label{anexo:Us}---\\
+\begin{lstlisting}[language=C, caption={Funciones Usart Auto}]
+
+
+void uart_init(void) {
+	// 9600 baud @ 16 MHz
+	uint16_t ubrr = 103;  // from formula: UBRR = (F_CPU / (16 * BAUD)) - 1
+	UBRR0H = (uint8_t)(ubrr >> 8);
+	UBRR0L = (uint8_t)(ubrr);
+
+	// Enable transmitter and receiver
+	UCSR0B = (1 << RXEN0) | (1 << TXEN0);
+
+	// Frame format: 8 data bits, 1 stop bit, no parity
+	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
+}
+
+void uart_tx(char c) {
+	// Wait for empty transmit buffer
+	while (!(UCSR0A & (1 << UDRE0)));
+	UDR0 = c;
+}
+
+char uart_rx(void) {
+	// Wait for data to be received
+	while (!(UCSR0A & (1 << RXC0)));
+	return UDR0;
+}
+\end{lstlisting}
+
+
+\paragraph{Inicialización ws2812}\label{anexo:initWS}---\\
+\begin{lstlisting}[language=C, caption={Inicialización ws2812}]
+
+uint8_t leds[NUM_LEDS * 3];  // Datos GRB para cada LED
+
+void ws2812_init(void) {
+	LED_DDR |= (1 << LED_PIN); // Configura pin de salida
+}
+
+\end{lstlisting}
+
+\paragraph{Inicialización USART}\label{anexo:USARTinit}---\\
+\begin{lstlisting}[language=C, caption={Inicialización de USART para recepción asíncrona}]
+volatile uint8_t uart_rx = 0;
+volatile uint8_t new_data = 0;
+
+void uart_init(uint16_t baud) {
+    uint16_t ubrr = (F_CPU / (16UL * baud)) - 1;
+
+    UBRR0H = (uint8_t)(ubrr >> 8);
+    UBRR0L = (uint8_t)(ubrr & 0xFF);
+
+    UCSR0B = (1 << RXEN0) | (1 << RXCIE0);   // RX + interrupción
+    UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);  // 8N1
+}
+\end{lstlisting}
+
+
+\paragraph{ISR de Recepción USART}\label{anexo:USARTisr}---\\
+\begin{lstlisting}[language=C, caption={Rutina de servicio de interrupción USART RX}]
+ISR(USART_RX_vect) {
+    uart_rx = UDR0;
+    new_data = 1;
+}
+\end{lstlisting}
+
+
+\paragraph{Definiciones generales WS2812}\label{anexo:defWS}---\\
+\begin{lstlisting}[language=C, caption={Definiciones del módulo WS2812}]
+#define LED_PIN PORTD6
+#define LED_DDR DDRD
+#define NUM_LEDS 256
+
+uint8_t leds[NUM_LEDS * 3];   // Datos GRB para cada LED
+\end{lstlisting}
+
+
+\paragraph{Programa principal WS2812}\label{anexo:WSmain}---\\
+\begin{lstlisting}[language=C, caption={Función principal para control WS2812}]
+int main(void){
+    ws2812_init();
+    uart_init(9600);
+    sei();                   // Habilitar interrupciones globales
+
+    ws2812_show();           // Reset inicial
+    
+    while (1) {
+        if (new_data) {
+            new_data = 0;
+
+            if (uart_rx == '1') {
+                anim_barber_pole();
+            }
+            else if (uart_rx == '2') {
+                anim_rainbow_diagonal();
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+\paragraph{Indexación serpenteada}\label{anexo:WSserp}---\\
+\begin{lstlisting}[language=C, caption={Cálculo de índice en matriz serpentina}]
+uint16_t serpentine_index(uint8_t x, uint8_t y) {
+    if (y % 2 == 0) {
+        return y * 16 + x;        // fila normal
+    } else {
+        return y * 16 + (15 - x); // fila invertida
+    }
+}
+\end{lstlisting}
+
+
+\paragraph{Función wheel\_color()}\label{anexo:WSwheel}---\\
+\begin{lstlisting}[language=C, caption={Generador de colores cíclicos RGB}]
+uint8_t wheel_color(uint8_t pos, uint8_t color) {
+    if (pos < 85)
+        return (pos * 3 * (color == 0)) + ((255 - pos*3) * (color == 2));
+
+    else if (pos < 170)
+        return ((pos-85) * 3 * (color == 1)) +
+               ((255 - (pos-85)*3) * (color == 0));
+
+    else
+        return ((pos-170) * 3 * (color == 2)) +
+               ((255 - (pos-170)*3) * (color == 1));
+}
+\end{lstlisting}
+
+
+
+\paragraph{Animación arcoíris diagonal}\label{anexo:WSrainbow}---\\
+\begin{lstlisting}[language=C, caption={Animación rainbow diagonal en matriz WS2812}]
+void anim_rainbow_diagonal(void) {
+    while (1) {
+        for(uint16_t j = 0; j < 255; j++){
+            for(uint8_t y = 0; y < 16; y++){
+                for(uint8_t x = 0; x < 16; x++){
+                    if (new_data) return;
+
+                    uint16_t index = serpentine_index(15-y, x);
+                    uint8_t pos = (x * 9 + y * 6 + j * 3) % 255;
+
+                    uint8_t r = wheel_color(pos, 0);
+                    uint8_t g = wheel_color(pos, 1);
+                    uint8_t b = wheel_color(pos, 2);
+
+                    ws2812_set_pixel(index, r, g, b);
+                }
+            }
+            draw_raibow_mask();
+            ws2812_show_all();
+        }
+    }
+}
+\end{lstlisting}
+
+
+\paragraph{Máscara para animación rainbow}\label{anexo:WSmask}---\\
+\begin{lstlisting}[language=C, caption={Función draw\_raibow\_mask()}]
+void draw_raibow_mask(void) {
+    const uint8_t r = 0, g = 0, b = 0;
+
+    for (int8_t x = 0; x < 10; x++)
+        ws2812_set_pixel(serpentine_index(x, 0), r, g, b);
+
+    /* resto de recortes... (idéntico al código original) */
+}
+\end{lstlisting}
+
+
+\paragraph{Animación barber pole}\label{anexo:WSbarber}---\\
+\begin{lstlisting}[language=C, caption={Animación tipo Barber Pole}]
+void anim_barber_pole(void) {
+    const int8_t radius = 3;
+    const uint8_t stripe_width = 9;
+    const uint8_t period = stripe_width * 3;
+
+    uint16_t t = 0;
+
+    while (1) {
+        if (new_data) return;
+        ws2812_clear();
+
+        for (uint8_t y = 0; y < 16; y++) {
+            for (uint8_t x = 0; x < 16; x++) {
+
+                int8_t dx = x - 8;
+                if (dx < -radius || dx > radius)
+                    continue;
+
+                int8_t adx = dx < 0 ? -dx : dx;
+                int8_t dist = radius - adx;
+                if (dist < 0) dist = 0;
+
+                uint8_t base = 40 + dist * 35;
+                if (base > 255) base = 255;
+
+                int16_t phase = dx * 2 + y * 3 + (t / 2);
+                while (phase < 0) phase += period;
+                uint8_t p = phase % period;
+
+                uint8_t r, g, b;
+
+                if (p < stripe_width) {
+                    r = base;
+                    g = base / 10;
+                    b = base / 10;
+                }
+                else if (p < 2 * stripe_width) {
+                    r = base;
+                    g = base;
+                    b = base;
+                }
+                else {
+                    r = base / 10;
+                    g = base / 5;
+                    b = base;
+                }
+
+                ws2812_set_pixel(serpentine_index(x, y), r, g, b);
+            }
+        }
+
+        draw_yellow_frame(radius);
+        ws2812_show_all();
+        t++;
+        _delay_ms(30);
+    }
+}
+\end{lstlisting}
+
+
+\paragraph{Envío de bits y bytes WS2812}\label{anexo:WSsend}---\\
+\begin{lstlisting}[language=C, caption={Rutinas de bit banging para WS2812}]
+void send_bit(uint8_t bitVal) {
+    if (bitVal) {
+        PORTD |= (1 << LED_PIN);
+        asm volatile("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"
+                     "nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+        PORTD &= ~(1 << LED_PIN);
+        asm volatile("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+    } else {
+        PORTD |= (1 << LED_PIN);
+        asm volatile("nop\n\t""nop\n\t""nop\n\t");
+        PORTD &= ~(1 << LED_PIN);
+        asm volatile("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"
+                     "nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+    }
+}
+
+void send_byte(uint8_t byte) {
+    cli();
+    for (uint8_t i = 0; i < 8; i++) {
+        send_bit(byte & 0x80);
+        byte <<= 1;
+    }
+    sei();
+}
+\end{lstlisting}
+
+
+\paragraph{Actualización completa de la matriz}\label{anexo:WSshow}---\\
+\begin{lstlisting}[language=C, caption={Actualización de todos los LEDs}]
+void ws2812_show_all(void) {
+    cli();
+    for (uint16_t i = 0; i < NUM_LEDS; i++) {
+        ws2812_send_pixel(leds[i * 3 + 1],
+                          leds[i * 3 + 0],
+                          leds[i * 3 + 2]);
+    }
+    sei();
+    ws2812_show();
+}
+\end{lstlisting}
+
+
+\paragraph{Limpieza del búfer WS2812}\label{anexo:WSclear}---\\
+\begin{lstlisting}[language=C, caption={Función ws2812 clear}]
+	
+void ws2812_clear(void) {
+    for (uint16_t i = 0; i < NUM_LEDS * 3; i++)
+        leds[i] = 0;
+}
+\end{lstlisting}
+
+
+\paragraph{Encender un LED puntual}\label{anexo:WSturn}---\\
+\begin{lstlisting}[language=C, caption={Encendido puntual de LED por coordenadas}]
+void turn_led(uint8_t led_x, uint8_t led_y) {
+    uint8_t index = led_y * 8 + led_x;
+    ws2812_clear();
+    ws2812_set_pixel(index, 0, 0, 0); // rojo
+    ws2812_show_all();
+}
+\end{lstlisting}

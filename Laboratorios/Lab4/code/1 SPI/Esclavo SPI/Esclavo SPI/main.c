@@ -161,7 +161,7 @@ void spi_init_slave(){
 
 uint8_t SPI_slaveReceive()
 {
-	// transmit dummy byte
+	// Register Clean
 	SPDR = 0xFF;
 
 	// Wait for reception complete SPIF(SPI Interrupt Flag)

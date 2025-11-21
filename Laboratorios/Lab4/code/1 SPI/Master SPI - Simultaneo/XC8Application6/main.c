@@ -14,9 +14,6 @@ int main(void)
 
 	sei();
 
-	uart_init(UBRR_VALUE);
-	UCSR0B |= (1<<RXCIE0);
-
 	spi_init();
 	Init_adc();
 	Init_pwm();
@@ -42,8 +39,6 @@ int main(void)
 			SS_LOW(); spi_transfer(0xB7); SS_HIGH();
 			strcpy(str_led,"Apagado");
 		}
-
-		SS_LOW(); spi_transfer(0xFA); SS_HIGH();
 
 		uint16_t pot = adc_read_AC0();
 		float grados = pot * 0.17; // el 0.17 sale de 180/1024 - grados/adc
@@ -79,7 +74,7 @@ int main(void)
 			SS_LOW(); spi_transfer(0xBF); SS_HIGH();
 		}
 
-		if(dht11_read2(&Temp,&Hum) && leer_dht){
+		if(dht11_read2(&Temp) && leer_dht){
 			leer_dht=0;
 			if(Temp>26){
 				SS_LOW(); spi_transfer(0xF0); SS_HIGH();
@@ -89,7 +84,6 @@ int main(void)
 		}
 
 		Add_to_string(str_temp, Temp);
-		Add_to_string(str_hum, Hum);
 
 		char L1[16], L2[16];
 		L1[0]=0; L2[0]=0;

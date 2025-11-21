@@ -79,6 +79,6 @@ char Number_to_ascii(uint16_t val);
 char* Add_to_string(char *out, uint16_t val);
 bool ascii_to_u16_switch(const char *s, uint16_t *out);
 
-bool dht11_read2(uint8_t *t, uint8_t *h);
+bool dht11_read2(uint8_t *t);
 
 #endif
