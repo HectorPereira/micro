@@ -5,6 +5,7 @@ La carpeta de Google Drive correspondiente a este laboratorio puede encontrarse 
 
 \subsection{Fragmentos de código}
 
+\subsubsection{SPI} --- \\
 
 \paragraph{SPI Init Maestro}\label{anexo:MasterSPIIn}---\\
 \begin{lstlisting}[language=C, caption={Inicializacion SPI Maestro}]
@@ -295,7 +296,7 @@ bool dht11_read2(uint8_t *t,uint8_t *h){
 \end{lstlisting}
 
 
-\paragraph{I2c en codigo de spi (Para LCD)}\label{anexo:LCDspi}---\\
+\paragraph{I2C en codigo de spi (Para LCD)}\label{anexo:LCDspi}---\\
 \begin{lstlisting}[language=C, caption={I2c en spi}]
 
 void I2C_init(void) {
@@ -411,6 +412,8 @@ void lcd_twolines(const char *c, const char *b){
 
 \end{lstlisting}
 
+\subsubsection{\textbf{I2C}} --- \\
+
 \paragraph{Inicializaciones}\label{anexo:initsSPI}---\\
 \begin{lstlisting}[language=C, caption={Inits en spi}]
 
@@ -483,6 +486,8 @@ uint8_t I2C_write(uint8_t data) {
 
 \end{lstlisting}
 
+\subsection{\textbf{Auto}}
+
 \paragraph{USART del Auto}\label{anexo:Us}---\\
 \begin{lstlisting}[language=C, caption={Funciones Usart Auto}]
 
@@ -533,6 +538,7 @@ void init_pwm(void)
 
 \end{lstlisting}
 
+\subsection{\textbf{Animaciones LED}}
 
 \paragraph{Inicialización ws2812}\label{anexo:initWS}---\\
 \begin{lstlisting}[language=C, caption={Inicialización ws2812}]
@@ -736,33 +742,5 @@ void anim_barber_pole(void) {
 }
 \end{lstlisting}
 
-
-\paragraph{Envío de bits y bytes WS2812}\label{anexo:WSsend}---\\
-\begin{lstlisting}[language=C, caption={Rutinas de bit banging para WS2812}]
-void send_bit(uint8_t bitVal) {
-    if (bitVal) {
-        PORTD |= (1 << LED_PIN);
-        asm volatile("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"
-                     "nop\n\t""nop\n\t""nop\n\t""nop\n\t");
-        PORTD &= ~(1 << LED_PIN);
-        asm volatile("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
-    } else {
-        PORTD |= (1 << LED_PIN);
-        asm volatile("nop\n\t""nop\n\t""nop\n\t");
-        PORTD &= ~(1 << LED_PIN);
-        asm volatile("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"
-                     "nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
-    }
-}
-
-void send_byte(uint8_t byte) {
-    cli();
-    for (uint8_t i = 0; i < 8; i++) {
-        send_bit(byte & 0x80);
-        byte <<= 1;
-    }
-    sei();
-}
-\end{lstlisting}
 
 
