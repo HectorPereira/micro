@@ -54,16 +54,22 @@ uint8_t SPI_slaveReceive()
 
 \paragraph{Transferencia foto resistor}\label{anexo:fotoresistor}---\\
 \begin{lstlisting}[language=C, caption={Transferencia foto resistor}]
-uint8_t SPI_slaveReceive()
 uint16_t lectura_led = adc_read_AC1();
-		if (lectura_led > 650){
-			SS_LOW(); spi_transfer(0xB6); SS_HIGH();
-			strcpy(str_led,"Prendido");
-			} else {
-			SS_LOW(); spi_transfer(0xB7); SS_HIGH();
-			strcpy(str_led,"Apagado");
-		}
+
+if (lectura_led > 650) {
+    SS_LOW();
+    spi_transfer(0xB6);
+    SS_HIGH();
+    strcpy(str_led, "Prendido");
+} 
+else {
+    SS_LOW();
+    spi_transfer(0xB7);
+    SS_HIGH();
+    strcpy(str_led, "Apagado");
+}
 \end{lstlisting}
+
 
 
 \paragraph{Transferencia de angulo del potenciometro}\label{anexo:potenciometro}---\\
@@ -519,7 +525,7 @@ char uart_rx(void) {
 \end{lstlisting}
 
 \paragraph{PWM Auto}\label{anexo:s}---\\
-\begin{lstlisting}[language=C, caption={Inicialización PWM}]
+\begin{lstlisting}[language=C, caption={Inicializacion PWM}]
 
 	//PWM para el control del motor paso a paso 
 void init_pwm(void)
@@ -541,7 +547,7 @@ void init_pwm(void)
 \subsection{\textbf{Animaciones LED}}
 
 \paragraph{Inicialización ws2812}\label{anexo:initWS}---\\
-\begin{lstlisting}[language=C, caption={Inicialización ws2812}]
+\begin{lstlisting}[language=C, caption={Inicializacion ws2812}]
 
 uint8_t leds[NUM_LEDS * 3];  // Datos GRB para cada LED
 
@@ -552,7 +558,7 @@ void ws2812_init(void) {
 \end{lstlisting}
 
 \paragraph{Inicialización USART}\label{anexo:USARTinit}---\\
-\begin{lstlisting}[language=C, caption={Inicialización de USART para recepción asíncrona}]
+\begin{lstlisting}[language=C, caption={Inicializacion de USART para recepcion asincrona}]
 volatile uint8_t uart_rx = 0;
 volatile uint8_t new_data = 0;
 
@@ -569,7 +575,7 @@ void uart_init(uint16_t baud) {
 
 
 \paragraph{ISR de Recepción USART}\label{anexo:USARTisr}---\\
-\begin{lstlisting}[language=C, caption={Rutina de servicio de interrupción USART RX}]
+\begin{lstlisting}[language=C, caption={Rutina de servicio de interrupcion USART RX}]
 ISR(USART_RX_vect) {
     uart_rx = UDR0;
     new_data = 1;
@@ -578,17 +584,17 @@ ISR(USART_RX_vect) {
 
 
 \paragraph{Definiciones generales WS2812}\label{anexo:defWS}---\\
-\begin{lstlisting}[language=C, caption={Definiciones del módulo WS2812}]
+\begin{lstlisting}[language=C, caption={Definiciones del modulo WS2812}]
 #define LED_PIN PORTD6
 #define LED_DDR DDRD
 #define NUM_LEDS 256
 
-uint8_t leds[NUM_LEDS * 3];   // Datos GRB para cada LED
+
 \end{lstlisting}
 
 
 \paragraph{Programa principal WS2812}\label{anexo:WSmain}---\\
-\begin{lstlisting}[language=C, caption={Función principal para control WS2812}]
+\begin{lstlisting}[language=C, caption={Funcion principal para control WS2812}]
 int main(void){
     ws2812_init();
     uart_init(9600);
@@ -612,7 +618,7 @@ int main(void){
 \end{lstlisting}
 
 \paragraph{Indexación serpenteada}\label{anexo:WSserp}---\\
-\begin{lstlisting}[language=C, caption={Cálculo de índice en matriz serpentina}]
+\begin{lstlisting}[language=C, caption={Calculo de indice en matriz serpentina}]
 uint16_t serpentine_index(uint8_t x, uint8_t y) {
     if (y % 2 == 0) {
         return y * 16 + x;        // fila normal
@@ -624,7 +630,7 @@ uint16_t serpentine_index(uint8_t x, uint8_t y) {
 
 
 \paragraph{Función wheel\_color()}\label{anexo:WSwheel}---\\
-\begin{lstlisting}[language=C, caption={Generador de colores cíclicos RGB}]
+\begin{lstlisting}[language=C, caption={Generador de colores ciclicos RGB}]
 uint8_t wheel_color(uint8_t pos, uint8_t color) {
     if (pos < 85)
         return (pos * 3 * (color == 0)) + ((255 - pos*3) * (color == 2));
@@ -642,7 +648,7 @@ uint8_t wheel_color(uint8_t pos, uint8_t color) {
 
 
 \paragraph{Animación arcoíris diagonal}\label{anexo:WSrainbow}---\\
-\begin{lstlisting}[language=C, caption={Animación rainbow diagonal en matriz WS2812}]
+\begin{lstlisting}[language=C, caption={Animacion rainbow diagonal en matriz WS2812}]
 void anim_rainbow_diagonal(void) {
     while (1) {
         for(uint16_t j = 0; j < 255; j++){
@@ -669,7 +675,7 @@ void anim_rainbow_diagonal(void) {
 
 
 \paragraph{Máscara para animación rainbow}\label{anexo:WSmask}---\\
-\begin{lstlisting}[language=C, caption={Función draw\_raibow\_mask()}]
+\begin{lstlisting}[language=C, caption={Funcion draw\_raibowmask()}]
 void draw_raibow_mask(void) {
     const uint8_t r = 0, g = 0, b = 0;
 
@@ -682,7 +688,7 @@ void draw_raibow_mask(void) {
 
 
 \paragraph{Animación barber pole}\label{anexo:WSbarber}---\\
-\begin{lstlisting}[language=C, caption={Animación tipo Barber Pole}]
+\begin{lstlisting}[language=C, caption={Animacion tipo Barber Pole}]
 void anim_barber_pole(void) {
     const int8_t radius = 3;
     const uint8_t stripe_width = 9;
@@ -743,4 +749,51 @@ void anim_barber_pole(void) {
 \end{lstlisting}
 
 
+<<<<<<< HEAD
+\paragraph{Envío de bits y bytes WS2812}\label{anexo:WSsend}---\\
+\begin{lstlisting}[language=C, caption={Rutinas de bit banging para WS2812}]
+void send_bit(uint8_t bitVal) {
+    if (bitVal) {
+        PORTD |= (1 << LED_PIN);
+        asm volatile("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"
+                     "nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+        PORTD &= ~(1 << LED_PIN);
+        asm volatile("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+    } else {
+        PORTD |= (1 << LED_PIN);
+        asm volatile("nop\n\t""nop\n\t""nop\n\t");
+        PORTD &= ~(1 << LED_PIN);
+        asm volatile("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"
+                     "nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+    }
+}
+
+void send_byte(uint8_t byte) {
+    cli();
+    for (uint8_t i = 0; i < 8; i++) {
+        send_bit(byte & 0x80);
+        byte <<= 1;
+    }
+    sei();
+}
+
+void ws2812_send_pixel(uint8_t r, uint8_t g, uint8_t b) {
+    send_byte(g);
+    send_byte(r);
+    send_byte(b);
+}
+
+
+void ws2812_show_all(void) {
+	cli();
+	for (uint16_t i = 0; i < NUM_LEDS; i++) {
+		ws2812_send_pixel(leds[i * 3 + 1], leds[i * 3 + 0], leds[i * 3 + 2]);
+	}
+	sei();
+	ws2812_show();
+}
+\end{lstlisting}
+
+=======
+>>>>>>> 0f00fb8acd59b216f81a63c91f670090a8902d31
 
