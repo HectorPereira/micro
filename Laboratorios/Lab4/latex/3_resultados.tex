@@ -92,5 +92,34 @@ Para la comunicación Bluetooth se uso la aplicacion, se puede ver una imagen de
 
 \subsection{Control y Animaciones en Matriz WS2812}
 
+La animación arcoíris diagonal se ejecutó de manera fluida sobre la matriz WS2812, sin presentar parpadeos, cortes ni variaciones de brillo. El patrón mantuvo una transición suave de colores y el desplazamiento diagonal se observó tal como se había diseñado, con una correcta interpretación del generador de gradiente \texttt{wheel\_color()}. El brillo de los LEDs se mantuvo homogéneo a lo largo de toda la matriz, sin zonas apagadas ni saturaciones perceptibles. 
+
+Además, el sistema respondió inmediatamente a los comandos USART, permitiendo interrumpir o cambiar la animación sin retrasos. Esto permitió validar la robustez del protocolo WS2812 incluso bajo cambios bruscos de rutina.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{anexos/3 Animacion/arcoiris.jpg}
+    \caption{Funcionamiento general del sistema: animación arcoíris en la matriz WS2812. Fuente: elaboración propia}
+    \label{fig:WSanim}
+\end{figure}
 
 \subsection{Control de Movimiento en Matriz WS2812 mediante MPU6050}
+
+Durante las pruebas del sistema basado en el MPU6050, el LED se desplazó correctamente según la inclinación física detectada. En posición neutra, el LED permaneció estable y centrado sobre la matriz, respetando los límites sin salirse en ningún momento. Esta estabilidad permitió validar el rango de mapeo definido y comprobar que el sistema no generaba desbordes ni direcciones inválidas aun ante pequeños movimientos involuntarios.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{anexos/4 Giroscopio/neutral.jpg}
+    \caption{Funcionamiento general del sistema: LED en posición neutra con el sensor apoyado. Fuente: elaboración propia}
+    \label{fig:WSneutral}
+\end{figure}
+
+El comportamiento al inclinar la protoboard mostró un desplazamiento suave sobre la matriz, acompañando correctamente la dirección del movimiento. Si bien se observó cierto \textit{jitter} en posiciones intermedias —debido al ruido natural del acelerómetro— este efecto fue menor comparado con la respuesta estable en movimientos más amplios, como inclinaciones pronunciadas o trayectorias circulares. La latencia del sistema fue baja y el retardo imperceptible, resultando en una interacción natural e intuitiva para el usuario.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{anexos/4 Giroscopio/giroscopio2.png}
+    \caption{Funcionamiento general del sistema: desplazamiento del LED al inclinar el MPU6050. Fuente: elaboración propia}
+    \label{fig:WSinclinado}
+\end{figure}
+
