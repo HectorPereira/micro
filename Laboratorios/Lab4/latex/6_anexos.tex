@@ -5,6 +5,7 @@ La carpeta de Google Drive correspondiente a este laboratorio puede encontrarse 
 
 \subsection{Fragmentos de código}
 
+\subsubsection{SPI} --- \\
 
 \paragraph{SPI Init Maestro}\label{anexo:MasterSPIIn}---\\
 \begin{lstlisting}[language=C, caption={Inicializacion SPI Maestro}]
@@ -301,7 +302,7 @@ bool dht11_read2(uint8_t *t,uint8_t *h){
 \end{lstlisting}
 
 
-\paragraph{I2c en codigo de spi (Para LCD)}\label{anexo:LCDspi}---\\
+\paragraph{I2C en codigo de spi (Para LCD)}\label{anexo:LCDspi}---\\
 \begin{lstlisting}[language=C, caption={I2c en spi}]
 
 void I2C_init(void) {
@@ -417,6 +418,8 @@ void lcd_twolines(const char *c, const char *b){
 
 \end{lstlisting}
 
+\subsubsection{\textbf{I2C}} --- \\
+
 \paragraph{Inicializaciones}\label{anexo:initsSPI}---\\
 \begin{lstlisting}[language=C, caption={Inits en spi}]
 
@@ -489,6 +492,8 @@ uint8_t I2C_write(uint8_t data) {
 
 \end{lstlisting}
 
+\subsection{\textbf{Auto}}
+
 \paragraph{USART del Auto}\label{anexo:Us}---\\
 \begin{lstlisting}[language=C, caption={Funciones Usart Auto}]
 
@@ -539,6 +544,7 @@ void init_pwm(void)
 
 \end{lstlisting}
 
+\subsection{\textbf{Animaciones LED}}
 
 \paragraph{Inicialización ws2812}\label{anexo:initWS}---\\
 \begin{lstlisting}[language=C, caption={Inicializacion ws2812}]
@@ -743,6 +749,7 @@ void anim_barber_pole(void) {
 \end{lstlisting}
 
 
+<<<<<<< HEAD
 \paragraph{Envío de bits y bytes WS2812}\label{anexo:WSsend}---\\
 \begin{lstlisting}[language=C, caption={Rutinas de bit banging para WS2812}]
 void send_bit(uint8_t bitVal) {
@@ -787,4 +794,6 @@ void ws2812_show_all(void) {
 }
 \end{lstlisting}
 
+=======
+>>>>>>> 0f00fb8acd59b216f81a63c91f670090a8902d31
 
