@@ -757,13 +757,28 @@ void ws2812_show_all(void) {
     }
     sei();
     ws2812_show();
+<<<<<<< HEAD
 }	
+=======
+}
+\end{lstlisting}
+
+
+\paragraph*{Limpieza del búfer WS2812}\label{anexo:WSclear}---\\
+\begin{lstlisting}[language=C, caption={Función ws2812 clear}]
+	
+>>>>>>> 738c9c2dec575a610458c9916c49dd4ca75451b8
 void ws2812_clear(void) {
     for (uint16_t i = 0; i < NUM_LEDS * 3; i++)
         leds[i] = 0;
 }
 
 
+<<<<<<< HEAD
+=======
+\paragraph*{Encender un LED puntual}\label{anexo:WSturn}---\\
+\begin{lstlisting}[language=C, caption={Encendido puntual de LED por coordenadas}]
+>>>>>>> 738c9c2dec575a610458c9916c49dd4ca75451b8
 void turn_led(uint8_t led_x, uint8_t led_y) {
     uint8_t index = led_y * 8 + led_x;
     ws2812_clear();

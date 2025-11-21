@@ -28,6 +28,8 @@ Se puede ver el módulo en la figura \ref{fig:S1}.
 
 Dicho sensor emplea un protocolo de comunicación digital específico definido por el fabricante como “single‐wire bi–directional serial communication protocol” \cite{dht11_datasheet_mouser}. Este protocolo propietario se basa en una secuencia de pulsos temporizados en un único hilo de datos. La comunicación comienza cuando el microcontrolador envía una señal de inicio consistente en un pulso bajo prolongado, seguido de un pulso alto de corta duración. Tras esta petición, el DHT11 responde con una secuencia característica de pulsos que indican su disponibilidad y comienza a transmitir los datos.
 
+\vspace{1em}
+
 La información enviada por el sensor se compone de 40 bits organizados en 5 bytes consecutivos: humedad entera, humedad decimal, temperatura entera, temperatura decimal y un byte de verificación (checksum), el cual corresponde a la suma de los cuatro valores anteriores \cite{dht11_datasheet_mouser}. Cada bit es codificado mediante la duración del pulso alto: un pulso corto representa un ‘0’, mientras que un pulso alto más prolongado representa un ‘1’. Todo el intercambio se realiza por la misma línea de datos. Véase la figura \ref{fig:S1} para observar la gráfica de pulsos.
 
 
@@ -42,9 +44,7 @@ La información enviada por el sensor se compone de 40 bits organizados en 5 byt
 
 \subsection{Módulo Bluetooth HC05}
 
-El HC-05 es un módulo de comunicación inalámbrica basado en Bluetooth 2.0 diseñado para establecer enlaces serie mediante UART \cite{hc05_naylamp_at_commands}. Permite configurarse tanto en modo maestro como esclavo, lo que facilita la conexión con dispositivos externos como computadoras, teléfonos o microcontroladores. Su simplicidad de uso y compatibilidad con niveles de 3.3~V y 5~V lo convierten en una opción común para proyectos de robótica, domótica y sistemas embebidos que requieren transmisión de datos sin cables.
-
-En la figura \ref{fig:HC05} se puede ver una imagen del módulo.
+El HC-05 es un módulo de comunicación inalámbrica basado en Bluetooth 2.0 diseñado para establecer enlaces serie mediante UART \cite{hc05_naylamp_at_commands}. Permite configurarse tanto en modo maestro como esclavo, lo que facilita la conexión con dispositivos externos como computadoras, teléfonos o microcontroladores. Su simplicidad de uso y compatibilidad con niveles de 3.3~V y 5~V lo convierten en una opción común para proyectos de robótica, domótica y sistemas embebidos que requieren transmisión de datos sin cables (véase figura~\ref{fig:HC05})
 
 \begin{figure}[H]
     \centering

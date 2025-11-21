@@ -7,6 +7,8 @@ Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "Animacion", "Animacion\Anim
 EndProject
 Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "Matriz", "..\..\..\Lab3\code\4 Matriz\Matriz\Matriz\Matriz.cproj", "{70104A32-82AC-4E66-BF40-B17139840195}"
 EndProject
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "Giroscopio", "..\4 Giroscopio\Giroscopio\Giroscopio.cproj", "{35D06B14-94D8-4D01-8C62-36BCDA1CAFBB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|AVR = Debug|AVR
@@ -21,6 +23,10 @@ Global
 		{70104A32-82AC-4E66-BF40-B17139840195}.Debug|AVR.Build.0 = Debug|AVR
 		{70104A32-82AC-4E66-BF40-B17139840195}.Release|AVR.ActiveCfg = Release|AVR
 		{70104A32-82AC-4E66-BF40-B17139840195}.Release|AVR.Build.0 = Release|AVR
+		{35D06B14-94D8-4D01-8C62-36BCDA1CAFBB}.Debug|AVR.ActiveCfg = Debug|AVR
+		{35D06B14-94D8-4D01-8C62-36BCDA1CAFBB}.Debug|AVR.Build.0 = Debug|AVR
+		{35D06B14-94D8-4D01-8C62-36BCDA1CAFBB}.Release|AVR.ActiveCfg = Release|AVR
+		{35D06B14-94D8-4D01-8C62-36BCDA1CAFBB}.Release|AVR.Build.0 = Release|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
