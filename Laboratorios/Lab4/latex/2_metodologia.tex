@@ -316,6 +316,8 @@ Por otra parte, la animación \texttt{anim\_barber\_pole()} (véase anexo~\ref{a
 Finalmente, la actualización completa del panel se realiza reconstruyendo el búfer \texttt{leds[]}, enviándolo mediante \texttt{ws2812\_show\_all()} y generando el pulso de reset requerido por el protocolo. Este proceso garantiza una transición fluida entre fotogramas y evita parpadeos perceptibles, logrando así animaciones estables y visualmente atractivas.
 
 
+
+
 \subsection{Control de Movimiento en Matriz WS2812 mediante MPU6050}
 
 En este apartado se detalla el proceso de desarrollo e implementación del sistema de control basado en el sensor inercial MPU6050 y una matriz LED WS2812 de 16$\times$16. El objetivo principal es desplazar un único píxel sobre la matriz en función de la inclinación física detectada por el acelerómetro integrado en el módulo IMU, mostrando además un gradiente de color dinámico obtenido mediante la función \texttt{wheel\_color()}.
