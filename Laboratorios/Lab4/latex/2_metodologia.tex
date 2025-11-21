@@ -68,7 +68,7 @@ Para la lectura del potenciómetro se utiliza el código mostrado en \ref{anexo:
 
 \subsubsection{Lectura del HC-SR04 y transferencia de distancia}
 
-Para la medición de distancia con el sensor ultrasónico \textbf{HC-SR04} se emplea el procedimiento indicado en \ref{anexo:hc-sr04}, basado en la detección del pulso de \textit{echo} mediante un contador por comparación. El método consiste en medir la cantidad de \textit{ticks} que la señal permanece en nivel alto y convertir dicho tiempo en distancia utilizando la ecuación correspondiente del sensor. 
+Para la medición de distancia con el sensor ultrasónico \textbf{HC-SR04} se emplea el procedimiento indicado en \ref{anexo:hcsr04}, basado en la detección del pulso de \textit{echo} mediante un contador por comparación. El método consiste en medir la cantidad de \textit{ticks} que la señal permanece en nivel alto y convertir dicho tiempo en distancia utilizando la ecuación correspondiente del sensor. 
 
 En función del valor calculado, el sistema asigna un código distinto que es transferido al microcontrolador esclavo, permitiendo ejecutar acciones diferenciadas según la distancia detectada por el HC-SR04.
 
@@ -243,11 +243,8 @@ En el anexo ~\ref{anexo:Us}, se puede ver la inicialización de USART para el ve
 El movimiento del vehículo y el control del servomotor se gestionan mediante las funciones descritas en el anexo~\ref{anexo:accion}. 
 El desplazamiento del auto —adelante, atrás, giro a la derecha o a la izquierda— se realiza actuando sobre el Puente~H, el cual permite invertir la polaridad aplicada a los motores y, por lo tanto, modificar el sentido de giro según el comando recibido.
 
-En cuanto al servomotor, este se encuentra normalmente posicionado en 90°. A través de los comandos enviados por Bluetooth se pueden ejecutar dos movimientos rápidos (``golpes''):  
-\begin{itemize}
-    \item la función \textbf{kick()} posiciona el servo en 0°,  
-    \item mientras que \textbf{kick1()} lo lleva a 180°.  
-\end{itemize}
+En cuanto al servomotor, este se encuentra normalmente posicionado en 90°. A través de los comandos enviados por Bluetooth se pueden ejecutar dos movimientos rápidos (``golpes''):  la función \textbf{kick()} posiciona el servo en 0°, mientras que \textbf{kick1()} lo lleva a 180°.  
+
 
 
 

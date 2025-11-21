@@ -513,6 +513,26 @@ char uart_rx(void) {
 }
 \end{lstlisting}
 
+\paragraph{PWM Auto}\label{anexo:s}---\\
+\begin{lstlisting}[language=C, caption={Inicialización PWM}]
+
+	//PWM para el control del motor paso a paso 
+void init_pwm(void)
+{
+		DDRB |= (1 << Pin_M);
+
+		TCCR1A = (1<<COM1A1) | (1<<WGM11);
+		TCCR1B = (1<<WGM13) | (1<<WGM12) | (1<<CS11);
+
+
+		ICR1 = 39999;   // TOP
+
+
+		OCR1A = 2000;  // ~1 ms servo en 0 grados
+}
+
+\end{lstlisting}
+
 
 \paragraph{Inicialización ws2812}\label{anexo:initWS}---\\
 \begin{lstlisting}[language=C, caption={Inicialización ws2812}]
@@ -746,44 +766,3 @@ void send_byte(uint8_t byte) {
 \end{lstlisting}
 
 
-\paragraph{Actualización completa de la matriz}\label{anexo:WSshow}---\\
-\begin{lstlisting}[language=C, caption={Actualización de todos los LEDs}]
-void ws2812_show_all(void) {
-    cli();
-    for (uint16_t i = 0; i < NUM_LEDS; i++) {
-        ws2812_send_pixel(leds[i * 3 + 1],
-                          leds[i * 3 + 0],
-                          leds[i * 3 + 2]);
-    }
-    sei();
-    ws2812_show();
-<<<<<<< HEAD
-}	
-=======
-}
-\end{lstlisting}
-
-
-\paragraph*{Limpieza del búfer WS2812}\label{anexo:WSclear}---\\
-\begin{lstlisting}[language=C, caption={Función ws2812 clear}]
-	
->>>>>>> 738c9c2dec575a610458c9916c49dd4ca75451b8
-void ws2812_clear(void) {
-    for (uint16_t i = 0; i < NUM_LEDS * 3; i++)
-        leds[i] = 0;
-}
-
-
-<<<<<<< HEAD
-=======
-\paragraph*{Encender un LED puntual}\label{anexo:WSturn}---\\
-\begin{lstlisting}[language=C, caption={Encendido puntual de LED por coordenadas}]
->>>>>>> 738c9c2dec575a610458c9916c49dd4ca75451b8
-void turn_led(uint8_t led_x, uint8_t led_y) {
-    uint8_t index = led_y * 8 + led_x;
-    ws2812_clear();
-    ws2812_set_pixel(index, 0, 0, 0); // rojo
-    ws2812_show_all();
-}
-
-\end{lstlisting}

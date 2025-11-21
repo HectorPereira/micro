@@ -55,7 +55,7 @@ void init_pwm(void)
 		ICR1 = 39999;   // TOP
 
 
-		OCR1A = 2000;  // ~1 ms ? servo en 0 grados
+		OCR1A = 2000;  // ~1 ms servo en 0 grados
 }
 
 
