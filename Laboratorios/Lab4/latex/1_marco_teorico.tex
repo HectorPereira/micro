@@ -70,7 +70,6 @@ Los LEDs WS2812 (NeoPixel) son dispositivos RGB direccionables en cadena que rec
 
 En matrices comunes de 8$\times$8 o 16$\times$16, el cableado interno no siempre sigue un orden lineal convencional. En particular, muchos paneles emplean un esquema de \textbf{direccionamiento serpentina}, donde las filas pares se cablean de izquierda a derecha y las filas impares de derecha a izquierda. Debido a esto, la posición real de un píxel no coincide directamente con su índice lineal, por lo que se requiere una función de mapeo adicional como \texttt{serpentine\_index()}, utilizada en este proyecto para convertir coordenadas cartesianas (\(x, y\)) en índices válidos dentro del búfer de transmisión.
 
-
 \subsection{MPU6050 como sensor de inclinación}
 
 El MPU6050 es un módulo inercial de seis ejes que integra acelerómetro y giroscopio MEMS. Para aplicaciones de inclinación lenta —como el desplazamiento de un punto luminoso en una matriz— la fuente de información relevante proviene del \textbf{acelerómetro}, ya que la aceleración estática de la gravedad permite inferir la orientación del módulo.
