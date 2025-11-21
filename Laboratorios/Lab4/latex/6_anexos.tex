@@ -1,13 +1,13 @@
 \section{Anexos}
 
 \subsection{Drive de Laboratorio}
-La carpeta de Google Drive correspondiente a este laboratorio puede encontrarse en \url{https://drive.google.com/drive/folders/1zlPwmZ6XGEYrSYWA3p0l1uxA-KCTYJkX?usp=drive_link}. Allí encontrará evidencias del trabajo realizado durante esta actividad.
+La carpeta de Google Drive correspondiente a este laboratorio puede encontrarse en \url{https://drive.google.com/drive/folders/1IkRMGvUI8fxS9unoVFizmE0Fx3W2UF51?usp=drive_link}. Allí encontrará evidencias del trabajo realizado durante esta actividad.
 
 \subsection{Fragmentos de código}
 
 \subsubsection{SPI} --- \\
 
-\paragraph{SPI Init Maestro}\label{anexo:MasterSPIIn}---\\
+\paragraph{SPI Init Maestro}\label{anexo:MasterSPIIn}---
 \begin{lstlisting}[language=C, caption={Inicializacion SPI Maestro}]
 void spi_init(void) {
 	DDRB |= (1 << CS) | (1 << MOSI) | (1 << SCK); //Pines de comunicación
@@ -16,7 +16,7 @@ void spi_init(void) {
 }
 \end{lstlisting}
 
-\paragraph{SPI Init Esclavo}\label{anexo:SlaveSPIIn}---\\
+\paragraph{SPI Init Esclavo}\label{anexo:SlaveSPIIn}---
 \begin{lstlisting}[language=C, caption={Inicializacion SPI Esclavo}]
 void spi_init_slave(){
 		DDRB |= (1 << MISO); // MISO salida
@@ -28,7 +28,7 @@ void spi_init_slave(){
 }
 \end{lstlisting}
 
-\paragraph{Transferencia via SPI}\label{anexo:Transfer_spi}---\\
+\paragraph{Transferencia via SPI}\label{anexo:Transfer_spi}---
 \begin{lstlisting}[language=C, caption={Transferencia SPI Maestro}]
 uint8_t spi_transfer(uint8_t data) {
 	SPDR = data;
@@ -37,7 +37,7 @@ uint8_t spi_transfer(uint8_t data) {
 }
 \end{lstlisting}
 
-\paragraph{Recepcion del esclavo}\label{anexo:Reception_spi}---\\
+\paragraph{Recepcion del esclavo}\label{anexo:Reception_spi}---
 \begin{lstlisting}[language=C, caption={Recepcion SPI Esclavo}]
 uint8_t SPI_slaveReceive()
 {
@@ -52,7 +52,7 @@ uint8_t SPI_slaveReceive()
 }
 \end{lstlisting}
 
-\paragraph{Transferencia foto resistor}\label{anexo:fotoresistor}---\\
+\paragraph{Transferencia foto resistor}\label{anexo:fotoresistor}---
 \begin{lstlisting}[language=C, caption={Transferencia foto resistor}]
 uint16_t lectura_led = adc_read_AC1();
 
@@ -72,7 +72,7 @@ else {
 
 
 
-\paragraph{Transferencia de angulo del potenciometro}\label{anexo:potenciometro}---\\
+\paragraph{Transferencia de angulo del potenciometro}\label{anexo:potenciometro}---
 \begin{lstlisting}[language=C, caption={Transferencia potenciometro}]
 uint16_t pot = adc_read_AC0();
 		float grados = pot * 0.17; // el 0.17 sale de 180/1024 - grados/adc
@@ -80,7 +80,7 @@ uint16_t pot = adc_read_AC0();
 		SS_LOW(); spi_transfer((uint8_t)grados); SS_HIGH();
 \end{lstlisting}
 
-\paragraph{Transferencia de distancia}\label{anexo:distancia}---\\
+\paragraph{Transferencia de distancia}\label{anexo:distancia}---
 \begin{lstlisting}[language=C, caption={Transferencia distancia}]
 
 		PORTD |= (1<<PIN_T);
@@ -116,7 +116,7 @@ uint16_t pot = adc_read_AC0();
 \end{lstlisting}
 
 
-\paragraph{Interrupcion por comparacion hcsr04}\label{anexo:hcsr04}---\\
+\paragraph{Interrupcion por comparacion hcsr04}\label{anexo:hcsr04}---
 \begin{lstlisting}[language=C, caption={hcsr04}]
 
 
@@ -134,7 +134,7 @@ ISR(TIMER1_CAPT_vect) {
 
 \end{lstlisting}
 
-\paragraph{Lectura DHT11}\label{anexo:DHT11}---\\
+\paragraph{Lectura DHT11}\label{anexo:DHT11}---
 \begin{lstlisting}[language=C, caption={DHT11}]
 
 
@@ -195,7 +195,7 @@ bool dht11_read2(uint8_t *t,uint8_t *h){
 \end{lstlisting}
 
 
-\paragraph{Transferencia DHT11}\label{anexo:DHT11T}---\\
+\paragraph{Transferencia DHT11}\label{anexo:DHT11T}---
 \begin{lstlisting}[language=C, caption={DHT11T}]
 		if(dht11_read2(&Temp,&Hum) && leer_dht){
 			leer_dht=0;
@@ -213,7 +213,7 @@ bool dht11_read2(uint8_t *t,uint8_t *h){
 
 
 
-\paragraph{Recepcion Esclavo}\label{anexo:RE}---\\
+\paragraph{Recepcion Esclavo}\label{anexo:RE}---
 \begin{lstlisting}[language=C, caption={Recepcion Eclavo}]
     while(1)
     {
@@ -302,7 +302,7 @@ bool dht11_read2(uint8_t *t,uint8_t *h){
 \end{lstlisting}
 
 
-\paragraph{I2C en codigo de spi (Para LCD)}\label{anexo:LCDspi}---\\
+\paragraph{I2C en codigo de spi (Para LCD)}\label{anexo:LCDspi}---
 \begin{lstlisting}[language=C, caption={I2c en spi}]
 
 void I2C_init(void) {
@@ -418,9 +418,18 @@ void lcd_twolines(const char *c, const char *b){
 
 \end{lstlisting}
 
+
+
+
+
+
+
+
+
+
 \subsubsection{\textbf{I2C}} --- \\
 
-\paragraph{Inicializaciones}\label{anexo:initsSPI}---\\
+\paragraph{Inicializaciones}\label{anexo:initsSPI}---
 \begin{lstlisting}[language=C, caption={Inits en spi}]
 
 
@@ -462,7 +471,7 @@ uint16_t adc_read_AC1(void) {
 \end{lstlisting}
 
 
-\paragraph{Funciones I2C Maestro}\label{anexo:I2c}---\\
+\paragraph{Funciones I2C Maestro}\label{anexo:I2c}---
 \begin{lstlisting}[language=C, caption={Funciones I2C}]
 
 
@@ -492,9 +501,16 @@ uint8_t I2C_write(uint8_t data) {
 
 \end{lstlisting}
 
+
+
+
+
+
+
+
 \subsection{\textbf{Auto}}
 
-\paragraph{USART del Auto}\label{anexo:Us}---\\
+\paragraph{USART del Auto}\label{anexo:Us}---
 \begin{lstlisting}[language=C, caption={Funciones Usart Auto}]
 
 
@@ -543,6 +559,15 @@ void init_pwm(void)
 }
 
 \end{lstlisting}
+
+
+
+
+
+
+
+
+
 
 \subsection{\textbf{Animaciones LED}}
 
@@ -749,9 +774,63 @@ void anim_barber_pole(void) {
 \end{lstlisting}
 
 
-<<<<<<< HEAD
-\paragraph{Envío de bits y bytes WS2812}\label{anexo:WSsend}---\\
-\begin{lstlisting}[language=C, caption={Rutinas de bit banging para WS2812}]
+
+
+
+
+
+
+\subsection{\textbf{MPU6050 y Control de Movimiento}}
+
+\paragraph{Inicialización del MPU6050}\label{anexo:MPUinit}---
+\begin{lstlisting}[language=C, caption={Inicialización del sensor MPU6050}]
+void MPU6050_init(void)
+{
+    _delay_ms(100);
+    MPU6050_write(0x6B, 0x00); // Wake up
+    MPU6050_write(0x1B, 0x00); // Gyro +-250 dps
+    MPU6050_write(0x1C, 0x00); // Acc +-2g
+}
+\end{lstlisting}
+
+\paragraph{Lectura de datos crudos del MPU6050}\label{anexo:MPUread}---
+\begin{lstlisting}[language=C, caption={Lectura de acelerómetro y giroscopio}]
+void MPU6050_read_raw(int16_t *ax, int16_t *ay, int16_t *az,
+                      int16_t *gx, int16_t *gy, int16_t *gz)
+{
+    I2C_start(MPU6050_ADDR << 1);
+    I2C_write(0x3B); // ACCEL_XOUT_H
+
+    I2C_start((MPU6050_ADDR << 1) | 1);
+
+    *ax = (I2C_readACK() << 8) | I2C_readACK();
+    *ay = (I2C_readACK() << 8) | I2C_readACK();
+    *az = (I2C_readACK() << 8) | I2C_readACK();
+
+    *gx = (I2C_readACK() << 8) | I2C_readACK();
+    *gy = (I2C_readACK() << 8) | I2C_readACK();
+    *gz = (I2C_readACK() << 8) | I2C_readNACK();
+
+    I2C_stop();
+}
+\end{lstlisting}
+
+\paragraph{Mapeo de aceleración a coordenadas de la matriz}\label{anexo:mapa}---
+\begin{lstlisting}[language=C, caption={Función de mapeo a 0..15}]
+uint8_t map_to_0_15(int16_t v)
+{
+    int32_t x = (int32_t)v;
+
+    if (x < -10000) x = -10000;
+    if (x > 10000)  x = 10000;
+
+    x += 10000;            // ahora 0..20000
+    return x / 1333;       // ahora 0..15
+}
+\end{lstlisting}
+
+\paragraph{Envío de un bit WS2812}\label{anexo:WSbit}---
+\begin{lstlisting}[language=C, caption={Bit-banging del protocolo WS2812}]
 void send_bit(uint8_t bitVal) {
     if (bitVal) {
         PORTD |= (1 << LED_PIN);
@@ -767,33 +846,139 @@ void send_bit(uint8_t bitVal) {
                      "nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
     }
 }
+\end{lstlisting}
 
-void send_byte(uint8_t byte) {
-    cli();
-    for (uint8_t i = 0; i < 8; i++) {
-        send_bit(byte & 0x80);
-        byte <<= 1;
-    }
-    sei();
-}
-
-void ws2812_send_pixel(uint8_t r, uint8_t g, uint8_t b) {
-    send_byte(g);
-    send_byte(r);
-    send_byte(b);
-}
-
-
-void ws2812_show_all(void) {
-	cli();
-	for (uint16_t i = 0; i < NUM_LEDS; i++) {
-		ws2812_send_pixel(leds[i * 3 + 1], leds[i * 3 + 0], leds[i * 3 + 2]);
-	}
-	sei();
-	ws2812_show();
+\paragraph{Cálculo de índice en matriz serpentina}\label{anexo:WSserp2}---
+\begin{lstlisting}[language=C, caption={Indexación de tipo serpentina}]
+uint16_t serpentine_index(uint8_t x, uint8_t y) {
+    if (y % 2 == 0)
+        return y * 16 + x;
+    else
+        return y * 16 + (15 - x);
 }
 \end{lstlisting}
 
-=======
->>>>>>> 0f00fb8acd59b216f81a63c91f670090a8902d31
+\paragraph{Programa principal (Movimiento en función de inclinación)}\label{anexo:WSmpuMain}---
+\begin{lstlisting}[language=C, caption={Main del sistema LED + MPU6050}]
+int main(void)
+{
+    ws2812_init();
+    I2C_init();
+    MPU6050_init();
 
+    ws2812_clear();
+    ws2812_show_all();
+
+    int16_t ax, ay, az, gx, gy, gz;
+    uint16_t rainbow_pos = 0;
+
+    while (1)
+    {
+        MPU6050_read_raw(&ax, &ay, &az, &gx, &gy, &gz);
+
+        uint8_t x = map_to_0_15(az);
+        uint8_t y = map_to_0_15(16 - ay);
+
+        if (x > 15) x = 15;
+        if (y > 15) y = 15;
+
+        uint8_t r = wheel_color(rainbow_pos, 0);
+        uint8_t g = wheel_color(rainbow_pos, 1);
+        uint8_t b = wheel_color(rainbow_pos, 2);
+
+        rainbow_pos = (rainbow_pos + 1) % 255;
+
+        ws2812_clear();
+        uint16_t idx = serpentine_index(x, y);
+        ws2812_set_pixel(idx, r, g, b);
+
+        ws2812_show_all();
+    }
+}
+\end{lstlisting}
+
+
+\paragraph{Lectura por puerto serie y graficación en tiempo real}\label{anexo:PythonMPU}---
+\begin{lstlisting}[language=Python, caption={Script Python para calibrar acelerómetro y giroscopio}]
+import serial
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+from collections import deque
+
+PORT = "COM9"
+BAUD = 9600
+MAX_POINTS = 200
+
+ax_buf = deque(maxlen=MAX_POINTS)
+ay_buf = deque(maxlen=MAX_POINTS)
+az_buf = deque(maxlen=MAX_POINTS)
+
+gx_buf = deque(maxlen=MAX_POINTS)
+gy_buf = deque(maxlen=MAX_POINTS)
+gz_buf = deque(maxlen=MAX_POINTS)
+
+ser = serial.Serial(PORT, BAUD, timeout=1)
+print("Connected to", PORT)
+
+plt.style.use("ggplot")
+fig, (ax_plot, gyro_plot) = plt.subplots(2, 1, figsize=(10, 7))
+
+line_ax, = ax_plot.plot([], [], label="ax")
+line_ay, = ax_plot.plot([], [], label="ay")
+line_az, = ax_plot.plot([], [], label="az")
+
+line_gx, = gyro_plot.plot([], [], label="gx")
+line_gy, = gyro_plot.plot([], [], label="gy")
+line_gz, = gyro_plot.plot([], [], label="gz")
+
+ax_plot.legend()
+gyro_plot.legend()
+
+def update(frame):
+    raw = ser.readline().decode().strip()
+    if not raw:
+        return
+
+    parts = raw.split(",")
+    if len(parts) != 6:
+        return
+
+    ax, ay, az, gx, gy, gz = map(int, parts)
+
+    ax_buf.append(ax)
+    ay_buf.append(ay)
+    az_buf.append(az)
+    gx_buf.append(gx)
+    gy_buf.append(gy)
+    gz_buf.append(gz)
+
+    line_ax.set_data(range(len(ax_buf)), ax_buf)
+    line_ay.set_data(range(len(ay_buf)), ay_buf)
+    line_az.set_data(range(len(az_buf)), az_buf)
+
+    line_gx.set_data(range(len(gx_buf)), gx_buf)
+    line_gy.set_data(range(len(gy_buf)), gy_buf)
+    line_gz.set_data(range(len(gz_buf)), gz_buf)
+
+    ax_plot.relim(); ax_plot.autoscale_view()
+    gyro_plot.relim(); gyro_plot.autoscale_view()
+
+ani = FuncAnimation(fig, update, interval=10)
+plt.tight_layout()
+plt.show()
+\end{lstlisting}
+
+
+\paragraph{Función wheel\_color()}\label{anexo:wheelColor}---
+\begin{lstlisting}[language=C, caption={Generador cíclico de colores RGB}]
+uint8_t wheel_color(uint8_t pos, uint8_t color) {
+    if (pos < 85)
+        return (pos * 3 * (color == 0)) + ((255 - pos*3) * (color == 2));
+    else if (pos < 170)
+        return ((pos-85) * 3 * (color == 1)) +
+               ((255 - (pos-85)*3) * (color == 0));
+    else
+        return ((pos-170) * 3 * (color == 2)) +
+               ((255 - (pos-170)*3) * (color == 1));
+}
+\end{lstlisting}

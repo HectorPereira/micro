@@ -279,43 +279,95 @@ En esta sección se presenta la implementación completa del sistema de control 
 
 \vspace{1em}
 
-La inicialización del módulo WS2812 se realiza mediante la función \texttt{ws2812\_init()} (véase~\ref{anexo:initWS}), que configura el pin de datos correspondiente como salida digital. El protocolo WS2812 exige una señal estrictamente temporizada, con flancos precisos en el orden de nanosegundos. Debido a esto, la transmisión se lleva a cabo utilizando rutinas de \textit{bit-banging} optimizadas con instrucciones \textit{NOP}, y se deshabilitan interrupciones que puedan alterar la estabilidad temporal. El estado de todos los LEDs se almacena en un búfer global de tamaño \texttt{NUM\_LEDS * 3}, donde cada posición corresponde al valor GRB de un píxel específico de la matriz.
+La inicialización del módulo WS2812 se realiza mediante la función \texttt{ws2812\_init()} (véase anexo~\ref{anexo:initWS}), que configura el pin de datos correspondiente como salida digital. El protocolo WS2812 exige una señal estrictamente temporizada, con flancos precisos en el orden de nanosegundos. Debido a esto, la transmisión se lleva a cabo utilizando rutinas de \textit{bit-banging} optimizadas con instrucciones \textit{NOP}, y se deshabilitan interrupciones que puedan alterar la estabilidad temporal. El estado de todos los LEDs se almacena en un búfer global de tamaño \texttt{NUM\_LEDS * 3}, donde cada posición corresponde al valor GRB de un píxel específico de la matriz.
 
 \vspace{1em}
 
 \subsubsection{Comunicación USART y Selección de Animaciones} ---
-El sistema incorpora un mecanismo de selección de animaciones controlado mediante USART. La función \texttt{uart\_init()} (véase~\ref{anexo:USARTinit}) configura el módulo en modo 8N1 a 9600~baudios y habilita la interrupción de recepción. Dentro de la rutina \texttt{ISR(USART\_RX\_vect)} (véase~\ref{anexo:USARTisr}) el dato recibido se almacena en la variable global \texttt{uart\_rx} y se activa la bandera \texttt{new\_data}. En el lazo principal del programa, esta bandera es evaluada continuamente para determinar si corresponde interrumpir la animación actual y ejecutar una nueva. El sistema reconoce los comandos '1' y '2', que permiten ejecutar respectivamente \texttt{anim\_barber\_pole()} (véase~\ref{anexo:WSbarber}) y \texttt{anim\_rainbow\_diagonal()} (véase~\ref{anexo:WSrainbow}). Un nuevo comando recibido en cualquier momento provoca la interrupción inmediata de la animación vigente.
+El sistema incorpora un mecanismo de selección de animaciones controlado mediante USART. La función \texttt{uart\_init()} (véase anexo~\ref{anexo:USARTinit}) configura el módulo en modo 8N1 a 9600~baudios y habilita la interrupción de recepción. Dentro de la rutina \texttt{ISR(USART\_RX\_vect)} (véase anexo~\ref{anexo:USARTisr}) el dato recibido se almacena en la variable global \texttt{uart\_rx} y se activa la bandera \texttt{new\_data}. En el lazo principal del programa, esta bandera es evaluada continuamente para determinar si corresponde interrumpir la animación actual y ejecutar una nueva. El sistema reconoce los comandos '1' y '2', que permiten ejecutar respectivamente \texttt{anim\_barber\_pole()} (véase anexo~\ref{anexo:WSbarber}) y \texttt{anim\_rainbow\_diagonal()} (véase anexo~\ref{anexo:WSrainbow}). Un nuevo comando recibido en cualquier momento provoca la interrupción inmediata de la animación vigente.
 
 \vspace{1em}
 
-La transmisión de datos hacia la matriz se implementa mediante las funciones \texttt{send\_bit()} y \texttt{send\_byte()} (véase~\ref{anexo:WSsend}), que generan los patrones temporales correspondientes a cada bit del protocolo WS2812. Un bit lógico “1” se representa mediante un pulso alto prolongado seguido de un pulso bajo breve, mientras que un bit “0” invierte esta relación temporal. Los píxeles se envían en formato GRB utilizando la función \texttt{ws2812\_send\_pixel()}, y la actualización completa de la matriz se logra con \texttt{ws2812\_show\_all()}(véase~\ref{anexo:WSsend}), que recorre secuencialmente el búfer global. La función \texttt{ws2812\_clear()} permite limpiar la matriz asignando cero a todas las posiciones del búfer antes de iniciar una nueva animación.
+La transmisión de datos hacia la matriz se implementa mediante las funciones \texttt{send\_bit()} y \texttt{send\_byte()} (véase anexo~\ref{anexo:WSbit}), que generan los patrones temporales correspondientes a cada bit del protocolo WS2812. Un bit lógico “1” se representa mediante un pulso alto prolongado seguido de un pulso bajo breve, mientras que un bit “0” invierte esta relación temporal. Los píxeles se envían en formato GRB utilizando la función \texttt{ws2812\_send\_pixel()}, y la actualización completa de la matriz se logra con \texttt{ws2812\_show\_all()}(véase anexo~\ref{anexo:WSbit}), que recorre secuencialmente el búfer global. La función \texttt{ws2812\_clear()} permite limpiar la matriz asignando cero a todas las posiciones del búfer antes de iniciar una nueva animación.
 
 \vspace{1em}
 
 \subsubsection{Indexación en Serpentina} ---
-Para adaptarse a la disposición física del panel, que se encuentra cableado de forma serpenteada, se utiliza la función \texttt{serpentine\_index(x, y)} (véase~\ref{anexo:WSserp}). Esta función determina la posición lineal en memoria de un píxel dado, invirtiendo el orden de indexación en las filas impares. Gracias a esto, el acceso a píxeles puede realizarse en coordenadas cartesianas sin preocuparse por el orden real del cableado interno de la matriz.
+Para adaptarse a la disposición física del panel, que se encuentra cableado de forma serpenteada, se utiliza la función \texttt{serpentine\_index(x, y)} (véase anexo~\ref{anexo:WSserp}). Esta función determina la posición lineal en memoria de un píxel dado, invirtiendo el orden de indexación en las filas impares. Gracias a esto, el acceso a píxeles puede realizarse en coordenadas cartesianas sin preocuparse por el orden real del cableado interno de la matriz.
 
 \vspace{1em}
 
 \subsubsection{Generación de Colores: \texttt{wheel\_color()}} ---
-La función \texttt{wheel\_color()} (véase~\ref{anexo:WSwheel}) implementa un generador de colores cíclico basado en un gradiente circular que abarca las transiciones Rojo → Verde → Azul → Rojo. Para un valor \texttt{pos} dentro del rango 0–255 se obtienen componentes RGB que varían suavemente, y esta función constituye la base de las animaciones de tipo arcoíris.
+La función \texttt{wheel\_color()} (véase anexo~\ref{anexo:WSwheel}) implementa un generador de colores cíclico basado en un gradiente circular que abarca las transiciones Rojo → Verde → Azul → Rojo. Para un valor \texttt{pos} dentro del rango 0–255 se obtienen componentes RGB que varían suavemente, y esta función constituye la base de las animaciones de tipo arcoíris.
 
 \vspace{1em}
 
 \subsubsection{Animación Diagonal Arcoíris} ---
-La animación \texttt{anim\_rainbow\_diagonal()} (véase~\ref{anexo:WSrainbow}) genera un desplazamiento de franjas multicolor diagonales a través de la matriz. En cada fotograma se calcula un valor \texttt{pos} dependiente de las coordenadas del píxel y del tiempo transcurrido, se obtiene su color correspondiente mediante \texttt{wheel\_color()}, y se escribe en el búfer mediante \texttt{ws2812\_set\_pixel()}. Esta animación incluye además una máscara generada por \texttt{draw\_raibow\_mask()} (véase~\ref{anexo:WSmask}), la cual elimina secciones del patrón para generar un efecto más estilizado. El proceso continúa hasta que un nuevo comando USART activa la bandera \texttt{new\_data}, provocando la finalización de la rutina.
+La animación \texttt{anim\_rainbow\_diagonal()} (véase anexo~\ref{anexo:WSrainbow}) genera un desplazamiento de franjas multicolor diagonales a través de la matriz. En cada fotograma se calcula un valor \texttt{pos} dependiente de las coordenadas del píxel y del tiempo transcurrido, se obtiene su color correspondiente mediante \texttt{wheel\_color()}, y se escribe en el búfer mediante \texttt{ws2812\_set\_pixel()}. Esta animación incluye además una máscara generada por \texttt{draw\_raibow\_mask()} (véase anexo~\ref{anexo:WSmask}), la cual elimina secciones del patrón para generar un efecto más estilizado. El proceso continúa hasta que un nuevo comando USART activa la bandera \texttt{new\_data}, provocando la finalización de la rutina.
 
 \vspace{1em}
 
 \subsubsection{Animación ``Barber Pole''} ---
-Por otra parte, la animación \texttt{anim\_barber\_pole()} (véase~\ref{anexo:WSbarber}) simula un cilindro giratorio con franjas diagonales rojas, blancas y azules. Para cada píxel se calcula su distancia horizontal respecto al centro del cilindro y se aplica un factor de brillo que genera una apariencia tridimensional. La fase de las franjas está dada por la expresión \texttt{phase = 2x + 3y + t/2}, lo que produce un movimiento continuo en diagonal. Además, la función \texttt{draw\_yellow\_frame()} (véase~\ref{anexo:WSbarber}) superpone un marco animado alrededor del cilindro, reforzando el contorno visual.
+Por otra parte, la animación \texttt{anim\_barber\_pole()} (véase anexo~\ref{anexo:WSbarber}) simula un cilindro giratorio con franjas diagonales rojas, blancas y azules. Para cada píxel se calcula su distancia horizontal respecto al centro del cilindro y se aplica un factor de brillo que genera una apariencia tridimensional. La fase de las franjas está dada por la expresión \texttt{phase = 2x + 3y + t/2}, lo que produce un movimiento continuo en diagonal. Además, la función \texttt{draw\_yellow\_frame()} (véase anexo~\ref{anexo:WSbarber}) superpone un marco animado alrededor del cilindro, reforzando el contorno visual.
 
 \vspace{1em}
 
 \subsubsection{Actualización Global de la Matriz} ---
 Finalmente, la actualización completa del panel se realiza reconstruyendo el búfer \texttt{leds[]}, enviándolo mediante \texttt{ws2812\_show\_all()} y generando el pulso de reset requerido por el protocolo. Este proceso garantiza una transición fluida entre fotogramas y evita parpadeos perceptibles, logrando así animaciones estables y visualmente atractivas.
 
-% Y bueno, en el 
+
+\subsection{Control de Movimiento en Matriz WS2812 mediante MPU6050}
+
+En este apartado se detalla el proceso de desarrollo e implementación del sistema de control basado en el sensor inercial MPU6050 y una matriz LED WS2812 de 16$\times$16. El objetivo principal es desplazar un único píxel sobre la matriz en función de la inclinación física detectada por el acelerómetro integrado en el módulo IMU, mostrando además un gradiente de color dinámico obtenido mediante la función \texttt{wheel\_color()}.
+
+\vspace{1em}
+
+\subsubsection{Inicialización del Sensor MPU6050} ---
+La configuración del MPU6050 se realiza mediante la rutina \texttt{MPU6050\_init()} (véase Anexo~\ref{anexo:MPUinit}), donde se despierta el dispositivo desde su estado de bajo consumo y se establecen las ganancias del acelerómetro y giroscopio. En esta etapa se fijan los rangos de medición en $\pm 2g$ y $\pm 250^{\circ}/s$ respectivamente, asegurando lecturas estables y adecuadas para la detección de inclinación suave, tal como requiere la aplicación.
+
+\vspace{1em}
+
+\subsubsection{Adquisición de Datos Inerciales} ---
+La lectura simultánea de los ejes del acelerómetro y giroscopio se lleva a cabo mediante la función \texttt{MPU6050\_read\_raw()} (véase anexo~\ref{anexo:MPUread}). Esta rutina emplea el bus I2C para adquirir los registros del IMU de forma secuencial, comenzando por \texttt{ACCEL\_XOUT\_H}. El protocolo se ejecuta mediante las funciones \texttt{I2C\_start()}, \texttt{I2C\_write()}, \texttt{I2C\_readACK()} y \texttt{I2C\_readNACK()}, implementadas previamente en la librería TWI del proyecto.
 
 
+\vspace{1em}
 
+\subsubsection{Calibración del Sensor mediante Python} ---
+Con el fin de analizar el comportamiento dinámico del sensor y ajustar correctamente los rangos de mapeo, se desarrolló un script Python (véase anexo~\ref{anexo:PythonMPU}). Este programa permite visualizar en tiempo real los valores de aceleración y velocidad angular enviados por el ATmega328P a través de comunicación serial, utilizando gráficas animadas en \texttt{Matplotlib}.
+
+Esta herramienta facilitó la identificación de valores límite, offsets y sensibilidad del acelerómetro, permitiendo definir el rango mínimo y máximo adecuado para el mapeo del eje hacia coordenadas dentro de la matriz (0 a 15).
+
+\vspace{1em}
+
+\subsubsection{Mapeo de Aceleración a Coordenadas en la Matriz} ---
+Para transformar las lecturas del acelerómetro en posiciones válidas dentro de la matriz 16$\times$16, se implementó la función \texttt{map\_to\_0\_15()} (véase anexo~\ref{anexo:mapa}). Este algoritmo lineal convierte los valores crudos de aceleración —usualmente dentro del intervalo aproximado de $-10000$ a $10000$— en coordenadas discretas entre 0 y 15.
+
+El mapeo incluye límites mediante \textit{clamping}, evitando posiciones inválidas y asegurando que el píxel no salga del panel, aun cuando el sensor registre inclinaciones más pronunciadas.
+
+\vspace{1em}
+
+\subsubsection{Control de la Matriz WS2812} ---
+El encendido de un píxel específico se efectúa mediante un búfer global que almacena la información de color de los 256 LEDs, cada uno en formato \texttt{GRB}. La transmisión hacia la matriz se implementa mediante \textit{bit-banging}, utilizando las funciones \texttt{send\_bit()} y \texttt{send\_byte()} (véase anexo~\ref{anexo:WSbit}), respetando los tiempos estrictos del protocolo WS2812.
+
+La indexación correcta del LED a encender se obtiene utilizando la función \texttt{serpentine\_index()} (véase anexo~\ref{anexo:WSserp2}), necesaria debido al tipo de cableado serpenteado habitual en paneles WS2812, donde las filas pares e impares están orientadas en sentidos opuestos.
+
+\vspace{1em}
+
+\subsubsection{Generación del Color del LED} ---
+El color del LED que representa la posición se calcula mediante \texttt{wheel\_color()} (véase anexo~\ref{anexo:wheelColor}), un generador de gradiente circular que recorre suavemente la gama RGB. El parámetro \texttt{rainbow\_pos} se incrementa en cada iteración del lazo principal, produciendo un efecto dinámico continuo que facilita la visualización del movimiento e incrementa el contraste perceptual para el usuario.
+
+\vspace{1em}
+
+\subsubsection{Programa Principal} ---
+La lógica completa del sistema se encuentra en el programa principal (véase anexo~\ref{anexo:WSmpuMain}). En él se ejecuta continuamente el siguiente ciclo:
+
+\begin{enumerate}
+    \item Lectura del acelerómetro y giroscopio vía I2C.
+    \item Mapeo de los ejes obtenidos a coordenadas válidas dentro de la matriz.
+    \item Cálculo del color dinámico mediante \texttt{wheel\_color()}.
+    \item Limpieza del búfer global y actualización del único LED activo.
+    \item Envío de la trama completa a la matriz mediante \texttt{ws2812\_show\_all()}.
+\end{enumerate}
+
+El sistema responde en tiempo real a la inclinación física del módulo, generando un control intuitivo, preciso y visualmente fluido del píxel indicador, lo que permite una interacción directa entre la orientación del dispositivo y el desplazamiento del LED sobre la matriz.
