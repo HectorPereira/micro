@@ -4,30 +4,49 @@
 
 \subsubsection{\textbf{Comunicación SPI}} --- 
 
-La implementación del sistema maestro–esclavo mediante SPI resultó satisfactoria y permitió afianzar el entendimiento del funcionamiento del protocolo. La comunicación entre ambos microcontroladores se llevó a cabo de manera estable y con una velocidad elevada, característica propia de SPI. 
+La implementación del sistema maestro–esclavo mediante SPI resultó satisfactoria, logrando una transmisión estable y de alta velocidad entre los microcontroladores. El protocolo funcionó de manera consistente durante todas las pruebas, permitiendo validar correctamente la estructura del intercambio de datos y la sincronización requerida para su funcionamiento.
 
 \vspace{1em}
 
-Si bien en este proyecto se enfocó principalmente en la transmisión de datos desde el maestro hacia el esclavo, podría ampliarse el sistema incorporando también la lectura de información proveniente del esclavo. Esto permitiría explotar completamente la naturaleza de doble cable del protocolo e incrementar las capacidades de interacción entre ambos dispositivos.
+Si bien en este proyecto se priorizó el envío de información desde el maestro hacia el esclavo, una extensión natural sería incorporar lectura en sentido inverso. Esto permitiría aprovechar plenamente la naturaleza bidireccional del bus y ampliar las capacidades de interacción entre dispositivos, habilitando un sistema más completo y flexible.
 
 \vspace{1em}
 \subsubsection{\textbf{Comunicación I2C}} --- 
 
-La comunicación I2C fue implementada correctamente, lo que permitió comprender en profundidad el funcionamiento del protocolo, especialmente el intercambio de señales de confirmación (\textit{ACK/NACK}) que el esclavo envía al maestro durante las distintas etapas de la transmisión. 
+La comunicación I2C se implementó de manera correcta, permitiendo comprender en detalle el funcionamiento del protocolo, en particular el rol de las señales de confirmación (\textit{ACK/NACK}) durante el flujo de datos. El uso de interrupciones en el dispositivo esclavo optimizó la recepción de información, eliminando ciclos de espera y garantizando una respuesta inmediata ante cada nueva operación.
 
 \vspace{1em}
 
-La utilización de interrupciones en el esclavo para la recepción de datos demostró ser más eficiente que un mecanismo basado en \textit{polling}, ya que libera procesamiento y garantiza una respuesta inmediata ante la llegada de un nuevo byte.
+De forma similar a SPI, una mejora futura consistiría en habilitar un intercambio bidireccional completo que permita al maestro recibir datos del esclavo. Esto permitiría desarrollar aplicaciones más robustas y con mayor retroalimentación sensorial o de estado.
+
+\vspace{1em}
+\subsubsection{\textbf{Auto — Fútbol}} ---
+
+El control inalámbrico del vehículo funcionó de manera estable y consistente, demostrando la eficacia del módulo Bluetooth como interfaz de comunicación. La interacción fue fluida, sin retardos ni pérdidas de conexión, lo que evidencia la confiabilidad del enlace UART–Bluetooth para este tipo de aplicaciones.
 
 \vspace{1em}
 
-Al igual que en el caso de SPI, podría ampliarse el sistema incorporando la lectura de datos desde el esclavo hacia el maestro. Esto permitiría implementar un flujo bidireccional más completo y una mayor variedad de condiciones de reconocimiento mediante bytes ACK y NACK.
+Aunque en este proyecto la comunicación se empleó únicamente para enviar comandos hacia el vehículo, una extensión interesante sería incorporar transmisión en sentido inverso. Esto permitiría agregar telemetría, monitoreo de estados o envío de información sensorial, ampliando notablemente las capacidades del sistema.
+
+
+\subsubsection{\textbf{Animaciones con WS2812}} --- 
+
+El manejo de la matriz WS2812 de 16x16 demostró ser estable incluso operando con 256 LEDs y generando animaciones completamente de forma programática. La principal limitación identificada estuvo asociada al uso de memoria requerido por estructuras basadas en fotogramas fijos, lo que justificó la elección de animaciones generadas dinámicamente. Esta estrategia permitió mantener un uso reducido de memoria y asegurar transiciones fluidas y uniformes en toda la matriz.
 
 \vspace{1em}
-\subsubsection{\textbf{Auto --– Fútbol}} ---
 
-El control remoto del vehículo funcionó de manera satisfactoria, demostrando la sencillez y eficacia del uso del módulo Bluetooth como interfaz inalámbrica. Esta tecnología permitió implementar un control fluido e intuitivo, evidenciando además el potencial que ofrece para desarrollar sistemas más complejos o interactivos.
+La recepción de comandos vía USART no afectó el funcionamiento del sistema, incluso bajo cambios de animación en tiempo real. Se observaron tiempos de respuesta inmediatos y un comportamiento robusto en todo momento, dejando abiertas múltiples vías de expansión, como efectos tridimensionales, brillo dinámico, nuevos patrones visuales o una interfaz de control en Python.
+
+\vspace{1.5em}
+
+\subsubsection{\textbf{Control por MPU6050}} --- 
+
+El mapeo de los valores del acelerómetro hacia coordenadas discretas dentro de la matriz 16x16 mostró un desempeño preciso e intuitivo, sin aparición de zonas muertas ni saturaciones en los extremos. El LED se desplazó de manera coherente con la inclinación física, validando la efectividad del método de conversión empleado.
 
 \vspace{1em}
 
-Si bien en este proyecto se utilizó la comunicación Bluetooth únicamente para el envío de comandos hacia el vehículo, sería interesante explorar también la transmisión de datos en sentido inverso. Esto permitiría incorporar telemetría, estados del sistema o información sensorial, ampliando significativamente las capacidades del módulo y del vehículo.
+Aunque se registró un leve \textit{jitter} debido al ruido inherente del MPU6050, este no comprometió la estabilidad general del sistema. La latencia fue baja y la respuesta prácticamente inmediata. Si bien podrían aplicarse filtros digitales para suavizar aún más el movimiento, no se consideró necesario debido al buen funcionamiento alcanzado.
+
+\vspace{1em}
+
+En conjunto, la integración entre el sensor inercial y la matriz WS2812 evidenció un comportamiento estable tanto en inclinaciones suaves como en movimientos amplios, validando la viabilidad del enfoque implementado y definiendo una base sólida para futuras mejoras.

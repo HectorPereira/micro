@@ -1,28 +1,64 @@
 \section{Introducción}
 
-\subsection{Objetivos}
+El presente informe reúne el desarrollo, integración y validación de cuatro sistemas embebidos implementados sobre la plataforma ATmega328P, combinando sensores, actuadores y distintos protocolos de comunicación digital. Cada módulo aborda un enfoque particular de interacción hardware–software: transmisión maestro–esclavo mediante SPI e I\textsuperscript{2}C, control y animación en matrices LED WS2812, procesamiento de datos inerciales con el sensor MPU6050 y el diseño de un vehículo controlado de forma inalámbrica para el Concurso de Mini Fútbol de Microcontroladores.
 
-\textbf{Objetivo general:}
+El objetivo general del trabajo es aplicar los conceptos teóricos de comunicación digital, procesamiento de señales y control básico para construir sistemas funcionales capaces de responder en tiempo real e integrarse dentro de una arquitectura organizada. Para ello se desarrollaron módulos individuales, se probaron de forma independiente y posteriormente se evaluó su desempeño mediante simulación y pruebas físicas.
+
+\vspace{1.5em}
+
+% ---------------------------------------------------------
+\subsection{Objetivos}
+% ---------------------------------------------------------
+
+\textbf{Objetivo general}
 \begin{quote}
-Integrar comunicación SPI, I²C y UART en sistemas basados en el microcontrolador ATmega328P para la adquisición de datos de sensores, el control de actuadores y la gestión de una matriz LED RGB con animaciones interactivas.
+Integrar comunicación SPI, I\textsuperscript{2}C y UART en sistemas basados en el microcontroller ATmega328P para la adquisición de datos de sensores, el control de actuadores y la gestión de una matriz LED RGB con animaciones interactivas.
 \end{quote}
 
-\textbf{Objetivos específicos:}
+\textbf{Objetivos específicos}
 \begin{itemize}
     \item Implementar un sistema maestro–esclavo mediante comunicación SPI entre dos ATmega328P para la lectura de sensores y el control de actuadores.
-    \item Implementar un sistema maestro–esclavo utilizando comunicación I²C entre dos ATmega328P, replicando y comparando el funcionamiento del sistema basado en SPI.
+    \item Implementar un sistema maestro–esclavo utilizando comunicación I\textsuperscript{2}C, permitiendo comparar su funcionamiento con el sistema basado en SPI.
     \item Controlar el movimiento de un punto luminoso en una matriz LED RGB mediante un giroscopio y acelerómetro MPU6050.
-    \item Diseñar y programar animaciones en una matriz LED RGB, con selección dinámica mediante comunicación UART.
+    \item Diseñar y programar animaciones en una matriz LED RGB con selección dinámica vía UART.
     \item Desarrollar un vehículo controlado por comunicación Bluetooth empleando un ATmega328P como unidad de control principal.
-    \item Visualizar la comunicación I2C y SPI mediante un osciloscopio.
+    \item Visualizar la comunicación SPI e I2C mediante un osciloscopio para validar las señales generadas.
 \end{itemize}
 
+\vspace{1.5em}
+
+% ---------------------------------------------------------
+\subsection{Introducción por apartados}
+% ---------------------------------------------------------
+
+\subsubsection{SPI}
+Sistema de comunicación maestro–esclavo basado en el protocolo SPI entre dos microcontroladores ATmega328P. El maestro recibe señales de sensores y envía comandos al esclavo, que controla los actuadores correspondientes.
 
 \vspace{1em}
 
-\subsection{Descripción general de los módulos}
+\subsubsection{I2C}
+Arquitectura maestro–esclavo utilizando el bus I\textsuperscript{2}C. El maestro gestiona las lecturas de sensores y transmite instrucciones al esclavo, encargado de la operación de los actuadores asignados.
 
-% Introducción general a los módulos
+\vspace{1em}
+
+\subsubsection{Animación}
+Matriz LED RGB de 16×16 capaz de reproducir dos animaciones distintas generadas programáticamente. La selección de la animación se realiza mediante comandos enviados por comunicación UART, permitiendo alternar entre ellas en tiempo real.
+
+\vspace{1em}
+
+\subsubsection{Giroscopio}
+Sistema interactivo que utiliza el sensor MPU6050 para detectar la inclinación de la placa o protoboard. Un punto luminoso se desplaza dentro de la matriz LED según la orientación medida, manteniéndose dentro de los límites del dispositivo.
+
+\vspace{1em}
+
+\subsubsection{Fútbol}
+Sistema de control remoto para un vehículo diseñado en el marco del Concurso de Mini Fútbol de Microcontroladores. El robot utiliza un ATmega328P, motores de corriente continua y un módulo Bluetooth HC-05 para la recepción de comandos enviados desde una aplicación móvil, permitiendo su desplazamiento y operación del mecanismo de golpeo.
+
+\vspace{1.5em}
+
+% ---------------------------------------------------------
+\subsection{Descripción general de los módulos}
+% ---------------------------------------------------------
 
 \begin{table}[H]
 \centering
@@ -38,31 +74,3 @@ E & Auto & Física \\ \bottomrule
 \end{tabular}
 \label{tab:implementacion_lab4}
 \end{table}
-
-\vspace{1em}
-\subsubsection{SPI}
-
-Sistema de comunicación maestro–esclavo basado en el protocolo SPI entre dos microcontroladores ATmega328P. El maestro recibe señales de sensores y envía comandos al esclavo, que controla los actuadores correspondientes.
-
-\vspace{1em}
-
-\subsubsection{I2C}
-
-Arquitectura maestro–esclavo utilizando el bus I\textsuperscript{2}C. El maestro gestiona las lecturas de sensores y transmite instrucciones al esclavo, encargado de la operación de los actuadores asignados.
-
-\vspace{1em}
-
-\subsubsection{Animación}
-
-Matriz LED RGB de 16×16 capaz de reproducir dos animaciones distintas almacenadas en memoria. La selección de la animación se realiza mediante comandos enviados por comunicación UART, permitiendo alternar entre ellas en tiempo real.
-
-\vspace{1em}
-
-\subsubsection{Giroscopio}
-
-Sistema interactivo que utiliza el sensor MPU6050 para detectar la inclinación de la placa o protoboard. Un punto luminoso se desplaza dentro de la matriz LED según la orientación medida, y un botón físico permite cambiar su color sin superar los límites de la matriz.
-
-
-\vspace{1em}
-
-\subsubsection{Fútbol}
