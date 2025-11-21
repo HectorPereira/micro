@@ -63,12 +63,12 @@ Para la lectura del fotoresistor se utiliza el fragmento de código indicado en 
 \vspace{1em}
 \subsubsection{\textbf{Potenciómetro – SG90}}
 
-Para la lectura del potenciómetro se utiliza el código mostrado en el anexo~\ref{anexo:Potenciometro}, donde el valor obtenido mediante el ADC es convertido a un ángulo en el rango de 0 a 180 grados. Esta conversión se realiza aplicando la relación lineal \(180/1023\), correspondiente a la resolución del conversor analógico-digital del ATmega328P. Posteriormente, el valor numérico es transformado a su representación ASCII mediante la función \texttt{add\_string}, permitiendo su envío al esclavo para el control del servo SG90.
+Para la lectura del potenciómetro se utiliza el código mostrado en el anexo~\ref{anexo:potenciometro}, donde el valor obtenido mediante el ADC es convertido a un ángulo en el rango de 0 a 180 grados. Esta conversión se realiza aplicando la relación lineal \(180/1023\), correspondiente a la resolución del conversor analógico-digital del ATmega328P. Posteriormente, el valor numérico es transformado a su representación ASCII mediante la función \texttt{add\_string}, permitiendo su envío al esclavo para el control del servo SG90.
 
 \vspace{1em}
 \subsubsection{\textbf{Lectura del HC-SR04 y transferencia de distancia}}
 
-Para la medición de distancia con el sensor ultrasónico \textbf{HC-SR04} se emplea el procedimiento indicado en \ref{anexo:hc-sr04}, basado en la detección del pulso de \textit{echo} mediante un contador por comparación. El método consiste en medir la cantidad de \textit{ticks} que la señal permanece en nivel alto y convertir dicho tiempo en distancia utilizando la ecuación correspondiente del sensor.
+Para la medición de distancia con el sensor ultrasónico \textbf{HC-SR04} se emplea el procedimiento indicado en \ref{anexo:hcsr04}, basado en la detección del pulso de \textit{echo} mediante un contador por comparación. El método consiste en medir la cantidad de \textit{ticks} que la señal permanece en nivel alto y convertir dicho tiempo en distancia utilizando la ecuación correspondiente del sensor.
 
 \vspace{1em}
 
@@ -208,7 +208,7 @@ Finalmente, se construyen dos cadenas para la visualización en la pantalla LCD.
 
 \vspace{1em}
 \subsubsection{Funciones de Comunicación I2C (TWI)}
-A continuación se describen las funciones utilizadas para implementar la comunicación I2C entre el microcontrolador maestro y el periférico esclavo. Todas ellas interactúan directamente con los registros del módulo TWI integrado en el ATmega328P (Véase anexo \ref{anexo:I2C}).
+A continuación se describen las funciones utilizadas para implementar la comunicación I2C entre el microcontrolador maestro y el periférico esclavo. Todas ellas interactúan directamente con los registros del módulo TWI integrado en el ATmega328P (Véase anexo \ref{anexo:I2c}).
 
 \vspace{1em}
 \subsubsection{I2C\_init()}
@@ -261,7 +261,7 @@ B & Retroceder (\texttt{BACK()}) \\
 
 \subsubsection{Acciones del auto}
 
-El movimiento del vehículo y el control del servomotor se gestionan mediante las funciones descritas en el anexo~\ref{anexo:accion}. El desplazamiento del auto —adelante, atrás, giro a la derecha o a la izquierda— se realiza actuando sobre el Puente~H, el cual permite invertir la polaridad aplicada a los motores y, por lo tanto, modificar el sentido de giro según el comando recibido.
+El movimiento del vehículo y el control del servomotor se gestionan mediante funciones basicas. El desplazamiento del auto —adelante, atrás, giro a la derecha o a la izquierda— se realiza actuando sobre el Puente~H, el cual permite invertir la polaridad aplicada a los motores y, por lo tanto, modificar el sentido de giro según el comando recibido.
 
 \vspace{1em}
 
@@ -289,7 +289,7 @@ El sistema incorpora un mecanismo de selección de animaciones controlado median
 
 \vspace{1em}
 
-La transmisión de datos hacia la matriz se implementa mediante las funciones \texttt{send\_bit()} y \texttt{send\_byte()} (véase~\ref{anexo:WSsend}), que generan los patrones temporales correspondientes a cada bit del protocolo WS2812. Un bit lógico “1” se representa mediante un pulso alto prolongado seguido de un pulso bajo breve, mientras que un bit “0” invierte esta relación temporal. Los píxeles se envían en formato GRB utilizando la función \texttt{ws2812\_send\_pixel()} (véase~\ref{anexo:WSpixel}), y la actualización completa de la matriz se logra con \texttt{ws2812\_show\_all()} (véase~\ref{anexo:WSshow}), que recorre secuencialmente el búfer global. La función \texttt{ws2812\_clear()} permite limpiar la matriz asignando cero a todas las posiciones del búfer antes de iniciar una nueva animación.
+La transmisión de datos hacia la matriz se implementa mediante las funciones \texttt{send\_bit()} y \texttt{send\_byte()} (véase~\ref{anexo:WSsend}), que generan los patrones temporales correspondientes a cada bit del protocolo WS2812. Un bit lógico “1” se representa mediante un pulso alto prolongado seguido de un pulso bajo breve, mientras que un bit “0” invierte esta relación temporal. Los píxeles se envían en formato GRB utilizando la función \texttt{ws2812\_send\_pixel()}, y la actualización completa de la matriz se logra con \texttt{ws2812\_show\_all()}(véase~\ref{anexo:WSsend}), que recorre secuencialmente el búfer global. La función \texttt{ws2812\_clear()} permite limpiar la matriz asignando cero a todas las posiciones del búfer antes de iniciar una nueva animación.
 
 \vspace{1em}
 
@@ -305,7 +305,7 @@ La animación \texttt{anim\_rainbow\_diagonal()} (véase~\ref{anexo:WSrainbow}) 
 
 \vspace{1em}
 
-Por otra parte, la animación \texttt{anim\_barber\_pole()} (véase~\ref{anexo:WSbarber}) simula un cilindro giratorio con franjas diagonales rojas, blancas y azules. Para cada píxel se calcula su distancia horizontal respecto al centro del cilindro y se aplica un factor de brillo que genera una apariencia tridimensional. La fase de las franjas está dada por la expresión \texttt{phase = 2x + 3y + t/2}, lo que produce un movimiento continuo en diagonal. Además, la función \texttt{draw\_yellow\_frame()} (véase~\ref{anexo:WSframe}) superpone un marco animado alrededor del cilindro, reforzando el contorno visual.
+Por otra parte, la animación \texttt{anim\_barber\_pole()} (véase~\ref{anexo:WSbarber}) simula un cilindro giratorio con franjas diagonales rojas, blancas y azules. Para cada píxel se calcula su distancia horizontal respecto al centro del cilindro y se aplica un factor de brillo que genera una apariencia tridimensional. La fase de las franjas está dada por la expresión \texttt{phase = 2x + 3y + t/2}, lo que produce un movimiento continuo en diagonal. Además, la función \texttt{draw\_yellow\_frame()} (véase~\ref{anexo:WSbarber}) superpone un marco animado alrededor del cilindro, reforzando el contorno visual.
 
 \vspace{1em}
 
