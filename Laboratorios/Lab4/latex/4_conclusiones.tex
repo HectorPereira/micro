@@ -2,5 +2,22 @@
 
 \subsection{Reflexiones individuales}
 
-\subsection{Comunicación SPI}
+\subsubsection{Comunicación SPI}
 
+La implementación del sistema maestro–esclavo mediante SPI resultó satisfactoria y permitió afianzar el entendimiento del funcionamiento del protocolo. La comunicación entre ambos microcontroladores se llevó a cabo de manera estable y con una velocidad elevada, característica propia de SPI. 
+
+Si bien en este proyecto se enfocó principalmente en la transmisión de datos desde el maestro hacia el esclavo, podría ampliarse el sistema incorporando también la lectura de información proveniente del esclavo. Esto permitiría explotar completamente la naturaleza de doble cable del protocolo e incrementar las capacidades de interacción entre ambos dispositivos.
+
+\subsubsection{Comunicación I2C}
+
+La comunicación I2C fue implementada correctamente, lo que permitió comprender en profundidad el funcionamiento del protocolo, especialmente el intercambio de señales de confirmación (\textit{ACK/NACK}) que el esclavo envía al maestro durante las distintas etapas de la transmisión. 
+
+La utilización de interrupciones en el esclavo para la recepción de datos demostró ser más eficiente que un mecanismo basado en \textit{polling}, ya que libera procesamiento y garantiza una respuesta inmediata ante la llegada de un nuevo byte.
+
+Al igual que en el caso de SPI, podría ampliarse el sistema incorporando la lectura de datos desde el esclavo hacia el maestro. Esto permitiría implementar un flujo bidireccional más completo y una mayor variedad de condiciones de reconocimiento mediante bytes ACK y NACK.
+
+\subsubsection{Auto – Fútbol}
+
+El control remoto del vehículo funcionó de manera satisfactoria, demostrando la sencillez y eficacia del uso del módulo Bluetooth como interfaz inalámbrica. Esta tecnología permitió implementar un control fluido e intuitivo, evidenciando además el potencial que ofrece para desarrollar sistemas más complejos o interactivos.
+
+Si bien en este proyecto se utilizó la comunicación Bluetooth únicamente para el envío de comandos hacia el vehículo, sería interesante explorar también la transmisión de datos en sentido inverso. Esto permitiría incorporar telemetría, estados del sistema o información sensorial, ampliando significativamente las capacidades del módulo y del vehículo.
