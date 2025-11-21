@@ -285,7 +285,7 @@ El envío de datos al bus WS2812 se realiza mediante las funciones \texttt{send\
 
 Cada píxel se envía en formato \textbf{GRB}. La función \texttt{ws2812\_send\_pixel()} (véase~\ref{anexo:WSpixel}) encapsula la transmisión de cada componente. Para la actualización completa de la matriz se emplea \texttt{ws2812\_show\_all()} (véase~\ref{anexo:WSshow}), que recorre el búfer global enviando la secuencia completa de colores.
 
-La función \texttt{ws2812\_clear()} (véase~\ref{anexo:WSclear}) permite limpiar la matriz asignando cero a todos los elementos del búfer.
+La función \texttt{ws2812\_clear()} permite limpiar la matriz asignando cero a todos los elementos del búfer.
 
 \subsubsection{Indexación Tipo ``Serpentina''}
 
@@ -344,3 +344,6 @@ Una vez generada cada imagen:
 \end{enumerate}
 
 Esta estructura asegura un flujo constante de animaciones sin parpadeo perceptible.
+
+
+
