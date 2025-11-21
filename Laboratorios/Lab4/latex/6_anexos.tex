@@ -514,75 +514,269 @@ char uart_rx(void) {
 \end{lstlisting}
 
 
-\paragraph{PWM del Auto}\label{anexo:s}---\\
-\begin{lstlisting}[language=C, caption={Inicialización PWM}]
+\paragraph{Inicialización ws2812}\label{anexo:initWS}---\\
+\begin{lstlisting}[language=C, caption={Inicialización ws2812}]
 
+uint8_t leds[NUM_LEDS * 3];  // Datos GRB para cada LED
 
-void init_pwm(void)
-{
-		DDRB |= (1 << Pin_M);
-
-		TCCR1A = (1<<COM1A1) | (1<<WGM11);
-		TCCR1B = (1<<WGM13) | (1<<WGM12) | (1<<CS11);
-
-
-		ICR1 = 39999;   // TOP
-
-
-		OCR1A = 2000;  // ~1 ms  servo en 0 grados
+void ws2812_init(void) {
+	LED_DDR |= (1 << LED_PIN); // Configura pin de salida
 }
 
 \end{lstlisting}
 
-\paragraph{Acciones Auto}\label{anexo:accion}---\\
-\begin{lstlisting}[language=C, caption={Acciones Auto}]
+\paragraph{Inicialización USART}\label{anexo:USARTinit}---\\
+\begin{lstlisting}[language=C, caption={Inicialización de USART para recepción asíncrona}]
+volatile uint8_t uart_rx = 0;
+volatile uint8_t new_data = 0;
+
+void uart_init(uint16_t baud) {
+    uint16_t ubrr = (F_CPU / (16UL * baud)) - 1;
+
+    UBRR0H = (uint8_t)(ubrr >> 8);
+    UBRR0L = (uint8_t)(ubrr & 0xFF);
+
+    UCSR0B = (1 << RXEN0) | (1 << RXCIE0);   // RX + interrupción
+    UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);  // 8N1
+}
+\end{lstlisting}
 
 
-void left(){
-	PORTD |= (1<<PORTD6);
-	PORTD &= ~(1<<PORTD7);
-	PORTD &= ~(1<<PORTD4);
-	PORTD &= ~(1<<PORTD5);
+\paragraph{ISR de Recepción USART}\label{anexo:USARTisr}---\\
+\begin{lstlisting}[language=C, caption={Rutina de servicio de interrupción USART RX}]
+ISR(USART_RX_vect) {
+    uart_rx = UDR0;
+    new_data = 1;
+}
+\end{lstlisting}
+
+
+\paragraph{Definiciones generales WS2812}\label{anexo:defWS}---\\
+\begin{lstlisting}[language=C, caption={Definiciones del módulo WS2812}]
+#define LED_PIN PORTD6
+#define LED_DDR DDRD
+#define NUM_LEDS 256
+
+uint8_t leds[NUM_LEDS * 3];   // Datos GRB para cada LED
+\end{lstlisting}
+
+
+\paragraph{Programa principal WS2812}\label{anexo:WSmain}---\\
+\begin{lstlisting}[language=C, caption={Función principal para control WS2812}]
+int main(void){
+    ws2812_init();
+    uart_init(9600);
+    sei();                   // Habilitar interrupciones globales
+
+    ws2812_show();           // Reset inicial
+    
+    while (1) {
+        if (new_data) {
+            new_data = 0;
+
+            if (uart_rx == '1') {
+                anim_barber_pole();
+            }
+            else if (uart_rx == '2') {
+                anim_rainbow_diagonal();
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+\paragraph{Indexación serpenteada}\label{anexo:WSserp}---\\
+\begin{lstlisting}[language=C, caption={Cálculo de índice en matriz serpentina}]
+uint16_t serpentine_index(uint8_t x, uint8_t y) {
+    if (y % 2 == 0) {
+        return y * 16 + x;        // fila normal
+    } else {
+        return y * 16 + (15 - x); // fila invertida
+    }
+}
+\end{lstlisting}
+
+
+\paragraph{Función wheel\_color()}\label{anexo:WSwheel}---\\
+\begin{lstlisting}[language=C, caption={Generador de colores cíclicos RGB}]
+uint8_t wheel_color(uint8_t pos, uint8_t color) {
+    if (pos < 85)
+        return (pos * 3 * (color == 0)) + ((255 - pos*3) * (color == 2));
+
+    else if (pos < 170)
+        return ((pos-85) * 3 * (color == 1)) +
+               ((255 - (pos-85)*3) * (color == 0));
+
+    else
+        return ((pos-170) * 3 * (color == 2)) +
+               ((255 - (pos-170)*3) * (color == 1));
+}
+\end{lstlisting}
+
+
+
+\paragraph{Animación arcoíris diagonal}\label{anexo:WSrainbow}---\\
+\begin{lstlisting}[language=C, caption={Animación rainbow diagonal en matriz WS2812}]
+void anim_rainbow_diagonal(void) {
+    while (1) {
+        for(uint16_t j = 0; j < 255; j++){
+            for(uint8_t y = 0; y < 16; y++){
+                for(uint8_t x = 0; x < 16; x++){
+                    if (new_data) return;
+
+                    uint16_t index = serpentine_index(15-y, x);
+                    uint8_t pos = (x * 9 + y * 6 + j * 3) % 255;
+
+                    uint8_t r = wheel_color(pos, 0);
+                    uint8_t g = wheel_color(pos, 1);
+                    uint8_t b = wheel_color(pos, 2);
+
+                    ws2812_set_pixel(index, r, g, b);
+                }
+            }
+            draw_raibow_mask();
+            ws2812_show_all();
+        }
+    }
+}
+\end{lstlisting}
+
+
+\paragraph{Máscara para animación rainbow}\label{anexo:WSmask}---\\
+\begin{lstlisting}[language=C, caption={Función draw\_raibow\_mask()}]
+void draw_raibow_mask(void) {
+    const uint8_t r = 0, g = 0, b = 0;
+
+    for (int8_t x = 0; x < 10; x++)
+        ws2812_set_pixel(serpentine_index(x, 0), r, g, b);
+
+    /* resto de recortes... (idéntico al código original) */
+}
+\end{lstlisting}
+
+
+\paragraph{Animación barber pole}\label{anexo:WSbarber}---\\
+\begin{lstlisting}[language=C, caption={Animación tipo Barber Pole}]
+void anim_barber_pole(void) {
+    const int8_t radius = 3;
+    const uint8_t stripe_width = 9;
+    const uint8_t period = stripe_width * 3;
+
+    uint16_t t = 0;
+
+    while (1) {
+        if (new_data) return;
+        ws2812_clear();
+
+        for (uint8_t y = 0; y < 16; y++) {
+            for (uint8_t x = 0; x < 16; x++) {
+
+                int8_t dx = x - 8;
+                if (dx < -radius || dx > radius)
+                    continue;
+
+                int8_t adx = dx < 0 ? -dx : dx;
+                int8_t dist = radius - adx;
+                if (dist < 0) dist = 0;
+
+                uint8_t base = 40 + dist * 35;
+                if (base > 255) base = 255;
+
+                int16_t phase = dx * 2 + y * 3 + (t / 2);
+                while (phase < 0) phase += period;
+                uint8_t p = phase % period;
+
+                uint8_t r, g, b;
+
+                if (p < stripe_width) {
+                    r = base;
+                    g = base / 10;
+                    b = base / 10;
+                }
+                else if (p < 2 * stripe_width) {
+                    r = base;
+                    g = base;
+                    b = base;
+                }
+                else {
+                    r = base / 10;
+                    g = base / 5;
+                    b = base;
+                }
+
+                ws2812_set_pixel(serpentine_index(x, y), r, g, b);
+            }
+        }
+
+        draw_yellow_frame(radius);
+        ws2812_show_all();
+        t++;
+        _delay_ms(30);
+    }
+}
+\end{lstlisting}
+
+
+\paragraph{Envío de bits y bytes WS2812}\label{anexo:WSsend}---\\
+\begin{lstlisting}[language=C, caption={Rutinas de bit banging para WS2812}]
+void send_bit(uint8_t bitVal) {
+    if (bitVal) {
+        PORTD |= (1 << LED_PIN);
+        asm volatile("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"
+                     "nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+        PORTD &= ~(1 << LED_PIN);
+        asm volatile("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+    } else {
+        PORTD |= (1 << LED_PIN);
+        asm volatile("nop\n\t""nop\n\t""nop\n\t");
+        PORTD &= ~(1 << LED_PIN);
+        asm volatile("nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t"
+                     "nop\n\t""nop\n\t""nop\n\t""nop\n\t""nop\n\t");
+    }
 }
 
-void right(){
-	PORTD |= (1<<PORTD7);
-	PORTD &= ~(1<<PORTD6);
-	PORTD &= ~(1<<PORTD4);
-	PORTD &= ~(1<<PORTD5);
+void send_byte(uint8_t byte) {
+    cli();
+    for (uint8_t i = 0; i < 8; i++) {
+        send_bit(byte & 0x80);
+        byte <<= 1;
+    }
+    sei();
 }
+\end{lstlisting}
 
-void forward(){
-	PORTD |= (1<<PORTD7);
-	PORTD |= (1<<PORTD6);
-	PORTD &= ~(1<<PORTD4);
-	PORTD &= ~(1<<PORTD5);
+
+\paragraph{Actualización completa de la matriz}\label{anexo:WSshow}---\\
+\begin{lstlisting}[language=C, caption={Actualización de todos los LEDs}]
+void ws2812_show_all(void) {
+    cli();
+    for (uint16_t i = 0; i < NUM_LEDS; i++) {
+        ws2812_send_pixel(leds[i * 3 + 1],
+                          leds[i * 3 + 0],
+                          leds[i * 3 + 2]);
+    }
+    sei();
+    ws2812_show();
 }
+\end{lstlisting}
 
-void BACK(){
-	PORTD |= (1<<PORTD4);
-	PORTD |= (1<<PORTD5);
-	PORTD &= ~(1<<PORTD6);
-	PORTD &= ~(1<<PORTD7);
+
+\paragraph{Limpieza del búfer WS2812}\label{anexo:WSclear}---\\
+\begin{lstlisting}[language=C, caption={Función ws2812 clear}]
+	
+void ws2812_clear(void) {
+    for (uint16_t i = 0; i < NUM_LEDS * 3; i++)
+        leds[i] = 0;
 }
+\end{lstlisting}
 
-void stop(){
-	PORTD &= ~(1<<PORTD7);
-	PORTD &= ~(1<<PORTD6);
-	PORTD &= ~(1<<PORTD4);
-	PORTD &= ~(1<<PORTD5);
+
+\paragraph{Encender un LED puntual}\label{anexo:WSturn}---\\
+\begin{lstlisting}[language=C, caption={Encendido puntual de LED por coordenadas}]
+void turn_led(uint8_t led_x, uint8_t led_y) {
+    uint8_t index = led_y * 8 + led_x;
+    ws2812_clear();
+    ws2812_set_pixel(index, 0, 0, 0); // rojo
+    ws2812_show_all();
 }
-
-void kick(){
-	OCR1A = 2000; 
-	_delay_ms(100); 
-	OCR1A = 3000;
-}
-
-void kick1(){
-	OCR1A = 4000; 
-	_delay_ms(100); 
-	OCR1A = 3000;
-}
-
 \end{lstlisting}
