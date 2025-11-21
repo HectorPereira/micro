@@ -55,7 +55,7 @@ void init_pwm(void)
 		ICR1 = 39999;   // TOP
 
 
-		OCR1A = 2000;  // ~1 ms ? servo en 0 grados
+		OCR1A = 2000;  // ~1 ms servo en 0 grados
 }
 
 
@@ -115,6 +115,35 @@ void uart_println(char c) {
 	uart_tx('\n');
 }
 
+void pcint_init(void)
+{
+    DDRD &= ~((1<<DDD2) | (1<<DDD3));  // PD2 y PD3 como ENTRADA
+    PORTD |= (1<<PORTD2) | (1<<PORTD3); // Pull-up
+
+    PCICR |= (1 << PCIE2);     // Habilitar PCINT para PORTD (PCIE2)
+    PCMSK2 |= (1 << PCINT18) | (1 << PCINT19); // Habilitar PD2 y PD3
+}
+
+ISR(PCINT2_vect)
+{
+	char mensaje[] = "Fuera de la linea\r\n";
+
+    // Cambio detectado en PD2
+    if (PIND & (1 << PIND2)) {
+
+        // Enviar el texto caracter por caracter
+        for (uint8_t i = 0; mensaje[i] != '\0'; i++) {
+            uart_println(mensaje[i]);
+        }
+    }
+
+    // Cambio detectado en PD3
+    if (PIND & (1 << PIND3)) {
+        for (uint8_t i = 0; mensaje[i] != '\0'; i++) {
+            uart_println(mensaje[i]);
+        }
+    }
+}
 
 
 int main(void) {
