@@ -157,7 +157,7 @@ En anexo ~\ref{anexo:initsSPI}, se puede ver estas inicializaciónes.
 
 \subsection{Maestro Esclavo - I2c}
 
-\subsection{Maestro – I2C}
+\subsubsection{Maestro – I2C}
 
 En esta sección se describe el funcionamiento del programa principal ejecutado por el microcontrolador maestro. Este módulo es el encargado de adquirir las señales provenientes de los distintos sensores, procesarlas y enviarlas al microcontrolador esclavo mediante el bus I2C. Además, gestiona la actualización de la pantalla LCD y coordina el funcionamiento de los temporizadores y periféricos necesarios para el sistema. Todas las funciones empleadas pertenecen a la misma librería descripta anteriormente, con excepción de las rutinas I2C, que se detallan en este apartado.
 
@@ -204,6 +204,41 @@ La función \texttt{I2C\_stop()} genera la condición de parada en el bus I2C. P
 La función \texttt{I2C\_write()} envía un byte por el bus I2C, ya sea una dirección o un dato. El valor se carga en el registro \texttt{TWDR} y se inicia la transmisión escribiendo los bits \texttt{TWINT} y \texttt{TWEN} en el registro \texttt{TWCR}. El programa espera hasta que el bit \texttt{TWINT} se active nuevamente, indicando que la transmisión ha finalizado. Luego se consulta el registro \texttt{TWSR} para verificar si el esclavo respondió con una señal de reconocimiento (\textit{ACK}). La función devuelve un valor distinto de cero cuando el envío es exitoso y devuelve cero en caso de que no se reciba confirmación o la transmisión falle.
 
 Como solo se esta escribiendo en el esclavo se limita a la recepcion de (status == 0x18 || status == 0x28), que son los valores representativos; 0x18 = El esclavo se encuentra apto para ser leido y 0x28 = se transmitio correctamente el dato.
+
+
+
+\subsection{Auto - Bluetooth}
+
+Como se utiliza el modulo Bluetooth Hc-05 para comunicarse con el Arduino, se establece la comunicacion via USART y se mandan comandos, segun la tecla presionada en la aplicacion. Vease \ref{tab:tablaa}.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{c|l}
+\hline
+\textbf{Letra} & \textbf{Acción realizada} \\ \hline
+F & Avanzar hacia adelante (\texttt{forward()}) \\ 
+L & Girar hacia la izquierda (\texttt{left()}) \\ 
+R & Girar hacia la derecha (\texttt{right()}) \\ 
+P & Ejecutar golpe para un lado (\texttt{kick()}) \\ 
+S & Ejecutar golpe para el otro lado (\texttt{kick1()}) \\ 
+B & Retroceder (\texttt{BACK()}) \\ 
+\hline
+\end{tabular}
+\caption{Comandos recibidos y acciones ejecutadas}
+\label{tab:tablaa}
+\end{table}
+
+
+\subsubsection{Inicializaciones}
+
+En el anexo ~\ref{anexo:Us}, se puede ver la inicialización de USART para el vehiculo. Estableciendo la comunicacion a 9600 baudios, 8 bits de datos y uno de parada. Se inicializa el PWM para el manejo del servo, se puede ver en ~\ref{anexo:s}.
+
+
+\subsubsection{Acciones del auto}
+
+Para mover el auto y el servo, se utilizan las funciones detalladas en ~\ref{anexo:accion}. Se tiene la posibilidad de mover adelante, atras, derecha e izquierda, mandando señales al Puente H. 
+El servomotor tiene dos golpes, estando situado a 90 grados. Moviendose a 0 con \textbf{kick} y a 180 grados con \textbf{kick2}.
+
 
 
 

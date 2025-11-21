@@ -483,3 +483,106 @@ uint8_t I2C_write(uint8_t data) {
 
 \end{lstlisting}
 
+\paragraph{USART del Auto}\label{anexo:Us}---\\
+\begin{lstlisting}[language=C, caption={Funciones Usart Auto}]
+
+
+void uart_init(void) {
+	// 9600 baud @ 16 MHz
+	uint16_t ubrr = 103;  // from formula: UBRR = (F_CPU / (16 * BAUD)) - 1
+	UBRR0H = (uint8_t)(ubrr >> 8);
+	UBRR0L = (uint8_t)(ubrr);
+
+	// Enable transmitter and receiver
+	UCSR0B = (1 << RXEN0) | (1 << TXEN0);
+
+	// Frame format: 8 data bits, 1 stop bit, no parity
+	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
+}
+
+void uart_tx(char c) {
+	// Wait for empty transmit buffer
+	while (!(UCSR0A & (1 << UDRE0)));
+	UDR0 = c;
+}
+
+char uart_rx(void) {
+	// Wait for data to be received
+	while (!(UCSR0A & (1 << RXC0)));
+	return UDR0;
+}
+\end{lstlisting}
+
+
+\paragraph{PWM del Auto}\label{anexo:s}---\\
+\begin{lstlisting}[language=C, caption={Inicialización PWM}]
+
+
+void init_pwm(void)
+{
+		DDRB |= (1 << Pin_M);
+
+		TCCR1A = (1<<COM1A1) | (1<<WGM11);
+		TCCR1B = (1<<WGM13) | (1<<WGM12) | (1<<CS11);
+
+
+		ICR1 = 39999;   // TOP
+
+
+		OCR1A = 2000;  // ~1 ms  servo en 0 grados
+}
+
+\end{lstlisting}
+
+\paragraph{Acciones Auto}\label{anexo:accion}---\\
+\begin{lstlisting}[language=C, caption={Acciones Auto}]
+
+
+void left(){
+	PORTD |= (1<<PORTD6);
+	PORTD &= ~(1<<PORTD7);
+	PORTD &= ~(1<<PORTD4);
+	PORTD &= ~(1<<PORTD5);
+}
+
+void right(){
+	PORTD |= (1<<PORTD7);
+	PORTD &= ~(1<<PORTD6);
+	PORTD &= ~(1<<PORTD4);
+	PORTD &= ~(1<<PORTD5);
+}
+
+void forward(){
+	PORTD |= (1<<PORTD7);
+	PORTD |= (1<<PORTD6);
+	PORTD &= ~(1<<PORTD4);
+	PORTD &= ~(1<<PORTD5);
+}
+
+void BACK(){
+	PORTD |= (1<<PORTD4);
+	PORTD |= (1<<PORTD5);
+	PORTD &= ~(1<<PORTD6);
+	PORTD &= ~(1<<PORTD7);
+}
+
+void stop(){
+	PORTD &= ~(1<<PORTD7);
+	PORTD &= ~(1<<PORTD6);
+	PORTD &= ~(1<<PORTD4);
+	PORTD &= ~(1<<PORTD5);
+}
+
+void kick(){
+	OCR1A = 2000; 
+	_delay_ms(100); 
+	OCR1A = 3000;
+}
+
+void kick1(){
+	OCR1A = 4000; 
+	_delay_ms(100); 
+	OCR1A = 3000;
+}
+
+\end{lstlisting}

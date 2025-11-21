@@ -2,8 +2,6 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-
-#define mp 10000
 #define Pin_M PORTB1
 #define max_degrees 4000
 #define Min_degrees 2000
@@ -97,24 +95,17 @@ void stop(){
 }
 
 void kick(){
-	OCR1A = 2000; // Medio para probar
-	_delay_ms(100); // desues lo cambio probando con el servo
+	OCR1A = 2000; 
+	_delay_ms(100); 
 	OCR1A = 3000;
 }
 
 void kick1(){
-	OCR1A = 4000; // Medio para probar
-	_delay_ms(100); // desues lo cambio probando con el servo
+	OCR1A = 4000; 
+	_delay_ms(100); 
 	OCR1A = 3000;
 }
 
-void kick2(){
-	OCR1A = 2000; // Medio para probar
-	_delay_ms(100); // desues lo cambio probando con el servo
-	OCR1A = 4000;
-	_delay_ms(300); // desues lo cambio probando con el servo
-	OCR1A = 3000;
-}
 
 
 
@@ -133,7 +124,7 @@ int main(void) {
 	
 	while (1) {
 		// If data available (RX complete flag)
-		if (UCSR0A & (1 << RXC0)) {
+		if (UCSR0A & (1 << RXC0)){
 			char val = uart_rx();
 			uart_println(val);
 			if (val == 'F') forward();
@@ -142,8 +133,7 @@ int main(void) {
 			if (val == 'P') kick();
 			if (val == 'S') kick1();
 			if (val == 'B') BACK();
-			//if (val == 'G') kick2();
-			
+
 			if (val == '0') stop();
 		}
 	}
