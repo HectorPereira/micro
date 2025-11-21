@@ -56,6 +56,8 @@ Se implementa la comunicación maestro–esclavo entre dos microcontroladores AT
 
 La transferencia de datos desde el maestro hacia el esclavo se realiza mediante la función presentada en \ref{anexo:Transfer_spi}, la cual espera a que la bandera \texttt{SPIF} (SPI Interrupt Flag) se establezca. Esta bandera indica que la transmisión ha finalizado y que el dato se encuentra disponible en el registro \texttt{SPDR} (SPI Data Register). 
 
+\vspace{1em}
+
 La recepción en el esclavo se efectúa mediante la función mostrada en \ref{anexo:Reception_spi}, que opera de forma similar: espera a la finalización del intercambio de bits y posteriormente retorna el byte recibido desde el maestro a través del bus SPI.
 
 \subsubsection{Fotoresistor}
@@ -64,18 +66,22 @@ Para la lectura del fotoresistor se utiliza el fragmento de código indicado en 
 
 \subsubsection{Potenciómetro – SG90}
 
-Para la lectura del potenciómetro se utiliza el código mostrado en \ref{anexo:Potenciometro}, donde el valor obtenido mediante el ADC es convertido a un ángulo en el rango de 0 a 180 grados. Esta conversión se realiza aplicando la relación lineal \(180/1023\), correspondiente a la resolución del conversor analógico-digital del ATmega328P. Posteriormente, el valor numérico es transformado a su representación ASCII mediante la función \texttt{add\_string}, permitiendo su envío al esclavo para el control del servo SG90.
+Para la lectura del potenciómetro se utiliza el código mostrado en el anexo~\ref{anexo:Potenciometro}, donde el valor obtenido mediante el ADC es convertido a un ángulo en el rango de 0 a 180 grados. Esta conversión se realiza aplicando la relación lineal \(180/1023\), correspondiente a la resolución del conversor analógico-digital del ATmega328P. Posteriormente, el valor numérico es transformado a su representación ASCII mediante la función \texttt{add\_string}, permitiendo su envío al esclavo para el control del servo SG90.
 
 \subsubsection{Lectura del HC-SR04 y transferencia de distancia}
 
-Para la medición de distancia con el sensor ultrasónico \textbf{HC-SR04} se emplea el procedimiento indicado en \ref{anexo:hc-sr04}, basado en la detección del pulso de \textit{echo} mediante un contador por comparación. El método consiste en medir la cantidad de \textit{ticks} que la señal permanece en nivel alto y convertir dicho tiempo en distancia utilizando la ecuación correspondiente del sensor. 
+Para la medición de distancia con el sensor ultrasónico \textbf{HC-SR04} se emplea el procedimiento indicado en \ref{anexo:hc-sr04}, basado en la detección del pulso de \textit{echo} mediante un contador por comparación. El método consiste en medir la cantidad de \textit{ticks} que la señal permanece en nivel alto y convertir dicho tiempo en distancia utilizando la ecuación correspondiente del sensor.
+
+\vspace{1em}
 
 En función del valor calculado, el sistema asigna un código distinto que es transferido al microcontrolador esclavo, permitiendo ejecutar acciones diferenciadas según la distancia detectada por el HC-SR04.
 
 
 \subsubsection{Lectura del DHT11 y transferencia de temperatura}
 
-La lectura del DHT11 se realiza mediante su protocolo de comunicación específico, utilizando la función mostrada en \ref{anexo:DHT11}. En este proceso se emplean punteros para actualizar variables globales con los valores de temperatura y humedad obtenidos del sensor. Tal como se observa en \ref{anexo:DHT11T}, la función retorna un valor de tipo \texttt{bool} que indica si la lectura fue válida, permitiendo ejecutar la evaluación correspondiente sin necesidad de procesamientos adicionales.
+La lectura del DHT11 se realiza mediante su protocolo de comunicación específico, utilizando la función mostrada en \ref{anexo:DHT11}. En este proceso se emplean punteros para actualizar variables globales con los valores de temperatura y humedad obtenidos del sensor. La función retorna un valor de tipo \texttt{bool} que indica si la lectura fue válida, permitiendo ejecutar la evaluación correspondiente sin necesidad de procesamientos adicionales.
+
+\vspace{1em}
 
 Una vez adquirida la medición, el sistema compara la temperatura registrada con un valor de referencia (temperatura ambiente). Según el resultado de esta comparación, se envía un código al microcontrolador esclavo indicando si debe activar o no el ventilador asociado. Esto permite implementar una lógica básica de control térmico distribuido mediante comunicación SPI.
 
@@ -89,9 +95,9 @@ Para la visualización de los datos en la pantalla LCD se emplean dos búferes, 
 Para ver el main del esclavo, vease ~\ref{anexo:RE}. Se implemento la recepcion mediante una unica funcion SPI slaveReceive, y luego se evalua con un switch el valor del mismo. Teniendo reservado valores para cada accion a realizar. Las cuales se pueden ver en la tabla \ref{tab:tabspi} y \ref{tab:tabspi2}.
 
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
-    \caption{\textbf{TABLE I.} \textit{Comandos de Control de Salidas (GPIO y RGB)}}
+    \caption{Comandos de Control de Salidas (GPIO y RGB)}
     \label{tab:comandos_spi_salidas_estrecha}
     \begin{tabular}{c|p{4.5cm}} % Eliminadas las barras verticales excepto en la división de encabezado
         \hline
@@ -112,9 +118,9 @@ Para ver el main del esclavo, vease ~\ref{anexo:RE}. Se implemento la recepcion 
 \end{table}
 
 
-\begin{table}[h]
+\begin{table}[H]
     \centering
-    \caption{\textbf{TABLE II.} \textit{Comandos de Control de Tiempos (PWM y Servo)}}
+    \caption{Comandos de Control de Tiempos (PWM y Servo)}
     \label{tab:comandos_spi_tiempos_estrecha}
     \begin{tabular}{c|p{4.5cm}} % Eliminadas las barras verticales excepto en la división de encabezado
         \hline
@@ -135,6 +141,8 @@ Para ver el main del esclavo, vease ~\ref{anexo:RE}. Se implemento la recepcion 
 
 La Ecuación \ref{eq:servomapfinal} realiza un \textbf{mapeo lineal} que convierte el ángulo deseado ($\text{deg}$) en el rango $[0^\circ, 180^\circ]$ a un valor de registro de comparación PWM ($\text{ticks}$) dentro del rango $[T_{MIN}, T_{MAX}]$. Este valor de $\text{ticks}$ establece la amplitud del pulso necesaria para la posición del servomotor (típicamente entre $1 \text{ ms}$ y $2 \text{ ms}$).
 
+\vspace{1em}
+
 El término $T_{MIN}$ representa el valor base del pulso ($1 \text{ ms}$ o $0^\circ$), y el segundo término de la ecuación, $\frac{(T_{MAX} - T_{MIN}) \times \text{deg}}{180}$, calcula la \textbf{cantidad de *ticks* que deben ser sumados} al valor base para alcanzar la amplitud de pulso requerida por el ángulo específico.
 
 
@@ -145,6 +153,7 @@ Se configura la interfaz \textbf{Two Wire Interface (TWI)}, utilizada para la co
 
 
 \paragraph{Inicialización de Temporizadores y ADC}
+
 Se configuran varios temporizadores y el conversor analógico-digital (ADC) para la adquisición de datos y generación de señales:
 \begin{itemize}
     \item \textbf{ADC}: Se habilita el conversor (\texttt{Init\_adc}), se establece el \textit{prescaler} y se deshabilita el \textit{buffer} digital en los pines analógicos.
@@ -161,6 +170,8 @@ En anexo ~\ref{anexo:initsSPI}, se puede ver estas inicializaciónes.
 \subsubsection{Maestro – I2C}
 
 En esta sección se describe el funcionamiento del programa principal ejecutado por el microcontrolador maestro. Este módulo es el encargado de adquirir las señales provenientes de los distintos sensores, procesarlas y enviarlas al microcontrolador esclavo mediante el bus I2C. Además, gestiona la actualización de la pantalla LCD y coordina el funcionamiento de los temporizadores y periféricos necesarios para el sistema. Todas las funciones empleadas pertenecen a la misma librería descripta anteriormente, con excepción de las rutinas I2C, que se detallan en este apartado.
+
+\vspace{1em}
 
 Cada transmisión de datos al esclavo se realiza siguiendo la secuencia estándar del protocolo: \texttt{I2C\_start()}, envío de la dirección del esclavo, escritura del comando correspondiente y finalización con \texttt{I2C\_stop()}.
 
@@ -184,13 +195,13 @@ Para la medición de distancia mediante el sensor HC-SR04, el maestro genera un 
 
 La lectura de temperatura y humedad se realiza mediante la función \texttt{dht11\_read2()}, que actualiza las variables globales correspondientes y permite evaluar si la medición es válida. Si la temperatura supera el umbral de 26~°C, el maestro envía al esclavo el comando \texttt{0xF0} para activar el ventilador. En caso contrario, se envía el código \texttt{0xB5} para mantenerlo apagado. Este mecanismo implementa una lógica de control térmico simple basada en la comunicación I2C.
 
+\vspace{1em}
+
 Finalmente, se construyen dos cadenas para la visualización en la pantalla LCD. La primera línea muestra el ángulo del servo y la temperatura, mientras que la segunda presenta
 
 
 \subsubsection{Funciones de Comunicación I2C (TWI)}
-A continuación se describen las funciones utilizadas para implementar la comunicación I2C entre el microcontrolador maestro y el periférico esclavo. Todas ellas interactúan directamente con los registros del módulo TWI integrado en el ATmega328P.
-
-Vease ~\ref{anexo:I2C} para ver todas sus implementaciones.
+A continuación se describen las funciones utilizadas para implementar la comunicación I2C entre el microcontrolador maestro y el periférico esclavo. Todas ellas interactúan directamente con los registros del módulo TWI integrado en el ATmega328P (Véase anexo \ref{anexo:I2C}).
 
 \subsubsection{I2C\_init()}
 La función \texttt{I2C\_init()} inicializa el módulo TWI configurando el registro \texttt{TWSR} con un prescaler igual a uno y asignando al registro \texttt{TWBR} un valor adecuado para establecer la frecuencia del bus I2C en modo estándar (100~kHz). Finalmente, se habilita la interfaz TWI mediante el bit \texttt{TWEN} en el registro \texttt{TWCR}, dejando el hardware listo para comenzar una comunicación en calidad de maestro.
@@ -204,12 +215,15 @@ La función \texttt{I2C\_stop()} genera la condición de parada en el bus I2C. P
 \subsubsection{I2C\_write()}
 La función \texttt{I2C\_write()} envía un byte por el bus I2C, ya sea una dirección o un dato. El valor se carga en el registro \texttt{TWDR} y se inicia la transmisión escribiendo los bits \texttt{TWINT} y \texttt{TWEN} en el registro \texttt{TWCR}. El programa espera hasta que el bit \texttt{TWINT} se active nuevamente, indicando que la transmisión ha finalizado. Luego se consulta el registro \texttt{TWSR} para verificar si el esclavo respondió con una señal de reconocimiento (\textit{ACK}). La función devuelve un valor distinto de cero cuando el envío es exitoso y devuelve cero en caso de que no se reciba confirmación o la transmisión falle.
 
+\vspace{1em}
+
 Como solo se esta escribiendo en el esclavo se limita a la recepcion de (status == 0x18 || status == 0x28), que son los valores representativos; 0x18 = El esclavo se encuentra apto para ser leido y 0x28 = se transmitio correctamente el dato.
 
 
 
 \subsection{Animaciones en RGB}
-
+% Las animaciones se realizaron de manera programática para ahorrar espacio en flash
+% Se utiliza código para generar patrones de leds que cambian de color. Y funciones como máscaras que hacen que se vean partes estáticas en el tiempo
 
 \subsection{Auto - Bluetooth}
 
@@ -232,10 +246,6 @@ B & Retroceder (\texttt{BACK()}) \\
 \label{tab:tablaa}
 \end{table}
 
-
-\subsubsection{Inicializaciones}
-
-En el anexo ~\ref{anexo:Us}, se puede ver la inicialización de USART para el vehiculo. Estableciendo la comunicacion a 9600 baudios, 8 bits de datos y uno de parada. Se inicializa el PWM para el manejo del servo, se puede ver en ~\ref{anexo:s}.
 
 
 \subsubsection{Acciones del auto}
