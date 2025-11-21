@@ -1,7 +1,5 @@
-
-
 % ===================================================
-% FUENTES TÉCNICAS PRINCIPALES
+% FUENTES TÉCNICAS RELEVANTES (DEBLOAT)
 % ===================================================
 
 @online{atmega328p_datasheet,
@@ -9,60 +7,48 @@
   author  = {{Microchip Technology Inc.}},
   url     = {https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf},
   urldate = {2025-09-21},
-  note    = {Documento técnico oficial del microcontrolador utilizado en todos los módulos.}
+  note    = {Documento técnico oficial del microcontrolador utilizado en el proyecto.}
 }
 
-@manual{avr_libc_manual_2_2_0,
-  title        = {AVR Libc User Manual, Version 2.2.0},
-  author       = {{AVR Libc Development Team}},
-  organization = {Savannah GNU Project},
-  year         = {2024},
-  url          = {https://www.nongnu.org/avr-libc/user-manual/index.html},
-  urldate      = {2025-09-26},
-  note         = {Referencia oficial de las funciones de librería C estándar para AVR.}
+@manual{philips_i2c_specification_2000,
+  title        = {The I²C-Bus Specification and User Manual, Version 2.1},
+  author       = {{Philips Semiconductors}},
+  year         = {2000},
+  url          = {https://www.nxp.com/docs/en/user-guide/UM10204.pdf},
+  urldate      = {2025-11-06},
+  note         = {Referencia oficial del estándar I²C.}
 }
 
-@book{mazidi_avr_2014,
-  author    = {Mazidi, Muhammad Ali and Naimi, Sarmad and Naimi, Sepehr},
-  title     = {The AVR Microcontroller and Embedded Systems: Using Assembly and C},
-  publisher = {Pearson Education},
-  year      = {2014},
-  isbn      = {9780138003319},
-  note      = {Referencia clásica sobre arquitectura, ADC, PWM y EEPROM en AVR.}
+@online{dht11_datasheet_mouser,
+  title   = {DHT11 Temperature and Humidity Sensor — Technical Data Sheet},
+  author  = {{Aosong Electronics Co., Ltd.}},
+  url     = {https://www.mouser.com/datasheet/2/758/DHT11-Technical-Data-Sheet-Translated-Version-1143054.pdf},
+  urldate = {2025-11-16},
+  note    = {Hoja de datos oficial del sensor DHT11.}
 }
 
-@book{williams_make_avr_2014,
-  author    = {Elliot Williams},
-  title     = {Make: AVR Programming: Learning to Write Software for Hardware},
-  publisher = {O’Reilly Media},
-  year      = {2014},
-  isbn      = {9781449355784},
-  note      = {Guía práctica de programación en C para sistemas embebidos AVR.}
+@online{smarthon_hwlibre,
+  title   = {Smarthon Smart City IoT Starter Kit para micro:bit},
+  author  = {{HWLibre}},
+  url     = {https://www.hwlibre.com/smarthon-smart-city-iot-starter-kit-para-microbit/},
+  urldate = {2025-11-16},
+  note    = {Artículo informativo utilizado como referencia general del sensor.}
 }
 
-@book{labrosse_embedded_2013,
-  author    = {Jean J. Labrosse},
-  title     = {Embedded Systems Building Blocks: Complete and Ready-to-Use Modules in C},
-  publisher = {CRC Press},
-  year      = {2013},
-  note      = {Fundamento para diseño modular, multitarea cooperativa y máquinas de estado.}
+@online{hc05_naylamp_at_commands,
+  title   = {Configuración del módulo Bluetooth HC-05 usando comandos AT},
+  author  = {{Naylamp Mechatronics}},
+  url     = {https://naylampmechatronics.com/blog/24_configuracion-del-modulo-bluetooth-hc-05-usando-comandos-at.html},
+  urldate = {2025-11-16},
+  note    = {Guía técnica sobre la configuración del módulo Bluetooth HC-05.}
 }
 
-@online{ganssle_debouncing,
-  title   = {A Guide to Debouncing},
-  author  = {Jack Ganssle},
-  url     = {https://www.ganssle.com/debouncing.htm},
-  urldate = {2025-09-26},
-  note    = {Referencia clásica para la implementación de antirrebote en software.}
-}
-
-@book{angeles_robotics_2018,
-  author    = {Jorge Angeles},
-  title     = {Fundamentals of Robotic Mechanical Systems: Theory, Methods, and Algorithms},
-  publisher = {Springer},
-  year      = {2018},
-  edition   = {5th},
-  note      = {Referencia sobre cinemática y control por PWM en actuadores de robótica.}
+@online{mpu6050_circuitdigest,
+  title   = {Interfacing MPU6050 Module with Arduino},
+  author  = {{CircuitDigest}},
+  url     = {https://circuitdigest.com/microcontroller-projects/interfacing-mpu6050-module-with-arduino},
+  urldate = {2025-11-16},
+  note    = {Artículo técnico sobre el funcionamiento y la integración del sensor MPU6050.}
 }
 
 @online{arduino_uno_pinout,
@@ -71,111 +57,8 @@
   year    = {2018},
   url     = {https://www.circuito.io/blog/arduino-uno-pinout/},
   urldate = {2025-09-21},
-  note    = {Diagrama de pines utilizado como base de conexionado para el ATmega328P.}
+  note    = {Diagrama de pines del ATmega328P utilizado como referencia de conexión.}
 }
-
-@book{bresenham_algorithm_1965,
-  author    = {Jack E. Bresenham},
-  title     = {Algorithm for Computer Control of a Digital Plotter},
-  journal   = {IBM Systems Journal},
-  volume    = {4},
-  number    = {1},
-  pages     = {25--30},
-  year      = {1965},
-  publisher = {IBM},
-  doi       = {10.1147/sj.41.0025},
-  note      = {Fundamento matemático para generación de trayectorias discretas en el módulo Plotter.}
-}
-
-@misc{utec_tecmicro,
-  author       = {{Laboratorio de Microcontroladores, UTEC}},
-  title        = {Repositorio de Laboratorio de Microcontroladores (Tec.Micro)},
-  year         = {2025},
-  howpublished = {\url{https://github.com/MateoLecuna/Tec.Micro}},
-  note         = {Repositorio institucional del curso donde se desarrolló el proyecto.}
-}
-
-@online{LabDrive,
-  title   = {Carpeta del laboratorio (Google Drive)},
-  url     = {https://drive.google.com/drive/u/0/folders/1fP0aILozXeapRgDPDNWT1TRhAYr1PPPT},
-  urldate = {2025-09-26},
-  note    = {Evidencias experimentales, simulaciones y documentación compartida del laboratorio.}
-}
-
-
-
-
-
-@manual{ti_lm35_datasheet,
-  title        = {LM35 Precision Centigrade Temperature Sensors},
-  author       = {{Texas Instruments}},
-  year         = {2016},
-  url          = {https://www.ti.com/lit/gpn/LM35},
-  note         = {Datasheet oficial del sensor LM35.},
-  urldate      = {2025-11-06}
-}
-
-@inproceedings{ramos_lm35_characterization_2017,
-  author    = {Ramos, A. and Tamez, A. and Ortega, M.},
-  title     = {Characterization of LM35 Sensor for Temperature Sensing},
-  booktitle = {Proceedings of the International MultiConference of Engineers and Computer Scientists (IMECS 2017)},
-  year      = {2017},
-  pages     = {760--764},
-  publisher = {IAENG},
-  url       = {https://www.iaeng.org/publication/IMECS2017/IMECS2017_pp760-764.pdf},
-  urldate   = {2025-11-06},
-  note      = {Evaluacion experimental de la precision y linealidad del sensor LM35.}
-}
-
-@online{blikai_tip31_article,
-  title   = {TIP31C NPN Transistor: Working Principle and Applications},
-  author  = {{Blikai Technical Blog}},
-  year    = {2023},
-  url     = {https://www.blikai.com/blog/featured-products/tip31c-npn-transistor-working-principle-and-applications},
-  urldate = {2025-11-06},
-  note    = {Articulo tecnico sobre el funcionamiento y aplicaciones del transistor TIP31C.}
-}
-
-@manual{tip31_datasheet,
-  title        = {TIP31, TIP32: High Power Bipolar Transistors},
-  author       = {{ON Semiconductor}},
-  year         = {2014},
-  url          = {https://www.onsemi.com/pdf/datasheet/tip31a-d.pdf},
-  urldate      = {2025-11-06},
-  note         = {Documento tecnico con especificaciones electricas y limites de operacion del TIP31.}
-}
-
-@manual{nxp_mfrc522_datasheet,
-  title        = {MFRC522: Standard Performance MIFARE and NTAG Frontend},
-  author       = {{NXP Semiconductors}},
-  year         = {2016},
-  url          = {https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf},
-  urldate      = {2025-11-06},
-  note         = {Datasheet oficial del modulo lector RFID MFRC522.}
-}
-
-@manual{sfu_spi_mfrc522_guide,
-  title        = {Using SPI to Drive an MFRC522 RFID Reader},
-  author       = {{School of Computing Science, Simon Fraser University}},
-  year         = {2024},
-  url          = {https://opencoursehub.cs.sfu.ca/bfraser/grav-cms/cmpt433/links/files/2024-student-howtos/UsingSPItoDriveAnMFRC522_RFIDReader.pdf},
-  urldate      = {2025-11-06},
-  note         = {Guia practica para la comunicacion SPI con el lector RFID MFRC522.}
-}
-
-@article{syamsuddin_rfid_authentication_2010,
-  author    = {Syamsuddin, I. and Hwang, J. and Lee, S.},
-  title     = {A Survey on Low-cost RFID Authentication Protocols},
-  journal   = {arXiv preprint arXiv:1009.3626},
-  year      = {2010},
-  url       = {https://arxiv.org/abs/1009.3626},
-  urldate   = {2025-11-06},
-  note      = {Revisión de protocolos de autenticación RFID de bajo costo.}
-}
-
-
-
-
 
 @manual{python_docs,
   title        = {Python 3.12 Documentation},
@@ -183,141 +66,14 @@
   year         = {2025},
   url          = {https://docs.python.org/3/},
   urldate      = {2025-11-06},
-  note         = {Documentacion oficial del lenguaje Python, incluyendo modulos estandar como threading y collections.}
+  note         = {Referencia oficial utilizada para los scripts auxiliares.}
 }
 
 @manual{pyserial_docs,
   title        = {PySerial API Reference},
   author       = {{Chris Liechti}},
-  organization = {Python Software Foundation},
   year         = {2024},
   url          = {https://pyserial.readthedocs.io/en/latest/},
   urldate      = {2025-11-06},
-  note         = {Documentacion oficial de la libreria PySerial.}
+  note         = {Documentación oficial del módulo PySerial utilizado para comunicación UART.}
 }
-
-@manual{matplotlib_docs,
-  title        = {Matplotlib Documentation},
-  author       = {{The Matplotlib Development Team}},
-  year         = {2025},
-  url          = {https://matplotlib.org/stable/contents.html},
-  urldate      = {2025-11-06},
-  note         = {Referencia oficial de la libreria Matplotlib para visualizacion 2D.}
-}
-
-
-@report{sfu_rfid_report_2019,
-  title        = {RFID Systems and Applications},
-  author       = {Simon Fraser University, School of Engineering Science},
-  year         = {2019},
-  url          = {https://www.sfu.ca/~rfid/reports/RFID_Systems.pdf},
-  urldate      = {2025-11-06},
-  note         = {Reporte académico sobre los principios y arquitectura de sistemas RFID.}
-}
-
-@article{syamsuddin_rfid_intro_2018,
-  title        = {Introduction to RFID Technology and Its Applications},
-  author       = {Syamsuddin, M. and Pertiwi, R.},
-  journal      = {International Journal of Advanced Computer Science and Applications},
-  volume       = {9},
-  number       = {3},
-  pages        = {45--50},
-  year         = {2018},
-  doi          = {10.14569/IJACSA.2018.090307},
-  note         = {Artículo introductorio sobre la tecnología RFID y el estándar ISO/IEC 14443A.}
-}
-
-
-@book{horowitz_art_of_electronics_2022,
-  author    = {Paul Horowitz and Winfield Hill},
-  title     = {The Art of Electronics},
-  edition   = {4th},
-  publisher = {Cambridge University Press},
-  year      = {2022},
-  isbn      = {9781009273760},
-  note      = {Referencia técnica sobre comunicación digital y principios de electrónica aplicada.}
-}
-
-
-@manual{philips_i2c_specification_2000,
-  title        = {The I²C-Bus Specification and User Manual, Version 2.1},
-  author       = {{Philips Semiconductors}},
-  year         = {2000},
-  url          = {https://www.nxp.com/docs/en/user-guide/UM10204.pdf},
-  urldate      = {2025-11-06},
-  note         = {Documento original del estándar I²C, base teórica del protocolo implementado en el TWI del ATmega328P.}
-}
-
-@article{tanenbaum_serial_comm_2011,
-  author       = {Andrew S. Tanenbaum and Todd Austin},
-  title        = {Serial Communication Fundamentals},
-  journal      = {Structured Computer Organization},
-  volume       = {6},
-  year         = {2011},
-  publisher    = {Pearson},
-  note         = {Referencia conceptual sobre comunicación serial y sincronización UART/USART.}
-}
-
-@manual{microchip_eeprom_appnote_2019,
-  title        = {AVR101: High Endurance EEPROM Storage},
-  author       = {{Microchip Technology Inc.}},
-  year         = {2019},
-  url          = {https://ww1.microchip.com/downloads/en/Appnotes/doc2526.pdf},
-  urldate      = {2025-11-06},
-  note         = {Nota de aplicación sobre el uso y la durabilidad de la memoria EEPROM en microcontroladores AVR.}
-}
-
-@article{ramesh_adc_review_2020,
-  author    = {Ramesh, S. and Kumar, V.},
-  title     = {Design and Analysis of ADCs in Embedded Systems},
-  journal   = {International Journal of Electronics and Communication Engineering},
-  volume    = {13},
-  number    = {5},
-  pages     = {45--52},
-  year      = {2020},
-  note      = {Revisión técnica sobre principios de conversión analógico-digital y resolución en microcontroladores.}
-}
-
-@manual{microchip_timer_pwm_appnote_2018,
-  title        = {AVR136: Low-Frequency PWM Generation Using 8-bit Timer/Counter},
-  author       = {{Microchip Technology Inc.}},
-  year         = {2018},
-  url          = {https://ww1.microchip.com/downloads/en/Appnotes/00002128B.pdf},
-  urldate      = {2025-11-06},
-  note         = {Nota de aplicación sobre generación de señales PWM con temporizadores internos de 8 bits.}
-}
-
-
-@online{dht11_datasheet_mouser,
-  title   = {DHT11 Temperature and Humidity Sensor — Technical Data Sheet},
-  author  = {{Aosong Electronics Co., Ltd.}},
-  url     = {https://www.mouser.com/datasheet/2/758/DHT11-Technical-Data-Sheet-Translated-Version-1143054.pdf},
-  urldate = {2025-11-16},
-  note    = {Hoja de datos oficial del sensor DHT11, utilizada para especificaciones eléctricas y protocolo de comunicación.}
-}
-
-@online{smarthon_hwlibre,
-  title   = {Smarthon Smart City IoT Starter Kit para micro:bit},
-  author  = {{HWLibre}},
-  url     = {https://www.hwlibre.com/smarthon-smart-city-iot-starter-kit-para-microbit/},
-  urldate = {2025-11-16},
-  note    = {Artículo informativo sobre el kit Smarthon para proyectos educativos IoT con micro:bit.}
-}
-
-@online{hc05_naylamp_at_commands,
-  title   = {Configuración del módulo Bluetooth HC-05 usando comandos AT},
-  author  = {{Naylamp Mechatronics}},
-  url     = {https://naylampmechatronics.com/blog/24_configuracion-del-modulo-bluetooth-hc-05-usando-comandos-at.html},
-  urldate = {2025-11-16},
-  note    = {Guía técnica sobre el uso de comandos AT para la configuración del módulo Bluetooth HC-05.}
-}
-
-
-@online{mpu6050_circuitdigest,
-  title   = {Interfacing MPU6050 Module with Arduino},
-  author  = {{CircuitDigest}},
-  url     = {https://circuitdigest.com/microcontroller-projects/interfacing-mpu6050-module-with-arduino},
-  urldate = {2025-11-16},
-  note    = {Artículo técnico sobre el funcionamiento y la integración del sensor inercial MPU6050 mediante comunicación I\textsuperscript{2}C.}
-}
-
