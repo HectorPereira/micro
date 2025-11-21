@@ -63,3 +63,22 @@ El MPU6050 es un módulo inercial de seis ejes que integra un acelerómetro de t
     \caption{MPU6050 Pinout \url{https://circuitdigest.com/microcontroller-projects/interfacing-mpu6050-module-with-arduino}}
     \label{fig:MCU6050}
 \end{figure}
+
+\subsection{WS2812 y direccionamiento en matrices RGB}
+
+Los LEDs WS2812 (NeoPixel) son dispositivos RGB direccionables en cadena que reciben datos mediante un único pin digital utilizando un protocolo de temporización estricta. Cada píxel interpreta 24 bits en formato \textbf{GRB} y reenvía el resto de la trama al siguiente LED. Para actualizar el conjunto completo se requiere mantener la línea en nivel bajo por más de $50~\mu s$ (reset).
+
+En matrices comunes de 8$\times$8 o 16$\times$16, el cableado interno no siempre sigue un orden lineal convencional. En particular, muchos paneles emplean un esquema de \textbf{direccionamiento serpentina}, donde las filas pares se cablean de izquierda a derecha y las filas impares de derecha a izquierda. Debido a esto, la posición real de un píxel no coincide directamente con su índice lineal, por lo que se requiere una función de mapeo adicional como \texttt{serpentine\_index()}, utilizada en este proyecto para convertir coordenadas cartesianas (\(x, y\)) en índices válidos dentro del búfer de transmisión.
+
+
+\subsection{MPU6050 como sensor de inclinación}
+
+El MPU6050 es un módulo inercial de seis ejes que integra acelerómetro y giroscopio MEMS. Para aplicaciones de inclinación lenta —como el desplazamiento de un punto luminoso en una matriz— la fuente de información relevante proviene del \textbf{acelerómetro}, ya que la aceleración estática de la gravedad permite inferir la orientación del módulo.
+
+Las lecturas crudas del acelerómetro presentan un rango aproximado de $\pm 16000$ unidades para $\pm 1g$, por lo que es necesario aplicar un \textbf{mapeo lineal} para convertir estos valores en coordenadas discretas de la matriz. Este procedimiento se implementa mediante la función \texttt{map\_to\_0\_15()}, que a partir del rango operativo observado durante la calibración, transforma los valores en posiciones válidas dentro del panel.
+
+
+\subsection{Generación de color mediante gradiente circular}
+
+Para mejorar la percepción del movimiento y facilitar la identificación visual del punto activo, se emplea un gradiente cíclico de color generado mediante la función \texttt{wheel\_color()}. Esta función recorre la gama RGB siguiendo una transición continua entre rojo, verde y azul. El parámetro interno se incrementa en cada iteración, creando un efecto dinámico que permite distinguir con claridad el desplazamiento del píxel sobre la matriz.
+
