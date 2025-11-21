@@ -43,7 +43,7 @@ Se implementa la comunicación maestro–esclavo entre dos microcontroladores AT
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.45\textwidth]{anexos/1 SPI/Frecuencia.png}
-    \caption{Tabla de frecuencia SPI \url{https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf}}
+    \caption{Tabla de configuración de frecuencias SPI \url{https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf}}
     \label{fig:HZ}
 \end{figure}
 
@@ -179,26 +179,26 @@ En esta sección se describe el funcionamiento del programa principal ejecutado 
 Cada transmisión de datos al esclavo se realiza siguiendo la secuencia estándar del protocolo: \texttt{I2C\_start()}, envío de la dirección del esclavo, escritura del comando correspondiente y finalización con \texttt{I2C\_stop()}.
 
 \vspace{1em}
-\subsubsection{Inicialización - I2C}
+\subsubsection{Inicialización - I2C} ---
 Al inicio del programa se configuran los pines correspondientes como salidas digitales y se habilitan las interrupciones globales mediante \texttt{sei()}. Luego se inicializa la comunicación I2C con la función \texttt{I2C\_init()}, estableciendo el bus a una frecuencia de 100~kHz. De forma complementaria, se habilita el conversor analógico-digital a través de \texttt{Init\_adc()}, y se inicializa la pantalla LCD I2C mediante \texttt{twi\_lcd\_init()}, utilizando el expansor PCF8574. Finalmente, se configura el Timer~1 en modo Input Capture para permitir la medición del pulso del sensor ultrasónico HC-SR04. Con estas configuraciones iniciales, el sistema queda preparado para iniciar el ciclo principal.
 
 
 \vspace{1em}
-\subsubsection{Fotoresistor - I2C}
+\subsubsection{Fotoresistor - I2C} --- 
 
 La primera operación dentro del lazo consiste en la lectura del fotoresistor mediante \texttt{adc\_read\_AC1()}. Según el valor obtenido, el maestro envía uno de dos comandos al esclavo utilizando el bus I2C: el código \texttt{0xB6} cuando el nivel de luz es elevado y el código \texttt{0xB7} cuando la iluminación es baja. 
 
 \vspace{1em}
-\subsubsection{Potenciometro - I2C}
+\subsubsection{Potenciometro - I2C} ---
 Posteriormente, se realiza la lectura del potenciómetro utilizando \texttt{adc\_read\_AC0()}. El valor analógico obtenido se convierte en un ángulo entre 0° y 180° mediante la relación lineal \(\text{grados} = \frac{\text{ADC}}{5.88}\). Este valor es enviado directamente al esclavo, donde será transformado en un pulso PWM para posicionar el servomotor SG90 según la ecuación previamente presentada. De esta manera, el potenciómetro actúa como un control analógico del ángulo del servo.
 
 \vspace{1em}
-\subsubsection{HC - SR04 - I2C}
+\subsubsection{HC - SR04 - I2C} ---
 
 Para la medición de distancia mediante el sensor HC-SR04, el maestro genera un pulso de disparo en el pin \texttt{PIN\_T}. La distancia resultante se almacena en la variable global \texttt{Distancia\_cm}, actualizada por la rutina de servicio de interrupción asociada al Timer~1. En función del rango de distancia detectado, el sistema asigna un código de color específico que es enviado al esclavo. Dichos códigos determinan el color del LED RGB y están asociados a los valores presentados anteriormente, tales como \texttt{0xB9} para rojo o \texttt{0xBF} para azul. Además, se genera una cadena descriptiva del color utilizando concatenaciones con \texttt{strcat()}, que luego será mostrada en la pantalla LCD.
 
 \vspace{1em}
-\subsubsection{DHT11 - I2c}
+\subsubsection{DHT11 - I2c} ---
 
 La lectura de temperatura y humedad se realiza mediante la función \texttt{dht11\_read2()}, que actualiza las variables globales correspondientes y permite evaluar si la medición es válida. Si la temperatura supera el umbral de 26~°C, el maestro envía al esclavo el comando \texttt{0xF0} para activar el ventilador. En caso contrario, se envía el código \texttt{0xB5} para mantenerlo apagado. Este mecanismo implementa una lógica de control térmico simple basada en la comunicación I2C.
 
@@ -207,28 +207,28 @@ La lectura de temperatura y humedad se realiza mediante la función \texttt{dht1
 Finalmente, se construyen dos cadenas para la visualización en la pantalla LCD. La primera línea muestra el ángulo del servo y la temperatura, mientras que la segunda presenta
 
 \vspace{1em}
-\subsubsection{Funciones de Comunicación I2C (TWI)}
+\subsubsection{Funciones de Comunicación I2C (TWI)} ---
 A continuación se describen las funciones utilizadas para implementar la comunicación I2C entre el microcontrolador maestro y el periférico esclavo. Todas ellas interactúan directamente con los registros del módulo TWI integrado en el ATmega328P (Véase anexo \ref{anexo:I2C}).
 
 \vspace{1em}
-\subsubsection{I2C\_init()}
+\subsubsection{I2C\_init()} ---
 La función \texttt{I2C\_init()} inicializa el módulo TWI configurando el registro \texttt{TWSR} con un prescaler igual a uno y asignando al registro \texttt{TWBR} un valor adecuado para establecer la frecuencia del bus I2C en modo estándar (100~kHz). Finalmente, se habilita la interfaz TWI mediante el bit \texttt{TWEN} en el registro \texttt{TWCR}, dejando el hardware listo para comenzar una comunicación en calidad de maestro.
 
 \vspace{1em}
-\subsubsection{I2C\_start()}
+\subsubsection{I2C\_start()} ---
 La rutina \texttt{I2C\_start()} genera la condición de inicio en el bus I2C. Para ello, se escriben los bits \texttt{TWINT}, \texttt{TWSTA} y \texttt{TWEN} en el registro \texttt{TWCR}. Una vez iniciada la operación, el microcontrolador espera a que el bit \texttt{TWINT} vuelva a establecerse, lo que indica que la condición \textit{START} fue transmitida correctamente y que el maestro puede proceder a enviar la dirección del esclavo.
 
 \vspace{1em}
-\subsubsection{I2C\_stop()}
+\subsubsection{I2C\_stop()} ---
 La función \texttt{I2C\_stop()} genera la condición de parada en el bus I2C. Para ello, se activa el bit \texttt{TWSTO} en conjunto con \texttt{TWEN} y \texttt{TWINT}. El hardware se encarga de completar la operación y liberar el bus, permitiendo que otros dispositivos puedan iniciar nuevas comunicaciones.
 
 \vspace{1em}
-\subsubsection{I2C\_write()}
+\subsubsection{I2C\_write()} ---
 La función \texttt{I2C\_write()} envía un byte por el bus I2C, ya sea una dirección o un dato. El valor se carga en el registro \texttt{TWDR} y se inicia la transmisión escribiendo los bits \texttt{TWINT} y \texttt{TWEN} en el registro \texttt{TWCR}. El programa espera hasta que el bit \texttt{TWINT} se active nuevamente, indicando que la transmisión ha finalizado. Luego se consulta el registro \texttt{TWSR} para verificar si el esclavo respondió con una señal de reconocimiento (\textit{ACK}). La función devuelve un valor distinto de cero cuando el envío es exitoso y devuelve cero en caso de que no se reciba confirmación o la transmisión falle.
 
 \vspace{1em}
 
-Como solo se esta escribiendo en el esclavo se limita a la recepcion de (status == 0x18 || status == 0x28), que son los valores representativos; 0x18 = El esclavo se encuentra apto para ser leido y 0x28 = se transmitio correctamente el dato.
+Como solo se esta escribiendo en el esclavo se limita a la recepcion de (status == 0x18 || status == 0x28), que son los valores representativos; 0x18 = El esclavo se encuentra apto para ser leído y 0x28 = se transmitio correctamente el dato.
 
 
 
@@ -272,10 +272,9 @@ En cuanto al servomotor, este se encuentra normalmente posicionado en 90°. A tr
 
 
 
-
-
 \subsection{Control y Animaciones en Matriz WS2812}
 
+\subsubsection{Inicialización del Módulo WS2812} ---
 En esta sección se presenta la implementación completa del sistema de control para la matriz de 256 LEDs WS2812 organizada en una disposición de 16×16. Se describen los mecanismos de inicialización del módulo, la administración del búfer de color, la comunicación mediante USART para seleccionar animaciones y los algoritmos gráficos involucrados en cada efecto visual generado sobre el panel.
 
 \vspace{1em}
@@ -284,31 +283,40 @@ La inicialización del módulo WS2812 se realiza mediante la función \texttt{ws
 
 \vspace{1em}
 
+\subsubsection{Comunicación USART y Selección de Animaciones} ---
 El sistema incorpora un mecanismo de selección de animaciones controlado mediante USART. La función \texttt{uart\_init()} (véase~\ref{anexo:USARTinit}) configura el módulo en modo 8N1 a 9600~baudios y habilita la interrupción de recepción. Dentro de la rutina \texttt{ISR(USART\_RX\_vect)} (véase~\ref{anexo:USARTisr}) el dato recibido se almacena en la variable global \texttt{uart\_rx} y se activa la bandera \texttt{new\_data}. En el lazo principal del programa, esta bandera es evaluada continuamente para determinar si corresponde interrumpir la animación actual y ejecutar una nueva. El sistema reconoce los comandos '1' y '2', que permiten ejecutar respectivamente \texttt{anim\_barber\_pole()} (véase~\ref{anexo:WSbarber}) y \texttt{anim\_rainbow\_diagonal()} (véase~\ref{anexo:WSrainbow}). Un nuevo comando recibido en cualquier momento provoca la interrupción inmediata de la animación vigente.
 
 \vspace{1em}
 
+\subsubsection{Transmisión de Datos a la Matriz WS2812} ---
 La transmisión de datos hacia la matriz se implementa mediante las funciones \texttt{send\_bit()} y \texttt{send\_byte()} (véase~\ref{anexo:WSsend}), que generan los patrones temporales correspondientes a cada bit del protocolo WS2812. Un bit lógico “1” se representa mediante un pulso alto prolongado seguido de un pulso bajo breve, mientras que un bit “0” invierte esta relación temporal. Los píxeles se envían en formato GRB utilizando la función \texttt{ws2812\_send\_pixel()} (véase~\ref{anexo:WSpixel}), y la actualización completa de la matriz se logra con \texttt{ws2812\_show\_all()} (véase~\ref{anexo:WSshow}), que recorre secuencialmente el búfer global. La función \texttt{ws2812\_clear()} permite limpiar la matriz asignando cero a todas las posiciones del búfer antes de iniciar una nueva animación.
 
 \vspace{1em}
 
+\subsubsection{Indexación en Serpentina} ---
 Para adaptarse a la disposición física del panel, que se encuentra cableado de forma serpenteada, se utiliza la función \texttt{serpentine\_index(x, y)} (véase~\ref{anexo:WSserp}). Esta función determina la posición lineal en memoria de un píxel dado, invirtiendo el orden de indexación en las filas impares. Gracias a esto, el acceso a píxeles puede realizarse en coordenadas cartesianas sin preocuparse por el orden real del cableado interno de la matriz.
 
 \vspace{1em}
 
+\subsubsection{Generación de Colores: \texttt{wheel\_color()}} ---
 La función \texttt{wheel\_color()} (véase~\ref{anexo:WSwheel}) implementa un generador de colores cíclico basado en un gradiente circular que abarca las transiciones Rojo → Verde → Azul → Rojo. Para un valor \texttt{pos} dentro del rango 0–255 se obtienen componentes RGB que varían suavemente, y esta función constituye la base de las animaciones de tipo arcoíris.
 
 \vspace{1em}
 
+\subsubsection{Animación Diagonal Arcoíris} ---
 La animación \texttt{anim\_rainbow\_diagonal()} (véase~\ref{anexo:WSrainbow}) genera un desplazamiento de franjas multicolor diagonales a través de la matriz. En cada fotograma se calcula un valor \texttt{pos} dependiente de las coordenadas del píxel y del tiempo transcurrido, se obtiene su color correspondiente mediante \texttt{wheel\_color()}, y se escribe en el búfer mediante \texttt{ws2812\_set\_pixel()}. Esta animación incluye además una máscara generada por \texttt{draw\_raibow\_mask()} (véase~\ref{anexo:WSmask}), la cual elimina secciones del patrón para generar un efecto más estilizado. El proceso continúa hasta que un nuevo comando USART activa la bandera \texttt{new\_data}, provocando la finalización de la rutina.
 
 \vspace{1em}
 
-Por otra parte, la animación \texttt{anim\_barber\_pole()} (véase~\ref{anexo:WSbarber}) simula un cilindro giratorio con franjas diagonales rojas, blancas y azules. Para cada píxel se calcula su distancia horizontal respecto al centro del cilindro y se aplica un factor de brillo que genera una apariencia tridimensional. La fase de las franjas está dada por la expresión \texttt{phase = 2x + 3y + t/2}, lo que produce un movimiento continuo en diagonal. Además, la función \texttt{draw\_yellow\_frame()} (véase~\ref{anexo:WSframe}) superpone un marco animado alrededor del cilindro, reforzando el contorno visual.
+\subsubsection{Animación ``Barber Pole''} ---
+La animación \texttt{anim\_barber\_pole()} (véase~\ref{anexo:WSbarber}) simula un cilindro giratorio con franjas diagonales rojas, blancas y azules. Para cada píxel se calcula su distancia horizontal respecto al centro del cilindro y se aplica un factor de brillo que genera una apariencia tridimensional. La fase de las franjas está dada por la expresión \texttt{phase = 2x + 3y + t/2}, lo que produce un movimiento continuo en diagonal. Además, la función \texttt{draw\_yellow\_frame()} (véase~\ref{anexo:WSframe}) superpone un marco animado alrededor del cilindro, reforzando el contorno visual.
 
 \vspace{1em}
 
+\subsubsection{Actualización Global de la Matriz} ---
 Finalmente, la actualización completa del panel se realiza reconstruyendo el búfer \texttt{leds[]}, enviándolo mediante \texttt{ws2812\_show\_all()} y generando el pulso de reset requerido por el protocolo. Este proceso garantiza una transición fluida entre fotogramas y evita parpadeos perceptibles, logrando así animaciones estables y visualmente atractivas.
+
+% Y bueno, en el 
 
 
 
