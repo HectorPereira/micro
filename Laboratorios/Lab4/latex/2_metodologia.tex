@@ -35,14 +35,9 @@
 
 
 
-\subsection{Procedimiento general}
+\subsection{Maestro Esclavo --- SPI}
 
-\subsection{Maestro Esclavo - SPI}
-Para este codigo, se empleo una libreria con todas las funciones e ISR's utilizadas, para poder ver el main con claridad.
-
-\vspace{1em}
-\subsubsection{Inicialización SPI}
-
+\subsubsection{\textbf{Inicialización SPI}} ---
 Se implementa la comunicación maestro–esclavo entre dos microcontroladores ATmega328P utilizando el protocolo SPI. Para ello se emplean las funciones de inicialización correspondientes tanto al maestro como al esclavo, mostradas en \ref{anexo:MasterSPIIn} y \ref{anexo:SlaveSPIIn}. La configuración seleccionada utiliza una frecuencia de reloj de 8~MHz, según los valores permitidos por el módulo SPI del ATmega328P, como se aprecia en la tabla de la figura \ref{fig:HZ}.
 
 \begin{figure}[H]
@@ -52,7 +47,7 @@ Se implementa la comunicación maestro–esclavo entre dos microcontroladores AT
     \label{fig:HZ}
 \end{figure}
 
-\subsubsection{Transferencia SPI}
+\subsubsection{\textbf{Transferencia SPI}}
 
 La transferencia de datos desde el maestro hacia el esclavo se realiza mediante la función presentada en \ref{anexo:Transfer_spi}, la cual espera a que la bandera \texttt{SPIF} (SPI Interrupt Flag) se establezca. Esta bandera indica que la transmisión ha finalizado y que el dato se encuentra disponible en el registro \texttt{SPDR} (SPI Data Register). 
 
@@ -61,17 +56,17 @@ La transferencia de datos desde el maestro hacia el esclavo se realiza mediante 
 La recepción en el esclavo se efectúa mediante la función mostrada en \ref{anexo:Reception_spi}, que opera de forma similar: espera a la finalización del intercambio de bits y posteriormente retorna el byte recibido desde el maestro a través del bus SPI.
 
 \vspace{1em}
-\subsubsection{Fotoresistor}
+\subsubsection{\textbf{Fotoresistor}}
 
 Para la lectura del fotoresistor se utiliza el fragmento de código indicado en \ref{anexo:fotoresistor}. En este esquema, el sensor está conectado en conjunto con una resistencia de tipo pull-up, y el valor analógico obtenido permite estimar la intensidad lumínica. La variación de resistencia del LDR modifica la caída de tensión en el divisor, lo que posibilita evaluar el nivel de luz ambiente mediante el ADC del ATmega328P.
 
 \vspace{1em}
-\subsubsection{Potenciómetro – SG90}
+\subsubsection{\textbf{Potenciómetro – SG90}}
 
 Para la lectura del potenciómetro se utiliza el código mostrado en el anexo~\ref{anexo:Potenciometro}, donde el valor obtenido mediante el ADC es convertido a un ángulo en el rango de 0 a 180 grados. Esta conversión se realiza aplicando la relación lineal \(180/1023\), correspondiente a la resolución del conversor analógico-digital del ATmega328P. Posteriormente, el valor numérico es transformado a su representación ASCII mediante la función \texttt{add\_string}, permitiendo su envío al esclavo para el control del servo SG90.
 
 \vspace{1em}
-\subsubsection{Lectura del HC-SR04 y transferencia de distancia}
+\subsubsection{\textbf{Lectura del HC-SR04 y transferencia de distancia}}
 
 Para la medición de distancia con el sensor ultrasónico \textbf{HC-SR04} se emplea el procedimiento indicado en \ref{anexo:hc-sr04}, basado en la detección del pulso de \textit{echo} mediante un contador por comparación. El método consiste en medir la cantidad de \textit{ticks} que la señal permanece en nivel alto y convertir dicho tiempo en distancia utilizando la ecuación correspondiente del sensor.
 
@@ -80,7 +75,8 @@ Para la medición de distancia con el sensor ultrasónico \textbf{HC-SR04} se em
 En función del valor calculado, el sistema asigna un código distinto que es transferido al microcontrolador esclavo, permitiendo ejecutar acciones diferenciadas según la distancia detectada por el HC-SR04.
 
 
-\subsubsection{Lectura del DHT11 y transferencia de temperatura}
+\vspace{1em}
+\subsubsection{\textbf{Lectura del DHT11 y transferencia de temperatura}}
 
 La lectura del DHT11 se realiza mediante su protocolo de comunicación específico, utilizando la función mostrada en \ref{anexo:DHT11}. En este proceso se emplean punteros para actualizar variables globales con los valores de temperatura y humedad obtenidos del sensor. La función retorna un valor de tipo \texttt{bool} que indica si la lectura fue válida, permitiendo ejecutar la evaluación correspondiente sin necesidad de procesamientos adicionales.
 
@@ -89,12 +85,12 @@ La lectura del DHT11 se realiza mediante su protocolo de comunicación específi
 Una vez adquirida la medición, el sistema compara la temperatura registrada con un valor de referencia (temperatura ambiente). Según el resultado de esta comparación, se envía un código al microcontrolador esclavo indicando si debe activar o no el ventilador asociado. Esto permite implementar una lógica básica de control térmico distribuido mediante comunicación SPI.
 
 \vspace{1em}
-\subsubsection{Escritura en LCD}
+\subsubsection{\textbf{Escritura en LCD}}
 
 Para la visualización de los datos en la pantalla LCD se emplean dos búferes, \texttt{L1} y \texttt{L2}, en los cuales se concatenan los valores obtenidos durante la ejecución mediante la función \texttt{strcat}. De esta forma, cada cadena se construye dinámicamente con la información correspondiente y luego es enviada al módulo LCD para su actualización en pantalla. L1 para la primer linea y L2 para la segunda.
 
 \vspace{1em}
-\subsubsection{Recepcion de datos en esclavo}
+\subsubsection{\textbf{Recepcion de datos en esclavo}}
 
 Para ver el main del esclavo, vease ~\ref{anexo:RE}. Se implemento la recepcion mediante una unica funcion SPI slaveReceive, y luego se evalua con un switch el valor del mismo. Teniendo reservado valores para cada accion a realizar. Las cuales se pueden ver en la tabla \ref{tab:tabspi} y \ref{tab:tabspi2}.
 
@@ -266,6 +262,8 @@ B & Retroceder (\texttt{BACK()}) \\
 \subsubsection{Acciones del auto}
 
 El movimiento del vehículo y el control del servomotor se gestionan mediante las funciones descritas en el anexo~\ref{anexo:accion}. El desplazamiento del auto —adelante, atrás, giro a la derecha o a la izquierda— se realiza actuando sobre el Puente~H, el cual permite invertir la polaridad aplicada a los motores y, por lo tanto, modificar el sentido de giro según el comando recibido.
+
+\vspace{1em}
 
 En cuanto al servomotor, este se encuentra normalmente posicionado en 90°. A través de los comandos enviados por Bluetooth se pueden ejecutar dos movimientos rápidos (``golpes''):  
 \begin{itemize}

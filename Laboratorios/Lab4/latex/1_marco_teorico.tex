@@ -1,7 +1,6 @@
 \section{Marco teórico}
 
-\subsubsection{DHT11}
-
+\subsection{{DHT11}}
 El DHT11 es un sensor digital utilizado para medir temperatura y humedad relativa en aplicaciones de monitoreo ambiental. Integra un sensor capacitivo para la medición de humedad, un termistor tipo NTC para la temperatura y un microcontrolador interno encargado de procesar y enviar los datos mediante una interfaz digital de un solo hilo~\cite{dht11_datasheet_mouser}. Su simplicidad de conexión y bajo costo lo convierten en un dispositivo ampliamente empleado en sistemas educativos, prototipos y proyectos básicos de IoT~\cite{smarthon_hwlibre}.
 
 \textbf{Principales características técnicas:}
@@ -17,15 +16,14 @@ Se puede ver el módulo en la figura \ref{fig:S1}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.3\textwidth]{anexos/1 SPI/DHT11.png}
+    \includegraphics[width=0.45\textwidth]{anexos/1 SPI/DHT11.png}
     \caption{DHT11 Esquema \url{https://www.alldatasheet.com/html-pdf/2193416/OSEPP/DHT11/1067/6/DHT11.html}}
     \label{fig:S1}
 \end{figure}
 
 
 
-\subsubsection{Protocolo de Comunicación}
-
+\subsection{Protocolo de Comunicación}
 Dicho sensor emplea un protocolo de comunicación digital específico definido por el fabricante como “single‐wire bi–directional serial communication protocol” \cite{dht11_datasheet_mouser}. Este protocolo propietario se basa en una secuencia de pulsos temporizados en un único hilo de datos. La comunicación comienza cuando el microcontrolador envía una señal de inicio consistente en un pulso bajo prolongado, seguido de un pulso alto de corta duración. Tras esta petición, el DHT11 responde con una secuencia característica de pulsos que indican su disponibilidad y comienza a transmitir los datos.
 
 \vspace{1em}
@@ -35,7 +33,7 @@ La información enviada por el sensor se compone de 40 bits organizados en 5 byt
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.3\textwidth]{anexos/1 SPI/Señal DHT1.png}
+    \includegraphics[width=0.45\textwidth]{anexos/1 SPI/Señal DHT1.png}
     \caption{Pulsos DHT11 \url{https://www.alldatasheet.com/html-pdf/2193416/OSEPP/DHT11/1067/6/DHT11.html}}
     \label{fig:S1}
 \end{figure}
@@ -48,7 +46,7 @@ El HC-05 es un módulo de comunicación inalámbrica basado en Bluetooth 2.0 dis
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.3\textwidth]{anexos/5 Futbol/HC05.png}
+    \includegraphics[width=0.45\textwidth]{anexos/5 Futbol/HC05.png}
     \caption{HC-05 \url{https://blog.naver.com/PostView.nhn?blogId=khc3544&logNo=220865625673}}
     \label{fig:HC05}
 \end{figure}
@@ -61,7 +59,7 @@ El MPU6050 es un módulo inercial de seis ejes que integra un acelerómetro de t
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.3\textwidth]{anexos/4 Giroscopio/MCu.png}
+    \includegraphics[width=0.45\textwidth]{anexos/4 Giroscopio/MCu.png}
     \caption{MPU6050 \url{https://circuitdigest.com/microcontroller-projects/interfacing-mpu6050-module-with-arduino}}
     \label{fig:MCU6050}
 \end{figure}
