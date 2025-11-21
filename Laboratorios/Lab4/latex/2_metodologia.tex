@@ -155,6 +155,9 @@ Se configuran varios temporizadores y el conversor analógico-digital (ADC) para
 
 En anexo ~\ref{anexo:initsSPI}, se puede ver estas inicializaciónes. 
 
+\subsubsection{Analisis en Osciloscopio}
+
+
 \subsection{Maestro Esclavo - I2c}
 
 \subsubsection{Maestro – I2C}
@@ -205,6 +208,7 @@ La función \texttt{I2C\_write()} envía un byte por el bus I2C, ya sea una dire
 
 Como solo se esta escribiendo en el esclavo se limita a la recepcion de (status == 0x18 || status == 0x28), que son los valores representativos; 0x18 = El esclavo se encuentra apto para ser leido y 0x28 = se transmitio correctamente el dato.
 
+\subsubsection{Analisis en Osciloscopio}
 
 
 \subsection{Auto - Bluetooth}
@@ -236,8 +240,15 @@ En el anexo ~\ref{anexo:Us}, se puede ver la inicialización de USART para el ve
 
 \subsubsection{Acciones del auto}
 
-Para mover el auto y el servo, se utilizan las funciones detalladas en ~\ref{anexo:accion}. Se tiene la posibilidad de mover adelante, atras, derecha e izquierda, mandando señales al Puente H. 
-El servomotor tiene dos golpes, estando situado a 90 grados. Moviendose a 0 con \textbf{kick} y a 180 grados con \textbf{kick2}.
+El movimiento del vehículo y el control del servomotor se gestionan mediante las funciones descritas en el anexo~\ref{anexo:accion}. 
+El desplazamiento del auto —adelante, atrás, giro a la derecha o a la izquierda— se realiza actuando sobre el Puente~H, el cual permite invertir la polaridad aplicada a los motores y, por lo tanto, modificar el sentido de giro según el comando recibido.
+
+En cuanto al servomotor, este se encuentra normalmente posicionado en 90°. A través de los comandos enviados por Bluetooth se pueden ejecutar dos movimientos rápidos (``golpes''):  
+\begin{itemize}
+    \item la función \textbf{kick()} posiciona el servo en 0°,  
+    \item mientras que \textbf{kick1()} lo lleva a 180°.  
+\end{itemize}
+
 
 
 

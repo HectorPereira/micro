@@ -11,25 +11,25 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   3 .stack.descriptors.hdr 0000000e  00000000  00000000  00000327  2**0
                   CONTENTS, READONLY
-  4 .debug_aranges 00000090  00000000  00000000  00000335  2**0
+  4 .debug_aranges 00000088  00000000  00000000  00000335  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   00000c87  00000000  00000000  000003c5  2**0
+  5 .debug_info   00000bfd  00000000  00000000  000003bd  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000774  00000000  00000000  0000104c  2**0
+  6 .debug_abbrev 00000763  00000000  00000000  00000fba  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   000004cd  00000000  00000000  000017c0  2**0
+  7 .debug_line   00000492  00000000  00000000  0000171d  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000104  00000000  00000000  00001c90  2**2
+  8 .debug_frame  000000f4  00000000  00000000  00001bb0  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    00000208  00000000  00000000  00001d94  2**0
+  9 .debug_str    00000208  00000000  00000000  00001ca4  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    0000015f  00000000  00000000  00001f9c  2**0
+ 10 .debug_loc    000000cf  00000000  00000000  00001eac  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000080  00000000  00000000  000020fb  2**0
+ 11 .debug_ranges 00000078  00000000  00000000  00001f7b  2**0
                   CONTENTS, READONLY, DEBUGGING
  12 .text         00000004  00000276  00000276  000002ea  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
- 13 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  0000217c  2**2
+ 13 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00001ff4  2**2
                   CONTENTS, READONLY, DEBUGGING
  14 .text.uart_init 00000018  00000212  00000212  00000286  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
@@ -158,17 +158,24 @@ Disassembly of section .text:
 Disassembly of section .text.uart_init:
 
 00000212 <uart_init>:
-void kick2(){
-	OCR1A = 2000; // Medio para probar
-	_delay_ms(100); // desues lo cambio probando con el servo
-	OCR1A = 4000;
-	_delay_ms(300); // desues lo cambio probando con el servo
-	OCR1A = 3000;
+
+
+void uart_init(void) {
+	// 9600 baud @ 16 MHz
+	uint16_t ubrr = 103;  // from formula: UBRR = (F_CPU / (16 * BAUD)) - 1
+	UBRR0H = (uint8_t)(ubrr >> 8);
  212:	10 92 c5 00 	sts	0x00C5, r1	; 0x8000c5 <__TEXT_REGION_LENGTH__+0x7f80c5>
+	UBRR0L = (uint8_t)(ubrr);
  216:	87 e6       	ldi	r24, 0x67	; 103
  218:	80 93 c4 00 	sts	0x00C4, r24	; 0x8000c4 <__TEXT_REGION_LENGTH__+0x7f80c4>
+
+	// Enable transmitter and receiver
+	UCSR0B = (1 << RXEN0) | (1 << TXEN0);
  21c:	88 e1       	ldi	r24, 0x18	; 24
  21e:	80 93 c1 00 	sts	0x00C1, r24	; 0x8000c1 <__TEXT_REGION_LENGTH__+0x7f80c1>
+
+	// Frame format: 8 data bits, 1 stop bit, no parity
+	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
  222:	86 e0       	ldi	r24, 0x06	; 6
  224:	80 93 c2 00 	sts	0x00C2, r24	; 0x8000c2 <__TEXT_REGION_LENGTH__+0x7f80c2>
  228:	08 95       	ret
@@ -176,7 +183,6 @@ void kick2(){
 Disassembly of section .text.uart_tx:
 
 00000252 <uart_tx>:
-	UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
 }
 
 void uart_tx(char c) {
@@ -219,23 +225,32 @@ void motor_init(void){
 Disassembly of section .text.init_pwm:
 
 00000114 <init_pwm>:
-void kick2(){
-	OCR1A = 2000; // Medio para probar
-	_delay_ms(100); // desues lo cambio probando con el servo
-	OCR1A = 4000;
-	_delay_ms(300); // desues lo cambio probando con el servo
-	OCR1A = 3000;
+
+
+//PWM para el control del motor paso a paso 
+void init_pwm(void)
+{
+		DDRB |= (1 << Pin_M);
  114:	84 b1       	in	r24, 0x04	; 4
  116:	82 60       	ori	r24, 0x02	; 2
  118:	84 b9       	out	0x04, r24	; 4
+
+		TCCR1A = (1<<COM1A1) | (1<<WGM11);
  11a:	82 e8       	ldi	r24, 0x82	; 130
  11c:	80 93 80 00 	sts	0x0080, r24	; 0x800080 <__TEXT_REGION_LENGTH__+0x7f8080>
+		TCCR1B = (1<<WGM13) | (1<<WGM12) | (1<<CS11);
  120:	8a e1       	ldi	r24, 0x1A	; 26
  122:	80 93 81 00 	sts	0x0081, r24	; 0x800081 <__TEXT_REGION_LENGTH__+0x7f8081>
+
+
+		ICR1 = 39999;   // TOP
  126:	8f e3       	ldi	r24, 0x3F	; 63
  128:	9c e9       	ldi	r25, 0x9C	; 156
  12a:	90 93 87 00 	sts	0x0087, r25	; 0x800087 <__TEXT_REGION_LENGTH__+0x7f8087>
  12e:	80 93 86 00 	sts	0x0086, r24	; 0x800086 <__TEXT_REGION_LENGTH__+0x7f8086>
+
+
+		OCR1A = 2000;  // ~1 ms ? servo en 0 grados
  132:	80 ed       	ldi	r24, 0xD0	; 208
  134:	97 e0       	ldi	r25, 0x07	; 7
  136:	90 93 89 00 	sts	0x0089, r25	; 0x800089 <__TEXT_REGION_LENGTH__+0x7f8089>
@@ -245,15 +260,23 @@ void kick2(){
 Disassembly of section .text.left:
 
 00000190 <left>:
+}
+
+
+void left(){
+	PORTD |= (1<<PORTD6);
  190:	8b b1       	in	r24, 0x0b	; 11
  192:	80 64       	ori	r24, 0x40	; 64
  194:	8b b9       	out	0x0b, r24	; 11
+	PORTD &= ~(1<<PORTD7);
  196:	8b b1       	in	r24, 0x0b	; 11
  198:	8f 77       	andi	r24, 0x7F	; 127
  19a:	8b b9       	out	0x0b, r24	; 11
+	PORTD &= ~(1<<PORTD4);
  19c:	8b b1       	in	r24, 0x0b	; 11
  19e:	8f 7e       	andi	r24, 0xEF	; 239
  1a0:	8b b9       	out	0x0b, r24	; 11
+	PORTD &= ~(1<<PORTD5);
  1a2:	8b b1       	in	r24, 0x0b	; 11
  1a4:	8f 7d       	andi	r24, 0xDF	; 223
  1a6:	8b b9       	out	0x0b, r24	; 11
@@ -262,15 +285,22 @@ Disassembly of section .text.left:
 Disassembly of section .text.right:
 
 000001aa <right>:
+}
+
+void right(){
+	PORTD |= (1<<PORTD7);
  1aa:	8b b1       	in	r24, 0x0b	; 11
  1ac:	80 68       	ori	r24, 0x80	; 128
  1ae:	8b b9       	out	0x0b, r24	; 11
+	PORTD &= ~(1<<PORTD6);
  1b0:	8b b1       	in	r24, 0x0b	; 11
  1b2:	8f 7b       	andi	r24, 0xBF	; 191
  1b4:	8b b9       	out	0x0b, r24	; 11
+	PORTD &= ~(1<<PORTD4);
  1b6:	8b b1       	in	r24, 0x0b	; 11
  1b8:	8f 7e       	andi	r24, 0xEF	; 239
  1ba:	8b b9       	out	0x0b, r24	; 11
+	PORTD &= ~(1<<PORTD5);
  1bc:	8b b1       	in	r24, 0x0b	; 11
  1be:	8f 7d       	andi	r24, 0xDF	; 223
  1c0:	8b b9       	out	0x0b, r24	; 11
@@ -279,15 +309,22 @@ Disassembly of section .text.right:
 Disassembly of section .text.forward:
 
 000001c4 <forward>:
+}
+
+void forward(){
+	PORTD |= (1<<PORTD7);
  1c4:	8b b1       	in	r24, 0x0b	; 11
  1c6:	80 68       	ori	r24, 0x80	; 128
  1c8:	8b b9       	out	0x0b, r24	; 11
+	PORTD |= (1<<PORTD6);
  1ca:	8b b1       	in	r24, 0x0b	; 11
  1cc:	80 64       	ori	r24, 0x40	; 64
  1ce:	8b b9       	out	0x0b, r24	; 11
+	PORTD &= ~(1<<PORTD4);
  1d0:	8b b1       	in	r24, 0x0b	; 11
  1d2:	8f 7e       	andi	r24, 0xEF	; 239
  1d4:	8b b9       	out	0x0b, r24	; 11
+	PORTD &= ~(1<<PORTD5);
  1d6:	8b b1       	in	r24, 0x0b	; 11
  1d8:	8f 7d       	andi	r24, 0xDF	; 223
  1da:	8b b9       	out	0x0b, r24	; 11
@@ -296,15 +333,22 @@ Disassembly of section .text.forward:
 Disassembly of section .text.BACK:
 
 000001de <BACK>:
+}
+
+void BACK(){
+	PORTD |= (1<<PORTD4);
  1de:	8b b1       	in	r24, 0x0b	; 11
  1e0:	80 61       	ori	r24, 0x10	; 16
  1e2:	8b b9       	out	0x0b, r24	; 11
+	PORTD |= (1<<PORTD5);
  1e4:	8b b1       	in	r24, 0x0b	; 11
  1e6:	80 62       	ori	r24, 0x20	; 32
  1e8:	8b b9       	out	0x0b, r24	; 11
+	PORTD &= ~(1<<PORTD6);
  1ea:	8b b1       	in	r24, 0x0b	; 11
  1ec:	8f 7b       	andi	r24, 0xBF	; 191
  1ee:	8b b9       	out	0x0b, r24	; 11
+	PORTD &= ~(1<<PORTD7);
  1f0:	8b b1       	in	r24, 0x0b	; 11
  1f2:	8f 77       	andi	r24, 0x7F	; 127
  1f4:	8b b9       	out	0x0b, r24	; 11
@@ -313,15 +357,22 @@ Disassembly of section .text.BACK:
 Disassembly of section .text.stop:
 
 000001f8 <stop>:
+}
+
+void stop(){
+	PORTD &= ~(1<<PORTD7);
  1f8:	8b b1       	in	r24, 0x0b	; 11
  1fa:	8f 77       	andi	r24, 0x7F	; 127
  1fc:	8b b9       	out	0x0b, r24	; 11
+	PORTD &= ~(1<<PORTD6);
  1fe:	8b b1       	in	r24, 0x0b	; 11
  200:	8f 7b       	andi	r24, 0xBF	; 191
  202:	8b b9       	out	0x0b, r24	; 11
+	PORTD &= ~(1<<PORTD4);
  204:	8b b1       	in	r24, 0x0b	; 11
  206:	8f 7e       	andi	r24, 0xEF	; 239
  208:	8b b9       	out	0x0b, r24	; 11
+	PORTD &= ~(1<<PORTD5);
  20a:	8b b1       	in	r24, 0x0b	; 11
  20c:	8f 7d       	andi	r24, 0xDF	; 223
  20e:	8b b9       	out	0x0b, r24	; 11
@@ -330,12 +381,22 @@ Disassembly of section .text.stop:
 Disassembly of section .text.kick:
 
 00000140 <kick>:
+}
+
+void kick(){
+	OCR1A = 2000; 
  140:	e8 e8       	ldi	r30, 0x88	; 136
  142:	f0 e0       	ldi	r31, 0x00	; 0
  144:	80 ed       	ldi	r24, 0xD0	; 208
  146:	97 e0       	ldi	r25, 0x07	; 7
  148:	91 83       	std	Z+1, r25	; 0x01
  14a:	80 83       	st	Z, r24
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
  14c:	2f ef       	ldi	r18, 0xFF	; 255
  14e:	81 ee       	ldi	r24, 0xE1	; 225
  150:	94 e0       	ldi	r25, 0x04	; 4
@@ -345,6 +406,8 @@ Disassembly of section .text.kick:
  158:	e1 f7       	brne	.-8      	; 0x152 <kick+0x12>
  15a:	00 c0       	rjmp	.+0      	; 0x15c <kick+0x1c>
  15c:	00 00       	nop
+	_delay_ms(100); 
+	OCR1A = 3000;
  15e:	88 eb       	ldi	r24, 0xB8	; 184
  160:	9b e0       	ldi	r25, 0x0B	; 11
  162:	91 83       	std	Z+1, r25	; 0x01
@@ -354,6 +417,10 @@ Disassembly of section .text.kick:
 Disassembly of section .text.kick1:
 
 00000168 <kick1>:
+}
+
+void kick1(){
+	OCR1A = 4000; 
  168:	e8 e8       	ldi	r30, 0x88	; 136
  16a:	f0 e0       	ldi	r31, 0x00	; 0
  16c:	80 ea       	ldi	r24, 0xA0	; 160
@@ -369,6 +436,8 @@ Disassembly of section .text.kick1:
  180:	e1 f7       	brne	.-8      	; 0x17a <kick1+0x12>
  182:	00 c0       	rjmp	.+0      	; 0x184 <kick1+0x1c>
  184:	00 00       	nop
+	_delay_ms(100); 
+	OCR1A = 3000;
  186:	88 eb       	ldi	r24, 0xB8	; 184
  188:	9b e0       	ldi	r25, 0x0B	; 11
  18a:	91 83       	std	Z+1, r25	; 0x01
@@ -378,7 +447,7 @@ Disassembly of section .text.kick1:
 Disassembly of section .text.uart_println:
 
 00000240 <uart_println>:
-}
+
 
 
 
@@ -396,39 +465,55 @@ void uart_println(char c) {
 Disassembly of section .text.main:
 
 000000bc <main>:
-void kick2(){
-	OCR1A = 2000; // Medio para probar
-	_delay_ms(100); // desues lo cambio probando con el servo
-	OCR1A = 4000;
-	_delay_ms(300); // desues lo cambio probando con el servo
-	OCR1A = 3000;
+}
+
+
+
+int main(void) {
+	uart_init();
   bc:	0e 94 09 01 	call	0x212	; 0x212 <uart_init>
+	motor_init();
   c0:	0e 94 37 01 	call	0x26e	; 0x26e <motor_init>
+	init_pwm();
   c4:	0e 94 8a 00 	call	0x114	; 0x114 <init_pwm>
+	
+	while (1) {
+		// If data available (RX complete flag)
+		if (UCSR0A & (1 << RXC0)){
   c8:	80 91 c0 00 	lds	r24, 0x00C0	; 0x8000c0 <__TEXT_REGION_LENGTH__+0x7f80c0>
   cc:	88 23       	and	r24, r24
   ce:	e4 f7       	brge	.-8      	; 0xc8 <main+0xc>
+			char val = uart_rx();
   d0:	0e 94 30 01 	call	0x260	; 0x260 <uart_rx>
   d4:	c8 2f       	mov	r28, r24
+			uart_println(val);
   d6:	0e 94 20 01 	call	0x240	; 0x240 <uart_println>
+			if (val == 'F') forward();
   da:	c6 34       	cpi	r28, 0x46	; 70
   dc:	11 f4       	brne	.+4      	; 0xe2 <main+0x26>
   de:	0e 94 e2 00 	call	0x1c4	; 0x1c4 <forward>
+			if (val == 'L') left();
   e2:	cc 34       	cpi	r28, 0x4C	; 76
   e4:	11 f4       	brne	.+4      	; 0xea <main+0x2e>
   e6:	0e 94 c8 00 	call	0x190	; 0x190 <left>
+			if (val == 'R') right();
   ea:	c2 35       	cpi	r28, 0x52	; 82
   ec:	11 f4       	brne	.+4      	; 0xf2 <main+0x36>
   ee:	0e 94 d5 00 	call	0x1aa	; 0x1aa <right>
+			if (val == 'P') kick();
   f2:	c0 35       	cpi	r28, 0x50	; 80
   f4:	11 f4       	brne	.+4      	; 0xfa <main+0x3e>
   f6:	0e 94 a0 00 	call	0x140	; 0x140 <kick>
+			if (val == 'S') kick1();
   fa:	c3 35       	cpi	r28, 0x53	; 83
   fc:	11 f4       	brne	.+4      	; 0x102 <main+0x46>
   fe:	0e 94 b4 00 	call	0x168	; 0x168 <kick1>
+			if (val == 'B') BACK();
  102:	c2 34       	cpi	r28, 0x42	; 66
  104:	11 f4       	brne	.+4      	; 0x10a <main+0x4e>
  106:	0e 94 ef 00 	call	0x1de	; 0x1de <BACK>
+
+			if (val == '0') stop();
  10a:	c0 33       	cpi	r28, 0x30	; 48
  10c:	e9 f6       	brne	.-70     	; 0xc8 <main+0xc>
  10e:	0e 94 fc 00 	call	0x1f8	; 0x1f8 <stop>
