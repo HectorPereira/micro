@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 // ------------------------------------------------------------------
-// USART - Recepción Asíncrona
+// USART - Recepciï¿½n Asï¿½ncrona
 // ------------------------------------------------------------------
 volatile uint8_t uart_rx = 0;
 volatile uint8_t new_data = 0;
@@ -28,7 +28,7 @@ ISR(USART_RX_vect) {
 
 
 // ------------------------------------------------------------------
-// Configuración general
+// Configuraciï¿½n general
 // ------------------------------------------------------------------
 
 #define LED_PIN PORTD6
